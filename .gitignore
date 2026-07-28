@@ -1,0 +1,31 @@
+# Operating systems
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary and backup files
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+*.log
+
+# Local exports and test output
+exports/
+build/
+dist/
+coverage/
+*.zip
+*.tar
+*.tar.gz
+
+# Local project data
+.oluntir/

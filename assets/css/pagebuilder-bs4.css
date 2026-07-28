@@ -1,0 +1,1 @@
+.pb-gallery-stage{min-height:50vh;display:flex;align-items:center;justify-content:center}.pb-gallery-stage img{max-height:75vh;object-fit:contain}.portfolio-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.5rem;background:rgba(0,0,0,.35);opacity:0;transition:opacity .2s}.position-relative:hover>.portfolio-overlay{opacity:1}

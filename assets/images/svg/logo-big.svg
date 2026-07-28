@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="610.69043" height="304.61621"
+     viewBox="0 0 610.69043 304.61621"
+     preserveAspectRatio="xMidYMid meet"
+     role="img"
+     aria-labelledby="title desc"
+     style="display:block;width:100%;height:auto;max-width:100%;">
+  <title id="title">Oluntir</title>
+  <desc id="desc">Monochromes Oluntir-Logo mit Bildrahmen, Kreis, weich gerundeten Bergen und Sonne.</desc>
+  <rect x="5.5" y="53" width="599.7" height="246" rx="12" fill="#c9c9c9" stroke="#444" stroke-width="11"/>
+  <circle cx="164" cy="137" r="123" fill="#444" stroke="#c9c9c9" stroke-width="8"/>
+  <path d="M221 282
+           C246 260 278 232 303 215
+           C308 211 314 211 320 216
+           L359 251
+           C363 255 368 255 372 250
+           L425 191
+           C431 184 438 184 444 191
+           C471 221 501 253 528 282 Z"
+        fill="#444"/>
+  <circle cx="534" cy="211" r="17" fill="#444"/>
+  <text x="48" y="169" fill="#d8d8d8"
+        font-family="Inter, Arial, Helvetica, sans-serif"
+        font-size="69" font-weight="300"
+        textLength="226" lengthAdjust="spacingAndGlyphs">Open</text>
+  <text x="286" y="168" fill="#222"
+        font-family="Inter, Arial, Helvetica, sans-serif"
+        font-size="57" font-weight="300"
+        textLength="247" lengthAdjust="spacingAndGlyphs">Oluntir</text>
+</svg>

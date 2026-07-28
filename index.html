@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Oluntir 1.0.0</title>
+  <link rel="stylesheet" href="plugins/editor/grapesjs/grapes.min.css">
+  <link rel="stylesheet" href="plugins/editor/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="editor/css/editor.css">
+</head>
+<body>
+  <div id="oluntir-startup-modal" class="pb-modal-overlay oluntir-startup-overlay" hidden aria-hidden="true">
+    <div class="pb-modal oluntir-startup-modal" role="dialog" aria-modal="true" aria-labelledby="oluntir-startup-title">
+      <section id="oluntir-start-step-start" class="oluntir-wizard-step">
+        <h2 id="oluntir-startup-title">Oluntir starten</h2>
+        <p>Wie möchten Sie fortfahren?</p>
+        <fieldset class="oluntir-startup-choice">
+          <legend class="sr-only">Startoption</legend>
+          <label><input name="oluntir-start-action" type="radio" value="existing"> <span><strong>Bestehendes Projekt öffnen</strong><small id="oluntir-startup-existing-details"></small></span></label>
+          <label><input name="oluntir-start-action" type="radio" value="new"> <span><strong>Neues Projekt starten</strong><small>Die Projektstruktur wird in den nächsten Schritten bewusst festgelegt. Vorhandene Projektdaten werden bis zur endgültigen Bestätigung nicht verändert.</small></span></label>
+        </fieldset>
+        <p id="oluntir-startup-version-warning" class="oluntir-startup-warning" hidden>Die gefundene Speicherung stammt aus einer älteren oder unbekannten Projektversion. Beim Öffnen bleibt sie erhalten; vor größeren Änderungen sollte ein Backup erstellt werden.</p>
+        <p id="oluntir-startup-cache-status" class="oluntir-startup-storage"></p>
+        <div class="pb-modal-actions"><button class="oluntir-end-button" type="button">Oluntir beenden</button><button id="oluntir-startup-continue" class="btn-primary" type="button" disabled>Weiter</button></div>
+      </section>
+
+      <section id="oluntir-start-step-warning" class="oluntir-wizard-step" hidden>
+        <h2>Bestehendes Projekt gefunden</h2>
+        <p>Im Browser ist bereits ein Oluntir-Projekt gespeichert.</p>
+        <p class="oluntir-startup-warning">Das bestehende Projekt wird erst ersetzt, wenn Sie den Projektassistenten vollständig abschließen und auf <strong>Projekt erstellen</strong> klicken.</p>
+        <div class="pb-modal-actions"><button id="oluntir-warning-existing" type="button">Bestehendes Projekt öffnen</button><button id="oluntir-warning-new" class="btn-primary" type="button">Neues Projekt trotzdem erstellen</button></div>
+      </section>
+
+      <section id="oluntir-start-step-type" class="oluntir-wizard-step" hidden>
+        <h2>Projektstruktur</h2>
+        <p>Möchten Sie wiederverwendbare Bereiche verwenden? <strong>*</strong></p>
+        <fieldset class="oluntir-startup-choice">
+          <legend class="sr-only">Projektstruktur auswählen</legend>
+          <label><input name="oluntir-new-project-type" type="radio" value="classic"> <span><strong>Nein – klassisches HTML-Projekt</strong><small>Header, Navigation und Footer befinden sich vollständig in jeder einzelnen Seite.</small></span></label>
+          <label><input name="oluntir-new-project-type" type="radio" value="reusable"> <span><strong>Ja – Projekt mit wiederverwendbaren Bereichen</strong><small>Empfohlen für Webseiten mit mehreren Unterseiten. Änderungen an Header, Navigation oder Footer müssen nur einmal vorgenommen werden.</small></span></label>
+        </fieldset>
+        <p class="oluntir-required-note">* Pflichtangabe. Erst nach einer bewussten Auswahl kann fortgefahren werden.</p>
+        <div class="pb-modal-actions"><button id="oluntir-type-back" type="button">Zurück</button><button id="oluntir-type-continue" class="btn-primary" type="button" disabled>Weiter</button></div>
+      </section>
+
+      <section id="oluntir-start-step-summary" class="oluntir-wizard-step" hidden>
+        <h2>Projekt erstellen</h2>
+        <div id="oluntir-project-summary" class="oluntir-project-summary"></div>
+        <p class="oluntir-startup-warning">Erst mit dem folgenden Klick werden vorhandene lokale Projektdaten ersetzt und das neue Projekt angelegt.</p>
+        <div class="pb-modal-actions"><button id="oluntir-summary-back" type="button">Zurück</button><button id="oluntir-project-create" class="btn-primary" type="button">Projekt erstellen</button></div>
+      </section>
+    </div>
+  </div>
+
+  <div id="oluntir-ended-screen" class="oluntir-ended-screen" hidden aria-hidden="true">
+    <div><h1>Oluntir wurde beendet.</h1><p>Das Browserfenster kann aus Sicherheitsgründen nicht immer automatisch geschlossen werden.</p><button id="oluntir-ended-reload" type="button">Oluntir erneut starten</button></div>
+  </div>
+
+
+  <div id="toolbar">
+    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">1.0.0</span></div>
+
+    <div class="toolbar-language" role="group" data-i18n-aria="language.group" aria-label="Sprache">
+      <button type="button" data-lang="de" class="active" data-i18n-title="language.de" title="Deutsch">DE</button>
+      <span aria-hidden="true">/</span>
+      <button type="button" data-lang="en" data-i18n-title="language.en" title="Englisch">EN</button>
+    </div>
+
+    <div class="toolbar-group">
+      <label for="framework-select" class="toolbar-label" data-i18n="toolbar.framework">Framework:</label>
+      <select id="framework-select" data-i18n-title="toolbar.frameworkTitle" title="Bootstrap-Profil auswählen">
+        <option value="bs5">Bootstrap 5.3.8 – Community Edition</option>
+        <option value="bs4">Bootstrap 4.6.2 – Community Edition</option>
+      </select>
+    </div>
+
+    <div class="toolbar-group">
+      <label for="page-select" class="toolbar-label" data-i18n="toolbar.page">Seite:</label>
+      <select id="page-select"></select>
+      <button id="btn-new-page" data-i18n-title="toolbar.newPageTitle" title="Neue Seite anlegen" data-i18n="toolbar.newPage">+ Neue Seite</button>
+      <button id="btn-rename-page" data-i18n-title="toolbar.renameTitle" title="Seite umbenennen" data-i18n="toolbar.rename">Umbenennen</button>
+      <button id="btn-delete-page" data-i18n-title="toolbar.deleteTitle" title="Seite löschen" data-i18n="toolbar.delete">Löschen</button>
+    </div>
+
+    <div class="toolbar-group toolbar-media-actions">
+      <label class="toolbar-file-label" data-i18n-title="toolbar.galleryTitle" title="Mehrere Bilder als Galerie einfügen (Klick zum Vergrößern)">
+        <span data-i18n="toolbar.gallery">+ Bildergalerie</span>
+        <input type="file" id="input-gallery-files" accept="image/*" multiple hidden>
+      </label>
+      <label class="toolbar-file-label" data-i18n-title="toolbar.folderGalleryTitle" title="Alle Bilder aus einem Ordner automatisch als Galerie einfügen">
+        <span data-i18n="toolbar.folderGallery">+ Galerie aus Ordner</span>
+        <input type="file" id="input-gallery-folder" webkitdirectory multiple hidden>
+      </label>
+      <label class="toolbar-file-label" data-i18n-title="toolbar.uploadImageTitle" title="Bilder zum Asset-Manager hinzufügen">
+        <span data-i18n="toolbar.uploadImage">+ Bild hochladen</span>
+        <input type="file" id="input-asset-upload" accept="image/*" multiple hidden>
+      </label>
+    </div>
+
+    <div class="toolbar-group toolbar-right">
+      <span id="export-controls" class="toolbar-export-controls">
+        <button id="btn-export-folder" class="btn-primary" hidden data-i18n-title="toolbar.exportFolderTitle" title="Website in einen frei benennbaren lokalen Ordner exportieren" data-i18n="toolbar.exportFolder">Export in Ordner</button>
+        <button id="btn-export-zip" class="btn-primary" hidden data-i18n-title="toolbar.exportZipTitle" title="Website als frei benennbares ZIP-Archiv exportieren">ZIP</button>
+        <button id="btn-export-tar" class="btn-primary" data-i18n-title="toolbar.exportTarTitle" title="Website als frei benennbares TAR-Archiv exportieren">TAR</button>
+      </span>
+    </div>
+  </div>
+
+
+  <!-- Unsichtbare Funktionsbrücke: Die sichtbaren Schaltflächen liegen als Symbole
+       in der unteren GrapesJS-Werkzeugleiste. Die bestehenden, stabilen Handler
+       können dadurch unverändert weiterverwendet werden. -->
+  <div id="pb-toolbar-command-bridge" hidden>
+    <button id="btn-ui-settings" type="button" data-i18n="toolbar.interface">Oberfläche</button>
+    <button id="btn-includes" type="button">Wiederverwendbare Bereiche</button>
+    <button id="btn-save" type="button" data-i18n="toolbar.save">Speichern</button>
+    <button id="btn-backup" type="button" data-i18n="toolbar.backupSave">Backup speichern</button>
+    <input type="file" id="input-restore" accept=".oluntir,application/x-oluntir-project,application/x-ndjson,application/json,.json">
+  </div>
+
+  <div id="firefox-export-notice" class="pb-modal-overlay" hidden aria-hidden="true">
+    <div class="pb-modal" role="dialog" aria-modal="true" aria-labelledby="firefox-export-notice-title">
+      <h2 id="firefox-export-notice-title" data-i18n="firefox.title">Eingeschränkter Ordnerexport in Firefox</h2>
+      <p data-i18n="firefox.text">Firefox unterstützt aufgrund seiner Sicherheitsrichtlinien keinen direkten Website-Ordnerexport. Für diese Funktion empfehlen wir einen Chromium-basierten Browser wie Microsoft Edge, Google Chrome, Brave oder Vivaldi.</p>
+      <p data-i18n="firefox.fallback">Der vollständige Export als ZIP oder TAR steht weiterhin zur Verfügung.</p>
+      <label class="pb-modal-check"><input type="checkbox" id="firefox-export-notice-hide"> <span data-i18n="firefox.hide">Hinweis nicht erneut anzeigen</span></label>
+      <div class="pb-modal-actions"><button id="firefox-export-notice-ok" class="btn-primary" data-i18n="common.understood">Verstanden</button></div>
+    </div>
+  </div>
+
+  <div id="oluntir-export-format-modal" class="pb-modal-overlay" hidden aria-hidden="true">
+    <div class="pb-modal oluntir-export-format-modal" role="dialog" aria-modal="true" aria-labelledby="oluntir-export-format-title">
+      <div class="pb-ui-modal-head">
+        <div>
+          <h2 id="oluntir-export-format-title">Exportformat auswählen</h2>
+          <p>Wählen Sie zuerst das technische Zielformat. Anschließend wird der gewünschte Ordner oder die Archivdatei ausgewählt.</p>
+        </div>
+        <button id="oluntir-export-format-close" class="pb-ui-close" type="button" aria-label="Schließen">×</button>
+      </div>
+      <fieldset class="oluntir-export-format-choice">
+        <legend>Exportformat <span aria-hidden="true">*</span></legend>
+        <label><input type="radio" name="oluntir-export-format" value="html"> <span><strong>HTML ohne wiederverwendbare Bereiche</strong><small>Header, Navigation, Footer und weitere Bereiche werden vollständig in jede HTML-Seite eingefügt.</small></span></label>
+        <label data-oluntir-reusable-export><input type="radio" name="oluntir-export-format" value="ssi"> <span><strong>Apache SSI (.shtml)</strong><small>Erzeugt .shtml-Seiten sowie den Ordner includes/ mit zentralen HTML-Dateien.</small></span></label>
+        <label data-oluntir-reusable-export><input type="radio" name="oluntir-export-format" value="php"> <span><strong>PHP Includes (.php)</strong><small>Erzeugt .php-Seiten sowie den Ordner includes/ mit zentralen Include-Dateien.</small></span></label>
+      </fieldset>
+      <p id="oluntir-export-format-note" class="oluntir-export-format-note" hidden>Dieses klassische Projekt enthält keine wiederverwendbaren Bereiche. Deshalb steht nur der HTML-Export zur Verfügung.</p>
+      <div class="pb-modal-actions">
+        <button id="oluntir-export-format-cancel" type="button">Abbrechen</button>
+        <button id="oluntir-export-format-confirm" class="btn-primary" type="button" disabled>Export fortsetzen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="oluntir-includes-modal" class="pb-modal-overlay" hidden aria-hidden="true">
+    <div class="pb-modal oluntir-includes-modal" role="dialog" aria-modal="true" aria-labelledby="oluntir-includes-title">
+      <div class="pb-ui-modal-head"><div><h2 id="oluntir-includes-title">Wiederverwendbare Bereiche</h2><p>Empfohlen für Webseiten mit mehreren Unterseiten. Änderungen an Header, Navigation oder Footer müssen nur einmal vorgenommen werden.</p></div><button id="oluntir-includes-close" class="pb-ui-close" type="button" aria-label="Schließen">×</button></div>
+
+      <fieldset class="oluntir-project-choice">
+        <legend>Projekt mit wiederverwendbaren Bereichen <span aria-hidden="true">*</span></legend>
+        <p>Diese Pflichtentscheidung legt die Projektstruktur fest und kann nach dem Speichern nicht mehr geändert werden.</p>
+        <div class="oluntir-choice-row"><label><input name="oluntir-project-type" type="radio" value="no"> <strong>Nein</strong><span>Klassisches HTML-Projekt</span></label><label><input name="oluntir-project-type" type="radio" value="yes"> <strong>Ja</strong><span>Gemeinsame Inhalte zentral pflegen</span></label></div>
+      </fieldset>
+
+      <div id="oluntir-manager-content" hidden>
+        <label>Exportformat<select id="oluntir-include-target"><option value="html">HTML ohne wiederverwendbare Bereiche</option><option value="ssi">Apache SSI – .shtml</option><option value="php">PHP Includes – .php</option></select></label>
+        <section class="oluntir-manager-layout"><h3>Layout</h3><div class="oluntir-include-grid"><label>Header<textarea id="oluntir-include-header"></textarea></label><label>Navigation<textarea id="oluntir-include-navigation"></textarea></label><label>Footer<textarea id="oluntir-include-footer"></textarea></label></div></section>
+        <section><div class="oluntir-manager-section-head"><div><h3>Wiederverwendbare Bereiche</h3><p>Bereiche zentral bearbeiten und gezielt Seiten zuordnen.</p></div><button id="oluntir-include-add" type="button">+ Wiederverwendbaren Bereich hinzufügen</button></div><div id="oluntir-include-sections"></div></section>
+        <section class="oluntir-manager-validation"><h3>Projektprüfung</h3><div id="oluntir-manager-validation"></div></section>
+      </div>
+      <div class="pb-modal-actions"><button id="oluntir-includes-cancel" type="button">Oluntir beenden</button><button id="oluntir-includes-save" class="btn-primary" type="button" disabled>Projektentscheidung speichern</button></div>
+    </div>
+  </div>
+
+  <div id="pb-ui-settings" class="pb-modal-overlay" hidden aria-hidden="true">
+    <div class="pb-modal pb-ui-modal" role="dialog" aria-modal="true" aria-labelledby="pb-ui-settings-title">
+      <div class="pb-ui-modal-head">
+        <div>
+          <h2 id="pb-ui-settings-title" data-i18n="ui.title">Oberfläche konfigurieren</h2>
+          <p data-i18n="ui.subtitle">Schrift, Abstände und Scrollbalken der Editor-Bereiche anpassen.</p>
+        </div>
+        <button type="button" id="pb-ui-settings-close" class="pb-ui-close" data-i18n-aria="common.close" aria-label="Schließen">×</button>
+      </div>
+
+      <fieldset class="pb-ui-presets">
+        <legend data-i18n="ui.presets">Schnellauswahl</legend>
+        <button type="button" data-ui-preset="compact" data-i18n="ui.compact">Kompakt</button>
+        <button type="button" data-ui-preset="balanced" class="active" data-i18n="ui.balanced">Ausgewogen</button>
+        <button type="button" data-ui-preset="comfortable" data-i18n="ui.comfortable">Komfortabel</button>
+      </fieldset>
+
+      <div class="pb-ui-controls">
+        <label>
+          <span><span data-i18n="ui.fontSize">Schriftgröße in den Editor-Bereichen</span> <output id="ui-font-size-output">15 px</output></span>
+          <input id="ui-font-size" type="range" min="13" max="18" step="1" value="15">
+        </label>
+        <label>
+          <span><span data-i18n="ui.cardGap">Abstand zwischen Kacheln</span> <output id="ui-card-gap-output">10 px</output></span>
+          <input id="ui-card-gap" type="range" min="4" max="18" step="1" value="10">
+        </label>
+        <label>
+          <span><span data-i18n="ui.cardPadding">Innenabstand der Kacheln</span> <output id="ui-card-padding-output">11 px</output></span>
+          <input id="ui-card-padding" type="range" min="7" max="18" step="1" value="11">
+        </label>
+        <label>
+          <span><span data-i18n="ui.scrollbar">Breite der Scrollbalken</span> <output id="ui-scrollbar-width-output">12 px</output></span>
+          <input id="ui-scrollbar-width" type="range" min="8" max="18" step="1" value="12">
+        </label>
+      </div>
+
+      <div class="pb-ui-preview" data-i18n-aria="ui.preview" aria-label="Vorschau">
+        <strong data-i18n="ui.preview">Vorschau</strong>
+        <div class="pb-ui-preview-card"><span>▦</span> <span data-i18n="ui.previewGallery">Responsive Bildergalerie</span></div>
+        <div class="pb-ui-preview-card"><span>▤</span> <span data-i18n="ui.previewCards">Cards mit Bild</span></div>
+      </div>
+
+      <div class="pb-modal-actions pb-ui-actions">
+        <button type="button" id="pb-ui-settings-reset" data-i18n="ui.reset">Standard wiederherstellen</button>
+        <button type="button" id="pb-ui-settings-done" class="btn-primary" data-i18n="common.done">Fertig</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gjs"></div>
+
+  <div id="toast"></div>
+
+  <div id="progress-overlay">
+    <div class="progress-box">
+      <div id="progress-title" data-i18n="common.working">Arbeite …</div>
+      <div class="progress-track"><div id="progress-bar"></div></div>
+      <div id="progress-status"></div>
+    </div>
+  </div>
+
+  <script src="plugins/editor/grapesjs/grapes.min.js"></script>
+  <script src="plugins/editor/grapesjs-preset-webpage/grapesjs-preset-webpage.min.js"></script>
+  <script src="plugins/editor/jszip/jszip.min.js"></script>
+  <script src="plugins/editor/filesaver/FileSaver.min.js"></script>
+
+  <script src="editor/js/core/i18n.js"></script>
+  <script src="editor/js/features/ui-settings.js"></script>
+  <script src="editor/js/features/block-search.js"></script>
+  <script src="editor/js/core/edition.js"></script>
+  <script src="editor/js/core/framework.js"></script>
+  <script src="editor/js/core/site-images.js"></script>
+  <script src="editor/js/features/bootstrap-blocks.js"></script>
+  <script src="editor/js/features/variant-blocks.js"></script>
+  <script src="editor/js/features/quick-setup.js"></script>
+  <script src="editor/js/features/quick-edit.js"></script>
+  <script src="editor/js/features/blocks-bs5.js"></script>
+  <script src="editor/js/core/progress.js"></script>
+  <script src="editor/js/core/asset-store.js"></script>
+  <script src="editor/js/core/site-assets-bundle.js"></script>
+  <script src="editor/js/core/includes.js"></script>
+  <script src="editor/js/core/shared-content-manager.js"></script>
+  <script src="editor/js/core/startup.js"></script>
+  <script src="editor/js/core/export.js"></script>
+  <script src="editor/js/features/gallery.js"></script>
+  <script src="editor/js/features/text-media-editor.js"></script>
+  <script src="editor/js/features/link-editor.js"></script>
+  <script src="editor/js/core/oluntir-code-view.js"></script>
+  <script src="editor/js/core/editor.js"></script>
+</body>
+</html>

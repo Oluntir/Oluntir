@@ -1,0 +1,74 @@
+Oluntir 1.0.0 test run - 2026-07-29
+
+1. Python structure validator
+STRUKTURPRÜFUNG FEHLGESCHLAGEN
+- Defekte Datei im Export-Assetpaket: css/animate/animate.min.css
+
+2. JavaScript syntax checks
+PASS assets/js/custom.js
+PASS assets/js/pagebuilder-bs5-gallery.js
+PASS editor/js/core/asset-store.js
+PASS editor/js/core/edition.js
+PASS editor/js/core/editor.js
+PASS editor/js/core/export.js
+PASS editor/js/core/framework.js
+PASS editor/js/core/i18n.js
+PASS editor/js/core/includes.js
+PASS editor/js/core/oluntir-code-view.js
+PASS editor/js/core/progress.js
+PASS editor/js/core/shared-content-manager.js
+PASS editor/js/core/site-assets-bundle.js
+PASS editor/js/core/site-images.js
+PASS editor/js/core/startup.js
+PASS editor/js/features/block-search.js
+PASS editor/js/features/blocks-bs5.js
+PASS editor/js/features/bootstrap-blocks.js
+PASS editor/js/features/gallery.js
+PASS editor/js/features/link-editor.js
+PASS editor/js/features/quick-edit.js
+PASS editor/js/features/quick-setup.js
+PASS editor/js/features/text-media-editor.js
+PASS editor/js/features/ui-settings.js
+PASS editor/js/features/variant-blocks.js
+
+3. Referenced local assets from index.html
+Checked 30 references; missing: 0
+
+4. Markdown local-link check
+Checked 95 local Markdown links; missing: 0
+
+5. Project-file configuration check
+PASS restore filter contains .oluntir
+PASS save picker contains .oluntir
+PASS download filename contains .oluntir
+PASS MIME type is Oluntir-specific
+PASS binary raw-asset implementation retained
+STRUKTURPRÜFUNG FEHLGESCHLAGEN
+- Defekte Datei im Export-Assetpaket: css/animate/animate.min.css
+STRUKTURPRÜFUNG ERFOLGREICH
+- 30 statische HTML-Referenzen geprüft
+- Bootstrap 4.6.2 und Bootstrap 5.3.8 geprüft
+- lokale Bilder und Export-Assetpaket geprüft
+- alte Laufzeitpfade ausgeschlossen
+- JavaScript-Syntax geprüft
+
+6. Headless Chromium startup smoke test
+Chromium command exit code: 124
+NOT EXECUTABLE Expected fully loaded DOM was not returned before timeout.
+PASS No obvious JavaScript exception was reported in captured startup output.
+Interactive import/export actions requiring browser file pickers were not automated in this environment. Their code paths passed syntax checks and their extension/MIME configuration was verified.
+
+7. Final structure validation after release packaging changes
+STRUKTURPRÜFUNG ERFOLGREICH
+- 30 statische HTML-Referenzen geprüft
+- Bootstrap 4.6.2 und Bootstrap 5.3.8 geprüft
+- lokale Bilder und Export-Assetpaket geprüft
+- alte Laufzeitpfade ausgeschlossen
+- JavaScript-Syntax geprüft
+
+8. Final recursive release scans
+PASS Legacy project identifiers: 0 matches.
+PASS Legacy contact addresses: 0 matches.
+PASS Legacy project URLs: 0 matches.
+PASS Legacy identifiers in file and folder names: 0 matches.
+PASS Printable binary metadata strings: 0 matches.
