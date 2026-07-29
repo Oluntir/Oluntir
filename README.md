@@ -40,7 +40,7 @@ Header, navigation, footer, and optional sections are maintained centrally. Page
 <ope-include src="includes/layout/navigation.html"></ope-include>
 ```
 
-A shared include resolver converts Oluntir references into resolved HTML, Apache SSI directives, or PHP include statements. When a new page is created, Oluntir uses the current shared header, navigation, and footer layout and adds an empty `<main>` element for page-specific content. Changes made to these shared layout regions on any page are written back immediately to the central Oluntir state and propagated to all other pages. No duplicate include files are created.
+A shared include resolver converts Oluntir references into resolved HTML, Apache SSI directives, or PHP include statements. When a new page is created, Oluntir uses the current shared header, navigation, and footer layout and adds an empty `<main>` element for page-specific content. Changes made to these shared layout regions on any page are written back immediately to the central Oluntir state and propagated to all other pages.
 
 ## Start locally
 
@@ -84,4 +84,4 @@ Contribution requirements are documented in [CONTRIBUTING.md](CONTRIBUTING.md). 
 
 ### Empty reusable-area projects
 
-A new reusable-area project starts with an empty page. Oluntir does not insert a predefined header, navigation, or footer. After the user adds these elements, the Shared Content Manager treats them as the project-wide shared source and applies their current state to newly created pages. If the header already contains a navigation element, it remains part of the header and is not inserted a second time.
+A new reusable-area project starts with an empty page. Oluntir does not insert a predefined header, navigation, or footer. After the user adds these elements, the Shared Content Manager treats them as the project-wide shared source and applies their current state to newly created pages. If the header already contains a navigation element, it remains part of the header.

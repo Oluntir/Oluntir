@@ -36,7 +36,7 @@ Header, Navigation, Footer und zusätzliche Bereiche werden zentral verwaltet. D
 <ope-include src="includes/layout/navigation.html"></ope-include>
 ```
 
-Der zentrale Include-Resolver erzeugt daraus je nach Exportziel vollständig aufgelöstes HTML, Apache-SSI-Direktiven oder PHP-Includes. Beim Anlegen einer neuen Seite werden der aktuelle gemeinsame Header, die Navigation und der Footer übernommen; für den seitenspezifischen Inhalt wird ein leeres `<main>`-Element angelegt. Änderungen an diesen gemeinsamen Layoutbereichen können auf jeder Seite vorgenommen werden. Beim Seitenwechsel werden sie in den zentralen Oluntir-Zustand zurückgeschrieben und automatisch auf die nächste Seite übertragen. Es entstehen keine doppelten Include-Dateien.
+Der zentrale Include-Resolver erzeugt daraus je nach Exportziel vollständig aufgelöstes HTML, Apache-SSI-Direktiven oder PHP-Includes. Beim Anlegen einer neuen Seite werden der aktuelle gemeinsame Header, die Navigation und der Footer übernommen; für den seitenspezifischen Inhalt wird ein leeres `<main>`-Element angelegt. Änderungen an diesen gemeinsamen Layoutbereichen können auf jeder Seite vorgenommen werden. Beim Seitenwechsel werden sie in den zentralen Oluntir-Zustand zurückgeschrieben und automatisch auf die nächste Seite übertragen.
 
 ## Lokaler Start
 
@@ -83,4 +83,4 @@ Hinweise zur Mitarbeit stehen in [CONTRIBUTING.md](CONTRIBUTING.md). Sicherheits
 
 ### Leere Projekte mit wiederverwendbaren Bereichen
 
-Ein neues Projekt mit wiederverwendbaren Bereichen startet mit einer leeren Seite. Oluntir fügt keinen vorgegebenen Header, keine Navigation und keinen Footer ein. Erst nachdem der Benutzer diese Elemente angelegt hat, verwaltet der Shared Content Manager sie als projektweit gemeinsame Quelle und übernimmt ihren aktuellen Stand in neu erstellte Seiten. Enthält der Header bereits eine Navigation, bleibt sie Bestandteil des Headers und wird nicht ein zweites Mal eingefügt.
+Ein neues Projekt mit wiederverwendbaren Bereichen startet mit einer leeren Seite. Oluntir fügt keinen vorgegebenen Header, keine Navigation und keinen Footer ein. Erst nachdem der Benutzer diese Elemente angelegt hat, verwaltet der Shared Content Manager sie als projektweit gemeinsame Quelle und übernimmt ihren aktuellen Stand in neu erstellte Seiten. Enthält der Header bereits eine Navigation, bleibt sie Bestandteil des Headers.
