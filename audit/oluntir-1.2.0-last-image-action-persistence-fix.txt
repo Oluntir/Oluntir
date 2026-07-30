@@ -1,0 +1,46 @@
+Oluntir 1.2.0 – Persistenzkorrektur für die letzte Bildaktion
+=============================================================
+
+Beobachtetes Verhalten
+----------------------
+Der letzte Export konnte neu eingefügte Bilder enthalten, während dieselben Bilder nach
+dem erneuten Öffnen des bestehenden Browser-Projekts fehlten. Damit war der Exportstand
+aktueller als der dauerhaft gespeicherte GrapesJS-Projektstand.
+
+Ursache
+-------
+Bildänderungen aus Canvas-DOM, RichText-Editor und Asset-Manager wurden zwar für den
+Export in das Komponentenmodell synchronisiert, dieser synchronisierte Stand wurde nach
+dem Export jedoch nicht nochmals über editor.store() persistiert. Dadurch konnte die
+zuletzt ausgeführte Bildaktion im nächsten Projektstart fehlen.
+
+Umsetzung
+---------
+1. Zentrale Persistenzfunktion in editor/js/core/editor.js:
+   - Canvas-Bildreferenzen ins GrapesJS-Modell übernehmen
+   - Inline-Textbilder ins Komponentenmodell übernehmen
+   - Blob-Referenzen auf stabile Projektpfade normalisieren
+   - Shared Content flushen
+   - anschließend editor.store() ausführen
+2. Manueller Speichern-Button verwendet diese vollständige Synchronisierung.
+3. Asset-Auswahl und RichText-Bildeinfügung planen unmittelbar eine persistente Speicherung.
+4. Nach jedem Export wird der synchronisierte Projektstand ebenfalls gespeichert.
+5. Parallel eintreffende Speicheranforderungen werden serialisiert und nicht verworfen.
+
+Prüfungen
+---------
+- node --check editor/js/core/editor.js: erfolgreich
+- node --check editor/js/features/text-media-editor.js: erfolgreich
+- node --check editor/js/core/export.js: erfolgreich
+- python tools/validate-structure.py: erfolgreich
+- node tools/test-grapesjs-adapter.js: erfolgreich
+
+Erwarteter Regressionstest
+--------------------------
+1. Bestehendes Projekt öffnen.
+2. Bilder nacheinander in Spalte 1 und Spalte 3 einsetzen.
+3. Direkt danach exportieren oder das Projekt schließen.
+4. Projekt erneut öffnen.
+5. Beide zuletzt hinzugefügten Bilder müssen weiterhin vorhanden sein.
+6. Erneuter HTML-Export muss Card-, Spalten- und Galerie-Bilder enthalten und Header,
+   Navigation sowie Footer weiterhin jeweils nur einmal ausgeben.

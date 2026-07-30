@@ -1,0 +1,28 @@
+Oluntir 1.2.0 - Shared Content HTML Export Deduplication Fix
+Date: 2026-07-30
+
+Problem:
+When reusable header/navigation/footer regions were enabled and the export target
+was changed to plain HTML, the already rendered layout regions in the canvas were
+combined with the central reusable regions a second time. A header containing its
+own navigation additionally received the standalone navigation region.
+
+Observed result:
+- navigation up to three times
+- footer twice
+- independent of folder, ZIP or TAR container
+
+Fix:
+- remove rendered header/nav/footer regions from the page body before compiling
+  any reusable-region export target
+- insert the central shared regions exactly once
+- suppress the standalone navigation region when the shared header already
+  contains a nav element
+
+Affected file:
+- editor/js/core/includes.js
+
+Tests:
+- node --check editor/js/core/includes.js: passed
+- python tools/validate-structure.py: passed
+- node tools/test-grapesjs-adapter.js: passed

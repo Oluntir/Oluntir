@@ -614,6 +614,57 @@ assetHydration.then(() => {
     saveErrorAlreadyShown = false;
   });
 
+  // Bildänderungen entstehen teilweise zuerst im Canvas-DOM (RichText/Asset-Manager)
+  // und erst kurz danach im GrapesJS-Komponentenmodell. Vor jedem expliziten oder
+  // bildbedingten Speichern wird deshalb der sichtbare Canvas-Zustand verbindlich ins
+  // Projektmodell übernommen. So kann niemals die zuletzt eingefügte Bildaktion fehlen.
+  let projectPersistTimer = 0;
+  let projectPersistRunning = false;
+  let projectPersistAgain = false;
+
+  async function persistCurrentProjectState() {
+    if (projectPersistRunning) {
+      projectPersistAgain = true;
+      return;
+    }
+    projectPersistRunning = true;
+    try {
+      if (typeof commitCanvasAssetReferencesToModel === 'function') {
+        commitCanvasAssetReferencesToModel(editor);
+      }
+      if (typeof commitInlineTextImagesToModel === 'function') {
+        commitInlineTextImagesToModel(editor);
+      }
+      if (typeof normalizeStableAssetReferences === 'function') {
+        normalizeStableAssetReferences(editor);
+      }
+      if (window.OluntirSharedContentManager) {
+        window.OluntirSharedContentManager.flushSelected();
+      }
+      await nextFrame();
+      await editor.store();
+    } finally {
+      projectPersistRunning = false;
+      if (projectPersistAgain) {
+        projectPersistAgain = false;
+        await persistCurrentProjectState();
+      }
+    }
+  }
+
+  function persistCurrentProjectStateSoon(delay) {
+    window.clearTimeout(projectPersistTimer);
+    projectPersistTimer = window.setTimeout(() => {
+      projectPersistTimer = 0;
+      persistCurrentProjectState().catch((error) => {
+        console.error('Bildänderung konnte nicht dauerhaft gespeichert werden:', error);
+      });
+    }, Number.isFinite(delay) ? delay : 80);
+  }
+
+  window.OluntirPersistProjectNow = persistCurrentProjectState;
+  window.OluntirPersistProjectSoon = persistCurrentProjectStateSoon;
+
   const pendingRestore = localStorage.getItem('pagebuilder-pending-restore');
   if (pendingRestore) {
     localStorage.removeItem('pagebuilder-pending-restore');
@@ -634,8 +685,7 @@ assetHydration.then(() => {
 
   document.getElementById('btn-save').addEventListener('click', async () => {
     try {
-      if (window.OluntirSharedContentManager) window.OluntirSharedContentManager.flushSelected();
-      await editor.store();
+      await persistCurrentProjectState();
       if (window.OluntirStartup) window.OluntirStartup.setMeta({ projectType: window.OluntirIncludes && window.OluntirIncludes.getState().enabled ? 'reusable-regions' : 'classic' });
       toast('Gespeichert (lokal im Browser).');
     } catch (e) {
@@ -1004,6 +1054,31 @@ assetHydration.then(() => {
   editor.on('run:open-assets', () => window.requestAnimationFrame(() => patchUploadedImageRefs(document)));
   editor.on('asset:open', () => window.requestAnimationFrame(() => patchUploadedImageRefs(document)));
   editor.on('asset:add', () => window.requestAnimationFrame(() => patchUploadedImageRefs(document)));
+  editor.on('asset:select', (asset) => {
+    const stablePath = asset && asset.get ? String(asset.get('src') || '') : '';
+    const isPersistentUpload = stablePath.indexOf('assets/user_upload/') === 0 ||
+      stablePath.indexOf('images/uploads/') === 0 || stablePath.indexOf('images/downloads/') === 0;
+    if (!isPersistentUpload) return;
+
+    // GrapesJS verarbeitet die Standardauswahl teilweise erst nach dem asset:select-
+    // Ereignis. Deshalb den aktuell ausgewählten Bildbaustein im nächsten Frame erneut
+    // mit dem dauerhaften Projektpfad synchronisieren.
+    window.requestAnimationFrame(() => {
+      const component = editor.getSelected && editor.getSelected();
+      if (!component || !component.get || !component.addAttributes) return;
+      const tagName = String(component.get('tagName') || '').toLowerCase();
+      const type = String(component.get('type') || '').toLowerCase();
+      if (tagName !== 'img' && type !== 'image') return;
+
+      component.addAttributes({ src: stablePath, 'data-stable-path': stablePath });
+      editor.trigger('component:update', component);
+      persistCurrentProjectStateSoon(100);
+      try {
+        const win = editor.Canvas.getWindow();
+        if (win) patchUploadedImageRefs(win.document);
+      } catch (_) { /* Vorschau-only */ }
+    });
+  });
 
   editor.on('asset:remove', (asset) => {
     const src = asset && asset.get ? asset.get('src') : '';

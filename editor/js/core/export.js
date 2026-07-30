@@ -76,8 +76,52 @@ function resolveUploadPathsInHtml(html) {
   return container.innerHTML;
 }
 
+function restoreStablePathsFromBlobUrls(html) {
+  if (!html || typeof assetUrls === 'undefined' || !assetUrls || !assetUrls.forEach) return html;
+
+  const container = document.createElement('div');
+  container.innerHTML = html;
+  const blobToPath = new Map();
+
+  assetUrls.forEach((blobUrl, stablePath) => {
+    if (blobUrl && stablePath) blobToPath.set(String(blobUrl), String(stablePath));
+  });
+
+  if (!blobToPath.size) return html;
+
+  container.querySelectorAll('*').forEach((el) => {
+    ['src', 'href', 'poster'].forEach((name) => {
+      const value = el.getAttribute(name);
+      const stablePath = value ? blobToPath.get(value) : null;
+      if (stablePath) el.setAttribute(name, stablePath);
+    });
+
+    const srcset = el.getAttribute('srcset');
+    if (srcset) {
+      const restored = srcset.split(',').map((candidate) => {
+        const parts = candidate.trim().split(/\s+/);
+        const stablePath = blobToPath.get(parts[0]);
+        if (stablePath) parts[0] = stablePath;
+        return parts.join(' ');
+      }).join(', ');
+      el.setAttribute('srcset', restored);
+    }
+
+    const style = el.getAttribute('style');
+    if (style && style.indexOf('blob:') !== -1) {
+      let restoredStyle = style;
+      blobToPath.forEach((stablePath, blobUrl) => {
+        restoredStyle = restoredStyle.split(blobUrl).join(stablePath);
+      });
+      el.setAttribute('style', restoredStyle);
+    }
+  });
+
+  return container.innerHTML;
+}
+
 function normalizeExportHtml(html) {
-  return resolveUploadPathsInHtml(html)
+  return resolveUploadPathsInHtml(restoreStablePathsFromBlobUrls(html))
     .replace(/(?:\.\/)?site-assets\//g, '')
     .replace(/(?:\.\/)?assets\/images\//g, 'images/')
     .replace(/blob:[^"')\s]+/g, '');
@@ -89,6 +133,69 @@ function collectUploadPaths(html, css, targetSet) {
   matches.forEach((path) => targetSet.add(path));
 }
 
+
+function commitCanvasAssetReferencesToModel(editor) {
+  try {
+    const doc = editor.Canvas.getDocument();
+    const dc = editor.getModel().get('DomComponents');
+    if (!doc || !dc || !dc.getComponent || typeof assetUrls === 'undefined') return 0;
+
+    const blobToPath = new Map();
+    assetUrls.forEach((blobUrl, stablePath) => {
+      if (blobUrl && stablePath) blobToPath.set(String(blobUrl), String(stablePath));
+    });
+
+    let changed = 0;
+    doc.querySelectorAll('img[src], source[srcset], a[href], [poster]').forEach((element) => {
+      let component = null;
+      try { component = dc.getComponent(element); } catch (_) { component = null; }
+      if (!component || !component.addAttributes) return;
+
+      const patch = {};
+      const stableAttribute = element.getAttribute('data-stable-path');
+      const src = element.getAttribute('src');
+      const href = element.getAttribute('href');
+      const poster = element.getAttribute('poster');
+      const srcset = element.getAttribute('srcset');
+
+      const stableSrc = stableAttribute || (src && blobToPath.get(src));
+      const stableHref = stableAttribute || (href && blobToPath.get(href));
+      const stablePoster = poster && blobToPath.get(poster);
+
+      if (stableSrc && element.hasAttribute('src')) {
+        patch.src = stableSrc;
+        patch['data-stable-path'] = stableSrc;
+      }
+      if (stableHref && element.hasAttribute('href')) {
+        patch.href = stableHref;
+        patch['data-stable-path'] = stableHref;
+      }
+      if (stablePoster) patch.poster = stablePoster;
+
+      if (srcset) {
+        const restored = srcset.split(',').map((candidate) => {
+          const parts = candidate.trim().split(/\s+/);
+          const stable = blobToPath.get(parts[0]);
+          if (stable) parts[0] = stable;
+          return parts.join(' ');
+        }).join(', ');
+        if (restored !== srcset) {
+          patch.srcset = restored;
+          patch['data-stable-srcset-path'] = restored.split(',')[0].trim().split(/\s+/)[0];
+        }
+      }
+
+      if (Object.keys(patch).length) {
+        component.addAttributes(patch);
+        changed++;
+      }
+    });
+    return changed;
+  } catch (error) {
+    console.warn('Gerenderte Bildreferenzen konnten vor dem Export nicht synchronisiert werden:', error);
+    return 0;
+  }
+}
 
 function commitInlineTextImagesToModel(editor) {
   try {
@@ -700,6 +807,7 @@ async function exportSitePackage(editor, mode) {
 
       editor.Pages.select(page);
       await nextFrame();
+      commitCanvasAssetReferencesToModel(editor);
       commitInlineTextImagesToModel(editor);
       await nextFrame();
 
@@ -872,6 +980,24 @@ async function exportSitePackage(editor, mode) {
     if (selectedBefore) {
       try { editor.Pages.select(selectedBefore); } catch (e) { /* nicht kritisch */ }
     }
+
+    // Der Export synchronisiert jede Seite aus dem sichtbaren Canvas ins Modell.
+    // Dieser Stand muss anschließend auch im Browser-Projekt gespeichert werden;
+    // andernfalls wäre zwar der Export korrekt, beim nächsten Öffnen fehlte aber
+    // weiterhin die zuletzt eingefügte Bildaktion.
+    try {
+      await nextFrame();
+      if (typeof normalizeStableAssetReferences === 'function') {
+        normalizeStableAssetReferences(editor);
+      }
+      if (window.OluntirSharedContentManager) {
+        window.OluntirSharedContentManager.flushSelected();
+      }
+      await editor.store();
+    } catch (persistError) {
+      console.error('Der nach dem Export synchronisierte Projektstand konnte nicht gespeichert werden:', persistError);
+    }
+
     setTimeout(hideProgress, 900);
   }
 }

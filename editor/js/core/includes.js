@@ -128,12 +128,26 @@
   function assignedSections(pageId) {
     return state.sections.filter(section => section.pages.includes(String(pageId)));
   }
+
+  function stripSharedLayoutRegions(html) {
+    const template = document.createElement('template');
+    template.innerHTML = String(html || '');
+    template.content.querySelectorAll('header, nav, footer').forEach(element => element.remove());
+    return template.innerHTML;
+  }
+
+  function headerContainsNavigation() {
+    const template = document.createElement('template');
+    template.innerHTML = String(state.regions.header || '');
+    return Boolean(template.content.querySelector('header nav'));
+  }
+
   function compilePage(html, target, pageId) {
     if (!state.enabled) return { html, extension: 'html', includeFiles: [], target: 'html', diagnostics: [] };
     const selected = ['html', 'ssi', 'php'].includes(target) ? target : state.exportTarget;
     const currentPageId = String(pageId || selectedPageId());
     const diagnostics = [];
-    const body = resolveCustomTags(html, selected, []);
+    const body = resolveCustomTags(stripSharedLayoutRegions(html), selected, []);
     const layoutPaths = {
       header: 'includes/layout/header.html',
       navigation: 'includes/layout/navigation.html',
@@ -149,7 +163,8 @@
         : expression(path, selected);
     }).join('\n');
     const extension = selected === 'php' ? 'php' : selected === 'ssi' ? 'shtml' : 'html';
-    const pageHtml = `${region('header')}\n${region('navigation')}\n${sections ? sections + '\n' : ''}${body}\n${region('footer')}`;
+    const navigation = headerContainsNavigation() ? '' : region('navigation');
+    const pageHtml = `${region('header')}\n${navigation ? navigation + '\n' : ''}${sections ? sections + '\n' : ''}${body}\n${region('footer')}`;
     parseIncludeReferences(pageHtml).forEach(path => {
       if (!findByPath(path)) diagnostics.push({ type: 'missing', path });
     });

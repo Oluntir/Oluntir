@@ -1,0 +1,30 @@
+OLUNTIR 1.2.0 – NON-GALLERY IMAGE EXPORT FIX
+Date: 2026-07-30
+
+Problem
+- Images selected from the Oluntir image manager could be visible in the editor through a temporary blob: URL.
+- Outside the gallery workflow, the final export removed the blob: URL without always restoring the stable assets/user_upload/... path.
+- Result: exported elements such as Card images or inline images in columns could contain src="".
+
+Changes
+1. editor/js/core/export.js
+   - Added restoreStablePathsFromBlobUrls().
+   - Before export cleanup, temporary blob: URLs are mapped back to their stable project paths using assetUrls.
+   - Handles src, href, poster, srcset and inline style URLs.
+   - Applied centrally before all export modes are generated.
+
+2. editor/js/features/text-media-editor.js
+   - Inline images under assets/user_upload/... now receive data-stable-path in addition to legacy images/... paths.
+   - This keeps the stable path directly attached to the image model and provides an additional export safeguard.
+
+Tests
+- node --check editor/js/core/export.js: successful
+- node --check editor/js/features/text-media-editor.js: successful
+- python tools/validate-structure.py: STRUKTURPRÜFUNG ERFOLGREICH
+- node tools/test-grapesjs-adapter.js: GRAPESJS-ADAPTER-TEST ERFOLGREICH
+
+Expected result
+- Card images selected from assets/user_upload are exported with a stable relative src path.
+- Inline images inserted into text/column areas are exported with a stable relative src path.
+- Gallery export behavior remains unchanged.
+- The fix applies equally to ZIP, folder, HTML, SSI and PHP export variants because normalization is shared.

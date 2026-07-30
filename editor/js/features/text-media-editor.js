@@ -134,7 +134,9 @@
       loading: 'lazy',
       'data-pb-inline-image': 'true',
     };
-    if (src.indexOf('images/') === 0) attrs['data-stable-path'] = src;
+    if (src.indexOf('images/') === 0 || src.indexOf('assets/user_upload/') === 0) {
+      attrs['data-stable-path'] = src;
+    }
     return attrs;
   }
 
@@ -191,6 +193,9 @@
 
       editor.select(component);
       editor.trigger('component:update', component);
+      if (typeof window.OluntirPersistProjectSoon === 'function') {
+        window.OluntirPersistProjectSoon(100);
+      }
     }
 
     setTimeout(() => {
