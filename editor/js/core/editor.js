@@ -621,6 +621,48 @@ assetHydration.then(() => {
   let projectPersistTimer = 0;
   let projectPersistRunning = false;
   let projectPersistAgain = false;
+  let projectCommitRunning = false;
+
+  function commitCurrentCanvasStateToModel() {
+    if (projectCommitRunning) return;
+    projectCommitRunning = true;
+    try {
+    if (typeof commitCanvasAssetReferencesToModel === 'function') {
+      commitCanvasAssetReferencesToModel(editor);
+    }
+    if (typeof commitInlineTextImagesToModel === 'function') {
+      commitInlineTextImagesToModel(editor);
+    }
+    if (typeof normalizeStableAssetReferences === 'function') {
+      normalizeStableAssetReferences(editor);
+    }
+    if (window.OluntirSharedContentManager) {
+      window.OluntirSharedContentManager.flushSelected();
+    }
+    } finally {
+      projectCommitRunning = false;
+    }
+  }
+
+  // Zusätzlich zum GrapesJS-Store wird der aktuelle Projektzustand synchron in den
+  // von GrapesJS verwendeten localStorage-Schlüssel geschrieben. Das ist absichtlich
+  // redundant: pagehide/beforeunload geben einem asynchronen editor.store() nicht
+  // garantiert genug Zeit. Ohne diesen synchronen letzten Schreibvorgang konnte genau
+  // die zuletzt eingefügte Bildgruppe beim nächsten Start fehlen, obwohl Export und
+  // Canvas bereits korrekt waren.
+  function writeCurrentProjectSnapshotSynchronously() {
+    commitCurrentCanvasStateToModel();
+    const projectData = editor.getProjectData();
+    localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
+    if (window.OluntirStartup) {
+      window.OluntirStartup.setMeta({
+        projectType: window.OluntirIncludes && window.OluntirIncludes.getState().enabled
+          ? 'reusable-regions'
+          : 'classic'
+      });
+    }
+    return projectData;
+  }
 
   async function persistCurrentProjectState() {
     if (projectPersistRunning) {
@@ -629,20 +671,12 @@ assetHydration.then(() => {
     }
     projectPersistRunning = true;
     try {
-      if (typeof commitCanvasAssetReferencesToModel === 'function') {
-        commitCanvasAssetReferencesToModel(editor);
-      }
-      if (typeof commitInlineTextImagesToModel === 'function') {
-        commitInlineTextImagesToModel(editor);
-      }
-      if (typeof normalizeStableAssetReferences === 'function') {
-        normalizeStableAssetReferences(editor);
-      }
-      if (window.OluntirSharedContentManager) {
-        window.OluntirSharedContentManager.flushSelected();
-      }
+      commitCurrentCanvasStateToModel();
       await nextFrame();
       await editor.store();
+      // editor.store() kann intern verzögert oder vom Browser beim Schließen abgebrochen
+      // werden. Der synchrone Snapshot ist deshalb die verbindliche Abschlusskopie.
+      writeCurrentProjectSnapshotSynchronously();
     } finally {
       projectPersistRunning = false;
       if (projectPersistAgain) {
@@ -664,6 +698,37 @@ assetHydration.then(() => {
 
   window.OluntirPersistProjectNow = persistCurrentProjectState;
   window.OluntirPersistProjectSoon = persistCurrentProjectStateSoon;
+  window.OluntirWriteProjectSnapshotNow = writeCurrentProjectSnapshotSynchronously;
+
+  // Letzte Änderungen beim Verlassen verbindlich sichern. pagehide deckt auch Reload,
+  // Tab-Schließen und den Back/Forward-Cache ab; visibilitychange sichert zusätzlich,
+  // sobald der Tab in den Hintergrund wechselt. Hier niemals auf Promises warten.
+  const persistBeforeLeaving = () => {
+    try {
+      window.clearTimeout(projectPersistTimer);
+      projectPersistTimer = 0;
+      writeCurrentProjectSnapshotSynchronously();
+    } catch (error) {
+      console.error('Letzter synchroner Projektsnapshot fehlgeschlagen:', error);
+    }
+  };
+  window.addEventListener('pagehide', persistBeforeLeaving);
+  window.addEventListener('beforeunload', persistBeforeLeaving);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') persistBeforeLeaving();
+  });
+
+  // Nicht nur explizite Asset-Events, sondern jede echte Änderung an Bild- oder
+  // Textkomponenten löst eine kurze, zusammengefasste Persistierung aus. Damit werden
+  // auch mehrere direkt nacheinander eingefügte Card-/Inline-Bilder vollständig erfasst.
+  editor.on('component:update', (component) => {
+    if (projectCommitRunning || !component || !component.get) return;
+    const type = String(component.get('type') || '').toLowerCase();
+    const tag = String(component.get('tagName') || '').toLowerCase();
+    if (type === 'image' || type === 'text' || tag === 'img' || /^(p|h[1-6]|li|blockquote|figcaption|td|th)$/.test(tag)) {
+      persistCurrentProjectStateSoon(120);
+    }
+  });
 
   const pendingRestore = localStorage.getItem('pagebuilder-pending-restore');
   if (pendingRestore) {
@@ -892,11 +957,11 @@ assetHydration.then(() => {
   }
 
   document.getElementById('btn-backup').addEventListener('click', async () => {
-    if (window.OluntirSharedContentManager) window.OluntirSharedContentManager.flushSelected();
     showProgress('Binäres Projekt-Backup wird erstellt');
     try {
-      updateProgress(3, 'Sammle Projektdaten und Asset-Verzeichnis …');
-      const projectData = editor.getProjectData();
+      updateProgress(3, 'Synchronisiere und sichere den aktuellen Projektstand …');
+      await persistCurrentProjectState();
+      const projectData = writeCurrentProjectSnapshotSynchronously();
 
       if (typeof window.showSaveFilePicker === 'function') {
         try {

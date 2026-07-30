@@ -1,0 +1,31 @@
+Oluntir 1.2.0 – Final Project Persistence Fix
+
+Behobenes Verhalten
+- Der Export enthielt alle zuletzt eingefügten Bilder.
+- Nach Schließen und erneutem Öffnen fehlten jedoch die zuletzt eingefügten Card- und Inline-/Spaltenbilder.
+
+Ursache
+- Der sichtbare Canvas- und Exportzustand war aktueller als der dauerhaft im Browser gespeicherte Projektstand.
+- Ein asynchrones editor.store() ist beim Verlassen der Anwendung nicht garantiert abgeschlossen.
+- Mehrere unmittelbar aufeinanderfolgende Bildänderungen konnten daher nur teilweise im lokalen Projekt landen.
+
+Umsetzung
+- Zentrale Synchronisierung von Canvas, Inline-Bildern, stabilen Assetpfaden und Shared Content.
+- Verbindlicher synchroner localStorage-Snapshot über editor.getProjectData().
+- Sicherung nach editor.store() sowie bei pagehide, beforeunload und visibilitychange.
+- Persistierung bei Änderungen an Bild- und Textkomponenten.
+- Projekt-Backup synchronisiert den aktuellen Zustand vor dem Erstellen der .oluntir-Datei.
+- Schutz gegen rekursive Speicherereignisse.
+
+Tests
+- node --check editor/js/core/editor.js
+- python tools/validate-structure.py
+- node tools/test-grapesjs-adapter.js
+
+Erwarteter Regressionstest
+1. Bilder in Card 1, Card 2, Card 3 sowie Spalte 1, 2 und 3 einsetzen.
+2. HTML exportieren.
+3. Anwendung schließen.
+4. Anwendung erneut öffnen und bestehendes Projekt laden.
+5. Alle sechs Bilder müssen vorhanden sein.
+6. Navigation und Footer dürfen nicht doppelt erscheinen.

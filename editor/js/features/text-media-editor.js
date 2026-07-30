@@ -146,6 +146,43 @@
       .join(' ');
   }
 
+  function resolveEditableComponent(editor, editableRoot, fallbackComponent) {
+    const direct = getComponentFromElement(editor, editableRoot);
+    if (direct) {
+      const directView = typeof direct.getView === 'function' ? direct.getView() : null;
+      if (directView && directView.el === editableRoot) return direct;
+    }
+
+    // Bei unmittelbar zuvor per Quick Setup erzeugten Komponenten ist die DOM-zu-Modell-
+    // Zuordnung in GrapesJS nicht in jedem Browser bereits verfügbar, wenn der Asset-
+    // Manager seine Auswahl zurückliefert. Die View-Elemente sind zu diesem Zeitpunkt
+    // jedoch vorhanden und bilden die tatsächliche Komponentenstruktur zuverlässig ab.
+    let current = fallbackComponent;
+    while (current) {
+      const view = typeof current.getView === 'function' ? current.getView() : null;
+      if (view && view.el === editableRoot) return current;
+
+      const children = typeof current.components === 'function' ? current.components() : null;
+      if (children && typeof children.forEach === 'function') {
+        let match = null;
+        const visit = (child) => {
+          if (match) return;
+          const childView = child && typeof child.getView === 'function' ? child.getView() : null;
+          if (childView && childView.el === editableRoot) {
+            match = child;
+            return;
+          }
+          const nested = child && typeof child.components === 'function' ? child.components() : null;
+          if (nested && typeof nested.forEach === 'function') nested.forEach(visit);
+        };
+        children.forEach(visit);
+        if (match) return match;
+      }
+      current = current.parent && current.parent();
+    }
+    return null;
+  }
+
   function syncEditableRoot(editor, rte, editableRoot, component) {
     if (!editableRoot) return;
 
@@ -175,17 +212,16 @@
       // Elements neu. Tag, Klassen, Attribute, Spalte und umgebendes Layout bleiben
       // dadurch erhalten.
       try {
-        const exactComponent = getComponentFromElement(editor, editableRoot) || component;
-        const view = exactComponent && typeof exactComponent.getView === 'function'
-          ? exactComponent.getView()
-          : null;
-        const isExactRoot = !view || !view.el || view.el === editableRoot;
+        const exactComponent = resolveEditableComponent(editor, editableRoot, component);
 
-        if (exactComponent && isExactRoot && typeof exactComponent.components === 'function') {
-          exactComponent.components(editableRoot.innerHTML);
+        if (exactComponent && typeof exactComponent.components === 'function') {
+          // Vor dem Neuparsen kopieren: components() ersetzt die gerenderten Kinder und
+          // kann dadurch das bisherige contenteditable-Element unmittelbar ablösen.
+          const innerHtml = editableRoot.innerHTML;
+          exactComponent.components(innerHtml);
           component = exactComponent;
         } else {
-          console.warn('Inline-Bild wurde nicht gespeichert: Textkomponente und Editorwurzel stimmen nicht überein.');
+          console.warn('Inline-Bild wurde nicht gespeichert: Für den bearbeiteten DOM-Knoten wurde keine GrapesJS-Komponente gefunden.');
         }
       } catch (error) {
         console.warn('Textinhalt konnte nicht im GrapesJS-Modell gespeichert werden:', error);
@@ -238,6 +274,28 @@
         if (!Object.prototype.hasOwnProperty.call(attrs, 'data-stable-path')) {
           replaceImage.removeAttribute('data-stable-path');
         }
+
+        // Ein vorhandenes Bild ist eine eigenständige GrapesJS-Komponente. Deshalb
+        // ausschließlich deren Attribute aktualisieren und niemals den umgebenden
+        // Card-, Grid- oder Textbereich über components(innerHTML) neu parsen.
+        const imageComponent = getComponentFromElement(editor, replaceImage);
+        if (imageComponent && typeof imageComponent.set === 'function') {
+          const currentAttributes = typeof imageComponent.getAttributes === 'function'
+            ? imageComponent.getAttributes()
+            : (imageComponent.get('attributes') || {});
+          const nextAttributes = Object.assign({}, currentAttributes, attrs);
+          if (!Object.prototype.hasOwnProperty.call(attrs, 'data-stable-path')) {
+            delete nextAttributes['data-stable-path'];
+          }
+          imageComponent.set('attributes', nextAttributes);
+          editor.select(imageComponent);
+          editor.trigger('component:update', imageComponent);
+          if (typeof window.OluntirPersistProjectSoon === 'function') {
+            window.OluntirPersistProjectSoon(100);
+          }
+        } else {
+          console.warn('Bildkomponente konnte nicht direkt im GrapesJS-Modell aktualisiert werden.');
+        }
       } else if (marker && marker.parentNode) {
         const image = editor.Canvas.getDocument().createElement('img');
         Object.keys(attrs).forEach((name) => image.setAttribute(name, attrs[name]));
@@ -246,7 +304,9 @@
         editableRoot.insertAdjacentHTML('beforeend', '<img ' + attributesToHtml(attrs) + '>');
       }
 
-      syncEditableRoot(editor, rte, editableRoot, component);
+      if (!replaceImage) {
+        syncEditableRoot(editor, rte, editableRoot, component);
+      }
       if (complete !== false) editor.AssetManager.close();
       if (window.toast) window.toast(replaceImage ? 'Bild wurde ausgetauscht.' : 'Bild wurde in den Textbereich eingefügt.');
     };

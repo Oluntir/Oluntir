@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Fixed a regression where replacing a card image reparsed the surrounding card structure; only the dedicated GrapesJS image component is updated now.
+
+- Images added to newly created grids are now committed reliably from the canvas to the GrapesJS component model and remain available after reopening a project.
+- The second-monitor quick tool now has a scrollable content area while its header and action buttons remain reachable.
+
+
 > **Language:** English (reference) · [Deutsch](CHANGELOG_de.md)
 
 ## Oluntir 1.2.0 — 2026-07-30

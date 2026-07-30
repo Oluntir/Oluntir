@@ -1,5 +1,13 @@
 # Änderungsprotokoll
 
+## Unveröffentlicht
+
+- Regression behoben: Beim Austausch eines Card-Bildes wird nur noch die zugehörige GrapesJS-Bildkomponente aktualisiert; die Card-Struktur bleibt vollständig greifbar und responsive.
+
+- Neue Grid-Bilder werden nach der Auswahl zuverlässig aus dem Canvas in das GrapesJS-Komponentenmodell übernommen und bleiben nach erneutem Öffnen erhalten.
+- Das Schnellwerkzeug im zweiten Monitor besitzt einen scrollbaren Inhaltsbereich; Kopfbereich und Aktionsbuttons bleiben erreichbar.
+
+
 > **Sprache:** Deutsch · [English (reference)](CHANGELOG.md)
 
 ## Oluntir 1.2.0 — 30.07.2026
