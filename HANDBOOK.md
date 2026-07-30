@@ -1,53 +1,58 @@
 > **Language:** English (reference) · [Deutsch](HANDBOOK_de.md)
 
-# Oluntir Technical Handbook
+# Oluntir technical handbook
 
-**Version:** 1.1.0  
-**Language:** English  
+**Version:** 1.2.0  
 **Status:** Stable  
-**Applies to:** Oluntir 1.1.0  
-**Last updated:** 2026-07-29
+**Last updated:** 2026-07-30
 
 ## 1. Purpose
 
-Oluntir edits and exports static website projects locally in a browser.
+Oluntir edits and exports static website projects locally in a browser. Browser persistence supports convenient continuation, but portable project backups and exported files remain the authoritative external safety copies.
 
-## 2. Project types
+## 2. Editor foundation
 
-Classic projects store complete page HTML. Projects with recurring content elements and regions store shared layout content separately and reference it through Oluntir elements.
+GrapesJS 0.23.2 provides the canvas and visual component editor. Oluntir owns the surrounding application: startup, projects, includes, exports, image services, workspaces, settings, quick editing, and multi-monitor behavior. Vendor files are not patched; compatibility code belongs in `editor/integrations/grapesjs/`.
 
-## 3. Oluntir document model
+## 3. Project types
 
-An Oluntir reference uses `<ope-include src="..."></ope-include>`. Oluntir is the internal representation and is resolved only for preview and export.
+A classic project stores complete HTML per page. A project with recurring content elements and regions stores shared layout sources and references them through `<ope-include>` nodes. The central resolver produces resolved HTML, Apache SSI, or PHP includes.
 
-## 4. Recurring content elements and regions
+## 4. Startup and persistence
 
-Layout areas normally include header, navigation, and footer. Additional sections may be registered. Paths must be unique and all referenced areas must exist.
+At startup, Oluntir examines available browser data and offers project continuation, restoration, or a new project. General application settings use `oluntir-settings`; image assets use their versioned asset database. These stores serve different purposes and must not be treated as a substitute for project backups.
 
-## 5. Code view
+## 5. Single- and two-monitor operation
 
-The Oluntir mode is editable and displays formatted source, syntax highlighting, and line numbers. The rendered HTML mode is read-only. Sensitive content inside `pre`, `code`, `script`, `style`, and `textarea` must not be reformatted destructively.
+The preferred workspace mode is `ask`, `single`, or `dual`. In dual mode, the canvas stays in the main window while the right GrapesJS tool column and Oluntir quick-edit areas move to a separate window. A separate session state records whether dual mode is actually active. Closing or losing the tool window restores all moved areas to the main window.
 
-## 6. Export
+The saved preference is not overwritten merely because only one monitor is available. Saved bounds are validated before reuse. Without the Window Management API, the user positions the tool window manually.
 
-The export format and output target are separate decisions. Available formats are resolved HTML, Apache SSI (`.shtml`), and PHP includes (`.php`). Available targets are folder, ZIP, and TAR.
+## 6. Image Manager
 
-## 7. Validation
+The Image Manager is an Oluntir workspace, not the visible GrapesJS Asset Manager. It uses shared asset services and IndexedDB and provides grid/list presentation, search, filters, details, responsive variants, replacement, deletion, and selection modes.
 
-Before export, the project is checked for missing project metadata, missing include targets, duplicate include paths, and cyclic resolution where applicable.
+To synchronize physical files, the user chooses the project root after reading the information dialog. Oluntir then uses or creates `assets/user_upload/`. Permission may need to be granted again in a later browser session.
 
-## 8. Storage and backup
+## 7. Galleries
 
-Projects may use browser storage and exported backups. Browser storage is not a substitute for external backups. Export a project before replacing the application build or clearing browser data.
+Each gallery selects `none`, `modal`, or `lightbox`. Modal is a framed dialog. Lightbox is a dark, frameless viewer. Both use shared navigation, keyboard controls, focus trapping, focus restoration, caption, counter, and original-image download. Desktop layouts reserve a safe bottom area; smaller displays keep the established responsive behavior.
 
-## 9. Project structure
+## 8. Export
 
-The application source is separated into editor core, assets, frameworks, plugins, templates, documentation, and compliance records. Generated website projects use their own page and asset layout.
+Export format and target are separate decisions. Before writing, Oluntir checks missing targets, duplicate paths, and cyclic include references. Folder access remains browser-dependent. ZIP and TAR are alternative archive targets.
 
-## 10. Known limitations
+## 9. Validation and release checks
 
-Browser file-system capabilities vary. Oluntir validation is not a complete HTML validator. Version 1.0.0 is the stable release covered by this handbook.
+Run:
 
-## 11. Licensing
+```text
+python tools/validate-structure.py
+node tools/test-grapesjs-adapter.js
+```
 
-See `LICENSE`, `LICENSING.md`, `THIRD_PARTY_NOTICES.md`, and `compliance/`.
+Also perform JavaScript syntax checks, static local-reference checks, archive integrity checks, and manual browser tests for startup, project restore, both Bootstrap profiles, export, Image Manager, Modal, Lightbox, and monitor switching.
+
+## 10. Operational limitations
+
+Oluntir cannot bypass browser security prompts or guarantee automatic placement on another display. Imported HTML can contain unsafe content; review unknown projects before previewing or exporting. Keep external backups before migrations and major edits.

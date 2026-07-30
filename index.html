@@ -3,12 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Oluntir 1.1.0</title>
+  <title>Oluntir 1.2.0</title>
   <link rel="stylesheet" href="vendor/grapesjs/0.23.2/grapes.min.css">
   <link rel="stylesheet" href="plugins/editor/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="editor/css/editor.css?v=1.1.0-ui-fix1">
+  <link rel="stylesheet" href="editor/css/editor.css?v=1.2.0-gallery-monitor3">
 </head>
 <body>
+  
+  <div id="oluntir-monitor-startup" class="pb-modal-overlay oluntir-monitor-startup" hidden aria-hidden="true">
+    <div class="pb-modal oluntir-monitor-startup-dialog" role="dialog" aria-modal="true" aria-labelledby="oluntir-monitor-startup-title">
+      <h2 id="oluntir-monitor-startup-title">Arbeitsbereich wählen</h2>
+      <p>Wie möchten Sie Oluntir in dieser Sitzung verwenden?</p>
+      <div class="oluntir-monitor-start-actions">
+        <button id="oluntir-monitor-start-single" type="button"><i class="fa fa-desktop" aria-hidden="true"></i><strong>Ein Monitor</strong><span>Canvas und Werkzeuge gemeinsam im Hauptfenster.</span></button>
+        <button id="oluntir-monitor-start-dual" class="btn-primary" type="button"><i class="fa fa-clone" aria-hidden="true"></i><strong>Zwei Monitore</strong><span>Canvas im Hauptfenster, Werkzeuge in einem zweiten Fenster.</span></button>
+      </div>
+      <p class="oluntir-startup-warning"><strong>Stabilitätshinweis:</strong> Der Zwei-Monitor-Modus ist am zuverlässigsten, wenn er direkt hier beim Start gewählt wird. Beim späteren Umschalten kann das Werkzeugfenster abhängig von den Browser-Einstellungen als Pop-up blockiert werden.</p>
+      <label class="pb-modal-check"><input id="oluntir-monitor-start-remember" type="checkbox"> <span>Auswahl als Standard speichern</span></label>
+    </div>
+  </div>
+
   <div id="oluntir-startup-modal" class="pb-modal-overlay oluntir-startup-overlay" hidden aria-hidden="true">
     <div class="pb-modal oluntir-startup-modal" role="dialog" aria-modal="true" aria-labelledby="oluntir-startup-title">
       <section id="oluntir-start-step-start" class="oluntir-wizard-step">
@@ -58,7 +72,7 @@
 
 
   <div id="toolbar">
-    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">1.1.0</span></div>
+    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">1.2.0</span></div>
 
     <div class="toolbar-language" role="group" data-i18n-aria="language.group" aria-label="Sprache">
       <button type="button" data-lang="de" class="active" data-i18n-title="language.de" title="Deutsch">DE</button>
@@ -207,6 +221,20 @@
         </label>
       </div>
 
+
+      <fieldset class="oluntir-monitor-settings">
+        <legend>Arbeitsbereich und Monitore</legend>
+        <p>Die Auswahl wird transaktionssicher in der Oluntir-Einstellungsdatenbank gespeichert.</p>
+        <label><input type="radio" name="oluntir-monitor-mode" value="ask"> Bei jedem Start fragen</label>
+        <label><input type="radio" name="oluntir-monitor-mode" value="single"> Ein Monitor</label>
+        <label><input type="radio" name="oluntir-monitor-mode" value="dual"> Zwei Monitore bevorzugen</label>
+        <label><input id="oluntir-monitor-ask-start" type="checkbox"> Startauswahl anzeigen</label>
+        <label><input id="oluntir-monitor-remember-position" type="checkbox"> Position und Größe des Werkzeugfensters merken</label>
+        <p class="oluntir-monitor-hint">Beim nachträglichen Öffnen kann der Browser das Werkzeugfenster als Pop-up blockieren. Ist ein gespeicherter zweiter Bildschirm nicht verfügbar, startet Oluntir sicher mit allen Werkzeugen im Hauptfenster. Die Zwei-Monitor-Präferenz bleibt erhalten.</p>
+        <div class="oluntir-monitor-settings-actions"><button id="oluntir-monitor-start-now" type="button">Werkzeugspalte auslagern</button><button id="oluntir-monitor-return-now" type="button">Werkzeugspalte zurückholen</button></div>
+        <p><strong>Status:</strong> <span id="oluntir-monitor-status">Ein-Monitor-Modus</span> <small id="oluntir-monitor-fallback-reason"></small></p>
+      </fieldset>
+
       <div class="pb-ui-preview" data-i18n-aria="ui.preview" aria-label="Vorschau">
         <strong data-i18n="ui.preview">Vorschau</strong>
         <div class="pb-ui-preview-card"><span>▦</span> <span data-i18n="ui.previewGallery">Responsive Bildergalerie</span></div>
@@ -252,6 +280,8 @@
   <script src="editor/config/editor-dependencies.js"></script>
   <script src="editor/js/core/asset-store.js?v=1.1.0-sync1"></script>
   <script src="editor/services/workspace-manager.js"></script>
+  <script src="editor/services/indexeddb-settings-store.js?v=1.2.0"></script>
+  <script src="editor/services/multi-monitor-manager.js?v=1.2.0-gallery-monitor3"></script>
   <script src="editor/services/indexeddb-asset-store.js?v=1.1.0-sync1"></script>
   <script src="editor/services/image-variant-service.js"></script>
   <script src="editor/services/asset-usage-service.js"></script>

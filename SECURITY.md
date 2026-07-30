@@ -1,25 +1,23 @@
 > **Language:** English (reference) · [Deutsch](SECURITY_de.md)
 
-# Security Policy
+# Security policy
 
-**Version:** 1.1.0  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.1.0  
-**Last updated:** 2026-07-29
-
-## Supported version
-
-Security fixes are evaluated for the current release line. Version 1.0.0 is the current supported release.
+**Supported version:** 1.2.0
 
 ## Reporting
 
-Send security reports to `info@oluntir.com`. Include the affected version, browser, reproduction steps, impact, and any proposed mitigation. Do not include active credentials or unnecessary personal data.
+Send confidential security reports to `info@oluntir.com`. Include the affected version, browser and operating system, reproduction steps, expected and actual behavior, impact, and any proposed mitigation. Do not include active credentials or unnecessary personal data.
+
+Do not open a public issue for an unpatched vulnerability.
 
 ## Scope
 
-Relevant reports include unsafe handling of imported project data, script injection through editor or preview processing, archive path issues, unintended data loss, and vulnerable bundled dependencies.
+Relevant reports include unsafe handling of imported project data, script injection through editor or preview processing, archive path manipulation, unintended project or asset loss, privilege or permission confusion around file-system access, and vulnerable bundled dependencies.
 
 ## Response
 
-Receipt, severity, remediation, and disclosure timing are handled case by case. Public issues should not be opened for unpatched vulnerabilities.
+Receipt, severity, remediation, release coordination, and disclosure timing are handled case by case. Only the current stable release line is actively evaluated for security fixes.
+
+## User responsibility
+
+Oluntir runs imported HTML and JavaScript in a browser-based editing environment. Only open projects from trusted sources, keep external backups, review export output, and apply browser security updates.

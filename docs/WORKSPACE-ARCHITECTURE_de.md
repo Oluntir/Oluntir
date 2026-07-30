@@ -1,15 +1,20 @@
-# Oluntir Workspace-Architektur
+# Oluntir-Workspace-Architektur
 
-Oluntir verwendet ab Version 1.1.0 einen eigenen Workspace-Manager für umfangreiche Werkzeuge. GrapesJS bleibt dabei die Editor-Engine, stellt aber nicht mehr die sichtbare Oberfläche des Bildmanagers bereit.
+Oluntir 1.2.0 verwendet den `OluntirWorkspaceManager` für umfangreiche anwendungseigene Werkzeuge. GrapesJS bleibt die visuelle Editor-Engine; Oluntir besitzt die sichtbare Bildmanager- und Mehrmonitor-Oberfläche.
 
-## Grundprinzip
+## Zuständigkeiten
 
-- `OluntirWorkspaceManager` öffnet und schließt große Werkzeuge.
-- Während eines Workspaces werden Schnellkonfiguration und Schnellbearbeitung ausgeblendet.
-- Nach dem Schließen wird die Editoroberfläche vollständig wiederhergestellt.
-- Module greifen nicht auf interne `.gjs-*`-Strukturen zu.
-- Der Bildmanager ist das erste Workspace-Modul.
+- vollständige Editor-Workspaces öffnen und schließen;
+- kollidierende Schnellbereiche ausblenden und wiederherstellen;
+- Workspace-Module von internem GrapesJS-Markup entkoppeln;
+- Bildmanager koordinieren;
+- Auslagerung von Werkzeugcontainern über den GrapesJS-Adapter unterstützen;
+- bei Fehlern oder Fensterschließung alle verschobenen Bereiche wiederherstellen.
 
-## Bildmanager
+## Mehrmonitor-Grenze
 
-Der Bildmanager verwendet die Asset-Services und IndexedDB. Für große Bestände werden nur zunächst 60 Karten erzeugt. Weitere Karten folgen beim Scrollen. Vorschaubilder werden erst kurz vor dem sichtbaren Bereich geladen.
+`multi-monitor-manager.js` verwaltet zweites Fenster, gespeicherte Grenzen, Status und Fallback. GrapesJS wird im zweiten Fenster nicht neu erzeugt. Canvas und Editorinstanz bleiben im Hauptfenster; nur freigegebene Werkzeugcontainer werden verschoben und synchronisiert.
+
+## Persistenz
+
+Allgemeine Workspace-Einstellungen verwenden `indexeddb-settings-store.js`. Assetdaten bleiben in ihrer getrennten versionierten Datenbank. Bevorzugter und tatsächlich aktiver Monitor-Modus sind bewusst getrennte Zustände.

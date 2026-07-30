@@ -1,25 +1,61 @@
 > **Language:** English (reference) · [Deutsch](GITHUB-PUBLISHING_de.md)
 
-# GitHub Publishing Guide
+# GitHub publishing guide
 
-**Version:** 1.1.0  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.1.0  
-**Last updated:** 2026-07-29
+**Release:** Oluntir 1.2.0
 
-## Purpose
+## Repository metadata
 
-Describes repository preparation, branch review, tagging, release archive creation, checksums, license verification, and release-note publication. Version 1.0.0 should be tagged only after regression and documentation checks pass.
+Suggested description:
 
-## Scope
+```text
+Offline-first visual editor for static Bootstrap websites, powered by GrapesJS.
+```
 
-This document describes the behavior included in Oluntir 1.1.0.
+Suggested topics:
 
-## Verification
+```text
+website-builder grapesjs offline bootstrap static-site-generator html css javascript open-source
+```
 
-Test the function with a newly created project and a restored project. Where export is affected, test folder and archive output and compare the generated file structure with the selected format.
+## Git commands
 
-## Limitations
+From the extracted project root:
 
-Browser capabilities and imported project content may affect behavior. Report reproducible deviations with the browser version, project type, steps, and console output.
+```powershell
+git init
+git branch -M main
+git add .
+git status
+git commit -m "release: Oluntir 1.2.0"
+git remote add origin https://github.com/Oluntir/Oluntir.git
+git push -u origin main
+```
+
+Create and push the stable tag only after reviewing the packaged checksum and audit report:
+
+```powershell
+git tag -a v1.2.0 -m "Oluntir 1.2.0"
+git push origin v1.2.0
+```
+
+## GitHub release
+
+Title:
+
+```text
+Oluntir 1.2.0
+```
+
+Use `docs/releases/1.2.0.md` as the release body. Attach the final ZIP and its `.sha256` file. Verify the checksum after upload.
+
+## Pre-publication checklist
+
+- clean working tree;
+- no generated local projects or personal data;
+- structure and adapter tests pass;
+- archive opens and `index.html` starts;
+- licenses and notices are present;
+- README links resolve;
+- release archive checksum matches;
+- manual acceptance completed for release-critical workflows.

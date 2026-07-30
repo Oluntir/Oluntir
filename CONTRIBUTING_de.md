@@ -1,66 +1,40 @@
 > **Sprache:** Deutsch · [English (reference)](CONTRIBUTING.md)
 
-# Beiträge
+# Beiträge zu Oluntir
 
-## Geltungsbereich
+**Gültig für:** Oluntir 1.2.x
 
-Beiträge können Fehlerkorrekturen, technische Dokumentation, Tests oder abgegrenzte Funktionen umfassen.
+Beiträge sollen klar abgegrenzt, reproduzierbar, offline-kompatibel und möglichst ohne Verlust vorhandener Projektdaten sein.
 
-## Vor der Umsetzung
+## Vor dem Einreichen
 
-- vorhandene Issues und Dokumentation prüfen;
-- größere Architekturänderungen vorab beschreiben;
-- Drittcode und Assets nur mit Quelle, Version und Lizenz ergänzen;
-- Auswirkungen auf Speicherung, Wiederherstellung und Export bestimmen.
+1. Fehler oder Vorschlag mit erwartetem Verhalten beschreiben.
+2. Änderungen auf dem aktuellen Standard-Branch aufbauen.
+3. Unabhängige Refactorings nicht in denselben Pull Request mischen.
+4. Alle neuen, geänderten und gelöschten Dateien nennen.
+5. Auswirkungen auf Architektur, Persistenz, Projektformat, Export und Kompatibilität dokumentieren.
+6. Englische Referenzdokumentation und passende deutsche `*_de.md`-Datei gemeinsam aktualisieren.
 
-## Branches
+## Architekturregeln
 
-- `main`: freigabefähiger Projektstand;
-- `feature/<name>`: neue Funktion;
-- `fix/<name>`: Fehlerkorrektur;
-- `docs/<name>`: ausschließlich Dokumentation.
+- Versionierte GrapesJS-Vendor-Dateien nicht verändern.
+- GrapesJS-spezifische DOM- und Kompatibilitätslogik in `editor/integrations/grapesjs/` halten.
+- Gemeinsame Asset-, Workspace-, Settings- und Include-Services verwenden, statt Zustand zu duplizieren.
+- Browser-, Projekt-, Bild- oder Fensterdaten nicht stillschweigend verwerfen.
+- Laufzeit offline halten und keine neuen Netzwerkabhängigkeiten einführen.
+- Drittanbieter-Lizenztexte, Hinweise und Quellenangaben erhalten.
 
-Ein zusätzlicher Integrationsbranch wird erst benötigt, wenn mehrere parallele Entwicklungsstände koordiniert werden müssen.
+## Erforderliche Tests
 
-## Pull Requests
-
-Ein Pull Request enthält:
-
-1. technische Zielbeschreibung;
-2. Liste neuer, geänderter und gelöschter Dateien;
-3. Auswirkungen auf Datenmodell, Architektur und Export;
-4. reproduzierbare Testschritte;
-5. erwartetes Testergebnis;
-6. Angaben zu neuen Drittkomponenten;
-7. aktualisierte Dokumentation und Changelog-Eintrag.
-
-## Funktionstests
-
-Soweit betroffen, werden geprüft:
-
-- lokaler Start;
-- Projekterstellung und Seitenwechsel;
-- Speichern und Wiederherstellen;
-- Ordner-, ZIP- und TAR-Export;
-- HTML-, SSI- und PHP-Ausgabe;
-- Bootstrap 4 und Bootstrap 5;
-- deutsche und englische Oberfläche;
-- Chrome oder Edge sowie Firefox.
-
-## Code
-
-- browserkompatibles JavaScript verwenden;
-- lokale und offlinefähige Ausführung erhalten;
-- keine Telemetrie oder verdeckten Netzwerkzugriffe ergänzen;
-- Fehlerzustände behandeln und für den Benutzer verständlich melden;
-- bestehende Daten nicht unbeabsichtigt löschen oder überschreiben.
-
-## Commit-Nachrichten
-
-Beispiele:
+Mindestens ausführen:
 
 ```text
-feat: add Oluntir code formatting
-fix: create include files during SSI folder export
-docs: revise technical documentation
+python tools/validate-structure.py
+node tools/test-grapesjs-adapter.js
 ```
+
+Den geänderten Pfad manuell testen. Je nach Umfang gehören klassische und Shared-Content-Projekte, Bootstrap 4 und 5, Speichern/Wiederherstellen, HTML-/SSI-/PHP-Export, Ordner-/Archivausgabe, Bildmanager, Modal/Lightbox und Ein-/Zwei-Monitor-Umschaltung dazu.
+
+## Pull-Request-Beschreibung
+
+Problem, Umsetzung, geänderte Dateien, Testbefehle, erwartete und tatsächliche Ergebnisse, Kompatibilität, Migration, bekannte Einschränkungen und Dokumentationsänderungen angeben.

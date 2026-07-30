@@ -64,7 +64,7 @@ if node.returncode == 0:
         result=subprocess.run(['node','--check',str(path)],capture_output=True,text=True)
         if result.returncode: errors.append(f'JavaScript-Syntaxfehler in {path.relative_to(ROOT)}: {result.stderr.strip()}')
 
-# Oluntir 1.1.0 architecture rules
+# Oluntir 1.2.0 architecture rules
 for area in (ROOT/'editor/modules', ROOT/'editor/services'):
     for path in area.rglob('*.js'):
         if '.gjs-' in path.read_text(encoding='utf-8', errors='ignore'):

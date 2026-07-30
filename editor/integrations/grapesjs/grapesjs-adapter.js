@@ -8,6 +8,19 @@
       setImageSelector(value) { selector = value; },
       getAssets() { return editor.AssetManager.getAll(); },
       getModalElement() { return editor.Modal && editor.Modal.getContentEl ? editor.Modal.getContentEl() : null; },
+      getWorkspacePanelNodes() {
+        const selectors = [
+          '.gjs-pn-views',
+          '.gjs-pn-views-container'
+        ];
+        const nodes = [];
+        selectors.forEach((panelSelector) => {
+          document.querySelectorAll(panelSelector).forEach((node) => {
+            if (!nodes.includes(node)) nodes.push(node);
+          });
+        });
+        return nodes;
+      },
       selfTest() {
         return { compatibility, selector: !!selector, command: !!editor.Commands.get('open-assets') };
       }

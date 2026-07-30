@@ -4,6 +4,23 @@
   let viewer = null;
   let state = null;
 
+  function updateVisibleViewport() {
+    const viewport = window.visualViewport;
+    const height = viewport ? viewport.height : window.innerHeight;
+    const top = viewport ? viewport.offsetTop : 0;
+    const safeHeight = Math.max(320, Math.floor(height));
+    const desktopGap = Math.max(18, Math.floor(safeHeight * 0.05));
+    document.documentElement.style.setProperty('--pb-gallery-visible-height', `${safeHeight}px`);
+    document.documentElement.style.setProperty('--pb-gallery-visible-top', `${Math.max(0, Math.floor(top))}px`);
+    document.documentElement.style.setProperty('--pb-gallery-visible-gap', `${desktopGap}px`);
+  }
+  updateVisibleViewport();
+  window.addEventListener('resize', updateVisibleViewport, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateVisibleViewport, { passive: true });
+    window.visualViewport.addEventListener('scroll', updateVisibleViewport, { passive: true });
+  }
+
   function galleryFor(node) { return node && node.closest ? node.closest('[data-pb-gallery]') : null; }
   function itemsFor(node) {
     const gallery = galleryFor(node);
@@ -49,7 +66,7 @@
         <footer class="pb-gallery-viewer-footer">
           <div class="pb-gallery-viewer-caption" aria-live="polite"></div>
           <div class="pb-gallery-viewer-counter" aria-live="polite"></div>
-          <a class="pb-gallery-viewer-download" href="#" download>Original herunterladen</a>
+          <a class="pb-gallery-viewer-download" href="#" download>Originalbild herunterladen</a>
         </footer>
       </section>`;
     document.body.appendChild(viewer);
@@ -78,13 +95,14 @@
     const label = item.dataset.caption || item.dataset.alt || item.dataset.filename || `Bild ${state.index + 1}`;
     image.src = bestSource(item);
     image.alt = item.dataset.alt || label;
-    title.textContent = state.mode === 'lightbox' ? 'Lightbox' : label;
+    title.textContent = label;
     caption.textContent = state.caption ? label : '';
     caption.hidden = !state.caption;
     counter.textContent = state.counter ? `${state.index + 1} / ${state.items.length}` : '';
     counter.hidden = !state.counter;
     download.href = item.dataset.download || item.getAttribute('href') || image.src;
-    download.setAttribute('download', item.dataset.filename || 'bild');
+    download.setAttribute('download', item.dataset.filename || 'originalbild');
+    download.setAttribute('title', `Originalbild herunterladen: ${label}`);
     const disablePrev = !state.loop && state.index === 0;
     const disableNext = !state.loop && state.index === state.items.length - 1;
     viewer.querySelector('[data-pb-gallery-nav="prev"]').disabled = disablePrev;
@@ -102,6 +120,7 @@
     const items = itemsFor(trigger);
     if (!items.length) return;
     ensureViewer();
+    updateVisibleViewport();
     state = {
       gallery: gallery,
       items: items,

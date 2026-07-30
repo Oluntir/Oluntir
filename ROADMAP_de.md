@@ -2,36 +2,35 @@
 
 # Roadmap
 
-Die Roadmap beschreibt geplante technische Arbeitspakete. Sie enthält keine verbindlichen Liefertermine.
+**Aktuelle stabile Version:** 1.2.0  
+**Stand:** 30.07.2026
 
-## Aktueller Stand: 1.1.0
+Die Roadmap beschreibt mögliche Arbeitspakete und keine verbindlichen Liefertermine.
 
-- lokaler Editor und Projektpersistenz;
-- Bootstrap 4.6.2 und Bootstrap 5.3.8;
-- klassische HTML-Projekte und sich inhaltlich wiederholende Elemente und Bereiche;
-- Oluntir-Dokumentmodell und Oluntir-Codeansicht;
-- zentraler Include-Resolver;
-- HTML-, Apache-SSI- und PHP-Export;
-- Ordner-, ZIP- und TAR-Ausgabe;
-- deutsche und englische Oberfläche;
-- technische Lizenz- und Asset-Dokumentation.
+## In 1.2.0 abgeschlossen
 
-## Nächste technische Arbeitspakete
+- Zwei-Monitor-Arbeitsbereich mit dauerhaften Einstellungen und sicherem Fallback;
+- vollständige Auslagerung der rechten GrapesJS-Werkzeugspalte und der Oluntir-Schnellbearbeitungsbereiche;
+- Workspace-basierter Bildmanager und Projektordner-Synchronisation;
+- eigenständiges Modal und echte Lightbox mit Tastatur- und Downloadfunktionen;
+- geschützter unterer Sicherheitsabstand der Viewer;
+- stärkere GrapesJS-Adaptergrenze und vollständige Release-Dokumentation.
 
-- vollständige Validierung des Oluntir-Dokumentmodells;
-- direkte Navigation von `<ope-include>` zum zugehörigen Bereich;
-- verbesserte Fehlerpositionen und Zeilenbezug in der Codeansicht;
-- automatisierte Browser-Smoke-Tests;
-- Tests für Projektmigration und Versionswechsel;
-- Überprüfung und Aktualisierung älterer eingebundener Bibliotheken;
-- erweiterte Barrierefreiheitsprüfung.
+## Mögliche Arbeitspakete für 1.3.0
 
-## Spätere Kandidaten
+- automatisierte Browser-Smoke-Tests für aktuelle Chromium-Browser und Firefox;
+- klarere Diagnose für verweigerte Ordner-, Pop-up- und Window-Management-Berechtigungen;
+- optional verstellbare Trennlinie im externen Werkzeugfenster;
+- verbesserte Migrationsberichte und Wiederherstellungsvorschau;
+- vertiefte Barrierefreiheitsprüfung der Dialoge und Tastaturabläufe;
+- weitere Ablösung oder Modernisierung älterer gebündelter Website-Plugins;
+- zusätzliche Diagnose und Statusanzeige für Bildsynchronisation.
+
+## Langfristige Kandidaten
 
 - Projekt-Explorer für Seiten und sich inhaltlich wiederholende Elemente und Bereiche;
-- Vorlagen für sich inhaltlich wiederholende Elemente und Bereiche;
-- zusätzliche Export-Writer auf Basis des vorhandenen Resolvers;
-- erweiterte Asset-Verwaltung;
-- öffentliche technische Projektdokumentation.
+- zusätzliche wiederverwendbare Vorlagen und Export-Writer;
+- optionale weitere Framework-Profile nach Kompatibilitäts- und Lizenzprüfung;
+- breitere automatisierte Regressionstests für Import, Export und wiederhergestellte Projekte.
 
-Ein Arbeitspaket wird umgesetzt, nachdem Datenmodell, Benutzerablauf, Exportverhalten, Kompatibilität, Tests und Lizenzbedingungen festgelegt wurden.
+Jedes Arbeitspaket benötigt vor der Umsetzung ein definiertes Datenmodell, einen Benutzerablauf, eine Kompatibilitätsgrenze, Migrationsverhalten, Tests, Dokumentation und Lizenzprüfung.

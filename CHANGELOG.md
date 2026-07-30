@@ -1,66 +1,39 @@
-> **Language:** English (reference) · [Deutsch](CHANGELOG_de.md)
-
 # Changelog
 
-## Oluntir 1.1.0 — 2026-07-30
+> **Language:** English (reference) · [Deutsch](CHANGELOG_de.md)
 
-### Technical foundation: GrapesJS
+## Oluntir 1.2.0 — 2026-07-30
 
-- GrapesJS is the central visual editor engine and an essential foundation of Oluntir.
-- The unchanged vendor version, adapter, and compatibility checks provide a controlled update path for future GrapesJS releases.
+### Multi-monitor workspace
 
-### Assets and usability
+- Added startup choice for single- or two-monitor operation with stability and pop-up guidance.
+- Added IndexedDB-backed workspace settings for preferred mode, startup choice, tool-window bounds, and restoration.
+- Added a separate tool window containing the complete right GrapesJS column and both Oluntir quick-edit areas.
+- Added toolbar controls to move, recall, focus, and return the tool column.
+- Added safe fallback for blocked pop-ups, closed windows, unavailable screens, invalid bounds, and one-monitor systems.
+- Kept the preferred dual-monitor setting separate from the active session fallback.
 
-- Uploads remain managed in IndexedDB and can additionally be written to the connected project's `assets/user_upload/` directory.
-- Standalone image selection interface with search, filters, grid/list views, details, variants, replacement, and safe deletion.
-- Lightbox backdrop refined to 80% black with a subtle `backdrop-filter: blur(2px)`.
-- Top toolbar remains visible while scrolling, and dark-theme selection fields have improved contrast.
+### Image Manager and project folder
 
+- Completed workspace-based image management with search, filters, grid/list views, details, variants, replacement, and safe deletion.
+- Added an explanatory dialog before folder selection.
+- Simplified the action to “Connect project folder”; users select the project root and Oluntir uses or creates `assets/user_upload/`.
+- Kept browser asset storage separate from physical folder synchronization.
 
-### Gallery viewer and accessibility
+### Gallery viewers
 
-- Added per-gallery enlargement modes: none, modal, and lightbox.
-- Added keyboard navigation, focus trapping, focus restoration, captions, image counters, and optional loop navigation.
-- Added the shared gallery viewer runtime to both Bootstrap 4.6.2 and Bootstrap 5.3.8 exports.
+- Preserved distinct `none`, `modal`, and `lightbox` modes.
+- Restored a true dark, frameless Lightbox and retained a framed Modal.
+- Added or stabilized caption, image counter, original-image download, keyboard navigation, focus trapping, and focus restoration.
+- Added a bottom safe area of at least one control height on desktop while preserving responsive behavior.
 
+### Architecture and UI
 
-### Workspace architecture
-
-- Added a central `OluntirWorkspaceManager` for large editor tools.
-- The image manager now runs outside the GrapesJS modal and covers the editor workspace without overlapping quick editing.
-- Added a permanent image-manager button to the upper GrapesJS toolbar.
-- Added lazy loading and incremental rendering for large image collections.
-- Preview images are loaded directly from the IndexedDB asset store.
-- The image manager can be reopened repeatedly after closing.
-
-- Moved GrapesJS into an unchanged, versioned vendor dependency.
-- Added a central GrapesJS adapter and compatibility layer.
-- Added an independent Image Select module without internal GrapesJS DOM dependencies.
-- Separated asset, IndexedDB, variant, and usage logic into services.
-- Added search, filters, primary/all-variant views, dimensions, details, replacement, and guarded bulk deletion.
-
+- Extended `OluntirWorkspaceManager` and introduced dedicated multi-monitor and settings services.
+- Kept GrapesJS unchanged and versioned behind the adapter and compatibility boundary.
+- Added ongoing synchronization of delayed GrapesJS tool containers into the external window.
+- Improved sticky toolbar behavior, dark-theme contrast, monitor controls, and settings notices.
 
 ## Oluntir 1.0.0 — 2026-07-29
 
-Oluntir 1.0.0 is the first stable public release of the browser-based static website editor.
-
-### Included capabilities
-
-- Local browser-based editing without a database or server-side application runtime.
-- Bootstrap 4.6.2 and Bootstrap 5.3.8 project profiles.
-- Page creation, renaming, deletion, local browser storage, project backup, and project restore.
-- Portable project files using the `.oluntir` extension while retaining the existing binary project structure.
-- Classic HTML projects and projects with centrally maintained recurring content regions.
-- Shared Content Manager for header, navigation, footer, and optional recurring content sections.
-- Source and rendered-code views.
-- Export as resolved HTML, Apache SSI, or PHP includes.
-- Folder, ZIP, and TAR export.
-- German and English interface and documentation.
-- Quick setup, quick editing, block search, gallery support, and responsive editor views.
-- Bundled local framework, font, image, editor, and website assets.
-
-### Release preparation
-
-- Unified product naming, visible branding, metadata, repository links, website links, and contact details under Oluntir.
-- Removed pre-1.0 development, preview, release-candidate, migration, and rename records from the release package.
-- Updated productive documentation and retained required third-party licensing and attribution information.
+Oluntir 1.0.0 was the first stable public release. It introduced local static-site editing, Bootstrap 4 and 5 profiles, project persistence, recurring content elements and regions, the Oluntir include model, HTML/SSI/PHP export, folder/ZIP/TAR output, bilingual UI and documentation, quick editing, galleries, and bundled offline assets.

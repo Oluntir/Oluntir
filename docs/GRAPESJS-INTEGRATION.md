@@ -1,23 +1,26 @@
-# GrapesJS integration in Oluntir 1.1.0
+# GrapesJS integration in Oluntir 1.2.0
 
-GrapesJS is stored unchanged below `vendor/grapesjs/<version>/`. Oluntir-specific behavior is isolated in `editor/integrations/grapesjs/`.
+GrapesJS 0.23.2 is stored unchanged below `vendor/grapesjs/0.23.2/`. Oluntir-specific behavior is isolated in `editor/integrations/grapesjs/`.
 
-The Image Select UI is owned by Oluntir and uses only the public command, modal, asset, and page APIs exposed by the adapter. Internal `.gjs-*` markup is not patched.
+## Boundary
+
+Oluntir modules use the adapter for editor commands, asset selection, panels, and approved tool-container relocation. Internal `.gjs-*` structures must not become general application dependencies. Multi-monitor support moves existing tool containers; it does not fork or instantiate another GrapesJS editor.
 
 ## Update procedure
 
-1. Add the new vendor version in a separate version directory.
-2. Change the central paths in `index.html` only after verification.
-3. Update `editor/config/editor-dependencies.js`.
-4. Run the compatibility, syntax, reference, import, export, and Image Select regression tests.
-5. Keep the previous vendor version until the regression is complete.
+1. Add a new GrapesJS version in a separate vendor directory.
+2. Keep the previous version until regression testing is complete.
+3. Update central dependency configuration and paths only after verification.
+4. Run structure, adapter, JavaScript syntax, import, restore, export, Image Manager, gallery, and multi-monitor tests.
+5. Document compatibility differences and any migration requirement.
 
 ## Required checks
 
-- Editor initialization
-- `open-assets` adapter command
-- Image selection callback
-- IndexedDB hydration and export
-- Responsive image variants
-- Replace while retaining stable paths
-- Delete unused and delete all confirmation paths
+- editor initialization and canvas;
+- public adapter commands and callbacks;
+- Components, Styles, Layers, and Traits in single and dual mode;
+- quick-edit synchronization;
+- IndexedDB hydration and export;
+- image variants, replacement, and deletion safeguards;
+- tool-window closure and fallback;
+- both Bootstrap profiles and all export modes.

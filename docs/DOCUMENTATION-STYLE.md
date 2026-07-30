@@ -2,11 +2,11 @@
 
 # Documentation Guidelines
 
-**Version:** 1.1.0  
+**Version:** 1.2.0  
 **Language:** English  
 **Status:** Stable  
-**Applies to:** Oluntir 1.1.0  
-**Last updated:** 2026-07-29
+**Applies to:** Oluntir 1.2.0  
+**Last updated:** 2026-07-30
 
 ## Purpose
 
@@ -14,7 +14,7 @@ English files are the reference. German translations use the `_de.md` suffix. Do
 
 ## Scope
 
-This document describes the behavior included in Oluntir 1.1.0.
+This document describes the behavior included in Oluntir 1.2.0.
 
 ## Verification
 

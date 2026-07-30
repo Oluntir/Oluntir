@@ -32,8 +32,21 @@
       </div>
       <footer class="oluntir-is-footer">
         <span data-role="summary">0 Bilder</span>
-        <div class="oluntir-is-actions"><button type="button" data-action="sync-folder"><span class="fa fa-folder-open-o"></span> Projektordner verbinden & Uploads schreiben</button><button type="button" data-action="delete-unused">Nicht verwendete Bilder löschen</button><button type="button" data-action="delete-all" class="is-danger"><span class="fa fa-trash"></span> Alle Bilder löschen</button></div>
-      </footer>`;
+        <div class="oluntir-is-actions"><button type="button" data-action="sync-folder"><span class="fa fa-folder-open-o"></span> Projektordner verbinden</button><button type="button" data-action="delete-unused">Nicht verwendete Bilder löschen</button><button type="button" data-action="delete-all" class="is-danger"><span class="fa fa-trash"></span> Alle Bilder löschen</button></div>
+      </footer>
+      <div class="oluntir-project-folder-info" data-role="project-folder-info" hidden>
+        <div class="oluntir-project-folder-info__backdrop" data-action="cancel-project-folder"></div>
+        <section class="oluntir-project-folder-info__dialog" role="dialog" aria-modal="true" aria-labelledby="oluntir-project-folder-title">
+          <header><h3 id="oluntir-project-folder-title">Projektordner verbinden</h3><button type="button" data-action="cancel-project-folder" aria-label="Hinweis schließen">×</button></header>
+          <div class="oluntir-project-folder-info__body">
+            <p>Wähle im nächsten Schritt den <strong>Stammordner deines aktuellen Oluntir-Projekts</strong> aus.</p>
+            <p>Wähle nicht direkt <code>assets</code> oder <code>user_upload</code>. Oluntir verwendet beziehungsweise erstellt im gewählten Projektordner automatisch:</p>
+            <p class="oluntir-project-folder-info__path"><code>assets/user_upload/</code></p>
+            <p>Alle bereits in der Oluntir-Bilddatenbank gespeicherten Uploads werden dorthin geschrieben. Weitere Uploads werden während der verbundenen Sitzung ebenfalls synchronisiert.</p>
+          </div>
+          <footer><button type="button" data-action="cancel-project-folder">Abbrechen</button><button type="button" class="is-primary" data-action="choose-project-folder">Projektordner auswählen</button></footer>
+        </section>
+      </div>`;
     return root;
   }
   function card(item, selected, previewUrl, mode = 'manage') {

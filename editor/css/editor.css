@@ -1413,3 +1413,193 @@ body {
 .gjs-pn-views-container .gjs-blocks-c {
   background: #25282e;
 }
+
+
+/* Oluntir 1.2.0 – Mehrmonitor-Arbeitsbereich */
+.oluntir-monitor-startup { z-index: 30000; }
+.oluntir-monitor-startup-dialog { width: min(760px, 94vw); }
+.oluntir-monitor-start-actions { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0; }
+.oluntir-monitor-start-actions button { display:grid; grid-template-columns:42px 1fr; text-align:left; gap:3px 10px; align-items:center; padding:18px; min-height:112px; }
+.oluntir-monitor-start-actions button i { grid-row:1 / span 2; font-size:30px; }
+.oluntir-monitor-start-actions button span { opacity:.78; font-size:12px; }
+.oluntir-monitor-settings { margin:18px 0; padding:14px; border:1px solid var(--oluntir-line); display:grid; gap:9px; }
+.oluntir-monitor-settings legend { font-weight:700; padding:0 6px; }
+.oluntir-monitor-settings > label { display:flex; align-items:center; gap:9px; }
+.oluntir-monitor-hint { margin:6px 0; padding:12px; background:#2f343b; color:#ffffff !important; border-left:4px solid var(--oluntir-accent); line-height:1.5; }
+.oluntir-monitor-hint strong, .oluntir-monitor-hint a { color:#ffffff !important; }
+.oluntir-monitor-settings-actions { display:flex; flex-wrap:wrap; gap:8px; }
+
+body.oluntir-dual-monitor .gjs-cv-canvas { width:100% !important; right:0 !important; }
+body.oluntir-dual-monitor .gjs-editor-cont { padding-right:0 !important; }
+body.oluntir-dual-monitor .gjs-pn-views,
+body.oluntir-dual-monitor .gjs-pn-views-container { display:none !important; width:0 !important; }
+body.oluntir-dual-monitor .gjs-pn-commands { right:0 !important; }
+body.oluntir-dual-monitor .gjs-pn-options { right:0 !important; }
+
+body.oluntir-tool-window { margin:0; overflow:hidden; background:#25282e; color:#eef0f3; font-family:Arial,Helvetica,sans-serif; }
+.oluntir-tool-window-head { height:54px; box-sizing:border-box; padding:8px 12px; display:flex; align-items:center; justify-content:space-between; background:#1d2025; border-bottom:1px solid #4b5058; }
+.oluntir-tool-window-head div { display:flex; flex-direction:column; gap:2px; }
+.oluntir-tool-window-head span { font-size:11px; color:#aeb4bd; }
+.oluntir-tool-window-head button { width:38px; height:36px; border:1px solid #555b64; background:#30353c; color:#fff; cursor:pointer; }
+#oluntir-tool-window-host { position:relative; height:calc(100vh - 82px); overflow:hidden; }
+#oluntir-tool-window-status { height:28px; box-sizing:border-box; padding:7px 12px; font-size:11px; background:#1d2025; border-top:1px solid #4b5058; color:#aeb4bd; }
+body.oluntir-tool-window .gjs-pn-views { position:relative !important; top:auto !important; right:auto !important; left:auto !important; width:100% !important; height:50px !important; display:flex !important; }
+body.oluntir-tool-window .gjs-pn-views-container { position:relative !important; top:auto !important; right:auto !important; left:auto !important; width:100% !important; height:calc(100% - 50px) !important; padding-top:0 !important; overflow:auto !important; }
+body.oluntir-tool-window .gjs-pn-views .gjs-pn-btn { flex:1; }
+@media (max-width:700px) { .oluntir-monitor-start-actions { grid-template-columns:1fr; } }
+
+
+/* Oluntir 1.2.0 – Monitor controls and complete tool-column transfer */
+.gjs-pn-options .gjs-pn-btn[data-oluntir-monitor-toggle="true"],
+.gjs-pn-options .gjs-pn-btn[data-oluntir-monitor-focus="true"] {
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  min-width:38px;
+  visibility:visible !important;
+  opacity:1 !important;
+}
+.gjs-pn-options .gjs-pn-btn[data-oluntir-monitor-toggle="true"].oluntir-monitor-active {
+  background:#314c3a !important;
+  color:#ffffff !important;
+  box-shadow:inset 0 -3px 0 var(--oluntir-accent);
+}
+body.oluntir-tool-window #oluntir-tool-window-host > .gjs-pn-views,
+body.oluntir-tool-window #oluntir-tool-window-host > .gjs-pn-views-container {
+  box-sizing:border-box;
+}
+
+
+/* Oluntir 1.2.0 – clearer monitor/window controls */
+.gjs-pn-options .gjs-pn-btn[data-oluntir-monitor-toggle="true"],
+.gjs-pn-options .gjs-pn-btn[data-oluntir-monitor-focus="true"] {
+  position:relative;
+}
+.gjs-pn-options .gjs-pn-btn[data-oluntir-monitor-toggle="true"]::after {
+  content:"↔";
+  position:absolute;
+  right:2px;
+  bottom:0;
+  font:700 10px/1 Arial,sans-serif;
+  color:var(--oluntir-accent,#4da3ff);
+  text-shadow:0 1px 1px rgba(0,0,0,.8);
+}
+.gjs-pn-options .gjs-pn-btn[data-oluntir-monitor-focus="true"]::after {
+  content:"↗";
+  position:absolute;
+  right:2px;
+  bottom:0;
+  font:700 10px/1 Arial,sans-serif;
+  color:var(--oluntir-accent,#4da3ff);
+  text-shadow:0 1px 1px rgba(0,0,0,.8);
+}
+.oluntir-monitor-hint {
+  background:#252a31 !important;
+  color:#f7f8fa !important;
+  border:1px solid #4d5662;
+  border-left:4px solid var(--oluntir-accent) !important;
+}
+.oluntir-monitor-hint, .oluntir-monitor-hint * {
+  color:#f7f8fa !important;
+}
+
+
+/* Oluntir 1.2.0 – Werkzeugmonitor mit eigener Schnellbearbeitung */
+#oluntir-tool-window-layout {
+  display:grid;
+  grid-template-columns:minmax(300px, 1fr) minmax(340px, 42%);
+  height:calc(100vh - 82px);
+  min-width:0;
+  overflow:hidden;
+}
+#oluntir-tool-window-host {
+  height:100%;
+  min-width:0;
+  border-right:1px solid #4b5058;
+}
+#oluntir-tool-window-quick-edit {
+  position:relative;
+  min-width:0;
+  height:100%;
+  overflow:hidden;
+  background:#20242a;
+}
+.oluntir-quick-edit-title {
+  height:50px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:0 14px;
+  border-bottom:1px solid #4b5058;
+  background:#292e35;
+  font-weight:700;
+}
+#oluntir-quick-edit-placeholder {
+  margin:18px;
+  padding:16px;
+  border:1px dashed #59616c;
+  border-radius:6px;
+  color:#b7bdc6;
+  line-height:1.5;
+  background:#272c33;
+}
+body.oluntir-tool-window #pb-quick-edit {
+  position:relative;
+  inset:auto;
+  z-index:auto;
+  width:100%;
+  height:calc(100% - 50px);
+  max-height:none;
+  box-sizing:border-box;
+  overflow:auto;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  background:#292c33;
+}
+body.oluntir-tool-window #pb-quick-edit .pbe-head {
+  top:0;
+}
+body.oluntir-tool-window #pb-quick-edit .pbe-foot {
+  bottom:0;
+}
+@media (max-width:820px) {
+  #oluntir-tool-window-layout { grid-template-columns:minmax(270px, 1fr) minmax(300px, 45%); }
+}
+
+/* Oluntir 1.2.0: beide Schnellbereiche im Werkzeugmonitor */
+body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-panel,
+body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-panel[hidden],
+body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden] {
+  display: none !important;
+}
+
+
+/* Oluntir 1.2.0: verständlicher Hinweis vor der Projektordner-Verbindung */
+.oluntir-project-folder-info[hidden]{display:none!important}
+.oluntir-project-folder-info{position:fixed;inset:0;z-index:100500;display:grid;place-items:center;padding:24px;color:#f5f7fa}
+.oluntir-project-folder-info__backdrop{position:absolute;inset:0;background:rgba(5,8,12,.82);backdrop-filter:blur(2px)}
+.oluntir-project-folder-info__dialog{position:relative;z-index:1;width:min(620px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;background:#282d35;border:1px solid rgba(255,255,255,.2);border-radius:8px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.oluntir-project-folder-info__dialog>header,.oluntir-project-folder-info__dialog>footer{display:flex;align-items:center;gap:12px;padding:14px 18px}
+.oluntir-project-folder-info__dialog>header{justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.14)}
+.oluntir-project-folder-info__dialog>header h3{margin:0;font-size:18px;color:#fff}
+.oluntir-project-folder-info__dialog>header button{border:0;background:transparent;color:#fff;font-size:28px;line-height:1;cursor:pointer}
+.oluntir-project-folder-info__body{padding:16px 18px;color:#eef2f7;line-height:1.55}
+.oluntir-project-folder-info__body p{margin:0 0 12px}
+.oluntir-project-folder-info__body code{color:#fff;background:#181c22;padding:2px 5px;border-radius:3px}
+.oluntir-project-folder-info__path{padding:10px 12px;background:#1b2027;border-left:4px solid #2f80d1}
+.oluntir-project-folder-info__dialog>footer{justify-content:flex-end;border-top:1px solid rgba(255,255,255,.14)}
+.oluntir-project-folder-info__dialog>footer button{border:1px solid rgba(255,255,255,.22);border-radius:4px;background:#353a42;color:#fff;padding:9px 13px;cursor:pointer}
+.oluntir-project-folder-info__dialog>footer button.is-primary{background:#2376c9;border-color:#3e91e2}

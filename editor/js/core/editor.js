@@ -232,6 +232,21 @@ assetHydration.then(() => {
         titleKey: 'tool.backupLoad',
         action: () => document.getElementById('input-restore').click(),
       },
+      {
+        id: 'pb-ui-toolbar-monitor-toggle',
+        icon: 'fa fa-desktop',
+        titleKey: 'tool.monitorToggle',
+        separator: true,
+        attributes: { 'data-oluntir-monitor-toggle': 'true' },
+        action: () => window.OluntirMultiMonitor && window.OluntirMultiMonitor.toggle(),
+      },
+      {
+        id: 'pb-ui-toolbar-monitor-focus',
+        icon: 'fa fa-window-restore',
+        titleKey: 'tool.monitorFocus',
+        attributes: { 'data-oluntir-monitor-focus': 'true' },
+        action: () => window.OluntirMultiMonitor && window.OluntirMultiMonitor.focusOrOpen(),
+      },
     ];
 
     commandMap.forEach((tool) => {
@@ -241,12 +256,12 @@ assetHydration.then(() => {
         id: tool.id,
         className: tool.icon,
         command: commandId,
-        attributes: {
+        attributes: Object.assign({
           title: window.OluntirI18N ? window.OluntirI18N.t(tool.titleKey) : tool.titleKey,
           'aria-label': window.OluntirI18N ? window.OluntirI18N.t(tool.titleKey) : tool.titleKey,
           'data-pb-toolbar-tool': 'true',
           'data-pb-toolbar-separator': tool.separator ? 'true' : 'false',
-        },
+        }, tool.attributes || {}),
       });
     });
     window.addEventListener('oluntir:languagechange', () => {

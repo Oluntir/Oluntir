@@ -1,17 +1,22 @@
-Oluntir 1.1.0
+Oluntir 1.2.0
 Copyright (c) 2026 Sebastian Lenth
 
-Oluntir original code and original demonstration artwork are licensed
-under the MIT License. See LICENSE.
+Oluntir original code and original demonstration artwork are licensed under
+the MIT License. See LICENSE.
 
 This distribution includes third-party software and fonts under permissive
-open-source licenses. Their names, versions, copyright notices, licenses and
+open-source licenses. Their names, versions, copyright notices, licenses, and
 repository locations are documented in THIRD_PARTY_NOTICES.md. Consolidated
 license texts are stored in LICENSES/.
 
-The Oluntir name and project logo identify this project. The MIT License
-does not grant trademark rights.
+The Oluntir name and project logo identify this project. The MIT License does
+not grant trademark rights.
 
 GrapesJS acknowledgement
 -------------------------
-GrapesJS is the essential visual editor engine on which Oluntir's component editing and canvas experience are built. Oluntir keeps GrapesJS as an unchanged, versioned third-party dependency and integrates it through a dedicated adapter and compatibility layer. GrapesJS remains licensed under its own BSD-3-Clause terms; see THIRD_PARTY_NOTICES.md and LICENSES/BSD-3-Clause.txt.
+GrapesJS is the essential visual editor engine on which Oluntir's component
+editing and canvas experience are built. Oluntir keeps GrapesJS as an
+unchanged, versioned third-party dependency and integrates it through a
+dedicated adapter and compatibility layer. GrapesJS remains licensed under
+its BSD-3-Clause terms; see THIRD_PARTY_NOTICES.md and
+LICENSES/BSD-3-Clause.txt.

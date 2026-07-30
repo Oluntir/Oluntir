@@ -1,66 +1,61 @@
 > **Sprache:** Deutsch · [English (reference)](GITHUB-PUBLISHING.md)
 
-# GitHub Publishing Guide
+# GitHub-Veröffentlichung
 
-## Recommended repository
+**Release:** Oluntir 1.2.0
 
-```text
-Oluntir
-```
+## Repository-Metadaten
 
-Suggested description:
+Empfohlene Beschreibung:
 
 ```text
-Offline-first website builder for static Bootstrap websites.
+Offline-first visual editor for static Bootstrap websites, powered by GrapesJS.
 ```
 
-Suggested topics:
+Empfohlene Topics:
 
 ```text
-website-builder offline bootstrap static-site-generator html open-source
+website-builder grapesjs offline bootstrap static-site-generator html css javascript open-source
 ```
 
-## Initial local setup on Windows
+## Git-Befehle
 
-Run these commands from the prepared project directory on `D:`:
+Im entpackten Projektstamm:
 
 ```powershell
 git init
 git branch -M main
 git add .
 git status
-git commit -m "chore: prepare Oluntir 1.1.0 repository"
-```
-
-After creating the empty GitHub repository, add its URL:
-
-```powershell
-git remote add origin https://github.com/<ACCOUNT>/Oluntir.git
-git remote -v
-```
-
-Do **not** push publicly until the license checklist is complete. For a private
-repository used during cleanup:
-
-```powershell
+git commit -m "release: Oluntir 1.2.0"
+git remote add origin https://github.com/Oluntir/Oluntir.git
 git push -u origin main
 ```
 
-## Stable release tag after audit approval
-
-After licensing clearance and final tests:
+Den stabilen Tag erst nach Prüfung des Pakets, der Prüfsumme und des Auditberichts erstellen:
 
 ```powershell
-git tag -a v1.1.0 -m "Oluntir 1.1.0"
-git push origin main
-git push origin v1.1.0
+git tag -a v1.2.0 -m "Oluntir 1.2.0"
+git push origin v1.2.0
 ```
 
-## Suggested first release title
+## GitHub-Release
+
+Titel:
 
 ```text
-Oluntir 1.1.0
+Oluntir 1.2.0
 ```
 
-The release notes should list tested browsers, export methods, framework
-profiles, known limitations and the completed licensing audit.
+`docs/releases/1.2.0_de.md` als Release-Text verwenden. Finale ZIP und `.sha256` anhängen und die Prüfsumme nach dem Upload erneut kontrollieren.
+
+## Checkliste vor Veröffentlichung
+
+- sauberer Git-Status;
+- keine lokalen Projekte oder personenbezogenen Daten;
+- Struktur- und Adaptertests erfolgreich;
+- Archiv lässt sich öffnen und `index.html` startet;
+- Lizenzen und Hinweise vorhanden;
+- README-Verweise funktionieren;
+- Prüfsumme des Release-Archivs stimmt;
+- manuelle Abnahme der releasekritischen Abläufe abgeschlossen.

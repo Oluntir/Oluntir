@@ -2,97 +2,88 @@
 
 # Oluntir
 
-Oluntir ist ein browserbasierter Editor für statische Websites. Die Anwendung arbeitet lokal und erzeugt HTML, CSS und JavaScript ohne erforderliche Datenbank oder serverseitige Projektlaufzeit.
+**Version:** 1.2.0  
+**Status:** Stabil  
+**Veröffentlichung:** 30.07.2026
 
-## GrapesJS als technisches Fundament
+Oluntir ist ein offline-orientierter, browserbasierter Editor für statische Websites. Die Anwendung erstellt und pflegt HTML-, CSS- und JavaScript-Projekte lokal, ohne eine Datenbank oder serverseitige Anwendungslaufzeit zu benötigen.
 
-Oluntir baut auf **GrapesJS** als zentraler visueller Editor-Engine auf. Ohne GrapesJS wären die Komponentenbearbeitung, die Canvas-Darstellung und wesentliche Editorfunktionen nicht möglich. Oluntir ergänzt dieses Fundament um eine eigene Projekt-, Export-, Workspace- und Asset-Architektur. GrapesJS wird unverändert und versioniert als Vendor-Abhängigkeit geführt; der Zugriff erfolgt über eine eigene Adapter- und Kompatibilitätsschicht, damit spätere GrapesJS-Updates kontrolliert geprüft und eingespielt werden können.
+## GrapesJS als Editor-Engine
 
-## Wichtigste Neuerungen in 1.1.0
+Oluntir verwendet **GrapesJS 0.23.2** als zentrale visuelle Editor-Engine. GrapesJS bleibt unverändert und versioniert unter `vendor/grapesjs/`. Oluntir-spezifisches Verhalten ist hinter der Integrations- und Kompatibilitätsschicht in `editor/integrations/grapesjs/` gekapselt. Dadurch bleiben Projekt-, Asset-, Workspace-, Export- und Mehrmonitor-Architektur unabhängig von internen GrapesJS-DOM-Strukturen.
 
-- Bild-Uploads werden weiterhin in IndexedDB verwaltet und zusätzlich unter `assets/user_upload/` in das verbundene Projekt geschrieben.
-- Die Updatefähigkeit für GrapesJS wurde durch versionierte Vendor-Dateien, eine eigene Integrationsschicht und den neuen `OluntirWorkspaceManager` vorbereitet.
-- Eine eigenständige Bildauswahl mit Suche, Filterung, Raster- und Listenansicht, Detailinformationen, Variantenverwaltung, Ersetzen und sicherem Löschen wurde ergänzt.
-- Galerien unterstützen wahlweise keine Vergrößerung, Modal oder Lightbox sowie vollständige Tastaturnavigation und Fokusmanagement.
-- Die obere Werkzeugleiste bleibt beim Scrollen sichtbar; Auswahlfelder im dunklen Editor besitzen einen verbesserten Kontrast.
+## Höhepunkte der Version 1.2.0
 
-**Version:** 1.1.0  
-**Status:** Stable
+- **Zwei-Monitor-Arbeitsbereich:** Der GrapesJS-Canvas bleibt im Hauptfenster; die vollständige rechte Werkzeugspalte und die Oluntir-Schnellbearbeitung können in ein eigenes Werkzeugfenster ausgelagert werden.
+- **Sichere Wiederherstellung:** Blockierte Pop-ups, geschlossene Fenster, nicht verfügbare Bildschirme, ungültige Positionen und Rechner mit nur einem Monitor führen zu einem sicheren Fallback, ohne die bevorzugte Einstellung zu löschen.
+- **Dauerhafte Arbeitsbereichseinstellungen:** Monitor-Modus, Startauswahl, Fenstergröße und Position werden in einer eigenen IndexedDB gespeichert.
+- **Workspace-basierter Bildmanager:** Suche, Filter, Raster-/Listenansicht, Details, responsive Varianten, Ersetzen, Löschen und Projektordner-Synchronisation.
+- **Projektordner verbinden:** Vor der Auswahl erklärt ein Infofenster den Ablauf. Der Benutzer wählt den Projektstammordner; Oluntir verwendet oder erstellt automatisch `assets/user_upload/`.
+- **Galerie-Viewer:** Eigenständiges Modal und echte Lightbox mit Tastaturnavigation, Fokusführung, Bildbezeichnung, Zähler, Originalbild-Download und geschütztem Abstand nach unten.
+- **Stabile und klarere Bedienung:** dauerhaft sichtbare obere Werkzeugleiste, verbesserter Kontrast und eindeutige Schaltflächen zum Auslagern und Zurückholen der Werkzeugspalte.
 
-## Funktionen
+## Hauptfunktionen
 
-- lokale Nutzung im Browser;
 - Projektprofile für Bootstrap 4.6.2 und Bootstrap 5.3.8;
-- Seitenverwaltung, Speichern und Wiederherstellen;
-- klassische HTML-Projekte und Projekte mit sich inhaltlich wiederholenden Elementen und Bereichen;
-- automatische Übernahme von Header, Navigation und Footer beim Erstellen neuer Seiten in Projekten mit sich inhaltlich wiederholenden Elementen und Bereichen;
-- Oluntir-Dokumentmodell mit sichtbaren `<ope-include>`-Referenzen;
-- Export als vollständig aufgelöstes HTML, Apache SSI oder PHP Includes;
-- Export in Ordner, ZIP oder TAR;
-- deutsch- und englischsprachige Benutzeroberfläche;
-- Schnellkonfiguration, Schnellbearbeitung und Blocksuche;
-- responsive Editoransichten;
-- lokale Framework-, Schrift- und Bilddateien.
-
-## Projektarten
-
-### Klassisches HTML-Projekt
-
-Jede Seite enthält ihren vollständigen HTML-Inhalt. Der Export erzeugt eigenständige HTML-Dateien.
-
-### Projekt mit sich inhaltlich wiederholenden Elementen und Bereichen
-
-Header, Navigation, Footer und zusätzliche Bereiche werden zentral verwaltet. Die interne Seitenstruktur verwendet Oluntir-Referenzen:
-
-```html
-<ope-include src="includes/layout/navigation.html"></ope-include>
-```
-
-Der zentrale Include-Resolver erzeugt daraus je nach Exportziel vollständig aufgelöstes HTML, Apache-SSI-Direktiven oder PHP-Includes. Beim Anlegen einer neuen Seite werden der aktuelle gemeinsame Header, die Navigation und der Footer übernommen; für den seitenspezifischen Inhalt wird ein leeres `<main>`-Element angelegt. Änderungen an diesen gemeinsamen Layoutbereichen können auf jeder Seite vorgenommen werden. Beim Seitenwechsel werden sie in den zentralen Oluntir-Zustand zurückgeschrieben und automatisch auf die nächste Seite übertragen.
+- klassische HTML-Projekte sowie Projekte mit sich inhaltlich wiederholenden Elementen und Bereichen;
+- Seitenverwaltung, Browserpersistenz, Projektsicherung, Wiederherstellung und portable `.oluntir`-Projektdateien;
+- Shared Content Manager für Header, Navigation, Footer und optionale gemeinsame Bereiche;
+- editierbares Oluntir-Include-Modell mit sichtbaren `<ope-include>`-Referenzen;
+- Export als aufgelöstes HTML, Apache SSI oder PHP-Includes;
+- Ausgabe als Ordner, ZIP oder TAR;
+- deutsche und englische Benutzeroberfläche und Dokumentation;
+- Schnellkonfiguration, Schnellbearbeitung, Blocksuche, responsive Editoransichten, Galerien und Bildverwaltung;
+- lokal gebündelte Framework-, Schrift-, Bild-, Editor- und Website-Assets.
 
 ## Lokaler Start
 
-1. Projektarchiv entpacken.
-2. `index.html` in einem aktuellen Browser öffnen.
-3. Bestehendes Projekt laden oder ein neues Projekt anlegen.
-4. Seiten bearbeiten und das gewünschte Exportformat auswählen.
+1. Release-Archiv entpacken.
+2. `index.html` in einem aktuellen Desktop-Browser öffnen.
+3. Beim Start Ein- oder Zwei-Monitor-Betrieb wählen.
+4. Ein vorhandenes Projekt fortsetzen oder ein neues Projekt erstellen.
+5. Vor größeren Änderungen oder Migrationen eine zusätzliche Projektsicherung anlegen.
 
-Einige Datei- und Ordnerfunktionen unterscheiden sich je nach Browser und bei Aufruf über `file://`. Oluntir zeigt für bekannte Einschränkungen Hinweise an.
+Ordnerzugriff und Mehrfensterbetrieb hängen von Browserberechtigungen ab. Ein nachträglich geöffnetes Werkzeugfenster kann als Pop-up erkannt werden; das direkte Öffnen über eine Benutzeraktion ist am zuverlässigsten.
+
+## Projektordner verbinden
+
+Im Bildmanager **Projektordner verbinden** wählen und den Stammordner des aktuellen Oluntir-Projekts auswählen – nicht `assets` und nicht `user_upload`. Oluntir verwendet oder erstellt anschließend automatisch:
+
+```text
+assets/user_upload/
+```
+
+Browserberechtigungen können nach einem Neustart, auf einem anderen Rechner oder nach dem Löschen von Websitedaten verloren gehen. IndexedDB-Bildbestand und physischer Projektordner bleiben deshalb getrennte Persistenzebenen.
 
 ## Repository-Struktur
 
 ```text
 assets/       Lokale Schriften, Bilder und projektbezogene Assets
-editor/       Benutzeroberfläche und Kernfunktionen
+editor/       Oluntir-Oberfläche, Services, Workspaces und Kernfunktionen
 frameworks/   Versionierte Bootstrap-Profile
 plugins/      Eingebundene Editor- und Website-Bibliotheken
-docs/         Technische Dokumentation
+vendor/       Unveränderte, versionierte Editor-Abhängigkeiten
+docs/         Anwender- und technische Dokumentation
 compliance/   Lizenz- und Asset-Nachweise
 templates/    Editions- und Projektvorlagen
 examples/     Beispielmaterial
 .github/      Repository-Vorlagen und Automatisierung
 ```
 
-## Technische Dokumentation
+## Dokumentation
 
-- [Projektstruktur](docs/PROJECT-STRUCTURE.md)
-- [Oluntir-Include-System](docs/OLUNTIR-INCLUDE-SYSTEM.md)
-- [Offline-Assets](docs/OFFLINE-ASSETS.md)
-- [Dokumentationsstandard](docs/DOCUMENTATION-STYLE.md)
+- [Erster Start](docs/FIRST_START_de.md)
+- [Mehrmonitor-Arbeitsbereich](docs/MULTI_MONITOR_de.md)
+- [Bildmanager](docs/IMAGE_MANAGER_de.md)
+- [Workspace-Architektur](docs/WORKSPACE-ARCHITECTURE_de.md)
+- [GrapesJS-Integration](docs/GRAPESJS-INTEGRATION.md)
+- [Projektstruktur](docs/PROJECT-STRUCTURE_de.md)
+- [Oluntir-Include-System](docs/OLUNTIR-INCLUDE-SYSTEM_de.md)
+- [Technisches Handbuch](HANDBOOK_de.md)
+- [Release Notes](RELEASE_NOTES_de.md)
 
-## Lizenzierung
+## Lizenzierung und Sicherheit
 
-Der originale Oluntir-Quellcode steht unter der MIT-Lizenz. Eingebundene Bibliotheken, Schriften und sonstige Drittkomponenten behalten ihre jeweiligen Lizenzen. Details enthalten:
+Der originale Oluntir-Quellcode steht unter der MIT-Lizenz. Eingebundene Bibliotheken, Schriften und andere Drittkomponenten behalten ihre jeweiligen Lizenzen. Siehe [LICENSE](LICENSE), [LICENSING_de.md](LICENSING_de.md), [THIRD_PARTY_NOTICES_de.md](THIRD_PARTY_NOTICES_de.md) und [compliance/LICENSE_MATRIX_de.md](compliance/LICENSE_MATRIX_de.md).
 
-- [LICENSE](LICENSE)
-- [LICENSING.md](LICENSING.md)
-- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
-- [Lizenzmatrix](compliance/LICENSE_MATRIX.md)
-
-## Beiträge und Meldungen
-
-Hinweise zur Mitarbeit stehen in [CONTRIBUTING.md](CONTRIBUTING.md). Sicherheitsrelevante Meldungen werden gemäß [SECURITY.md](SECURITY.md) behandelt.
-
-### Leere Projekte mit sich inhaltlich wiederholenden Elementen und Bereichen
-
-Ein neues Projekt mit sich inhaltlich wiederholenden Elementen und Bereichen startet mit einer leeren Seite. Oluntir fügt keinen vorgegebenen Header, keine Navigation und keinen Footer ein. Erst nachdem der Benutzer diese Elemente angelegt hat, verwaltet der Shared Content Manager sie als projektweit gemeinsame Quelle und übernimmt ihren aktuellen Stand in neu erstellte Seiten. Enthält der Header bereits eine Navigation, bleibt sie Bestandteil des Headers.
+Sicherheitsmeldungen werden nach [SECURITY_de.md](SECURITY_de.md) behandelt. Anforderungen an Beiträge stehen in [CONTRIBUTING_de.md](CONTRIBUTING_de.md).

@@ -1,0 +1,34 @@
+Oluntir 1.2.0 final static test results
+Date: 2026-07-30
+
+PASS  tools/validate-structure.py
+      44 static HTML references checked
+      Bootstrap 4.6.2 and Bootstrap 5.3.8 checked
+      local images and export asset package checked
+      legacy runtime paths excluded
+      versioned vendor dependencies accepted
+      JavaScript syntax checked
+
+PASS  tools/test-grapesjs-adapter.js
+      GrapesJS adapter test successful
+
+PASS  Extended JavaScript syntax scan
+      40 first-party non-minified JavaScript files checked with node --check
+
+PASS  Markdown local-link scan
+      103 local Markdown links checked
+
+PASS  Legacy branding scan
+      No Open-EasyPage, legacy contact address, or zeitkonform branding in first-party release files
+
+PASS  First-party debug scan
+      No TODO, FIXME, debugger statement, or console.log in first-party runtime paths
+
+PASS  License/compliance presence
+      LICENSE, NOTICE, consolidated license texts, notices, and license matrices present
+
+MANUAL ACCEPTANCE
+      The project owner confirmed the last release-critical gallery safe-area fix and the multi-monitor workflow before this audit.
+
+NOT AUTOMATED
+      A full cross-browser matrix and tests on multiple physical monitor arrangements were not executed by the static audit environment.

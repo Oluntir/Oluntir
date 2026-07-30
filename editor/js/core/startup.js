@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const APP_VERSION = '1.1.0';
+  const APP_VERSION = '1.2.0';
   const STARTUP_SCHEMA = 2;
   const META_KEY = 'oluntir-project-meta';
   const SESSION_KEY = 'oluntir-last-session';
@@ -160,7 +160,7 @@
     selectAction(currentInfo.exists ? 'existing' : 'new');
   }
 
-  function bind() {
+  async function bind() {
     document.querySelectorAll('input[name="oluntir-start-action"]').forEach(input => input.addEventListener('change', () => selectAction(input.value)));
     document.querySelectorAll('.oluntir-end-button').forEach(button => button.addEventListener('click', endApplication));
     document.getElementById('oluntir-startup-continue').addEventListener('click', () => {
@@ -181,6 +181,9 @@
     document.getElementById('oluntir-summary-back').addEventListener('click', () => showStep('oluntir-start-step-type'));
     document.getElementById('oluntir-project-create').addEventListener('click', createProject);
     document.getElementById('oluntir-ended-reload').addEventListener('click', () => location.reload());
+    if (window.OluntirMultiMonitor && typeof window.OluntirMultiMonitor.prepareStartup === 'function') {
+      await window.OluntirMultiMonitor.prepareStartup();
+    }
     openStartup();
   }
 

@@ -2,7 +2,7 @@
 
 # Shared Content Manager
 
-**Version:** 1.1.0  
+**Version:** 1.2.0  
 **Status:** Aktuell  
 **Letzte Aktualisierung:** 2026-07-28
 

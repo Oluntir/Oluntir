@@ -230,7 +230,18 @@
         e.preventDefault();
         if (state.selectedPath === item.path && currentMode === 'assign') choose(item); else selectItem(item);
       });
-      root.querySelector('[data-action="sync-folder"]').addEventListener('click', async () => {
+      const projectFolderInfo = root.querySelector('[data-role="project-folder-info"]');
+      const closeProjectFolderInfo = () => {
+        projectFolderInfo.hidden = true;
+        root.querySelector('[data-action="sync-folder"]').focus();
+      };
+      root.querySelector('[data-action="sync-folder"]').addEventListener('click', () => {
+        projectFolderInfo.hidden = false;
+        projectFolderInfo.querySelector('[data-action="choose-project-folder"]').focus();
+      });
+      projectFolderInfo.querySelectorAll('[data-action="cancel-project-folder"]').forEach((button) => button.addEventListener('click', closeProjectFolderInfo));
+      projectFolderInfo.querySelector('[data-action="choose-project-folder"]').addEventListener('click', async () => {
+        projectFolderInfo.hidden = true;
         try {
           const result = await service.connectAndSyncProjectFolder();
           if (window.toast) window.toast(`${result.count} Upload-Datei(en) wurden nach assets/user_upload geschrieben.`);

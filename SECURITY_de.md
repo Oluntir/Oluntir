@@ -2,35 +2,22 @@
 
 # Sicherheitsrichtlinie
 
-## Unterstützte Versionen
+**Unterstützte Version:** 1.2.0
 
-Sicherheitskorrekturen werden für den aktuelle stabile Version 1.0.0 geprüft.
+## Meldung
 
-## Meldung einer Schwachstelle
+Vertrauliche Sicherheitsmeldungen an `info@oluntir.com` senden. Betroffene Version, Browser und Betriebssystem, reproduzierbare Schritte, Soll-/Ist-Verhalten, Auswirkung und mögliche Gegenmaßnahme angeben. Keine aktiven Zugangsdaten oder unnötigen personenbezogenen Daten mitsenden.
 
-Sicherheitsrelevante Probleme nicht als öffentliches GitHub-Issue melden. Kontakt:
+Für eine noch nicht behobene Schwachstelle kein öffentliches Issue eröffnen.
 
-**[info@oluntir.com](mailto:info@oluntir.com)**
+## Geltungsbereich
 
-Eine Meldung sollte enthalten:
+Relevant sind insbesondere unsichere Verarbeitung importierter Projektdaten, Script-Injection über Editor oder Vorschau, manipulierte Archivpfade, unbeabsichtigter Verlust von Projekten oder Assets, irreführende Berechtigungszustände beim Dateisystemzugriff und verwundbare gebündelte Abhängigkeiten.
 
-- betroffene Version;
-- Reproduktionsschritte;
-- erwartetes und tatsächliches Verhalten;
-- mögliche Auswirkungen;
-- relevante Dateien, Logs oder einen begrenzten Proof of Concept;
-- bekannte Gegenmaßnahmen.
+## Reaktion
 
-## Prüfbereich
+Eingangsbestätigung, Schweregrad, Behebung, Release-Koordination und Offenlegungszeitpunkt werden fallbezogen behandelt. Aktiv geprüft wird die aktuelle stabile Release-Linie.
 
-Besonders relevant sind:
+## Verantwortung der Anwender
 
-- unsichere HTML- oder Skriptverarbeitung;
-- Script-Injection;
-- Pfadmanipulation im Export;
-- Erstellung oder Verarbeitung von Archiven;
-- Zugriff auf Browser-Speicher;
-- Import und Verarbeitung lokaler Dateien;
-- Schwachstellen eingebundener Abhängigkeiten.
-
-Meldungen werden technisch geprüft. Eine Meldung gilt erst nach Bestätigung als Sicherheitslücke.
+Oluntir verarbeitet importiertes HTML und JavaScript in einer browserbasierten Bearbeitungsumgebung. Nur Projekte aus vertrauenswürdigen Quellen öffnen, externe Sicherungen führen, Exporte prüfen und Browser-Sicherheitsupdates installieren.
