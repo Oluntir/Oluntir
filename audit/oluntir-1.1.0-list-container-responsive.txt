@@ -1,0 +1,21 @@
+Oluntir 1.1.0 - Responsive Listenansicht
+Datum: 2026-07-30
+
+Umgesetzt:
+- Die Bildliste wurde als CSS-Query-Container definiert.
+- Breakpoints reagieren jetzt auf die tatsächliche Breite der Listenfläche statt auf die Breite des Browserfensters.
+- Große Listenfläche: 68 % Vorschau / 32 % Informationen.
+- Mittlere Listenfläche: 62 % Vorschau / 38 % Informationen.
+- Kleine Listenfläche: 56 % Vorschau / 44 % Informationen.
+- Sehr schmale Listenfläche: Vorschau und Informationen werden untereinander dargestellt.
+- Mindestbreiten wurden entfernt bzw. reduziert, damit kein horizontaler Überlauf erzwungen wird.
+- Fallback-Media-Queries für Browser ohne Container-Query-Unterstützung ergänzt.
+
+Statische Prüfungen:
+- CSS-Klammerstruktur: bestanden.
+- Container-Query-Deklaration vorhanden: bestanden.
+- Breakpoints 920 px, 700 px und 520 px vorhanden: bestanden.
+- Fallback über @supports not vorhanden: bestanden.
+
+Nicht automatisiert ausführbar:
+- Visuelle Prüfung mit realem Browser bei verschiedenen Workspace- und Detailbereichbreiten.

@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Oluntir 1.0.0</title>
-  <link rel="stylesheet" href="plugins/editor/grapesjs/grapes.min.css">
+  <title>Oluntir 1.1.0</title>
+  <link rel="stylesheet" href="vendor/grapesjs/0.23.2/grapes.min.css">
   <link rel="stylesheet" href="plugins/editor/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="editor/css/editor.css">
+  <link rel="stylesheet" href="editor/css/editor.css?v=1.1.0-ui-fix1">
 </head>
 <body>
   <div id="oluntir-startup-modal" class="pb-modal-overlay oluntir-startup-overlay" hidden aria-hidden="true">
@@ -33,11 +33,11 @@
 
       <section id="oluntir-start-step-type" class="oluntir-wizard-step" hidden>
         <h2>Projektstruktur</h2>
-        <p>Möchten Sie wiederverwendbare Bereiche verwenden? <strong>*</strong></p>
+        <p>Möchten Sie sich inhaltlich wiederholende Elemente und Bereiche verwenden? <strong>*</strong></p>
         <fieldset class="oluntir-startup-choice">
           <legend class="sr-only">Projektstruktur auswählen</legend>
           <label><input name="oluntir-new-project-type" type="radio" value="classic"> <span><strong>Nein – klassisches HTML-Projekt</strong><small>Header, Navigation und Footer befinden sich vollständig in jeder einzelnen Seite.</small></span></label>
-          <label><input name="oluntir-new-project-type" type="radio" value="reusable"> <span><strong>Ja – Projekt mit wiederverwendbaren Bereichen</strong><small>Empfohlen für Webseiten mit mehreren Unterseiten. Änderungen an Header, Navigation oder Footer müssen nur einmal vorgenommen werden.</small></span></label>
+          <label><input name="oluntir-new-project-type" type="radio" value="reusable"> <span><strong>Ja – Projekt mit sich inhaltlich wiederholenden Elementen und Bereichen</strong><small>Empfohlen für Webseiten mit mehreren Unterseiten. Änderungen an Header, Navigation oder Footer müssen nur einmal vorgenommen werden.</small></span></label>
         </fieldset>
         <p class="oluntir-required-note">* Pflichtangabe. Erst nach einer bewussten Auswahl kann fortgefahren werden.</p>
         <div class="pb-modal-actions"><button id="oluntir-type-back" type="button">Zurück</button><button id="oluntir-type-continue" class="btn-primary" type="button" disabled>Weiter</button></div>
@@ -58,7 +58,7 @@
 
 
   <div id="toolbar">
-    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">1.0.0</span></div>
+    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">1.1.0</span></div>
 
     <div class="toolbar-language" role="group" data-i18n-aria="language.group" aria-label="Sprache">
       <button type="button" data-lang="de" class="active" data-i18n-title="language.de" title="Deutsch">DE</button>
@@ -112,7 +112,7 @@
        können dadurch unverändert weiterverwendet werden. -->
   <div id="pb-toolbar-command-bridge" hidden>
     <button id="btn-ui-settings" type="button" data-i18n="toolbar.interface">Oberfläche</button>
-    <button id="btn-includes" type="button">Wiederverwendbare Bereiche</button>
+    <button id="btn-includes" type="button">Sich inhaltlich wiederholende Elemente und Bereiche</button>
     <button id="btn-save" type="button" data-i18n="toolbar.save">Speichern</button>
     <button id="btn-backup" type="button" data-i18n="toolbar.backupSave">Backup speichern</button>
     <input type="file" id="input-restore" accept=".oluntir,application/x-oluntir-project,application/x-ndjson,application/json,.json">
@@ -139,11 +139,11 @@
       </div>
       <fieldset class="oluntir-export-format-choice">
         <legend>Exportformat <span aria-hidden="true">*</span></legend>
-        <label><input type="radio" name="oluntir-export-format" value="html"> <span><strong>HTML ohne wiederverwendbare Bereiche</strong><small>Header, Navigation, Footer und weitere Bereiche werden vollständig in jede HTML-Seite eingefügt.</small></span></label>
+        <label><input type="radio" name="oluntir-export-format" value="html"> <span><strong>HTML ohne sich inhaltlich wiederholende Elemente und Bereiche</strong><small>Header, Navigation, Footer und weitere Bereiche werden vollständig in jede HTML-Seite eingefügt.</small></span></label>
         <label data-oluntir-reusable-export><input type="radio" name="oluntir-export-format" value="ssi"> <span><strong>Apache SSI (.shtml)</strong><small>Erzeugt .shtml-Seiten sowie den Ordner includes/ mit zentralen HTML-Dateien.</small></span></label>
         <label data-oluntir-reusable-export><input type="radio" name="oluntir-export-format" value="php"> <span><strong>PHP Includes (.php)</strong><small>Erzeugt .php-Seiten sowie den Ordner includes/ mit zentralen Include-Dateien.</small></span></label>
       </fieldset>
-      <p id="oluntir-export-format-note" class="oluntir-export-format-note" hidden>Dieses klassische Projekt enthält keine wiederverwendbaren Bereiche. Deshalb steht nur der HTML-Export zur Verfügung.</p>
+      <p id="oluntir-export-format-note" class="oluntir-export-format-note" hidden>Dieses klassische Projekt enthält keine sich inhaltlich wiederholenden Bereiche. Deshalb steht nur der HTML-Export zur Verfügung.</p>
       <div class="pb-modal-actions">
         <button id="oluntir-export-format-cancel" type="button">Abbrechen</button>
         <button id="oluntir-export-format-confirm" class="btn-primary" type="button" disabled>Export fortsetzen</button>
@@ -153,18 +153,18 @@
 
   <div id="oluntir-includes-modal" class="pb-modal-overlay" hidden aria-hidden="true">
     <div class="pb-modal oluntir-includes-modal" role="dialog" aria-modal="true" aria-labelledby="oluntir-includes-title">
-      <div class="pb-ui-modal-head"><div><h2 id="oluntir-includes-title">Wiederverwendbare Bereiche</h2><p>Empfohlen für Webseiten mit mehreren Unterseiten. Änderungen an Header, Navigation oder Footer müssen nur einmal vorgenommen werden.</p></div><button id="oluntir-includes-close" class="pb-ui-close" type="button" aria-label="Schließen">×</button></div>
+      <div class="pb-ui-modal-head"><div><h2 id="oluntir-includes-title">Sich inhaltlich wiederholende Elemente und Bereiche</h2><p>Empfohlen für Webseiten mit mehreren Unterseiten. Änderungen an Header, Navigation oder Footer müssen nur einmal vorgenommen werden.</p></div><button id="oluntir-includes-close" class="pb-ui-close" type="button" aria-label="Schließen">×</button></div>
 
       <fieldset class="oluntir-project-choice">
-        <legend>Projekt mit wiederverwendbaren Bereichen <span aria-hidden="true">*</span></legend>
+        <legend>Projekt mit sich inhaltlich wiederholenden Elementen und Bereichen <span aria-hidden="true">*</span></legend>
         <p>Diese Pflichtentscheidung legt die Projektstruktur fest und kann nach dem Speichern nicht mehr geändert werden.</p>
         <div class="oluntir-choice-row"><label><input name="oluntir-project-type" type="radio" value="no"> <strong>Nein</strong><span>Klassisches HTML-Projekt</span></label><label><input name="oluntir-project-type" type="radio" value="yes"> <strong>Ja</strong><span>Gemeinsame Inhalte zentral pflegen</span></label></div>
       </fieldset>
 
       <div id="oluntir-manager-content" hidden>
-        <label>Exportformat<select id="oluntir-include-target"><option value="html">HTML ohne wiederverwendbare Bereiche</option><option value="ssi">Apache SSI – .shtml</option><option value="php">PHP Includes – .php</option></select></label>
+        <label>Exportformat<select id="oluntir-include-target"><option value="html">HTML ohne sich inhaltlich wiederholende Elemente und Bereiche</option><option value="ssi">Apache SSI – .shtml</option><option value="php">PHP Includes – .php</option></select></label>
         <section class="oluntir-manager-layout"><h3>Layout</h3><div class="oluntir-include-grid"><label>Header<textarea id="oluntir-include-header"></textarea></label><label>Navigation<textarea id="oluntir-include-navigation"></textarea></label><label>Footer<textarea id="oluntir-include-footer"></textarea></label></div></section>
-        <section><div class="oluntir-manager-section-head"><div><h3>Wiederverwendbare Bereiche</h3><p>Bereiche zentral bearbeiten und gezielt Seiten zuordnen.</p></div><button id="oluntir-include-add" type="button">+ Wiederverwendbaren Bereich hinzufügen</button></div><div id="oluntir-include-sections"></div></section>
+        <section><div class="oluntir-manager-section-head"><div><h3>Sich inhaltlich wiederholende Elemente und Bereiche</h3><p>Bereiche zentral bearbeiten und gezielt Seiten zuordnen.</p></div><button id="oluntir-include-add" type="button">+ Sich inhaltlich wiederholenden Bereich hinzufügen</button></div><div id="oluntir-include-sections"></div></section>
         <section class="oluntir-manager-validation"><h3>Projektprüfung</h3><div id="oluntir-manager-validation"></div></section>
       </div>
       <div class="pb-modal-actions"><button id="oluntir-includes-cancel" type="button">Oluntir beenden</button><button id="oluntir-includes-save" class="btn-primary" type="button" disabled>Projektentscheidung speichern</button></div>
@@ -232,8 +232,8 @@
     </div>
   </div>
 
-  <script src="plugins/editor/grapesjs/grapes.min.js"></script>
-  <script src="plugins/editor/grapesjs-preset-webpage/grapesjs-preset-webpage.min.js"></script>
+  <script src="vendor/grapesjs/0.23.2/grapes.min.js"></script>
+  <script src="vendor/grapesjs-preset-webpage/bundled/grapesjs-preset-webpage.min.js"></script>
   <script src="plugins/editor/jszip/jszip.min.js"></script>
   <script src="plugins/editor/filesaver/FileSaver.min.js"></script>
 
@@ -249,7 +249,19 @@
   <script src="editor/js/features/quick-edit.js"></script>
   <script src="editor/js/features/blocks-bs5.js"></script>
   <script src="editor/js/core/progress.js"></script>
-  <script src="editor/js/core/asset-store.js"></script>
+  <script src="editor/config/editor-dependencies.js"></script>
+  <script src="editor/js/core/asset-store.js?v=1.1.0-sync1"></script>
+  <script src="editor/services/workspace-manager.js"></script>
+  <script src="editor/services/indexeddb-asset-store.js?v=1.1.0-sync1"></script>
+  <script src="editor/services/image-variant-service.js"></script>
+  <script src="editor/services/asset-usage-service.js"></script>
+  <script src="editor/services/asset-service.js?v=1.1.0-sync1"></script>
+  <script src="editor/integrations/grapesjs/grapesjs-compatibility.js"></script>
+  <script src="editor/modules/image-select/image-select-state.js"></script>
+  <script src="editor/modules/image-select/image-select-ui.js"></script>
+  <script src="editor/modules/image-select/image-list-view.js?v=1.1.0-listfix4"></script>
+  <script src="editor/modules/image-select/image-select.js?v=1.1.0-listfix4"></script>
+  <script src="editor/integrations/grapesjs/grapesjs-adapter.js"></script>
   <script src="editor/js/core/site-assets-bundle.js"></script>
   <script src="editor/js/core/includes.js"></script>
   <script src="editor/js/core/shared-content-manager.js"></script>
@@ -259,6 +271,6 @@
   <script src="editor/js/features/text-media-editor.js"></script>
   <script src="editor/js/features/link-editor.js"></script>
   <script src="editor/js/core/oluntir-code-view.js"></script>
-  <script src="editor/js/core/editor.js"></script>
+  <script src="editor/js/core/editor.js?v=1.1.0-sync1"></script>
 </body>
 </html>

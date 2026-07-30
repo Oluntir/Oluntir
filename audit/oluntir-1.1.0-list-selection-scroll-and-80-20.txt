@@ -1,0 +1,14 @@
+Oluntir 1.1.0 – Listenansicht Finetuning
+
+Umgesetzt:
+- Bildauswahl aktualisiert nur Auswahlmarkierung und Detailbereich.
+- Kein vollständiges Neurendern der Liste beim Anklicken eines Bildes.
+- Scrollposition bleibt dadurch erhalten.
+- Listenzeilen verwenden bei nebeneinanderliegender Darstellung 80 % Bild und 20 % Textinformation.
+- Bei sehr schmaler Listenfläche bleibt der responsive Stapelumbruch erhalten.
+- aria-pressed kennzeichnet die aktive Auswahl zugänglich.
+
+Statische Prüfungen:
+- JavaScript-Syntaxprüfung durchgeführt.
+- CSS-Struktur geprüft.
+- Kein scrollIntoView für Bildauswahl vorhanden.

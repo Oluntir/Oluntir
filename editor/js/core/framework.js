@@ -42,11 +42,12 @@
       ],
       canvasScripts: [
         'plugins/site/js/jquery-3.4.1.min.js',
-        'frameworks/bootstrap4/js/bootstrap.bundle.min.js'
+        'frameworks/bootstrap4/js/bootstrap.bundle.min.js',
+        'assets/js/pagebuilder-bs5-gallery.js'
       ],
       exportAssets: {
         css: ['assets/css/local-fonts.css', 'frameworks/bootstrap4/css/bootstrap.min.css', 'assets/css/pagebuilder-bs4.css'],
-        js: ['plugins/site/js/jquery-3.4.1.min.js', 'frameworks/bootstrap4/js/bootstrap.bundle.min.js']
+        js: ['plugins/site/js/jquery-3.4.1.min.js', 'frameworks/bootstrap4/js/bootstrap.bundle.min.js', 'assets/js/pagebuilder-bs5-gallery.js']
       }
     }
   };

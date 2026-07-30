@@ -1,0 +1,23 @@
+Oluntir 1.1.0 - Separate ImageListView Test Results
+
+JavaScript syntax (all editor JS files): PASS
+Structure validator: PASS
+- 42 static HTML references checked
+- Bootstrap 4.6.2 and Bootstrap 5.3.8 checked
+- local images and export asset package checked
+- legacy runtime paths excluded
+- versioned vendor dependencies accepted
+GrapesJS adapter test: PASS
+
+Static architecture checks:
+- image-list-view.js loaded before image-select.js: PASS
+- list rendering uses OluntirImageListView: PASS
+- grid rendering continues to use OluntirImageSelectUi.card: PASS
+- list image CSS width:100% and height:auto: PASS
+- list layout 75% / 25%: PASS
+- no fixed min-height on new list card: PASS
+
+Manual browser checks still required:
+- landscape, portrait, square and panorama rows use their natural height
+- list remains selectable while scrolling
+- stacked layout activates on a genuinely narrow list container

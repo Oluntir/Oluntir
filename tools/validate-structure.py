@@ -16,7 +16,8 @@ class RefParser(HTMLParser):
 
 parser=RefParser(); parser.feed((ROOT/'index.html').read_text(encoding='utf-8'))
 for ref in parser.refs:
-    if not ref.startswith(('http://','https://','data:','#')) and not (ROOT/ref).is_file():
+    clean_ref=ref.split('?',1)[0].split('#',1)[0]
+    if not ref.startswith(('http://','https://','data:','#')) and not (ROOT/clean_ref).is_file():
         errors.append(f'Fehlende index.html-Referenz: {ref}')
 
 framework=(ROOT/'editor/js/core/framework.js').read_text(encoding='utf-8')
@@ -31,7 +32,7 @@ for path in ROOT.rglob('*'):
     if not path.is_file() or path.name=='site-assets-bundle.js' or path.suffix.lower() in {'.map','.zip'}: continue
     if path.suffix.lower() not in {'.html','.js','.css','.md'}: continue
     text=path.read_text(encoding='utf-8', errors='ignore')
-    for legacy in ('site-assets/', 'vendor/', 'builder/'):
+    for legacy in ('site-assets/', 'builder/'):
         if legacy in text and path.name != 'CHANGELOG.md':
             errors.append(f'Veraltete Referenz {legacy} in {path.relative_to(ROOT)}')
 
@@ -63,6 +64,18 @@ if node.returncode == 0:
         result=subprocess.run(['node','--check',str(path)],capture_output=True,text=True)
         if result.returncode: errors.append(f'JavaScript-Syntaxfehler in {path.relative_to(ROOT)}: {result.stderr.strip()}')
 
+# Oluntir 1.1.0 architecture rules
+for area in (ROOT/'editor/modules', ROOT/'editor/services'):
+    for path in area.rglob('*.js'):
+        if '.gjs-' in path.read_text(encoding='utf-8', errors='ignore'):
+            errors.append(f'GrapesJS-DOM-Kopplung außerhalb des Adapters: {path.relative_to(ROOT)}')
+for path in (ROOT/'editor/modules/image-select').rglob('*.js'):
+    text=path.read_text(encoding='utf-8', errors='ignore')
+    if 'MutationObserver' in text or 'setInterval(' in text:
+        errors.append(f'Unbegrenzte UI-Beobachtung im Image-Select: {path.relative_to(ROOT)}')
+if not (ROOT/'vendor/grapesjs/0.23.2/VERSION').is_file():
+    errors.append('Versionierte GrapesJS-Vendor-Datei fehlt.')
+
 if errors:
     print('STRUKTURPRÜFUNG FEHLGESCHLAGEN')
     for item in errors: print('-',item)
@@ -72,4 +85,5 @@ print(f'- {len(parser.refs)} statische HTML-Referenzen geprüft')
 print('- Bootstrap 4.6.2 und Bootstrap 5.3.8 geprüft')
 print('- lokale Bilder und Export-Assetpaket geprüft')
 print('- alte Laufzeitpfade ausgeschlossen')
+print('- versionierte Vendor-Abhängigkeiten zugelassen')
 print('- JavaScript-Syntax geprüft')

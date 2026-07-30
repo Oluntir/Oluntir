@@ -646,7 +646,7 @@ html, body {
 }
 
 
-/* Oluntir 1.0.0 — UI foundation
+/* Oluntir 1.1.0 — UI foundation
    Form folgt Funktion: eine Schrift, klare Linien, keine dekorativen Effekte. */
 @font-face {
   font-family: 'Inter';
@@ -912,4 +912,504 @@ body { background: var(--oluntir-bg); }
 @media (max-width: 820px) {
   .oluntir-code-format kbd { display: none; }
   .oluntir-code-lines { min-width: 38px; }
+}
+
+/* Asset-Manager: Löschaktion dauerhaft als Papierkorb anzeigen. */
+.gjs-am-asset .gjs-am-close {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  top: 5px;
+  right: 5px;
+  border-radius: 4px;
+  opacity: .9;
+  font-size: 0;
+  line-height: 1;
+  background: rgba(0, 0, 0, .42);
+  color: #fff;
+}
+.gjs-am-asset .gjs-am-close::before {
+  content: "\f1f8";
+  font-family: FontAwesome;
+  font-size: 15px;
+  line-height: 1;
+}
+.gjs-am-asset .gjs-am-close:hover,
+.gjs-am-asset .gjs-am-close:focus {
+  opacity: 1;
+  background: #b42318;
+}
+
+/* Erweiterter Image-Select / Asset-Manager */
+/* Oluntir 1.1.0 — eigener, GrapesJS-unabhängiger Image-Select */
+.oluntir-image-select-modal .gjs-mdl-dialog { width: min(1180px, 94vw); max-width: none; }
+.oluntir-image-select { height: min(76vh, 760px); min-height: 520px; display: flex; flex-direction: column; color: #f3f4f6; background: #24272d; }
+.oluntir-is-modebar { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,.14); }
+.oluntir-is-modebar.is-assign { background: #153b2d; color: #e5fff4; }
+.oluntir-is-modebar.is-manage { background: #4b3515; color: #fff6df; }
+.oluntir-is-modebadge { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border: 1px solid currentColor; border-radius: 999px; font-weight: 700; white-space: nowrap; }
+.oluntir-is-modehint { min-width: 0; line-height: 1.35; }
+.oluntir-is-detail-note { display: flex; gap: 9px; align-items: flex-start; margin: 12px 0; padding: 10px 12px; border: 1px solid #8f6c2b; border-radius: 5px; background: #403016; color: #fff3d2; line-height: 1.4; }
+.oluntir-is-detail-note .fa { flex: 0 0 auto; margin-top: 2px; }
+.oluntir-is-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px; border-bottom: 1px solid rgba(255,255,255,.12); }
+.oluntir-is-toolbar input, .oluntir-is-toolbar select, .oluntir-is-toolbar button, .oluntir-is-upload { min-height: 36px; border: 1px solid rgba(255,255,255,.16); border-radius: 4px; background: #30343b; color: #fff; padding: 7px 10px; }
+.oluntir-is-search { flex: 1 1 230px; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,.16); border-radius: 4px; padding-left: 10px; }
+.oluntir-is-search input { width: 100%; border: 0; padding-left: 0; }
+.oluntir-is-view { display: flex; }
+.oluntir-is-view button { border-radius: 0; cursor: pointer; }
+.oluntir-is-view button:first-child { border-radius: 4px 0 0 4px; }
+.oluntir-is-view button:last-child { border-radius: 0 4px 4px 0; }
+.oluntir-is-view button.is-active { background: #1769aa; }
+.oluntir-is-upload { cursor: pointer; font-weight: 600; background: #1769aa; }
+.oluntir-is-main { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); }
+.oluntir-is-list { min-height: 0; overflow: auto; padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); align-content: start; gap: 10px; container-type: inline-size; container-name: oluntir-image-list; }
+.oluntir-is-list.is-list { display: flex; flex-direction: column; }
+.oluntir-is-card { position: relative; display: flex; min-width: 0; flex-direction: column; text-align: left; overflow: hidden; border: 1px solid rgba(255,255,255,.14); border-radius: 5px; background: #2e3239; color: #fff; cursor: pointer; padding: 0; }
+.oluntir-is-card:hover, .oluntir-is-card.is-selected { border-color: #4da3ff; box-shadow: 0 0 0 2px rgba(77,163,255,.25); }
+.oluntir-is-thumb { display: block; aspect-ratio: 16/10; background: #17191d; overflow: hidden; }
+.oluntir-is-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.oluntir-is-card-text { display: grid; gap: 3px; padding: 9px; min-width: 0; }
+.oluntir-is-card-text strong, .oluntir-is-card-text span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oluntir-is-card-text span { font-size: 12px; color: #c9cdd3; }
+.oluntir-is-trash { position: absolute; top: 7px; right: 7px; padding: 7px; border-radius: 4px; background: rgba(15,17,20,.88); color: #fff; }
+.oluntir-is-list.is-list .oluntir-is-card {
+  display: grid;
+  grid-template-columns: minmax(0, 80%) minmax(160px, 20%);
+  min-height: 190px;
+  align-items: stretch;
+}
+.oluntir-is-list.is-list .oluntir-is-thumb {
+  width: auto;
+  min-width: 0;
+  /* In der Listenansicht besitzt jede Karte ihr eigenes, aus der realen
+     Bildauflösung abgeleitetes Seitenverhältnis. Das Raster bleibt bewusst
+     einheitlich. */
+  aspect-ratio: var(--oluntir-image-aspect, 16 / 9);
+  align-self: start;
+}
+.oluntir-is-list.is-list .oluntir-is-thumb img {
+  object-fit: contain;
+  background: #17191d;
+}
+.oluntir-is-list.is-list .oluntir-is-card-text {
+  min-width: 0;
+  max-width: none;
+  justify-content: center;
+  padding: 12px;
+}
+.oluntir-is-list.is-list .oluntir-is-card-text strong,
+.oluntir-is-list.is-list .oluntir-is-card-text span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Die Responsive-Stufen werden vom ResizeObserver anhand der realen Listenbreite gesetzt.
+   Solange Bild und Text nebeneinander stehen, bleibt das gewünschte Verhältnis 80:20 erhalten. */
+.oluntir-is-list.is-list.is-size-wide .oluntir-is-card,
+.oluntir-is-list.is-list.is-size-medium .oluntir-is-card,
+.oluntir-is-list.is-list.is-size-compact .oluntir-is-card {
+  grid-template-columns: minmax(0, 80%) minmax(150px, 20%);
+}
+.oluntir-is-list.is-list.is-size-medium .oluntir-is-card { min-height: 170px; }
+.oluntir-is-list.is-list.is-size-compact .oluntir-is-card { min-height: 150px; }
+.oluntir-is-list.is-list.is-size-medium .oluntir-is-card-text,
+.oluntir-is-list.is-list.is-size-compact .oluntir-is-card-text {
+  padding: 10px;
+}
+.oluntir-is-list.is-list.is-size-stacked .oluntir-is-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.oluntir-is-list.is-list.is-size-stacked .oluntir-is-thumb {
+  width: 100%;
+  aspect-ratio: var(--oluntir-image-aspect, 16 / 9);
+}
+.oluntir-is-list.is-list.is-size-stacked .oluntir-is-card-text {
+  width: 100%;
+  padding: 11px 12px;
+}
+.oluntir-is-list.is-list.is-size-stacked .oluntir-is-trash {
+  top: 8px;
+  right: 8px;
+}
+
+/* Sicherheits-Fallback, falls ResizeObserver in einem sehr alten Browser fehlt. */
+@media (max-width: 760px) {
+  .oluntir-is-list.is-list:not(.is-size-wide):not(.is-size-medium):not(.is-size-compact) .oluntir-is-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .oluntir-is-list.is-list:not(.is-size-wide):not(.is-size-medium):not(.is-size-compact) .oluntir-is-thumb,
+  .oluntir-is-list.is-list:not(.is-size-wide):not(.is-size-medium):not(.is-size-compact) .oluntir-is-card-text {
+    width: 100%;
+  }
+}
+.oluntir-is-modebadge { white-space: nowrap; }
+@media (max-width: 780px) {
+  .oluntir-is-modebar { align-items: flex-start; flex-direction: column; gap: 7px; }
+}
+@media (max-width: 560px) {
+  .oluntir-is-modebadge { white-space: normal; }
+}
+.oluntir-is-details { min-width: 0; overflow: auto; padding: 16px; border-left: 1px solid rgba(255,255,255,.12); background: #202328; }
+.oluntir-is-detail-head { display: flex; gap: 12px; justify-content: space-between; align-items: center; }
+.oluntir-is-detail-head h3 { margin: 0; overflow-wrap: anywhere; }
+.oluntir-is-detail-head button, .oluntir-is-actions button { border: 1px solid rgba(255,255,255,.18); border-radius: 4px; background: #353a42; color: #fff; padding: 8px 11px; cursor: pointer; }
+.oluntir-is-table-wrap { overflow: auto; }
+.oluntir-is-details table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.oluntir-is-details th, .oluntir-is-details td { border-bottom: 1px solid rgba(255,255,255,.1); padding: 7px 5px; text-align: left; vertical-align: top; }
+.oluntir-is-details code { color: #b9dafc; overflow-wrap: anywhere; white-space: normal; }
+.oluntir-is-footer { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 12px; border-top: 1px solid rgba(255,255,255,.12); background: #1d2025; }
+.oluntir-is-actions { display: flex; gap: 8px; }
+.oluntir-is-actions button.is-danger { background: #7f1d1d; border-color: #b91c1c; }
+@media (max-width: 900px) {
+  .oluntir-image-select { height: 82vh; }
+  .oluntir-is-main { grid-template-columns: 1fr; }
+  .oluntir-is-details { border-left: 0; border-top: 1px solid rgba(255,255,255,.12); max-height: 32vh; }
+  .oluntir-is-footer { align-items: stretch; flex-direction: column; }
+  .oluntir-is-actions { flex-wrap: wrap; }
+}
+.oluntir-is-detail-actions { display: flex; flex-wrap: wrap; gap: 7px; justify-content: flex-end; }
+.oluntir-is-detail-actions [data-action="use"] { background: #1769aa; }
+
+/* Oluntir 1.1.0: eigenständiges Workspace-System */
+#oluntir-workspace {
+  position: fixed;
+  z-index: 12000;
+  inset: 48px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: #202328;
+  color: #f3f4f6;
+  box-shadow: 0 -8px 30px rgba(0,0,0,.45);
+}
+#oluntir-workspace[hidden] { display: none !important; }
+.oluntir-workspace-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(255,255,255,.14);
+  background: #25282e;
+}
+.oluntir-workspace-head h1 { margin: 0; font-size: 16px; font-weight: 600; }
+.oluntir-workspace-head-actions button {
+  width: 36px; height: 36px; border: 0; border-radius: 4px;
+  background: transparent; color: #fff; font-size: 27px; line-height: 1; cursor: pointer;
+}
+.oluntir-workspace-head-actions button:hover { background: rgba(255,255,255,.1); }
+.oluntir-workspace-content { flex: 1 1 auto; min-height: 0; min-width: 0; overflow: hidden; }
+body.oluntir-workspace-open #pb-quick-edit,
+body.oluntir-workspace-open #pb-quick-panel { display: none !important; }
+body.oluntir-workspace-open .gjs-mdl-container { display: none !important; }
+
+#oluntir-workspace .oluntir-image-select { height: 100%; min-height: 0; width: 100%; }
+#oluntir-workspace .oluntir-is-main { min-height: 0; }
+#oluntir-workspace .oluntir-is-card { min-height: 220px; }
+#oluntir-workspace .oluntir-is-list.is-list .oluntir-is-card { min-height: 190px; }
+#oluntir-workspace .oluntir-is-thumb { min-height: 140px; }
+#oluntir-workspace .oluntir-is-card img[aria-busy="true"] { opacity: .35; }
+.oluntir-is-sentinel { grid-column: 1 / -1; min-height: 2px; }
+.oluntir-is-empty { grid-column: 1 / -1; padding: 48px 20px; text-align: center; color: #b8bec8; }
+@media (max-width: 900px) {
+  #oluntir-workspace { inset: 48px 0 0; }
+  #oluntir-workspace .oluntir-is-card { min-height: 180px; }
+  #oluntir-workspace .oluntir-is-list.is-list .oluntir-is-card { min-height: 165px; }
+}
+
+/* Oluntir 1.1.0: eigenständige Listenkomponente
+   Die Rasteransicht verwendet weiterhin .oluntir-is-card. Die Listenansicht
+   besitzt eigenes Markup und darf deshalb ihr natürliches Bildseitenverhältnis
+   ohne feste Kartenhöhe darstellen. */
+.oluntir-is-list.is-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.oluntir-is-list-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 75%) minmax(180px, 25%);
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 5px;
+  background: #2e3239;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+.oluntir-is-list-card:hover,
+.oluntir-is-list-card.is-selected {
+  border-color: #4da3ff;
+  box-shadow: 0 0 0 2px rgba(77,163,255,.25);
+}
+.oluntir-is-list-media {
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #17191d;
+}
+.oluntir-is-list-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  background: #17191d;
+}
+.oluntir-is-list-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+}
+.oluntir-is-list-info strong,
+.oluntir-is-list-info span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.oluntir-is-list-info span {
+  font-size: 12px;
+  color: #c9cdd3;
+}
+.oluntir-is-list-card .oluntir-is-trash {
+  top: 8px;
+  right: 8px;
+}
+
+/* Responsive Umbruch basiert auf der realen Listenbreite, die der vorhandene
+   ResizeObserver klassifiziert. Das 75:25-Verhältnis bleibt bis zum echten
+   Stapelmodus erhalten. */
+.oluntir-is-list.is-list.is-size-wide .oluntir-is-list-card,
+.oluntir-is-list.is-list.is-size-medium .oluntir-is-list-card,
+.oluntir-is-list.is-list.is-size-compact .oluntir-is-list-card {
+  grid-template-columns: minmax(0, 75%) minmax(180px, 25%);
+}
+.oluntir-is-list.is-list.is-size-compact .oluntir-is-list-info {
+  gap: 8px;
+  padding: 12px;
+}
+.oluntir-is-list.is-list.is-size-stacked .oluntir-is-list-card {
+  display: flex;
+  flex-direction: column;
+}
+.oluntir-is-list.is-list.is-size-stacked .oluntir-is-list-media,
+.oluntir-is-list.is-list.is-size-stacked .oluntir-is-list-info {
+  width: 100%;
+}
+.oluntir-is-list.is-list.is-size-stacked .oluntir-is-list-info {
+  padding: 12px 14px;
+}
+
+/* Alte gemeinsame Kartenregeln dürfen die neue Listenkomponente nicht
+   beeinflussen. */
+#oluntir-workspace .oluntir-is-list-card,
+#oluntir-workspace .oluntir-is-list-card .oluntir-is-list-media {
+  min-height: 0;
+}
+
+/* Oluntir 1.1.0 ListView Render Fix 3
+   Diese Regeln stehen absichtlich am Dateiende und überschreiben alle älteren
+   gemeinsamen Kartenregeln. */
+#oluntir-workspace .oluntir-is-list.is-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+#oluntir-workspace .oluntir-is-list-card {
+  display: grid !important;
+  grid-template-columns: minmax(0, 75%) minmax(0, 25%) !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+#oluntir-workspace .oluntir-is-list-media {
+  display: block !important;
+  width: 100% !important;
+  min-height: 120px !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9;
+  overflow: hidden !important;
+}
+#oluntir-workspace .oluntir-is-list-media.is-loaded {
+  min-height: 0 !important;
+  aspect-ratio: auto !important;
+}
+#oluntir-workspace .oluntir-is-list-media img {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  object-fit: contain !important;
+}
+#oluntir-workspace .oluntir-is-list-info {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  padding: 16px !important;
+  color: #fff !important;
+  visibility: visible !important;
+}
+#oluntir-workspace .oluntir-is-list-info > * {
+  display: block !important;
+  visibility: visible !important;
+}
+#oluntir-workspace .oluntir-is-list.is-size-stacked .oluntir-is-list-card {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+
+/* Oluntir 1.1.0 ListView Row Sizing Fix 4
+   Die Zeilenhöhe wird aus Bildauflösung und verfügbarer 75-%-Breite berechnet. */
+#oluntir-workspace .oluntir-is-list.is-list .oluntir-is-list-card {
+  display: grid !important;
+  grid-template-columns: minmax(0, 75%) minmax(0, 25%) !important;
+  align-items: stretch !important;
+  overflow: hidden !important;
+  flex: 0 0 auto !important;
+}
+#oluntir-workspace .oluntir-is-list.is-list .oluntir-is-list-media {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 90px !important;
+  overflow: hidden !important;
+}
+#oluntir-workspace .oluntir-is-list.is-list .oluntir-is-list-media img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+#oluntir-workspace .oluntir-is-list.is-list .oluntir-is-list-info {
+  width: auto !important;
+  min-width: 0 !important;
+  align-self: stretch !important;
+}
+#oluntir-workspace .oluntir-is-list.is-list.is-size-stacked .oluntir-is-list-card {
+  display: flex !important;
+  flex-direction: column !important;
+}
+#oluntir-workspace .oluntir-is-list.is-list.is-size-stacked .oluntir-is-list-media {
+  flex: 0 0 auto !important;
+}
+
+/* Galerie-Erstellung: Viewer-Modus */
+.pb-gallery-options-modal{width:min(620px,94vw)}.pb-gallery-options-field{display:grid;gap:.45rem;margin:1rem 0}.pb-gallery-options-field select{width:100%;padding:.7rem;border:1px solid var(--pb-border,#555);background:var(--pb-panel,#272b31);color:inherit}.pb-gallery-options-note{margin-top:1rem;padding:.75rem;background:rgba(50,120,190,.14);border-left:3px solid #3d8fd1}.pb-gallery-options-modal input:disabled+span,.pb-gallery-options-modal input:disabled{opacity:.55}
+
+/* Oluntir 1.1.0 usability fix: readable gallery selection and persistent top toolbar. */
+.pb-gallery-options-field select {
+  background-color: #4b5059;
+  color: #ffffff;
+}
+.pb-gallery-options-field select:hover,
+.pb-gallery-options-field select:focus-visible {
+  background-color: #565c66;
+}
+.pb-gallery-options-field select option {
+  background-color: #4b5059;
+  color: #ffffff;
+}
+
+#toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10000;
+  flex-shrink: 0;
+}
+
+
+/* Oluntir 1.1.0 UI-Fix 1
+   Hält die Projekthauptleiste und die GrapesJS-Werkzeugleisten dauerhaft im
+   sichtbaren Viewport. Nur Canvas und Seitenbereiche scrollen intern. */
+html,
+body {
+  overflow: hidden;
+}
+
+#toolbar {
+  position: relative;
+  top: auto;
+  z-index: 10000;
+  flex: 0 0 56px;
+}
+
+#gjs {
+  position: relative;
+  height: calc(100vh - 56px);
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* GrapesJS hält seine obere Bearbeitungsleiste innerhalb des festen
+   Editor-Viewports. Die rechten Inhalte scrollen unterhalb der Symbolzeile. */
+.gjs-editor,
+.gjs-pn-panels {
+  min-height: 0;
+}
+
+.gjs-pn-options,
+.gjs-pn-commands,
+.gjs-pn-devices,
+.gjs-pn-views {
+  z-index: 20;
+}
+
+/* Rechte Werkzeugspalte optisch klar von Canvas und Inhaltsbereich trennen. */
+.gjs-pn-views {
+  background: #1d2025 !important;
+  border-left: 1px solid #4b5058;
+  border-bottom: 1px solid #4b5058;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .22);
+}
+
+.gjs-pn-views .gjs-pn-btn {
+  color: #d5d9df;
+  background: #25292f;
+  border-right: 1px solid #3b4048;
+  border-bottom: 3px solid transparent;
+}
+
+.gjs-pn-views .gjs-pn-btn:hover,
+.gjs-pn-views .gjs-pn-btn:focus-visible {
+  color: #ffffff;
+  background: #343941;
+}
+
+.gjs-pn-views .gjs-pn-btn.gjs-pn-active {
+  color: #ffffff;
+  background: #303640;
+  border-bottom-color: var(--oluntir-accent);
+}
+
+.gjs-pn-views-container {
+  background: #25282e !important;
+  border-left: 1px solid #4b5058;
+}
+
+.gjs-pn-views-container .gjs-sm-sectors,
+.gjs-pn-views-container .gjs-clm-tags,
+.gjs-pn-views-container .gjs-trt-traits,
+.gjs-pn-views-container .gjs-blocks-c {
+  background: #25282e;
 }

@@ -29,7 +29,7 @@ git init
 git branch -M main
 git add .
 git status
-git commit -m "chore: prepare Oluntir 1.0.0 repository"
+git commit -m "chore: prepare Oluntir 1.1.0 repository"
 ```
 
 After creating the empty GitHub repository, add its URL:
@@ -51,15 +51,15 @@ git push -u origin main
 After licensing clearance and final tests:
 
 ```powershell
-git tag -a v1.0.0 -m "Oluntir 1.0.0"
+git tag -a v1.1.0 -m "Oluntir 1.1.0"
 git push origin main
-git push origin v1.0.0
+git push origin v1.1.0
 ```
 
 ## Suggested first release title
 
 ```text
-Oluntir 1.0.0
+Oluntir 1.1.0
 ```
 
 The release notes should list tested browsers, export methods, framework

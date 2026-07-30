@@ -1,0 +1,13 @@
+Oluntir 1.1.0 usability update
+
+Implemented:
+- Gallery viewer mode select uses a lighter dark background for readable inactive entries.
+- Select hover/focus background adjusted without global form changes.
+- Native option entries receive matching foreground/background colors where supported.
+- Main #toolbar remains visible while scrolling via position: sticky; top: 0.
+- Toolbar receives a high stacking order and does not shrink.
+
+Scope:
+- editor/css/editor.css only
+- no JavaScript or gallery runtime logic changed
+- no Bootstrap export profile changed

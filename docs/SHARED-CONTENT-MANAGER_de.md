@@ -2,11 +2,11 @@
 
 # Shared Content Manager
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Status:** Aktuell  
 **Letzte Aktualisierung:** 2026-07-28
 
-Der Shared Content Manager synchronisiert die Layoutbereiche eines Projekts mit wiederverwendbaren Bereichen über alle Seiten hinweg.
+Der Shared Content Manager synchronisiert die Layoutbereiche eines Projekts mit sich inhaltlich wiederholenden Elementen und Bereichen über alle Seiten hinweg.
 
 ## Verwaltete Bereiche
 

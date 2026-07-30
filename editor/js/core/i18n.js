@@ -1,4 +1,4 @@
-// Oluntir 1.0.0: vollständige lokale DE/EN-Oberfläche.
+// Oluntir 1.1.0: vollständige lokale DE/EN-Oberfläche.
 (function () {
   'use strict';
   const STORAGE_KEY = 'oluntir-language-v1';

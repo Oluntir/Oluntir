@@ -32,7 +32,7 @@
     return {
       id,
       name: String(section && section.name || id).trim() || id,
-      content: String(section && section.content || '<section class="py-5"><div class="container"><h2>Wiederverwendbarer Bereich</h2></div></section>'),
+      content: String(section && section.content || '<section class="py-5"><div class="container"><h2>Sich inhaltlich wiederholender Bereich</h2></div></section>'),
       pages: Array.isArray(section && section.pages) ? [...new Set(section.pages.map(String))] : []
     };
   }
@@ -119,8 +119,8 @@
     return String(html || '').replace(/<ope-include\s+[^>]*src=["']([^"']+)["'][^>]*>(?:<\/ope-include>)?/gi, (match, rawPath) => {
       const path = normalizeIncludePath(rawPath);
       const item = findByPath(path);
-      if (!item) return `<!-- Fehlender wiederverwendbarer Bereich: ${path} -->`;
-      if (chain.includes(item.path)) return `<!-- Zyklischer wiederverwendbarer Bereich: ${item.path} -->`;
+      if (!item) return `<!-- Fehlender sich inhaltlich wiederholender Bereich: ${path} -->`;
+      if (chain.includes(item.path)) return `<!-- Zyklischer sich inhaltlich wiederholender Bereich: ${item.path} -->`;
       if (target === 'html') return resolveCustomTags(item.content, 'html', chain.concat(item.path));
       return expression(item.path, target);
     });
@@ -178,7 +178,7 @@
       if (duplicates.length) errors.push(`Doppelte Include-Pfade: ${[...new Set(duplicates)].join(', ')}`);
       allIncludes().forEach(item => {
         parseIncludeReferences(item.content).forEach(path => {
-          if (!findByPath(path)) errors.push(`Fehlender wiederverwendbarer Bereich in ${item.path}: ${path}`);
+          if (!findByPath(path)) errors.push(`Fehlender sich inhaltlich wiederholender Bereich in ${item.path}: ${path}`);
         });
       });
       state.sections.filter(section => !section.pages.length).forEach(section => warnings.push(`„${section.name}“ wird auf keiner Seite verwendet.`));
@@ -218,8 +218,8 @@
         { ok: !state.enabled || Boolean(state.regions.navigation.trim()), label: 'Navigation ist vorhanden.' },
         { ok: !state.enabled || Boolean(state.regions.footer.trim()), label: 'Footer ist vorhanden.' },
         { ok: duplicateIds.length === 0, label: duplicateIds.length ? `Doppelte IDs: ${[...new Set(duplicateIds)].join(', ')}` : 'Keine doppelten IDs.' },
-        { ok: emptyNames.length === 0, label: emptyNames.length ? 'Alle wiederverwendbaren Bereiche benötigen einen Namen.' : 'Alle Bereiche sind benannt.' },
-        { ok: unused.length === 0, warning: true, label: unused.length ? `${unused.length} wiederverwendbare(r) Bereich(e) werden auf keiner Seite verwendet.` : 'Alle Bereiche werden mindestens auf einer Seite verwendet.' }
+        { ok: emptyNames.length === 0, label: emptyNames.length ? 'Alle sich inhaltlich wiederholenden Bereiche benötigen einen Namen.' : 'Alle Bereiche sind benannt.' },
+        { ok: unused.length === 0, warning: true, label: unused.length ? `${unused.length} sich inhaltlich wiederholende(r) Bereich(e) werden auf keiner Seite verwendet.` : 'Alle Bereiche werden mindestens auf einer Seite verwendet.' }
       ]
     };
   }
@@ -242,7 +242,7 @@
         <fieldset><legend>Verwendet auf</legend><div class="oluntir-page-grid">${pageChecks}</div></fieldset>
         ${usage ? '' : '<p class="oluntir-unused-warning">⚠ Dieser wiederverwendbare Bereich wird auf keiner Seite verwendet.</p>'}
       </article>`;
-    }).join('') || '<p class="oluntir-manager-empty">Noch keine zusätzlichen wiederverwendbaren Bereiche vorhanden.</p>';
+    }).join('') || '<p class="oluntir-manager-empty">Noch keine zusätzlichen sich inhaltlich wiederholenden Bereiche vorhanden.</p>';
     renderValidation();
   }
   function syncForm() {
@@ -321,7 +321,7 @@
       save();
       if (window.OluntirStartup) window.OluntirStartup.setMeta({ projectType: state.enabled ? 'reusable-regions' : 'classic', includesSchemaVersion: state.schemaVersion });
       closeModal();
-      if (window.toast) window.toast(state.enabled ? 'Projekt mit wiederverwendbaren Bereichen gespeichert.' : 'Klassisches HTML-Projekt gespeichert.');
+      if (window.toast) window.toast(state.enabled ? 'Projekt mit sich inhaltlich wiederholenden Elementen und Bereichen gespeichert.' : 'Klassisches HTML-Projekt gespeichert.');
     });
     document.getElementById('oluntir-include-add').addEventListener('click', () => {
       readManagerForm();
@@ -336,7 +336,7 @@
       if (!button) return;
       const index = Number(button.dataset.sectionRemove);
       const section = state.sections[index];
-      if (!section || !confirm(`Wiederverwendbaren Bereich „${section.name}“ löschen?`)) return;
+      if (!section || !confirm(`Sich inhaltlich wiederholenden Bereich „${section.name}“ löschen?`)) return;
       state.sections.splice(index, 1);
       renderSections();
     });

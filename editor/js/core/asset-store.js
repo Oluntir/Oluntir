@@ -4,7 +4,7 @@
 //
 // Funktionsweise:
 // - Jedes hochgeladene Bild bekommt einen stabilen, sprechenden Pfad wie
-//   "images/uploads/foto-a1b2c3.jpg". GENAU dieser Pfad wird in der GrapesJS-Seite als
+//   "assets/user_upload/foto-a1b2c3.jpg". GENAU dieser Pfad wird in der GrapesJS-Seite als
 //   <img src="..."> gespeichert (und landet später 1:1 so im Export) – niemals eine
 //   Blob- oder Data-URL.
 // - Da unter diesem Pfad im Editor selbst keine echte Datei liegt, wird das eigentliche
@@ -14,26 +14,59 @@
 // - Beim Export (export.js) werden alle registrierten Blobs unter ihrem stabilen Pfad
 //   direkt als echte Datei ins ZIP gepackt.
 
-const UPLOAD_PATH_PREFIX = 'images/uploads/';
-const UPLOAD_DESKTOP_PATH_PREFIX = 'images/uploads/desktop/';
-const UPLOAD_TABLET_PATH_PREFIX = 'images/uploads/tablet/';
-const UPLOAD_MOBILE_PATH_PREFIX = 'images/uploads/mobile/';
-const DOWNLOAD_PATH_PREFIX = 'images/downloads/';
-const ASSET_DB_NAME = 'pagebuilder-assets';
+const USER_UPLOAD_ROOT = 'assets/user_upload/';
+const UPLOAD_PATH_PREFIX = USER_UPLOAD_ROOT;
+const UPLOAD_DESKTOP_PATH_PREFIX = `${USER_UPLOAD_ROOT}desktop/`;
+const UPLOAD_TABLET_PATH_PREFIX = `${USER_UPLOAD_ROOT}tablet/`;
+const UPLOAD_MOBILE_PATH_PREFIX = `${USER_UPLOAD_ROOT}mobile/`;
+const DOWNLOAD_PATH_PREFIX = `${USER_UPLOAD_ROOT}original/`;
+
+// Kompatibilität mit Projekten, die vor Oluntir 1.0.1 erstellt wurden.
+const LEGACY_UPLOAD_PATH_PREFIX = 'images/uploads/';
+const LEGACY_DOWNLOAD_PATH_PREFIX = 'images/downloads/';
+// Oluntir 1.1.0 beginnt bewusst mit einer frischen, versionierten Bilderdatenbank.
+// Die bisherige Datenbank bleibt unangetastet, damit keine alten Testdaten automatisch
+// in den neuen Release übernommen werden und bei Bedarf noch manuell gesichert werden können.
+const ASSET_DB_NAME = 'oluntir-assets-1.1.0';
+const ASSET_DB_VERSION = 2;
 const ASSET_STORE_NAME = 'files';
+const ASSET_SETTINGS_STORE_NAME = 'settings';
 
 const assetBlobs = new Map(); // stabiler Pfad -> Blob
 const assetUrls = new Map(); // stabiler Pfad -> aktuelle "blob:"-URL dieser Sitzung
 
 function openAssetDb() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(ASSET_DB_NAME, 1);
+    const req = indexedDB.open(ASSET_DB_NAME, ASSET_DB_VERSION);
     req.onupgradeneeded = () => {
       if (!req.result.objectStoreNames.contains(ASSET_STORE_NAME)) {
         req.result.createObjectStore(ASSET_STORE_NAME);
       }
+      if (!req.result.objectStoreNames.contains(ASSET_SETTINGS_STORE_NAME)) {
+        req.result.createObjectStore(ASSET_SETTINGS_STORE_NAME);
+      }
     };
     req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function putAssetSetting(key, value) {
+  const db = await openAssetDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(ASSET_SETTINGS_STORE_NAME, 'readwrite');
+    tx.objectStore(ASSET_SETTINGS_STORE_NAME).put(value, key);
+    tx.oncomplete = resolve;
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function getAssetSetting(key) {
+  const db = await openAssetDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(ASSET_SETTINGS_STORE_NAME, 'readonly');
+    const req = tx.objectStore(ASSET_SETTINGS_STORE_NAME).get(key);
+    req.onsuccess = () => resolve(req.result || null);
     req.onerror = () => reject(req.error);
   });
 }
@@ -272,7 +305,7 @@ function resolveAssetUrl(path) {
 // Ersetzt in einem beliebigen Document (Canvas-iframe ODER Editor-Hauptfenster, z. B. für
 // Asset-Manager-Vorschaubilder) alle Referenzen auf hochgeladene Bilder durch die aktuell
 // gültige blob:-URL – rein kosmetisch für die Anzeige, das GrapesJS-Datenmodell bleibt
-// unangetastet (dort steht weiterhin der stabile "images/uploads/…"-Pfad).
+// unangetastet (dort steht weiterhin der stabile "assets/user_upload/…"-Pfad).
 const UPLOAD_BG_RE = new RegExp(`url\\((['"]?)(${UPLOAD_PATH_PREFIX}[^'")]+)\\1\\)`);
 
 function patchUploadedImageRefs(doc) {
@@ -332,23 +365,76 @@ function patchUploadedImageRefs(doc) {
 
   // Sicherheitsnetz für Elemente ohne data-stable-path (z. B. falls der rohe Pfad noch
   // unverändert im src/href steht).
-  doc.querySelectorAll(`img[src^="${UPLOAD_PATH_PREFIX}"]`).forEach((img) => {
-    const url = resolveAssetUrl(img.getAttribute('src'));
-    if (url) img.src = url;
+  [UPLOAD_PATH_PREFIX, LEGACY_UPLOAD_PATH_PREFIX].forEach((prefix) => {
+    doc.querySelectorAll(`img[src^="${prefix}"]`).forEach((img) => {
+      const url = resolveAssetUrl(img.getAttribute('src'));
+      if (url) img.src = url;
+    });
   });
-  [UPLOAD_PATH_PREFIX, DOWNLOAD_PATH_PREFIX].forEach((prefix) => {
+  [UPLOAD_PATH_PREFIX, DOWNLOAD_PATH_PREFIX, LEGACY_UPLOAD_PATH_PREFIX, LEGACY_DOWNLOAD_PATH_PREFIX].forEach((prefix) => {
     doc.querySelectorAll(`a[href^="${prefix}"]`).forEach((a) => {
       const url = resolveAssetUrl(a.getAttribute('href'));
       if (url) a.href = url;
     });
   });
   // Asset-Manager-Vorschaubilder verwenden CSS background-image statt <img src>.
-  doc.querySelectorAll(`[style*="${UPLOAD_PATH_PREFIX}"]`).forEach((el) => {
+  doc.querySelectorAll(`[style*="${UPLOAD_PATH_PREFIX}"], [style*="${LEGACY_UPLOAD_PATH_PREFIX}"]`).forEach((el) => {
     const m = UPLOAD_BG_RE.exec(el.getAttribute('style') || '');
     if (!m) return;
     const url = resolveAssetUrl(m[2]);
     if (url) el.style.backgroundImage = `url('${url}')`;
   });
+}
+
+
+function getRelatedResponsiveAssetPaths(path) {
+  const value = String(path || '');
+  const roots = [
+    {
+      desktop: UPLOAD_DESKTOP_PATH_PREFIX,
+      tablet: UPLOAD_TABLET_PATH_PREFIX,
+      mobile: UPLOAD_MOBILE_PATH_PREFIX,
+      original: DOWNLOAD_PATH_PREFIX
+    },
+    {
+      desktop: 'images/uploads/desktop/',
+      tablet: 'images/uploads/tablet/',
+      mobile: 'images/uploads/mobile/',
+      original: 'images/downloads/'
+    }
+  ];
+
+  for (const group of roots) {
+    for (const prefix of [group.desktop, group.tablet, group.mobile]) {
+      if (!value.startsWith(prefix)) continue;
+      const filename = value.slice(prefix.length);
+      const stem = filename.replace(/\.[^.]+$/, '');
+      const related = [
+        group.desktop + filename,
+        group.tablet + filename,
+        group.mobile + filename
+      ];
+      assetBlobs.forEach((blob, candidate) => {
+        if (candidate.startsWith(group.original + stem + '.')) related.push(candidate);
+      });
+      return Array.from(new Set(related));
+    }
+  }
+  return [value];
+}
+
+async function removeUploadedAsset(path) {
+  const paths = getRelatedResponsiveAssetPaths(path);
+  for (const itemPath of paths) {
+    const objectUrl = assetUrls.get(itemPath);
+    if (objectUrl) {
+      try { URL.revokeObjectURL(objectUrl); } catch (_) { /* ignorieren */ }
+    }
+    assetUrls.delete(itemPath);
+    assetBlobs.delete(itemPath);
+    await deleteAssetBlobFromDb(itemPath);
+  }
+  return paths;
 }
 
 

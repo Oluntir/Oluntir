@@ -1,0 +1,18 @@
+Oluntir 1.1.0 Workspace Image Manager – Korrekturprüfung
+========================================================
+
+Umgesetzt:
+- Listenansicht: Bildbereich deutlich verbreitert, Textbereich begrenzt.
+- Sortierung "Zuletzt hinzugefügt": neueste Asset-Gruppe zuerst.
+- Toolbar-Icon: Font-Awesome-4-kompatibles fa-picture-o.
+- Erneutes Öffnen: aktive GrapesJS-Kommandos werden beim Workspace-Schließen zurückgesetzt.
+
+Statische Prüfungen:
+- JavaScript-Syntax aller Dateien unter editor/: erfolgreich.
+- Strukturvalidator: erfolgreich.
+- GrapesJS-Adaptertest: erfolgreich.
+- Kein MutationObserver oder setInterval in den neuen Workspace-/Image-Select-Modulen.
+
+Nicht automatisierbar in dieser Umgebung:
+- Reale Klickfolge Bild -> Workspace -> Schließen -> anderes Bild -> Workspace.
+- Visuelle Beurteilung der Listenbreiten im Benutzerbrowser.

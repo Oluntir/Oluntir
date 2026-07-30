@@ -1,0 +1,32 @@
+Oluntir Image-Select Runtime-Fix v4
+===================================
+
+Behobene Fehler
+---------------
+- Globaler MutationObserver entfernt. Er reagierte auf DOM-Aenderungen, die die
+  Erweiterung selbst erzeugte, und konnte dadurch eine fortlaufende Render-Schleife
+  mit hoher CPU- und RAM-Last ausloesen.
+- Dauerhaftes 100-ms-Initialisierungs-Polling entfernt.
+- Direkte onclick-Zuweisung an GrapesJS-Assetkarten entfernt, damit die native
+  Bildauswahl und die vorhandenen GrapesJS-Ereignisse nicht ueberschrieben werden.
+- Unnoetige vollstaendige patchUploadedImageRefs-Ausfuehrung aus jedem Refresh entfernt.
+
+Neue Initialisierung
+--------------------
+- Reagiert auf asset:open und run:open-assets.
+- Wartet maximal 20 Animation-Frames auf den tatsaechlich erzeugten Asset-DOM.
+- Reagiert auf asset:add und asset:remove nur, wenn der Assetdialog vorhanden ist.
+- Keine globale DOM-Ueberwachung und kein unbeschraenktes Polling.
+
+Ausgefuehrte Tests
+------------------
+- JavaScript-Syntaxpruefung aller Dateien unter editor/js: erfolgreich.
+- tools/validate-structure.py: erfolgreich.
+- Statische Pruefung: kein aktiver MutationObserver und kein setInterval in
+  image-select-enhancements.js vorhanden.
+
+Nicht automatisierbar
+---------------------
+- Reale Interaktion mit dem GrapesJS-Modal und IndexedDB in einem grafischen Browser.
+  Diese muss lokal durch Oeffnen des Image-Select-Fensters, Bildauswahl, Suche,
+  Filter und Schliessen des Dialogs geprueft werden.

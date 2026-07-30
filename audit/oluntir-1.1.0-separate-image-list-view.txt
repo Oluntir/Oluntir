@@ -1,0 +1,9 @@
+Oluntir 1.1.0 - Separate ImageListView
+
+- Raster- und Listenansicht verwenden getrennte DOM-Komponenten.
+- Rasteransicht bleibt unverändert und gleichförmig.
+- Listenansicht verwendet 75 % Bild / 25 % Information.
+- Das Bild besitzt width:100% und height:auto.
+- Keine feste Kartenhöhe und kein erzwungenes Seitenverhältnis in der Listenansicht.
+- Hochformat, Querformat, Panorama und Quadrat bestimmen ihre Zeilenhöhe selbst.
+- Responsive Stapelung bleibt über die vorhandenen Breitenklassen erhalten.

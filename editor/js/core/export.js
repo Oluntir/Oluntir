@@ -12,6 +12,7 @@ const REQUIRED_EXPORT_FILES_BS4 = [
   'css/swiper/swiper.min.css',
   'css/animate/animate.min.css',
   'css/style.css',
+  'css/pagebuilder-bs4.css',
   'js/jquery-3.4.1.min.js',
   'js/bootstrap4/bootstrap.bundle.min.js',
   'js/jquery.appear.js',
@@ -22,6 +23,7 @@ const REQUIRED_EXPORT_FILES_BS4 = [
   'js/magnific-popup/jquery.magnific-popup.min.js',
   'js/shuffle/shuffle.min.js',
   'js/custom.js',
+  'js/pagebuilder-bs5-gallery.js',
 ];
 
 const REQUIRED_EXPORT_FILES_BS5 = [
@@ -83,7 +85,7 @@ function normalizeExportHtml(html) {
 
 function collectUploadPaths(html, css, targetSet) {
   const combined = `${html}\n${css || ''}`;
-  const matches = combined.match(/images\/(?:uploads|downloads)\/[^"')\s;]+/g) || [];
+  const matches = combined.match(/(?:assets\/user_upload|images\/(?:uploads|downloads))\/[^"')\s;]+/g) || [];
   matches.forEach((path) => targetSet.add(path));
 }
 
@@ -172,7 +174,7 @@ function collectUploadPathsFromHtml(html, targetSet) {
   container.querySelectorAll('[src], [href], [srcset], [data-stable-path], [data-stable-download-path], [data-stable-srcset-path]').forEach((el) => {
     ['src', 'href', 'data-stable-path', 'data-stable-download-path'].forEach((name) => {
       const value = el.getAttribute(name) || '';
-      const match = value.match(/images\/(?:uploads|downloads)\/[^?#"'\s;]+/);
+      const match = value.match(/(?:assets\/user_upload|images\/(?:uploads|downloads))\/[^?#"'\s;]+/);
       if (match) targetSet.add(match[0]);
     });
 
@@ -180,7 +182,7 @@ function collectUploadPathsFromHtml(html, targetSet) {
       const value = el.getAttribute(name) || '';
       value.split(',').forEach((candidate) => {
         const url = candidate.trim().split(/\s+/)[0] || '';
-        const match = url.match(/images\/(?:uploads|downloads)\/[^?#"'\s;]+/);
+        const match = url.match(/(?:assets\/user_upload|images\/(?:uploads|downloads))\/[^?#"'\s;]+/);
         if (match) targetSet.add(match[0]);
       });
     });
@@ -254,6 +256,7 @@ ${bodyHtml}
     <link rel="stylesheet" href="css/animate/animate.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/custom.css">
+    <link rel="stylesheet" href="css/pagebuilder-bs4.css">
   </head>
   <body>
 ${bodyHtml}
@@ -268,6 +271,7 @@ ${bodyHtml}
     <script src="js/magnific-popup/jquery.magnific-popup.min.js"></script>
     <script src="js/shuffle/shuffle.min.js"></script>
     <script src="js/custom.js"></script>
+    <script src="js/pagebuilder-bs5-gallery.js"></script>
   </body>
 </html>
 `;
@@ -632,7 +636,7 @@ async function exportSitePackage(editor, mode) {
     const exportValidation = window.OluntirIncludes.validateExport(includeTarget);
     if (!exportValidation.ok) {
       throw new Error(
-        'Der Export wurde wegen fehlerhafter wiederverwendbarer Bereiche abgebrochen:\n\n' +
+        'Der Export wurde wegen fehlerhafter sich inhaltlich wiederholender Elemente und Bereiche abgebrochen:\n\n' +
         exportValidation.errors.map(message => `- ${message}`).join('\n')
       );
     }

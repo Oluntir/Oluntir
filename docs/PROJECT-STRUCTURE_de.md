@@ -17,3 +17,7 @@
 ## Export
 
 Die Standardstruktur enthält je nach Projekt und Exportformat unter anderem `css/`, `js/`, `images/`, `fonts/` und `includes/`. Ordner-, ZIP- und TAR-Ausgabe verwenden dieselbe Export-Engine und dieselbe Asset-Quelle.
+
+## Benutzer-Uploads
+
+Neue Bild-Uploads verwenden zentral `assets/user_upload/`. Responsive Varianten liegen in `desktop/`, `tablet/` und `mobile/`; unveränderte Originale liegen in `original/`. Während der Bearbeitung werden die Binärdaten browserseitig in IndexedDB gespeichert und beim Export unter diesen Pfaden als echte Dateien geschrieben.

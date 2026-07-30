@@ -1,0 +1,17 @@
+Oluntir 1.1.0 release refinement audit
+Date: 2026-07-30
+
+Implemented:
+- Lightbox backdrop changed to rgba(0,0,0,.80).
+- Subtle 2px backdrop blur with WebKit fallback added.
+- Current release metadata in Markdown and tool UI aligned to 1.1.0.
+- README and changelog expanded with explicit GrapesJS foundation acknowledgement.
+- IndexedDB plus assets/user_upload project synchronization documented.
+- WorkspaceManager and standalone image-selection interface documented.
+- User-facing terminology changed from "wiederverwendbare Bereiche" to
+  "sich inhaltlich wiederholende Elemente und Bereiche".
+
+Compatibility:
+- Historical 1.0.0 changelog entries retained.
+- GrapesJS and third-party dependency versions were not modified.
+- Bootstrap 4.6.2 and Bootstrap 5.3.8 gallery profiles updated equally.

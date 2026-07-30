@@ -1,0 +1,25 @@
+Oluntir Image-Select – Sichtbarkeits- und Variantenprüfung
+Datum: 2026-07-30
+
+Umgesetzt:
+- Werkzeugleiste, Assetliste, Detailansicht und untere Aktionsleiste gemeinsam innerhalb des GrapesJS-Assetcontainers verankert.
+- Feste Float-/Höhenproblematik des ursprünglichen Assetcontainers durch Flex-Layout ersetzt.
+- Untere Aktionsleiste bleibt im sichtbaren Rahmen; nur die Bildliste scrollt.
+- Neue Anzeigeoption „Nur Hauptbilder“ / „Alle Bildversionen“.
+- Standardansicht gruppiert Responsive-Versionen zu einem Bild.
+- Alle-Versionen-Ansicht zeigt Desktop, Tablet, Mobil und Original separat.
+- Jede Bildkachel zeigt Version und tatsächlich aus dem Blob gelesene Pixelauflösung.
+- Detailansicht listet Version, Auflösung, Dateigröße und stabilen Pfad.
+- Zusammenfassung unterscheidet Bildanzahl und Anzahl gespeicherter Versionen.
+- Löschzählungen arbeiten auf Bildgruppen statt auf einzelnen Responsive-Versionen.
+
+Technische Prüfungen:
+- node --check editor/js/features/image-select-enhancements.js: erfolgreich
+- python tools/validate-structure.py: erfolgreich
+- 31 statische HTML-Referenzen geprüft
+- Bootstrap 4.6.2 und Bootstrap 5.3.8 geprüft
+- lokale Bilder und Export-Assetpaket geprüft
+- alte Laufzeitpfade ausgeschlossen
+
+Nicht automatisiert ausführbar:
+- Visuelle Interaktion im echten Browser einschließlich IndexedDB-Bestandsdaten.

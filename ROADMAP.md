@@ -2,15 +2,15 @@
 
 # Roadmap
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Language:** English  
 **Status:** Stable  
-**Applies to:** Oluntir 1.0.0  
+**Applies to:** Oluntir 1.1.0  
 **Last updated:** 2026-07-29
 
-## Current status: 1.0.0
+## Current status: 1.1.0
 
-Oluntir 1.0.0 provides project creation, project handling, reusable areas, and the three documented export modes.
+Oluntir 1.1.0 provides project creation, project handling, recurring content elements and regions, and the three documented export modes.
 
 ## Before 1.0 stable
 

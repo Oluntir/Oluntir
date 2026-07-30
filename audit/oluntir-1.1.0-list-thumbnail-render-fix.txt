@@ -1,0 +1,15 @@
+Oluntir 1.1.0 – Listenansicht Thumbnail-Rendering
+
+Ursache:
+Die neue Listenkomponente erzeugte Bilder zunächst nur mit data-src. Da die Listenkarten ohne feste Höhe starteten, besaßen die noch ungeladenen Bilder keine Schnittfläche für den IntersectionObserver. Dadurch wurden die src-Attribute nie gesetzt und sichtbar blieben nur die Kartenrahmen.
+
+Korrektur:
+- Raster- und Listenansicht verwenden native Browser-Lazy-Loading-Attribute mit unmittelbar gesetztem src.
+- Der zusätzliche IntersectionObserver für Vorschaubilder wurde entfernt.
+- Die abschnittsweise Seitendarstellung mit 60 Einträgen und Sentinel-Nachladen bleibt erhalten.
+- Die Listenansicht bleibt eine getrennte Komponente mit 75/25-Aufteilung und natürlicher Bildhöhe.
+
+Erwartetes Ergebnis:
+- Vorschaubilder werden direkt aus den vom Asset-Service erzeugten Blob-URLs geladen.
+- Keine Nullhöhen-/Observer-Blockade mehr.
+- Raster- und Listenansicht bleiben bei großen Beständen speicherschonend durch Paging und natives lazy loading.

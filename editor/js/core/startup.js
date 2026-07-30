@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const APP_VERSION = '1.0.0';
+  const APP_VERSION = '1.1.0';
   const STARTUP_SCHEMA = 2;
   const META_KEY = 'oluntir-project-meta';
   const SESSION_KEY = 'oluntir-last-session';
@@ -106,7 +106,7 @@
     const reusable = selectedProjectType === 'reusable';
     const root = document.getElementById('oluntir-project-summary');
     root.innerHTML = reusable
-      ? '<h3>Projekt mit wiederverwendbaren Bereichen</h3><p>Das neue Projekt startet mit einer leeren Seite. Header, Navigation und Footer werden erst nach dem Einfügen durch den Benutzer als gemeinsame Inhalte verwaltet.</p><p><strong>Exportmöglichkeiten:</strong></p><ul><li>HTML ohne wiederverwendbare Bereiche</li><li>Apache SSI</li><li>PHP Includes</li></ul><p>Beim Export mit SSI oder PHP wird der Ordner <code>includes/</code> angelegt.</p>'
+      ? '<h3>Projekt mit sich inhaltlich wiederholenden Elementen und Bereichen</h3><p>Das neue Projekt startet mit einer leeren Seite. Header, Navigation und Footer werden erst nach dem Einfügen durch den Benutzer als gemeinsame Inhalte verwaltet.</p><p><strong>Exportmöglichkeiten:</strong></p><ul><li>HTML ohne sich inhaltlich wiederholende Elemente und Bereiche</li><li>Apache SSI</li><li>PHP Includes</li></ul><p>Beim Export mit SSI oder PHP wird der Ordner <code>includes/</code> angelegt.</p>'
       : '<h3>Klassisches HTML-Projekt</h3><p>Header, Navigation und Footer werden vollständig in jeder Seite gespeichert.</p><p><strong>Exportmöglichkeit:</strong> HTML</p><p>Es wird kein <code>includes/</code>-Ordner angelegt.</p>';
   }
 

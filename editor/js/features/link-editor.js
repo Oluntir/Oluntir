@@ -69,12 +69,12 @@
   }
 
   function findDownloadPathForDesktop(desktopPath) {
-    if (!desktopPath || desktopPath.indexOf('images/uploads/desktop/') !== 0) return desktopPath;
+    if (!desktopPath || (desktopPath.indexOf('assets/user_upload/desktop/') !== 0 && desktopPath.indexOf('images/uploads/desktop/') !== 0)) return desktopPath;
     const fileName = desktopPath.split('/').pop() || '';
     const stem = fileName.replace(/\.[^.]+$/, '');
     if (window.assetBlobs && typeof window.assetBlobs.keys === 'function') {
       const match = Array.from(window.assetBlobs.keys()).find((path) =>
-        path.indexOf('images/downloads/' + stem + '.') === 0
+        (path.indexOf('assets/user_upload/original/' + stem + '.') === 0 || path.indexOf('images/downloads/' + stem + '.') === 0)
       );
       if (match) return match;
     }
@@ -84,11 +84,15 @@
   function responsivePathsFrom(selectedUrl) {
     const url = String(selectedUrl || '').replace(/\\/g, '/');
 
-    if (url.indexOf('images/uploads/desktop/') === 0) {
+    if (url.indexOf('assets/user_upload/desktop/') === 0 || url.indexOf('images/uploads/desktop/') === 0) {
+      const isCurrent = url.indexOf('assets/user_upload/desktop/') === 0;
+      const desktopRoot = isCurrent ? 'assets/user_upload/desktop/' : 'images/uploads/desktop/';
+      const tabletRoot = isCurrent ? 'assets/user_upload/tablet/' : 'images/uploads/tablet/';
+      const mobileRoot = isCurrent ? 'assets/user_upload/mobile/' : 'images/uploads/mobile/';
       return {
         desktop: url,
-        tablet: url.replace('images/uploads/desktop/', 'images/uploads/tablet/'),
-        mobile: url.replace('images/uploads/desktop/', 'images/uploads/mobile/'),
+        tablet: url.replace(desktopRoot, tabletRoot),
+        mobile: url.replace(desktopRoot, mobileRoot),
         download: findDownloadPathForDesktop(url),
       };
     }

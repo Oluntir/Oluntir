@@ -2,10 +2,10 @@
 
 # Project Structure
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Language:** English  
 **Status:** Stable  
-**Applies to:** Oluntir 1.0.0  
+**Applies to:** Oluntir 1.1.0  
 **Last updated:** 2026-07-29
 
 ## Purpose
@@ -14,7 +14,7 @@ Documents the application repository directories and the generated project layou
 
 ## Scope
 
-This document describes the behavior included in Oluntir 1.0.0.
+This document describes the behavior included in Oluntir 1.1.0.
 
 ## Verification
 
@@ -23,3 +23,7 @@ Test the function with a newly created project and a restored project. Where exp
 ## Limitations
 
 Browser capabilities and imported project content may affect behavior. Report reproducible deviations with the browser version, project type, steps, and console output.
+
+## User uploads
+
+New image uploads use the central `assets/user_upload/` location. Responsive variants are stored in `desktop/`, `tablet/`, and `mobile/`; unchanged originals are stored in `original/`. During editing, binary data is kept in browser IndexedDB and is written as real files under these paths during export.

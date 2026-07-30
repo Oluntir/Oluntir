@@ -4,11 +4,11 @@
 
 ## Zweck
 
-Oluntir speichert wiederverwendbare Bereiche serverneutral. Apache SSI und PHP sind ausschließlich Exportformate und nicht Bestandteil des internen Projektmodells.
+Oluntir speichert sich inhaltlich wiederholende Elemente und Bereiche serverneutral. Apache SSI und PHP sind ausschließlich Exportformate und nicht Bestandteil des internen Projektmodells.
 
 ## Projektmodell
 
-Ein Projekt wird als klassisches HTML-Projekt oder als Projekt mit wiederverwendbaren Bereichen angelegt. Bei aktivierten wiederverwendbaren Bereichen verwaltet Oluntir:
+Ein Projekt wird als klassisches HTML-Projekt oder als Projekt mit sich inhaltlich wiederholenden Elementen und Bereichen angelegt. Bei aktivierten sich inhaltlich wiederholenden Elementen und Bereichen verwaltet Oluntir:
 
 - `includes/layout/header.html`;
 - `includes/layout/navigation.html`;
@@ -27,7 +27,7 @@ Ein zentraler Include-Resolver verarbeitet alle Oluntir-Referenzen. Dadurch wird
 
 ## Exportformate
 
-- **HTML ohne wiederverwendbare Bereiche:** Alle Referenzen werden aufgelöst. Es wird kein `includes/`-Ordner benötigt.
+- **HTML ohne sich inhaltlich wiederholende Elemente und Bereiche:** Alle Referenzen werden aufgelöst. Es wird kein `includes/`-Ordner benötigt.
 - **Apache SSI:** Seiten erhalten `.shtml`; Referenzen werden als SSI-Direktiven ausgegeben.
 - **PHP Includes:** Seiten erhalten `.php`; Referenzen werden als PHP-Includes ausgegeben.
 

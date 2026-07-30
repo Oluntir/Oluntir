@@ -4,11 +4,11 @@
 
 Die Roadmap beschreibt geplante technische Arbeitspakete. Sie enthält keine verbindlichen Liefertermine.
 
-## Aktueller Stand: 1.0.0
+## Aktueller Stand: 1.1.0
 
 - lokaler Editor und Projektpersistenz;
 - Bootstrap 4.6.2 und Bootstrap 5.3.8;
-- klassische HTML-Projekte und wiederverwendbare Bereiche;
+- klassische HTML-Projekte und sich inhaltlich wiederholende Elemente und Bereiche;
 - Oluntir-Dokumentmodell und Oluntir-Codeansicht;
 - zentraler Include-Resolver;
 - HTML-, Apache-SSI- und PHP-Export;
@@ -28,8 +28,8 @@ Die Roadmap beschreibt geplante technische Arbeitspakete. Sie enthält keine ver
 
 ## Spätere Kandidaten
 
-- Projekt-Explorer für Seiten und wiederverwendbare Bereiche;
-- Vorlagen für wiederverwendbare Bereiche;
+- Projekt-Explorer für Seiten und sich inhaltlich wiederholende Elemente und Bereiche;
+- Vorlagen für sich inhaltlich wiederholende Elemente und Bereiche;
 - zusätzliche Export-Writer auf Basis des vorhandenen Resolvers;
 - erweiterte Asset-Verwaltung;
 - öffentliche technische Projektdokumentation.

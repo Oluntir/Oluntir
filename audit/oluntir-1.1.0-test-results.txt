@@ -1,0 +1,13 @@
+Oluntir 1.1.0 test results — 2026-07-30
+
+PASS: JavaScript syntax check for all non-minified editor JavaScript files
+PASS: Repository structure validator
+PASS: 40 static HTML script and stylesheet references
+PASS: Bootstrap 4.6.2 and Bootstrap 5.3.8 export bundle validation
+PASS: GrapesJS adapter unit test; open-assets command opens registered Oluntir selector
+PASS: No .gjs-* DOM dependency in editor/modules or editor/services
+PASS: No MutationObserver or setInterval in the Image Select module
+PASS: Versioned GrapesJS 0.23.2 vendor files present
+PASS: Legacy image-select-enhancements.js removed from loading and repository
+
+NOT EXECUTED: Interactive browser click test of the modal, IndexedDB upload, image replacement, and destructive confirmation dialogs. No supported graphical browser is available in this container. These paths require a local browser regression test before publishing the release.

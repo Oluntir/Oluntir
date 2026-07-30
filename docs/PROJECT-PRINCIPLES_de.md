@@ -11,7 +11,7 @@ Dieses Dokument definiert technische Leitlinien für Entwicklung und Wartung von
 - Exportierte Projekte verwenden reguläres HTML, CSS und JavaScript.
 - Proprietäre Laufzeitabhängigkeiten sind für exportierte statische Projekte nicht erforderlich.
 - Export ist Bestandteil des Kernworkflows und wird bei relevanten Änderungen geprüft.
-- Wiederverwendbare Bereiche werden intern serverneutral gespeichert.
+- Sich inhaltlich wiederholende Elemente und Bereiche werden intern serverneutral gespeichert.
 - Zielformate werden ausschließlich durch den jeweiligen Export-Writer erzeugt.
 
 ## Lokale Nutzung

@@ -2,22 +2,34 @@
 
 # Oluntir
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Language:** English  
 **Status:** Stable  
-**Applies to:** Oluntir 1.0.0  
-**Last updated:** 2026-07-29
+**Applies to:** Oluntir 1.1.0  
+**Last updated:** 2026-07-30
 
-> **Release status:** This package is the stable release for Oluntir 1.0. It is intended for production use and publication.
+> **Release status:** This package is the stable Oluntir 1.1.0 release. It is intended for production use and publication.
 
 Oluntir is a browser-based editor for static websites. It runs locally and creates HTML, CSS, and JavaScript projects without requiring a database or a server-side application runtime.
+
+## GrapesJS as the technical foundation
+
+Oluntir uses **GrapesJS** as its central visual editor engine. Component editing, canvas rendering, and essential editor behavior depend on GrapesJS. Oluntir extends that foundation with its own project, export, workspace, and asset architecture. GrapesJS is kept unchanged as a versioned vendor dependency and is accessed through a dedicated adapter and compatibility layer so future GrapesJS updates can be reviewed and integrated in a controlled way.
+
+## Key changes in 1.1.0
+
+- Image uploads remain available in IndexedDB and can additionally be written to `assets/user_upload/` in the connected project folder.
+- GrapesJS updateability is supported by versioned vendor files, a dedicated integration layer, and the new `OluntirWorkspaceManager`.
+- A standalone image selection interface adds search, filters, grid and list views, details, variants, replacement, and safe deletion.
+- Galleries support no enlargement, modal, or lightbox display with complete keyboard navigation and focus management.
+- The top toolbar remains visible while scrolling, and dark-editor selection fields have improved contrast.
 
 ## Features
 
 - local browser operation;
 - Bootstrap 4.6.2 and Bootstrap 5.3.8 project profiles;
 - page management, project save, restore, and backup;
-- classic HTML projects and projects with reusable areas;
+- classic HTML projects and projects with recurring content elements and regions;
 - Shared Content Manager with immediate cross-page synchronization of header, navigation, and footer;
 - the Oluntir Include (Oluntir) document model with visible `<ope-include>` references;
 - export to resolved HTML, Apache SSI, or PHP includes;
@@ -32,7 +44,7 @@ Oluntir is a browser-based editor for static websites. It runs locally and creat
 
 Each page stores complete HTML. Export produces standalone `.html` files.
 
-### Project with reusable areas
+### Project with recurring content elements and regions
 
 Header, navigation, footer, and optional sections are maintained centrally. Pages use Oluntir references such as:
 
@@ -82,6 +94,6 @@ Original Oluntir source code is licensed under the MIT License. Bundled librarie
 
 Contribution requirements are documented in [CONTRIBUTING.md](CONTRIBUTING.md). Security reports are handled according to [SECURITY.md](SECURITY.md).
 
-### Empty reusable-area projects
+### Empty projects with recurring content elements and regions
 
 A new reusable-area project starts with an empty page. Oluntir does not insert a predefined header, navigation, or footer. After the user adds these elements, the Shared Content Manager treats them as the project-wide shared source and applies their current state to newly created pages. If the header already contains a navigation element, it remains part of the header.

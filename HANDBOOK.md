@@ -2,10 +2,10 @@
 
 # Oluntir Technical Handbook
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Language:** English  
 **Status:** Stable  
-**Applies to:** Oluntir 1.0.0  
+**Applies to:** Oluntir 1.1.0  
 **Last updated:** 2026-07-29
 
 ## 1. Purpose
@@ -14,13 +14,13 @@ Oluntir edits and exports static website projects locally in a browser.
 
 ## 2. Project types
 
-Classic projects store complete page HTML. Reusable-area projects store shared layout content separately and reference it through Oluntir elements.
+Classic projects store complete page HTML. Projects with recurring content elements and regions store shared layout content separately and reference it through Oluntir elements.
 
 ## 3. Oluntir document model
 
 An Oluntir reference uses `<ope-include src="..."></ope-include>`. Oluntir is the internal representation and is resolved only for preview and export.
 
-## 4. Reusable areas
+## 4. Recurring content elements and regions
 
 Layout areas normally include header, navigation, and footer. Additional sections may be registered. Paths must be unique and all referenced areas must exist.
 

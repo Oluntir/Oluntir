@@ -2,10 +2,10 @@
 
 # Third-party notices
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Language:** English  
 **Status:** Stable  
-**Applies to:** Oluntir 1.0.0  
+**Applies to:** Oluntir 1.1.0  
 **Last updated:** 2026-07-29
 
 Oluntir bundles third-party software and assets for offline operation. Each component retains its original license.

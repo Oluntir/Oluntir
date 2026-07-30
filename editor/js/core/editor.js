@@ -22,6 +22,13 @@ const assetHydration = Promise.race([
   new Promise((resolve) => setTimeout(() => resolve('timeout'), 4000)),
 ]);
 
+assetHydration.then(() => {
+  if (window.OluntirAssetService && window.OluntirAssetService.restoreConnectedProjectFolder) {
+    return window.OluntirAssetService.restoreConnectedProjectFolder();
+  }
+  return null;
+}).catch((error) => console.warn('Upload-Ordner-Synchronisierung konnte nicht wiederhergestellt werden:', error));
+
 (async function initPageBuilder() {
   if (window.OluntirStartup && window.OluntirStartup.ready) {
     await window.OluntirStartup.ready;
@@ -140,6 +147,8 @@ const assetHydration = Promise.race([
   window.requestAnimationFrame(localizeEditorUi);
 
   window.OluntirEditor = editor;
+  window.OluntirGrapes = window.OluntirGrapesAdapter.create(editor);
+  console.info('Oluntir GrapesJS adapter:', window.OluntirGrapes.selfTest());
   if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.bind === 'function') {
     window.OluntirSharedContentManager.bind(editor);
   }
@@ -299,11 +308,11 @@ const assetHydration = Promise.race([
   //    bewusst gekapselt; deshalb wird die Magnific-Popup-Konfiguration hier zusätzlich
   //    direkt gebunden (nur auf Galerien ohne bestehende Instanz).
   // 2) Hochgeladene Bilder: im Datenmodell/Export steht immer der stabile Pfad
-  //    "images/uploads/…", für die Anzeige im Canvas muss er live auf die aktuell
+  //    "assets/user_upload/…", für die Anzeige im Canvas muss er live auf die aktuell
   //    gültige blob:-URL umgebogen werden (siehe asset-store.js).
   // ---------------------------------------------------------------------------
   // Bildpfad-Korrektur MUSS sofort/synchron passieren (kein setTimeout-Delay): Sobald ein
-  // <img src="images/uploads/…"> ins DOM kommt, startet der Browser augenblicklich einen
+  // <img src="assets/user_upload/…"> ins DOM kommt, startet der Browser augenblicklich einen
   // (zwangsläufig scheiternden) Ladeversuch für diesen nicht auflösbaren Pfad – bei jeder
   // Verzögerung greift GrapesJS' eigene Fehlerbehandlung zuerst und tauscht den Pfad
   // gegen ein Kaputt-Bild-Platzhaltersymbol, das mein späterer Patch dann nicht mehr
@@ -361,12 +370,6 @@ const assetHydration = Promise.race([
     editor.on('component:add', reinitLightbox);
     editor.on('page', reinitLightbox);
   }
-
-  // Asset-Manager-Vorschaubilder (liegen im Hauptfenster, nicht im Canvas-iframe) auf
-  // dieselbe Art sofort auflösen, sobald sie ins DOM kommen (z. B. beim Öffnen des Panels)
-  // – aus demselben Grund ohne Verzögerung.
-  const parentPatchObserver = new MutationObserver(() => patchUploadedImageRefs(document));
-  parentPatchObserver.observe(document.body, { childList: true, subtree: true });
 
   function pageComponentHtml(page) {
     if (!page || typeof page.getMainComponent !== 'function') return '';
@@ -981,6 +984,20 @@ const assetHydration = Promise.race([
 
   // "+ Bild hochladen": fügt (ein oder mehrere) Bilder dem Asset-Manager hinzu, ohne
   // Base64 – Auswahl über den Asset-Manager (Doppelklick auf ein Bild-Element) möglich.
+  // Entfernt bei eigenen Uploads nicht nur den Asset-Manager-Eintrag, sondern auch
+  // die zugehörigen Responsive-Dateien und das Original aus IndexedDB.
+  editor.on('run:open-assets', () => window.requestAnimationFrame(() => patchUploadedImageRefs(document)));
+  editor.on('asset:open', () => window.requestAnimationFrame(() => patchUploadedImageRefs(document)));
+  editor.on('asset:add', () => window.requestAnimationFrame(() => patchUploadedImageRefs(document)));
+
+  editor.on('asset:remove', (asset) => {
+    const src = asset && asset.get ? asset.get('src') : '';
+    if (!src || typeof removeUploadedAsset !== 'function') return;
+    const isUserUpload = src.indexOf('assets/user_upload/') === 0 ||
+      src.indexOf('images/uploads/') === 0 || src.indexOf('images/downloads/') === 0;
+    if (isUserUpload) removeUploadedAsset(src);
+  });
+
   document.getElementById('input-asset-upload').addEventListener('change', async (ev) => {
     const files = Array.from(ev.target.files || []).filter((f) => f.type && f.type.startsWith('image/'));
     ev.target.value = '';

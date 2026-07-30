@@ -66,10 +66,11 @@
     const items = Array.from({length: count}, (_, index) => {
       const src = images[index % images.length];
       const image = `<img src="${src}" class="img-fluid w-100${rounded}${shadow}" alt="Galeriebild ${index + 1}"${config.ratio !== 'auto' ? ' style="aspect-ratio: 4/3;object-fit:cover"' : ''}>`;
-      const linked = config.lightbox ? `<a class="portfolio-img d-block" href="${src}" data-gallery="pagebuilder-gallery">${image}</a>` : image;
+      const mode = config.viewerMode || 'modal';
+      const linked = mode !== 'none' ? `<a class="pb-gallery-trigger d-block" href="${src}" data-pb-gallery-desktop="${src}" data-alt="Galeriebild ${index + 1}" data-caption="Galeriebild ${index + 1}">${image}</a>` : image;
       return `<div class="${col}"><figure class="mb-0${ratioClass}">${linked}${config.caption ? `<figcaption class="small text-muted mt-2">Bild ${index + 1}</figcaption>` : ''}</figure></div>`;
     }).join('');
-    return `<div class="container"><div class="row ${gap} popup-gallery">${items}</div></div>`;
+    return `<div class="container pb-gallery" data-pb-gallery data-pb-gallery-viewer="${config.viewerMode || 'modal'}" data-pb-gallery-caption="${config.caption ? 'true' : 'false'}" data-pb-gallery-counter="${config.counter !== false ? 'true' : 'false'}" data-pb-gallery-loop="${config.loop !== false ? 'true' : 'false'}"><div class="row ${gap}">${items}</div></div>`;
   }
 
   function navbarHtml(config, bs5) {
@@ -149,9 +150,9 @@
         ['mobile','Mobil: Bilder je Reihe','select',[['1','1'],['2','2']]],
         ['gap','Bildabstand','select',[['0','Keiner'],['1','Sehr klein'],['2','Klein'],['3','Normal'],['4','Groß'],['5','Sehr groß']]],
         ['ratio','Bildformat','select',[['auto','Original'],['1x1','Quadrat'],['4x3','4 : 3'],['16x9','16 : 9']]],
-        ['rounded','Abgerundete Ecken','checkbox'],['shadow','Schatten','checkbox'],['caption','Bildunterschriften','checkbox'],['lightbox','Lightbox','checkbox']
+        ['rounded','Abgerundete Ecken','checkbox'],['shadow','Schatten','checkbox'],['caption','Bildunterschriften','checkbox'],['viewerMode','Klickvergrößerung','select',[['none','Keine'],['modal','Modal'],['lightbox','Lightbox']]],['counter','Bildzähler','checkbox'],['loop','Navigation zyklisch','checkbox']
       ],
-      defaults: {count:6,desktop:'3',tablet:'2',mobile:'1',gap:'3',ratio:'4x3',rounded:true,shadow:false,caption:false,lightbox:true},
+      defaults: {count:6,desktop:'3',tablet:'2',mobile:'1',gap:'3',ratio:'4x3',rounded:true,shadow:false,caption:false,viewerMode:'modal',counter:true,loop:true},
       render: galleryHtml
     },
     navbar: {

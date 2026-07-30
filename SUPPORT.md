@@ -2,15 +2,15 @@
 
 # Support
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Language:** English  
 **Status:** Stable  
-**Applies to:** Oluntir 1.0.0  
+**Applies to:** Oluntir 1.1.0  
 **Last updated:** 2026-07-29
 
 ## Supported requests
 
-Support covers installation, browser behavior, project creation, project restore, Oluntir reusable areas, code view, and HTML, SSI, or PHP export.
+Support covers installation, browser behavior, project creation, project restore, Oluntir recurring content elements and regions, code view, and HTML, SSI, or PHP export.
 
 ## Information to include
 

@@ -2,10 +2,10 @@
 
 # Contributing
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Language:** English  
 **Status:** Stable  
-**Applies to:** Oluntir 1.0.0  
+**Applies to:** Oluntir 1.1.0  
 **Last updated:** 2026-07-29
 
 Contributions should be limited in scope, reproducible, and compatible with the offline-first architecture.
@@ -15,7 +15,7 @@ Contributions should be limited in scope, reproducible, and compatible with the 
 1. Create an issue or describe the defect and expected behavior in the pull request.
 2. Base changes on the current default branch.
 3. Keep unrelated refactoring out of the same change.
-4. Test classic projects and reusable-area projects when affected.
+4. Test classic projects and projects with recurring content elements and regions when affected.
 5. Test HTML, SSI, and PHP exports when include handling is affected.
 6. Update both English reference documentation and the corresponding German `*_de.md` file.
 

@@ -2,7 +2,7 @@
 
 # Technisches Handbuch Oluntir
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Status:** Aktuell
 
 ## Zweck
@@ -11,7 +11,7 @@ Oluntir bearbeitet und exportiert statische Website-Projekte lokal im Browser.
 
 ## Projektarten
 
-Klassische Projekte speichern vollständiges HTML. Projekte mit wiederverwendbaren Bereichen referenzieren zentral gepflegte Inhalte über `<ope-include>`.
+Klassische Projekte speichern vollständiges HTML. Projekte mit sich inhaltlich wiederholenden Elementen und Bereichen referenzieren zentral gepflegte Inhalte über `<ope-include>`.
 
 ## Oluntir und Export
 

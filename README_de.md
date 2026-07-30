@@ -4,16 +4,28 @@
 
 Oluntir ist ein browserbasierter Editor für statische Websites. Die Anwendung arbeitet lokal und erzeugt HTML, CSS und JavaScript ohne erforderliche Datenbank oder serverseitige Projektlaufzeit.
 
-**Version:** 1.0.0  
-**Status:** Release Candidate
+## GrapesJS als technisches Fundament
+
+Oluntir baut auf **GrapesJS** als zentraler visueller Editor-Engine auf. Ohne GrapesJS wären die Komponentenbearbeitung, die Canvas-Darstellung und wesentliche Editorfunktionen nicht möglich. Oluntir ergänzt dieses Fundament um eine eigene Projekt-, Export-, Workspace- und Asset-Architektur. GrapesJS wird unverändert und versioniert als Vendor-Abhängigkeit geführt; der Zugriff erfolgt über eine eigene Adapter- und Kompatibilitätsschicht, damit spätere GrapesJS-Updates kontrolliert geprüft und eingespielt werden können.
+
+## Wichtigste Neuerungen in 1.1.0
+
+- Bild-Uploads werden weiterhin in IndexedDB verwaltet und zusätzlich unter `assets/user_upload/` in das verbundene Projekt geschrieben.
+- Die Updatefähigkeit für GrapesJS wurde durch versionierte Vendor-Dateien, eine eigene Integrationsschicht und den neuen `OluntirWorkspaceManager` vorbereitet.
+- Eine eigenständige Bildauswahl mit Suche, Filterung, Raster- und Listenansicht, Detailinformationen, Variantenverwaltung, Ersetzen und sicherem Löschen wurde ergänzt.
+- Galerien unterstützen wahlweise keine Vergrößerung, Modal oder Lightbox sowie vollständige Tastaturnavigation und Fokusmanagement.
+- Die obere Werkzeugleiste bleibt beim Scrollen sichtbar; Auswahlfelder im dunklen Editor besitzen einen verbesserten Kontrast.
+
+**Version:** 1.1.0  
+**Status:** Stable
 
 ## Funktionen
 
 - lokale Nutzung im Browser;
 - Projektprofile für Bootstrap 4.6.2 und Bootstrap 5.3.8;
 - Seitenverwaltung, Speichern und Wiederherstellen;
-- klassische HTML-Projekte und Projekte mit wiederverwendbaren Bereichen;
-- automatische Übernahme von Header, Navigation und Footer beim Erstellen neuer Seiten in Projekten mit wiederverwendbaren Bereichen;
+- klassische HTML-Projekte und Projekte mit sich inhaltlich wiederholenden Elementen und Bereichen;
+- automatische Übernahme von Header, Navigation und Footer beim Erstellen neuer Seiten in Projekten mit sich inhaltlich wiederholenden Elementen und Bereichen;
 - Oluntir-Dokumentmodell mit sichtbaren `<ope-include>`-Referenzen;
 - Export als vollständig aufgelöstes HTML, Apache SSI oder PHP Includes;
 - Export in Ordner, ZIP oder TAR;
@@ -28,7 +40,7 @@ Oluntir ist ein browserbasierter Editor für statische Websites. Die Anwendung a
 
 Jede Seite enthält ihren vollständigen HTML-Inhalt. Der Export erzeugt eigenständige HTML-Dateien.
 
-### Projekt mit wiederverwendbaren Bereichen
+### Projekt mit sich inhaltlich wiederholenden Elementen und Bereichen
 
 Header, Navigation, Footer und zusätzliche Bereiche werden zentral verwaltet. Die interne Seitenstruktur verwendet Oluntir-Referenzen:
 
@@ -81,6 +93,6 @@ Der originale Oluntir-Quellcode steht unter der MIT-Lizenz. Eingebundene Bibliot
 
 Hinweise zur Mitarbeit stehen in [CONTRIBUTING.md](CONTRIBUTING.md). Sicherheitsrelevante Meldungen werden gemäß [SECURITY.md](SECURITY.md) behandelt.
 
-### Leere Projekte mit wiederverwendbaren Bereichen
+### Leere Projekte mit sich inhaltlich wiederholenden Elementen und Bereichen
 
-Ein neues Projekt mit wiederverwendbaren Bereichen startet mit einer leeren Seite. Oluntir fügt keinen vorgegebenen Header, keine Navigation und keinen Footer ein. Erst nachdem der Benutzer diese Elemente angelegt hat, verwaltet der Shared Content Manager sie als projektweit gemeinsame Quelle und übernimmt ihren aktuellen Stand in neu erstellte Seiten. Enthält der Header bereits eine Navigation, bleibt sie Bestandteil des Headers.
+Ein neues Projekt mit sich inhaltlich wiederholenden Elementen und Bereichen startet mit einer leeren Seite. Oluntir fügt keinen vorgegebenen Header, keine Navigation und keinen Footer ein. Erst nachdem der Benutzer diese Elemente angelegt hat, verwaltet der Shared Content Manager sie als projektweit gemeinsame Quelle und übernimmt ihren aktuellen Stand in neu erstellte Seiten. Enthält der Header bereits eine Navigation, bleibt sie Bestandteil des Headers.

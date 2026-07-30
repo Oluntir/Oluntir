@@ -1,0 +1,11 @@
+OLUNTIR 1.1.0 IMAGE MANAGER MODE/RESPONSIVE TEST
+
+[PASS] JavaScript syntax: image-select.js
+[PASS] JavaScript syntax: image-select-ui.js
+[PASS] Structure validator
+[PASS] GrapesJS adapter test
+[PASS] Manage mode has no Bild verwenden action
+[PASS] Assignment guarded by currentMode=assign
+[PASS] Responsive list breakpoints: 1180px, 780px, 560px
+[MANUAL] Verify toolbar opening shows management warning and image-element opening shows assignment mode.
+[MANUAL] Verify list layout at desktop, tablet, and narrow workspace widths.

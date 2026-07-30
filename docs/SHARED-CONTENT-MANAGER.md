@@ -2,11 +2,11 @@
 
 # Shared Content Manager
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Status:** Stable  
 **Last updated:** 2026-07-29
 
-The Shared Content Manager keeps the layout regions of reusable-area projects synchronized across all pages.
+The Shared Content Manager keeps the layout regions of projects with recurring content elements and regions synchronized across all pages.
 
 ## Managed regions
 

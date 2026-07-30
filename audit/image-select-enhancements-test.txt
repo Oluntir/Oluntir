@@ -1,0 +1,31 @@
+Oluntir Image-Select-Erweiterung – technische Prüfung
+Datum: 2026-07-30
+
+Umgesetzt:
+- Verwendungsstatus je hochgeladenem Bild
+- Suche nach Dateiname und Pfad
+- Filter: alle, verwendet, nicht verwendet, SVG, Rasterbilder
+- Sortierung: zuletzt hinzugefügt, Name, Dateigröße, Verwendung
+- Raster- und Listenansicht
+- Detailanzeige mit Pfad, Abmessungen, Gesamtgröße und Responsive-Dateien
+- Bild ersetzen bei unveränderten stabilen Pfaden
+- Nicht verwendete Bilder löschen mit Sicherheitsabfrage
+- Alle hochgeladenen Bilder löschen mit Sicherheitsabfrage
+- Zweite Sicherheitsabfrage, wenn verwendete Bilder betroffen sind
+- Dauerhafte untere Aktionsleiste
+
+Technisch geprüft:
+- JavaScript-Syntax aller Editor-JavaScript-Dateien: erfolgreich
+- tools/validate-structure.py: erfolgreich
+- 31 statische HTML-Referenzen: erfolgreich
+- Bootstrap-Profile 4.6.2 und 5.3.8: erfolgreich
+- lokale Bilder und Export-Assetpaket: erfolgreich
+- alte Laufzeitpfade ausgeschlossen: erfolgreich
+
+Nicht automatisiert ausführbar:
+- Interaktive Browserprüfung des nativen GrapesJS-Dateidialogs
+- Visuelle Prüfung von Raster-/Listenansicht in einem echten Browser
+- Reale IndexedDB-Lösch- und Ersetzungsvorgänge mit Benutzerdateien
+
+Die IndexedDB- und Exportlogik wurde nicht ersetzt. Hochgeladene Binärdaten verbleiben in
+IndexedDB und werden beim Export weiterhin unter assets/user_upload/ ausgegeben.

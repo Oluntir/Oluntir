@@ -1,0 +1,30 @@
+Oluntir Image-Select runtime fix
+================================
+
+Ursache:
+- editor.js initialisiert GrapesJS innerhalb einer asynchronen Funktion.
+- image-select-enhancements.js wurde unmittelbar danach geladen und versuchte sofort,
+  editor.on(...) aufzurufen.
+- Zu diesem Zeitpunkt war die globale Variable editor noch nicht initialisiert.
+- Das Skript brach deshalb vor dem Aufbau von Werkzeugleiste, Variantenfilter,
+  Detailbereich und Fußleiste ab. Lediglich die bereits vorhandenen CSS-Regeln für das
+  Papierkorbsymbol waren sichtbar.
+
+Korrektur:
+- Initialisierung an das echte Ereignis oluntir:editorready gebunden.
+- Zusätzlicher zeitlich begrenzter Polling-Fallback eingebaut.
+- Ereignisse und MutationObserver werden erst registriert, wenn editor und
+  editor.AssetManager tatsächlich verfügbar sind.
+- Doppelte Initialisierung wird verhindert.
+
+Prüfungen:
+- node --check editor/js/features/image-select-enhancements.js: erfolgreich
+- tools/validate-structure.py: erfolgreich
+- 31 statische HTML-Referenzen geprüft
+- Bootstrap 4.6.2 und Bootstrap 5.3.8 geprüft
+- lokale Bilder und Export-Assetpaket geprüft
+- alte Laufzeitpfade ausgeschlossen
+
+Hinweis:
+- Ein automatisierter Chromium-Lauf war in der Ausführungsumgebung durch eine
+  Administratorrichtlinie für lokale und Loopback-Navigation blockiert.

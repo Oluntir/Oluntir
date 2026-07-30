@@ -1,0 +1,34 @@
+Oluntir 1.1.0 – Workspace- und Bildmanager-Prüfung
+Datum: 2026-07-30
+
+UMGESETZT
+- Zentraler OluntirWorkspaceManager außerhalb des GrapesJS-Modals
+- Bildmanager als registrierter Workspace "images"
+- Ausblenden von Schnellbearbeitung und Schnellkonfiguration während des Workspaces
+- Wiederherstellung der Editoroberfläche beim Schließen
+- Dauerhafter Toolbar-Befehl "oluntir-open-image-manager"
+- Toolbar-Schaltfläche "oluntir-image-manager"
+- IndexedDB-Vorschau über AssetService.previewUrl()
+- Lazy Loading über IntersectionObserver
+- Abschnittsweises Rendering in Schritten von 60 Bildkarten
+- Wiederholtes Öffnen über zustandslosen Workspace-Mount/Unmount-Ablauf
+
+AUSGEFÜHRTE PRÜFUNGEN
+- node --check für alle geänderten JavaScript-Dateien: ERFOLGREICH
+- python3 tools/validate-structure.py: ERFOLGREICH
+  - 41 statische HTML-Referenzen
+  - Bootstrap 4.6.2 und Bootstrap 5.3.8
+  - lokale Bilder und Export-Assetpaket
+  - alte Laufzeitpfade ausgeschlossen
+  - JavaScript-Syntax
+- node tools/test-grapesjs-adapter.js: ERFOLGREICH
+- MutationObserver in editor/modules, editor/services und editor/integrations: 0 Treffer
+- setInterval in Bildmanager und WorkspaceManager: 0 Treffer
+- .gjs-Selektoren außerhalb der GrapesJS-Integration: 0 Treffer
+
+NICHT AUTOMATISIERT AUSFÜHRBAR
+- Reales Öffnen, Schließen und erneutes Öffnen im Browser
+- Visuelle Kontrolle der 433 Bilder und 1.732 Varianten
+- Interaktive IndexedDB-Operationen im Browser
+
+Diese Punkte müssen lokal im Browser geprüft werden. Es wird kein bestandener Browsertest behauptet.
