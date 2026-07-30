@@ -6,11 +6,13 @@
 **Status:** Stabil  
 **Veröffentlichung:** 30.07.2026
 
+**Open-Source Website-Editor mit Projektverwaltung, Zwei-Monitor-Arbeitsbereich und lokalem Export.**
+
 Oluntir ist ein offline-orientierter, browserbasierter Editor für statische Websites. Die Anwendung erstellt und pflegt HTML-, CSS- und JavaScript-Projekte lokal, ohne eine Datenbank oder serverseitige Anwendungslaufzeit zu benötigen.
 
 ## GrapesJS als Editor-Engine
 
-Oluntir verwendet **GrapesJS 0.23.2** als zentrale visuelle Editor-Engine. GrapesJS bleibt unverändert und versioniert unter `vendor/grapesjs/`. Oluntir-spezifisches Verhalten ist hinter der Integrations- und Kompatibilitätsschicht in `editor/integrations/grapesjs/` gekapselt. Dadurch bleiben Projekt-, Asset-, Workspace-, Export- und Mehrmonitor-Architektur unabhängig von internen GrapesJS-DOM-Strukturen.
+Oluntir verwendet **GrapesJS 0.23.2** als zentrale visuelle Editor-Engine. GrapesJS bleibt als eigenständige, unveränderte und versionierte Open-Source-Engine unter `vendor/grapesjs/`; Oluntir verändert die Engine selbst nicht. Oluntir-spezifisches Verhalten ist hinter der Integrations- und Kompatibilitätsschicht in `editor/integrations/grapesjs/` gekapselt. Dadurch bleiben Projekt-, Asset-, Workspace-, Export- und Mehrmonitor-Architektur unabhängig von internen GrapesJS-DOM-Strukturen.
 
 ## Höhepunkte der Version 1.2.0
 
@@ -72,6 +74,11 @@ examples/     Beispielmaterial
 
 ## Dokumentation
 
+- [Dokumentationsübersicht](docs/index_de.md)
+- [Warum Oluntir?](docs/WHY_OLUNTIR_de.md)
+- [Architekturübersicht](docs/ARCHITECTURE_de.md)
+- [Projektgrundsätze](docs/PROJECT-PRINCIPLES_de.md)
+- [Versionierung](docs/VERSIONING_de.md)
 - [Erster Start](docs/FIRST_START_de.md)
 - [Mehrmonitor-Arbeitsbereich](docs/MULTI_MONITOR_de.md)
 - [Bildmanager](docs/IMAGE_MANAGER_de.md)

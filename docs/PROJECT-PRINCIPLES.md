@@ -1,25 +1,17 @@
-> **Language:** English (reference) · [Deutsch](PROJECT-PRINCIPLES_de.md)
+> **Language:** English · [Deutsch](PROJECT-PRINCIPLES_de.md)  
+> **Version:** 1.2.0
 
-# Technical Project Principles
+# Project principles
 
-**Version:** 1.2.0  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.2.0  
-**Last updated:** 2026-07-30
+1. **Open standards before proprietary formats.**
+2. **Local project control instead of mandatory cloud storage.**
+3. **Clear separation between editor engine and Oluntir project logic.**
+4. **No vendor runtime required by exported websites.**
+5. **Compatibility, accessibility, and maintainability before short-lived effects.**
+6. **New features must not unnecessarily damage existing projects or workflows.**
+7. **User guidance is part of the architecture, not merely visual decoration.**
+8. **Browser persistence supports projects but does not replace portable backups.**
+9. **Third-party versions and licenses remain documented and reviewable.**
+10. **German and English documentation are maintained as equal project languages.**
 
-## Purpose
-
-Project state is explicit, existing data is preserved unless replacement is confirmed, include logic is centralized, runtime dependencies remain local, exports are deterministic, and errors are reported before incomplete output is written.
-
-## Scope
-
-This document describes the behavior included in Oluntir 1.2.0.
-
-## Verification
-
-Test the function with a newly created project and a restored project. Where export is affected, test folder and archive output and compare the generated file structure with the selected format.
-
-## Limitations
-
-Browser capabilities and imported project content may affect behavior. Report reproducible deviations with the browser version, project type, steps, and console output.
+These principles guide feature design, reviews, releases, and contributions.

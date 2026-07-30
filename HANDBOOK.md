@@ -56,3 +56,9 @@ Also perform JavaScript syntax checks, static local-reference checks, archive in
 ## 10. Operational limitations
 
 Oluntir cannot bypass browser security prompts or guarantee automatic placement on another display. Imported HTML can contain unsafe content; review unknown projects before previewing or exporting. Keep external backups before migrations and major edits.
+
+## 11. Project philosophy and documentation map
+
+Oluntir is designed as a local Open Source website project environment rather than only a visual page editor. GrapesJS provides the visual editing engine; Oluntir owns project, workspace, asset, Shared Content, persistence, and export responsibilities through its own adapter and services.
+
+The documentation is available in English and German. Start with [the documentation index](docs/index.md), [Why Oluntir?](docs/WHY_OLUNTIR.md), and [the architecture overview](docs/ARCHITECTURE.md).

@@ -44,3 +44,12 @@ Version 1.2.0 in einen neuen Ordner entpacken und die neue `index.html` öffnen.
 ## Bekannte Einschränkungen
 
 Oluntir kann Browserberechtigungen für Dateisystem, Fensterpositionierung oder Pop-ups nicht erzwingen. Ist die Window Management API nicht verfügbar oder nicht freigegeben, bleibt das Werkzeugfenster manuell verschiebbar. Die automatische Platzierung auf einem zweiten Monitor setzt daher eine passende Browser- und Betriebssystemkonfiguration voraus.
+
+## In 1.2.0 gestärkte Projektgrundsätze
+
+- GrapesJS bleibt eine unveränderte Open-Source-Engine; Oluntir-Funktionen werden über Adapter- und Integrationsschicht umgesetzt.
+- Arbeitsbereichseinstellungen werden lokal gespeichert und können Monitor-Modus, Fenstergeometrie und ausgewählte Workspace-Einstellungen wiederherstellen.
+- Der Bildmanager erläutert die Auswahl des Projektstamms, bevor `assets/user_upload/` verwendet oder angelegt wird.
+- Modal und Lightbox bleiben bewusst getrennte Darstellungskonzepte.
+- Das interne Projektmodell bleibt vom gewählten Exportformat unabhängig.
+- Englische und deutsche Release-Informationen werden als gleichwertige Projektdokumentation gepflegt.

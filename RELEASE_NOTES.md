@@ -44,3 +44,12 @@ Extract 1.2.0 into a new folder and open the new `index.html`. Keep the previous
 ## Known limitations
 
 Oluntir cannot force a browser to grant file-system, window-placement, or pop-up permission. When the Window Management API is unavailable or denied, the tool window remains manually movable. Physical two-monitor placement therefore requires a browser and operating-system configuration that exposes the necessary capability.
+
+## Project principles reinforced in 1.2.0
+
+- GrapesJS remains an unchanged Open Source engine; Oluntir features are implemented through the adapter and integration layer.
+- Workspace settings are stored locally and can restore monitor mode, window geometry, and selected workspace behavior.
+- The Image Manager explains project-root selection before it uses or creates `assets/user_upload/`.
+- Modal and Lightbox remain intentionally separate viewing concepts.
+- The internal project model remains independent of the selected export format.
+- English and German release information are maintained as equivalent project documentation.

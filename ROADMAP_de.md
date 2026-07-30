@@ -1,6 +1,29 @@
-> **Sprache:** Deutsch · [English (reference)](ROADMAP.md)
+> **Sprache:** Deutsch · [English](ROADMAP.md)
 
 # Roadmap
+
+Die Roadmap beschreibt die Richtung und ist keine verbindliche Lieferzusage. Prioritäten können sich nach Tests und Rückmeldungen der Community ändern.
+
+## NOW
+
+- Das stabile Release 1.2.0 pflegen und unterstützen.
+- Reproduzierbare Rückmeldungen zu Mehrmonitor-, Bild-, Galerie- und Exportabläufen sammeln.
+- Deutsche und englische Dokumentation synchron halten.
+
+## NEXT
+
+- Erste Arbeitspakete für 1.3.x erst nach der Auswertung des Release-Feedbacks festlegen.
+- Kompatibilität, Zuverlässigkeit und klare Migration vor schnelles Funktionswachstum stellen.
+
+## LATER
+
+- Größere Verbesserungen an Arbeitsabläufen und Erweiterbarkeit prüfen, ohne Adaptergrenze und offenes Exportmodell aufzugeben.
+
+## IDEAS
+
+- Ideen bleiben Kandidaten, bis sie spezifiziert, geprüft und einer Version zugeordnet wurden.
+
+## Bisheriger Roadmap-Inhalt
 
 **Aktuelle stabile Version:** 1.2.0  
 **Stand:** 30.07.2026

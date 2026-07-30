@@ -1,6 +1,29 @@
-> **Language:** English (reference) · [Deutsch](ROADMAP_de.md)
+> **Language:** English · [Deutsch](ROADMAP_de.md)
 
 # Roadmap
+
+The roadmap records direction, not a binding delivery promise. Priorities may change after testing and community feedback.
+
+## NOW
+
+- Maintain and support the stable 1.2.0 release.
+- Collect reproducible feedback on multi-monitor, image, gallery, and export workflows.
+- Keep English and German documentation synchronized.
+
+## NEXT
+
+- Evaluate the first 1.3.x work packages only after release feedback.
+- Prefer compatibility, reliability, and migration clarity over rapid feature growth.
+
+## LATER
+
+- Consider larger workflow and extension improvements that preserve the adapter boundary and open export model.
+
+## IDEAS
+
+- Ideas remain candidates until they are specified, reviewed, and assigned to a release.
+
+## Previous roadmap content
 
 **Current stable version:** 1.2.0  
 **Last updated:** 2026-07-30

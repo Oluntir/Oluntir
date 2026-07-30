@@ -1,42 +1,17 @@
-> **Sprache:** Deutsch · [English (reference)](PROJECT-PRINCIPLES.md)
+> **Sprache:** Deutsch · [English](PROJECT-PRINCIPLES.md)  
+> **Version:** 1.2.0
 
-# Technische Projektgrundsätze
+# Projektgrundsätze
 
-## Zweck
+1. **Offene Standards vor proprietären Formaten.**
+2. **Lokale Projektkontrolle statt verpflichtender Cloud-Speicherung.**
+3. **Klare Trennung zwischen Editor-Engine und Oluntir-Projektlogik.**
+4. **Keine Herstellerlaufzeit für exportierte Websites.**
+5. **Kompatibilität, Barrierearmut und Wartbarkeit vor kurzfristigen Effekten.**
+6. **Neue Funktionen dürfen bestehende Projekte und Arbeitsabläufe nicht unnötig beeinträchtigen.**
+7. **Benutzerführung ist Teil der Architektur und nicht nur visuelle Dekoration.**
+8. **Browserpersistenz unterstützt Projekte, ersetzt aber keine übertragbaren Sicherungen.**
+9. **Versionen und Lizenzen von Drittkomponenten bleiben dokumentiert und prüfbar.**
+10. **Deutsche und englische Dokumentation werden als gleichwertige Projektsprachen gepflegt.**
 
-Dieses Dokument definiert technische Leitlinien für Entwicklung und Wartung von Oluntir.
-
-## Ausgabe und Standards
-
-- Exportierte Projekte verwenden reguläres HTML, CSS und JavaScript.
-- Proprietäre Laufzeitabhängigkeiten sind für exportierte statische Projekte nicht erforderlich.
-- Export ist Bestandteil des Kernworkflows und wird bei relevanten Änderungen geprüft.
-- Sich inhaltlich wiederholende Elemente und Bereiche werden intern serverneutral gespeichert.
-- Zielformate werden ausschließlich durch den jeweiligen Export-Writer erzeugt.
-
-## Lokale Nutzung
-
-- Kernfunktionen sollen ohne Netzwerkzugriff verfügbar sein.
-- Frameworks, Schriften und Editor-Abhängigkeiten werden lokal bereitgestellt.
-- Verdeckte Netzwerkzugriffe und Telemetrie sind nicht vorgesehen.
-
-## Benutzeroberfläche
-
-- Beschriftungen beschreiben die ausgeführte Funktion.
-- Dialoge behandeln jeweils einen klar abgegrenzten Vorgang.
-- Deutsch und Englisch werden bei Änderungen gemeinsam gepflegt.
-- Tastaturbedienung, Fokusführung und verständliche Fehlermeldungen werden bei neuen Funktionen berücksichtigt.
-
-## Entwicklung
-
-- Änderungen an Speicherung, Wiederherstellung oder Export erfordern passende Regressionstests.
-- Drittkomponenten benötigen dokumentierte Quelle, Version und Lizenz.
-- Inkompatible Änderungen werden dokumentiert und erhalten, soweit technisch möglich, einen Migrationspfad.
-- Implementierungen sollen nachvollziehbar und ohne unnötige Abstraktionsschichten bleiben.
-- Projektzustände dürfen bei abgebrochenen Assistenten oder Exporten nicht unbeabsichtigt überschrieben werden.
-
-## Dokumentation
-
-- Dokumente beschreiben vorhandene Funktionen, Voraussetzungen, Einschränkungen und Tests.
-- Wertende, werbliche oder nicht überprüfbare Aussagen werden vermieden.
-- Vorschaufunktionen werden mit ihrer jeweiligen Versionsbezeichnung gekennzeichnet.
+Diese Grundsätze leiten Funktionsentwicklung, Reviews, Releases und Beiträge.
