@@ -94,3 +94,8 @@ examples/     Beispielmaterial
 Der originale Oluntir-Quellcode steht unter der MIT-Lizenz. Eingebundene Bibliotheken, Schriften und andere Drittkomponenten behalten ihre jeweiligen Lizenzen. Siehe [LICENSE](LICENSE), [LICENSING_de.md](LICENSING_de.md), [THIRD_PARTY_NOTICES_de.md](THIRD_PARTY_NOTICES_de.md) und [compliance/LICENSE_MATRIX_de.md](compliance/LICENSE_MATRIX_de.md).
 
 Sicherheitsmeldungen werden nach [SECURITY_de.md](SECURITY_de.md) behandelt. Anforderungen an Beiträge stehen in [CONTRIBUTING_de.md](CONTRIBUTING_de.md).
+
+
+## Architekturgrundlage Version 1.2.1
+
+Stabile Layout-Identitäten und Repeat Engine V2 sind in `docs/040_LAYOUT_GRAPH_de.md` bis `docs/045_PROJECT_MIGRATION_1.2.1_de.md` dokumentiert.

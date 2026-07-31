@@ -62,3 +62,8 @@ Oluntir cannot bypass browser security prompts or guarantee automatic placement 
 Oluntir is designed as a local Open Source website project environment rather than only a visual page editor. GrapesJS provides the visual editing engine; Oluntir owns project, workspace, asset, Shared Content, persistence, and export responsibilities through its own adapter and services.
 
 The documentation is available in English and German. Start with [the documentation index](docs/index.md), [Why Oluntir?](docs/WHY_OLUNTIR.md), and [the architecture overview](docs/ARCHITECTURE.md).
+
+
+## Version 1.2.1 architecture foundation
+
+Stable layout identities and Repeat Engine V2 are documented in `docs/040_LAYOUT_GRAPH.md` through `docs/045_PROJECT_MIGRATION_1.2.1.md`.

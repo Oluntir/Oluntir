@@ -1,0 +1,9 @@
+GRAPESJS-ADAPTER-TEST ERFOLGREICH
+LAYOUT-IDENTITIES-TEST ERFOLGREICH
+STRUKTURPRÜFUNG ERFOLGREICH
+- 46 statische HTML-Referenzen geprüft
+- Bootstrap 4.6.2 und Bootstrap 5.3.8 geprüft
+- lokale Bilder und Export-Assetpaket geprüft
+- alte Laufzeitpfade ausgeschlossen
+- versionierte Vendor-Abhängigkeiten zugelassen
+- JavaScript-Syntax geprüft

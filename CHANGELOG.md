@@ -1,3 +1,11 @@
+# 1.2.1
+
+- Added stable, additive layout identities for pages and GrapesJS components.
+- Added Repeat Engine V2 core based on persistent identities.
+- Added idempotent 1.2.0 project migration and export-only identity sanitizing.
+- Preserved the existing HTML/SSI/PHP export and Shared Content pipelines.
+- Added automated identity, syntax, adapter and structure tests.
+
 # Changelog
 
 ## Unreleased
@@ -71,3 +79,32 @@ Oluntir 1.0.0 was the first stable public release. It introduced local static-si
 - The zone is labelled “+ Hier Section einfügen”.
 - As soon as the first section is inserted, all original classes and layout rules apply again automatically.
 - Populated pages, the index page, navigation, and footer remain unchanged.
+
+## 1.2.1 – SSI export and lower canvas workspace stabilization
+
+- Restored the persistent GrapesJS component model as the canonical export source.
+- Prevents canvas/editor helper structures from appearing as additional rows or columns.
+- SSI/PHP includes now replace shared regions at their existing page positions.
+- Removed global removal and reordering of header, navigation, footer, and shared sections.
+- Added a scroll-reachable lower workspace below the last row for footers and further elements.
+
+### Stability fix – export and lower canvas workspace
+- Fixes the `headerContainsNavigation is not defined` export failure for HTML, SSI and PHP output.
+- Detects navigation embedded in the shared header through a defined model-based check.
+- Removes the permanent editor-only spacing from non-empty `main` elements.
+- Moves the additional scroll reserve behind the footer so new pages no longer show an artificial gap between the final row and footer.
+
+## 1.2.1 – Non-destructive image export
+
+- HTML, SSI and PHP pages are now read directly from each GrapesJS MainComponent.
+- Export no longer switches visibly between project pages.
+- Canvas blob URLs are no longer written back into the open project model during export.
+- Export no longer normalizes or automatically stores the project.
+- Newly selected card images remain visible during export and are exported with their stable upload path and image file.
+
+## 1.2.1 – Rich text editing stability
+
+- Blocks automatic project and shared-content synchronization while GrapesJS rich text editing is active.
+- Fixes the caret jumping to the beginning of the line, which caused typed text to appear reversed.
+- Shared headers and footers are synchronized once after text editing ends.
+- Image changes remain promptly persisted; text changes are saved when leaving the RTE.

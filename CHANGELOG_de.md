@@ -1,3 +1,11 @@
+# 1.2.1
+
+- Stabile, additive Layout-Identitäten für Seiten und GrapesJS-Komponenten ergänzt.
+- Repeat Engine V2 auf Basis persistenter Identitäten ergänzt.
+- Idempotente Migration von 1.2.0-Projekten und reine Exportbereinigung interner IDs ergänzt.
+- Bestehende HTML-/SSI-/PHP-Export- und Shared-Content-Pipelines erhalten.
+- Automatisierte Identity-, Syntax-, Adapter- und Strukturtests ergänzt.
+
 # Änderungsprotokoll
 
 ## Unveröffentlicht
@@ -71,3 +79,32 @@ Oluntir 1.0.0 war die erste stabile öffentliche Version. Sie führte lokale Bea
 - Die Einfügezone ist mit „+ Hier Section einfügen“ gekennzeichnet.
 - Nach dem Einfügen der ersten Section gelten automatisch wieder alle ursprünglichen Klassen und Layoutregeln.
 - Befüllte Seiten, die Indexseite, Navigation und Footer bleiben unverändert.
+
+## 1.2.1 – Stabilisierung von SSI-Export und unterem Canvas-Arbeitsbereich
+
+- Exportquelle auf das persistente GrapesJS-Komponentenmodell zurückgestellt.
+- Verhindert, dass Canvas- oder Editorhilfsstrukturen als zusätzliche Row/Spalte exportiert werden.
+- SSI-/PHP-Includes ersetzen Shared-Bereiche jetzt an ihrer bestehenden Seitenposition.
+- Pauschales Entfernen und Neuordnen von Header, Navigation, Footer und Shared Sections entfernt.
+- Zusätzlicher scrollbar erreichbarer Arbeitsbereich unter der letzten Row für Footer und weitere Elemente.
+
+### Stabilitätskorrektur – Export und unterer Canvas-Bereich
+- Behebt den Exportabbruch `headerContainsNavigation is not defined` bei HTML-, SSI- und PHP-Ausgaben.
+- Erkennt eine im Shared Header enthaltene Navigation nun über eine definierte, modellbasierte Prüfung.
+- Entfernt den editorinternen Dauerabstand aus nichtleeren `main`-Elementen.
+- Verlegt die zusätzliche Scrollreserve hinter den Footer, sodass neue Seiten keinen künstlichen Zwischenraum zwischen letzter Row und Footer erhalten.
+
+## 1.2.1 – Nicht-destruktiver Bildexport
+
+- HTML-, SSI- und PHP-Seiten werden beim Export direkt aus dem jeweiligen GrapesJS-MainComponent gelesen.
+- Der Export wechselt nicht mehr sichtbar zwischen Projektseiten.
+- Canvas-Blob-URLs werden während des Exports nicht mehr in das geöffnete Projektmodell zurückgeschrieben.
+- Der Export normalisiert oder speichert das Projekt nicht mehr automatisch.
+- Neu gesetzte Card-Bilder bleiben während des Exportvorgangs sichtbar und werden mit ihrem stabilen Uploadpfad samt Bilddatei exportiert.
+
+## 1.2.1 – Stabilität der Rich-Text-Eingabe
+
+- Verhindert automatische Projekt- und Shared-Content-Synchronisation während einer aktiven GrapesJS-Rich-Text-Bearbeitung.
+- Behebt das Springen der Einfügemarke an den Zeilenanfang, durch das eingegebener Text rückwärts erschien.
+- Shared Header und Footer werden nach Abschluss der Texteingabe einmalig synchronisiert.
+- Bildänderungen bleiben weiterhin zeitnah persistent; Textänderungen werden beim Verlassen des RTE gesichert.

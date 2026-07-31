@@ -155,11 +155,19 @@
     return flushPage(editor.Pages.getSelected());
   }
 
+  function isRichTextEditing() {
+    return typeof window.OluntirIsRichTextEditing === 'function' && window.OluntirIsRichTextEditing();
+  }
+
   function scheduleFlush() {
-    if (applying || !enabled()) return;
+    // Das Anwenden gemeinsamer Regionen ersetzt Komponenten auf allen Seiten.
+    // Während contenteditable aktiv ist würde dadurch die Einfügemarke springen.
+    // rte:disable übernimmt anschließend genau einen vollständigen Flush.
+    if (applying || !enabled() || isRichTextEditing()) return;
     window.clearTimeout(flushTimer);
     flushTimer = window.setTimeout(() => {
       flushTimer = 0;
+      if (isRichTextEditing()) return;
       flushSelected();
     }, 60);
   }

@@ -94,3 +94,8 @@ examples/     Example material
 Original Oluntir source code is licensed under the MIT License. Bundled libraries, fonts, and other third-party components retain their respective licenses. See [LICENSE](LICENSE), [LICENSING.md](LICENSING.md), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), and [compliance/LICENSE_MATRIX.md](compliance/LICENSE_MATRIX.md).
 
 Security reports are handled according to [SECURITY.md](SECURITY.md). Contribution requirements are documented in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+
+## Version 1.2.1 architecture foundation
+
+Stable layout identities and Repeat Engine V2 are documented in `docs/040_LAYOUT_GRAPH.md` through `docs/045_PROJECT_MIGRATION_1.2.1.md`.

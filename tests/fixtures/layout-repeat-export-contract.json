@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "frameworks": ["bootstrap4", "bootstrap5"],
+  "pages": [
+    {"name":"index","order":["header","shared-card-section","normal-grid","shared-single-component","normal-content-after","footer"]},
+    {"name":"page-2","order":["header","shared-card-section","shared-single-component","own-normal-content","footer"]}
+  ],
+  "exports": ["html","ssi","php"],
+  "invariants": ["no-duplicate-shared-content","include-position-preserved","no-internal-layout-attributes","no-empty-wrapper-residue"]
+}

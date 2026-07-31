@@ -274,6 +274,25 @@ function getRenderedCanvasHtmlForExport(editor) {
   }
 }
 
+
+function getPageModelHtml(editor, page) {
+  if (!page || typeof page.getMainComponent !== 'function') return '';
+  const component = page.getMainComponent();
+  if (!component) return '';
+
+  // Der Export liest jede Seite direkt aus ihrem persistenten GrapesJS-
+  // Komponentenmodell. Dadurch muss die Seite nicht im sichtbaren Canvas ausgewählt
+  // werden und ein noch nicht vollständig hydratisierter Vorschauzustand kann keine
+  // Bildattribute zurück in das Modell schreiben.
+  if (typeof component.getInnerHTML === 'function') {
+    return String(component.getInnerHTML() || '');
+  }
+  if (editor && typeof editor.getHtml === 'function') {
+    try { return String(editor.getHtml({ component }) || ''); } catch (_) { /* Fallback */ }
+  }
+  return typeof component.toHTML === 'function' ? String(component.toHTML() || '') : '';
+}
+
 function collectUploadPathsFromHtml(html, targetSet) {
   const container = document.createElement('div');
   container.innerHTML = html || '';
@@ -793,6 +812,11 @@ async function exportSitePackage(editor, mode) {
     if (!pages.length) throw new Error('Das Projekt enthält keine exportierbare Seite.');
 
     selectedBefore = editor.Pages.getSelected();
+
+    // Export ist eine reine Leseoperation. Bildauswahl und Rich-Text-Werkzeuge
+    // schreiben ihre Änderungen bereits beim Anwenden in das GrapesJS-Modell. Der
+    // Export darf weder das Canvas in stabile Pfade umschalten noch gerenderte
+    // Vorschauzustände zurück in Komponenten schreiben.
     const usedNames = new Set();
     const usedUploadPaths = new Set();
     const pageFiles = [];
@@ -805,13 +829,12 @@ async function exportSitePackage(editor, mode) {
       updateProgress(10 + Math.round((idx / pages.length) * 25), `Baue Seite „${pageName}“ …`);
       await nextFrame();
 
-      editor.Pages.select(page);
-      await nextFrame();
-      commitCanvasAssetReferencesToModel(editor);
-      commitInlineTextImagesToModel(editor);
-      await nextFrame();
-
-      const html = normalizeExportHtml(getRenderedCanvasHtmlForExport(editor));
+      // Kein editor.Pages.select(page): Der schwarze Export-Layer darf weder einen
+      // sichtbaren Seitenwechsel auslösen noch Canvas-Bildzustände in andere Seiten
+      // zurückschreiben. Jede Seite wird direkt aus ihrem eigenen MainComponent-Modell
+      // serialisiert.
+      let html = normalizeExportHtml(getPageModelHtml(editor, page));
+      if (window.OluntirLayoutIdentities) html = window.OluntirLayoutIdentities.stripInternalAttributes(html);
       const css = editor.getCss() || '';
 
       if (css.trim()) customCss += `/* ${pageName} */\n${css}\n\n`;
@@ -977,27 +1000,9 @@ async function exportSitePackage(editor, mode) {
     console.error('Export fehlgeschlagen:', error);
     alert(`Export fehlgeschlagen:\n\n${error && error.message ? error.message : error}`);
   } finally {
-    if (selectedBefore) {
-      try { editor.Pages.select(selectedBefore); } catch (e) { /* nicht kritisch */ }
-    }
-
-    // Der Export synchronisiert jede Seite aus dem sichtbaren Canvas ins Modell.
-    // Dieser Stand muss anschließend auch im Browser-Projekt gespeichert werden;
-    // andernfalls wäre zwar der Export korrekt, beim nächsten Öffnen fehlte aber
-    // weiterhin die zuletzt eingefügte Bildaktion.
-    try {
-      await nextFrame();
-      if (typeof normalizeStableAssetReferences === 'function') {
-        normalizeStableAssetReferences(editor);
-      }
-      if (window.OluntirSharedContentManager) {
-        window.OluntirSharedContentManager.flushSelected();
-      }
-      await editor.store();
-    } catch (persistError) {
-      console.error('Der nach dem Export synchronisierte Projektstand konnte nicht gespeichert werden:', persistError);
-    }
-
+    // Keine Seitenauswahl, Modellnormalisierung oder automatische Speicherung: Der
+    // Export bleibt vollständig nicht-destruktiv und verändert die Editorvorschau
+    // sowie den geöffneten Projektstand nicht.
     setTimeout(hideProgress, 900);
   }
 }

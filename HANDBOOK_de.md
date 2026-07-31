@@ -62,3 +62,8 @@ Oluntir kann Browser-Sicherheitsabfragen nicht umgehen und keine automatische Pl
 Oluntir ist als lokale Open-Source-Projektumgebung für Websites konzipiert und nicht nur als visueller Seiteneditor. GrapesJS stellt die visuelle Editor-Engine bereit; Oluntir verantwortet Projekt, Workspace, Assets, Shared Content, Persistenz und Export über eigene Adapter und Dienste.
 
 Die Dokumentation steht auf Deutsch und Englisch zur Verfügung. Einstiegspunkte sind die [Dokumentationsübersicht](docs/index_de.md), [Warum Oluntir?](docs/WHY_OLUNTIR_de.md) und die [Architekturübersicht](docs/ARCHITECTURE_de.md).
+
+
+## Architekturgrundlage Version 1.2.1
+
+Stabile Layout-Identitäten und Repeat Engine V2 sind in `docs/040_LAYOUT_GRAPH_de.md` bis `docs/045_PROJECT_MIGRATION_1.2.1_de.md` dokumentiert.

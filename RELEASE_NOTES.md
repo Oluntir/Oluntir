@@ -1,3 +1,7 @@
+# Oluntir 1.2.1
+
+This release establishes stable layout identities and the technical Repeat Engine V2 foundation without changing the visible editor workflow. Existing 1.2.0 projects are migrated additively on load and remain export-compatible.
+
 # Oluntir 1.2.0 release notes
 
 **Release date:** 2026-07-30  

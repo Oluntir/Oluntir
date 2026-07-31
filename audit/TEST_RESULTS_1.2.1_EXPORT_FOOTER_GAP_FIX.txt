@@ -1,0 +1,18 @@
+Oluntir 1.2.1 – Export / Footer gap stabilization
+
+PASS node --check editor/js/core/includes.js
+PASS node --check editor/js/core/editor.js
+PASS node --check editor/js/core/export.js
+PASS node tools/test-grapesjs-adapter.js
+PASS node tests/test-layout-identities.js
+PASS python3 tools/validate-structure.py
+PASS headerContainsNavigation helper exists before compilePage usage
+PASS permanent main:not(:empty) padding-bottom workspace rule removed
+PASS editor-only scroll reserve is positioned after the real page through body::after
+
+Manual browser contract still required:
+- open the reported project and export HTML
+- export SSI
+- verify that a header containing nav does not create a second navigation include
+- create/open page 2 and verify the footer directly follows the final content row
+- scroll below the footer and verify the additional canvas reserve remains reachable

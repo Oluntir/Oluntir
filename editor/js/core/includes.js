@@ -129,17 +129,62 @@
     return state.sections.filter(section => section.pages.includes(String(pageId)));
   }
 
-  function stripSharedLayoutRegions(html) {
+  function normalizedMarkup(value) {
     const template = document.createElement('template');
-    template.innerHTML = String(html || '');
-    template.content.querySelectorAll('header, nav, footer').forEach(element => element.remove());
-    return template.innerHTML;
+    template.innerHTML = String(value || '').trim();
+    return template.innerHTML.replace(/>\s+</g, '><').trim();
+  }
+
+  function firstElementFromHtml(value) {
+    const template = document.createElement('template');
+    template.innerHTML = String(value || '').trim();
+    return template.content.firstElementChild || null;
   }
 
   function headerContainsNavigation() {
     const template = document.createElement('template');
-    template.innerHTML = String(state.regions.header || '');
-    return Boolean(template.content.querySelector('header nav'));
+    template.innerHTML = String(state.regions.header || '').trim();
+    return Boolean(template.content.querySelector('nav'));
+  }
+
+  function replaceExactElement(template, sourceHtml, replacementHtml, preferredSelector) {
+    const sourceElement = firstElementFromHtml(sourceHtml);
+    if (!sourceElement) return false;
+    const expected = normalizedMarkup(sourceElement.outerHTML);
+    const selector = preferredSelector || sourceElement.tagName.toLowerCase();
+    const candidates = Array.from(template.content.querySelectorAll(selector));
+    const match = candidates.find((element) => normalizedMarkup(element.outerHTML) === expected);
+    if (!match) return false;
+    const marker = document.createElement('template');
+    marker.innerHTML = String(replacementHtml || '').trim();
+    match.replaceWith(marker.content.cloneNode(true));
+    return true;
+  }
+
+  function replaceLayoutRegionInPlace(template, name, target, diagnostics) {
+    const configured = String(state.regions[name] || '').trim();
+    if (!configured) return false;
+    const path = `includes/layout/${name}.html`;
+    const replacement = target === 'html'
+      ? resolveCustomTags(configured, 'html', [path])
+      : expression(path, target);
+    const selector = name === 'navigation' ? 'nav' : name;
+    const replaced = replaceExactElement(template, configured, replacement, selector);
+    if (!replaced) diagnostics.push({ type: 'unresolved-layout-anchor', region: name, path });
+    return replaced;
+  }
+
+  function replaceAssignedSectionsInPlace(template, target, pageId, diagnostics) {
+    assignedSections(pageId).forEach((section) => {
+      const path = `includes/sections/${slug(section.id)}.html`;
+      const replacement = target === 'html'
+        ? resolveCustomTags(section.content, 'html', [path])
+        : expression(path, target);
+      const sourceElement = firstElementFromHtml(section.content);
+      const selector = sourceElement ? sourceElement.tagName.toLowerCase() : '*';
+      const replaced = replaceExactElement(template, section.content, replacement, selector);
+      if (!replaced) diagnostics.push({ type: 'unresolved-section-anchor', sectionId: section.id, path });
+    });
   }
 
   function compilePage(html, target, pageId) {
@@ -147,27 +192,22 @@
     const selected = ['html', 'ssi', 'php'].includes(target) ? target : state.exportTarget;
     const currentPageId = String(pageId || selectedPageId());
     const diagnostics = [];
-    const body = resolveCustomTags(stripSharedLayoutRegions(html), selected, []);
-    const layoutPaths = {
-      header: 'includes/layout/header.html',
-      navigation: 'includes/layout/navigation.html',
-      footer: 'includes/layout/footer.html'
-    };
-    const region = (name) => selected === 'html'
-      ? resolveCustomTags(state.regions[name], 'html', [layoutPaths[name]])
-      : expression(layoutPaths[name], selected);
-    const sections = assignedSections(currentPageId).map(section => {
-      const path = `includes/sections/${slug(section.id)}.html`;
-      return selected === 'html'
-        ? resolveCustomTags(section.content, 'html', [path])
-        : expression(path, selected);
-    }).join('\n');
-    const extension = selected === 'php' ? 'php' : selected === 'ssi' ? 'shtml' : 'html';
-    const navigation = headerContainsNavigation() ? '' : region('navigation');
-    const pageHtml = `${region('header')}\n${navigation ? navigation + '\n' : ''}${sections ? sections + '\n' : ''}${body}\n${region('footer')}`;
+    const template = document.createElement('template');
+    template.innerHTML = resolveCustomTags(String(html || ''), selected, []);
+
+    // Bestehende Positionen sind der Vertrag. Layoutbereiche und zusätzliche
+    // Shared Sections werden nur an ihrer tatsächlich vorhandenen Modellposition
+    // ersetzt. Es gibt kein Entfernen aller Tags und kein Voranstellen vor den Body.
+    replaceLayoutRegionInPlace(template, 'header', selected, diagnostics);
+    if (!headerContainsNavigation()) replaceLayoutRegionInPlace(template, 'navigation', selected, diagnostics);
+    replaceAssignedSectionsInPlace(template, selected, currentPageId, diagnostics);
+    replaceLayoutRegionInPlace(template, 'footer', selected, diagnostics);
+
+    const pageHtml = template.innerHTML;
     parseIncludeReferences(pageHtml).forEach(path => {
       if (!findByPath(path)) diagnostics.push({ type: 'missing', path });
     });
+    const extension = selected === 'php' ? 'php' : selected === 'ssi' ? 'shtml' : 'html';
     return {
       html: pageHtml,
       extension,

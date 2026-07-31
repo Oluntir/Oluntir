@@ -152,6 +152,8 @@ assetHydration.then(() => {
   if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.bind === 'function') {
     window.OluntirSharedContentManager.bind(editor);
   }
+  if (window.OluntirLayoutIdentities) window.OluntirLayoutIdentities.bind(editor);
+  if (window.OluntirRepeatEngineV2) window.OluntirRepeatEngineV2.bind(editor);
   window.dispatchEvent(new CustomEvent('oluntir:editorready'));
 
   // Ein paar generische Bausteine registriert grapesjs-preset-webpage unabhängig von
@@ -482,9 +484,25 @@ assetHydration.then(() => {
     const style = doc.createElement('style');
     style.id = 'oluntir-canvas-workspace-style';
     style.textContent = `
-      html,
-      body {
+      html {
+        min-height: 100% !important;
         overflow-y: auto !important;
+        scrollbar-gutter: stable;
+      }
+      body {
+        min-height: 100% !important;
+        padding-bottom: 0 !important;
+        box-sizing: border-box !important;
+        overflow-y: visible !important;
+      }
+      body::after {
+        content: "";
+        display: block;
+        flex: 0 0 220px;
+        width: 100%;
+        height: 220px;
+        min-height: 220px;
+        pointer-events: none;
       }
       main:empty {
         position: relative !important;
@@ -694,6 +712,25 @@ assetHydration.then(() => {
   let projectPersistRunning = false;
   let projectPersistAgain = false;
   let projectCommitRunning = false;
+  let richTextEditingActive = false;
+
+  // GrapesJS ersetzt beim Zurückschreiben von Komponenteninhalt das aktive
+  // contenteditable-Element. Während einer laufenden RTE-Sitzung darf deshalb kein
+  // automatischer Canvas-/Shared-Content-Commit stattfinden, weil sonst die
+  // Einfügemarke nach jedem Zeichen an den Anfang springt.
+  window.OluntirIsRichTextEditing = () => richTextEditingActive;
+  editor.on('rte:enable', () => {
+    richTextEditingActive = true;
+    window.clearTimeout(projectPersistTimer);
+    projectPersistTimer = 0;
+  });
+  editor.on('rte:disable', () => {
+    richTextEditingActive = false;
+    if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushSelected === 'function') {
+      window.OluntirSharedContentManager.flushSelected();
+    }
+    persistCurrentProjectStateSoon(80);
+  });
 
   function commitCurrentCanvasStateToModel() {
     if (projectCommitRunning) return;
@@ -724,7 +761,9 @@ assetHydration.then(() => {
   // Canvas bereits korrekt waren.
   function writeCurrentProjectSnapshotSynchronously() {
     commitCurrentCanvasStateToModel();
-    const projectData = editor.getProjectData();
+    let projectData = editor.getProjectData();
+    if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
+    if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
     localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
     if (window.OluntirStartup) {
       window.OluntirStartup.setMeta({
@@ -759,9 +798,13 @@ assetHydration.then(() => {
   }
 
   function persistCurrentProjectStateSoon(delay) {
+    // Während aktiver Texteingabe niemals das Komponentenmodell neu schreiben.
+    // Der Abschluss wird durch rte:disable einmalig und vollständig gespeichert.
+    if (richTextEditingActive) return;
     window.clearTimeout(projectPersistTimer);
     projectPersistTimer = window.setTimeout(() => {
       projectPersistTimer = 0;
+      if (richTextEditingActive) return;
       persistCurrentProjectState().catch((error) => {
         console.error('Bildänderung konnte nicht dauerhaft gespeichert werden:', error);
       });
@@ -794,10 +837,12 @@ assetHydration.then(() => {
   // Textkomponenten löst eine kurze, zusammengefasste Persistierung aus. Damit werden
   // auch mehrere direkt nacheinander eingefügte Card-/Inline-Bilder vollständig erfasst.
   editor.on('component:update', (component) => {
-    if (projectCommitRunning || !component || !component.get) return;
+    if (projectCommitRunning || richTextEditingActive || !component || !component.get) return;
     const type = String(component.get('type') || '').toLowerCase();
     const tag = String(component.get('tagName') || '').toLowerCase();
-    if (type === 'image' || type === 'text' || tag === 'img' || /^(p|h[1-6]|li|blockquote|figcaption|td|th)$/.test(tag)) {
+    // Bildänderungen werden weiterhin zeitnah gesichert. Text wird erst beim
+    // Verlassen des RTE gespeichert, damit keine Cursorposition verloren geht.
+    if (type === 'image' || tag === 'img') {
       persistCurrentProjectStateSoon(120);
     }
   });
@@ -810,6 +855,8 @@ assetHydration.then(() => {
       if (pending && pending.projectData) {
         await importPortableAssetBackup(pending.assets);
         editor.loadProjectData(pending.projectData);
+        if (window.OluntirRepeatEngineV2 && pending.projectData.oluntir && pending.projectData.oluntir.repeatEngine) window.OluntirRepeatEngineV2.importState(pending.projectData.oluntir.repeatEngine);
+        if (window.OluntirLayoutIdentities) window.OluntirLayoutIdentities.ensureAll(editor);
         await nextFrame();
         patchUploadedImageRefs(editor.Canvas.getDocument());
         refreshPageList();
@@ -855,6 +902,8 @@ assetHydration.then(() => {
     if (typeof normalizeStableAssetReferences === 'function') {
       normalizeStableAssetReferences(editor);
       projectData = editor.getProjectData();
+      if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
+      if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
     }
 
     const items = await getPortableBackupAssetItems();
@@ -1097,6 +1146,8 @@ assetHydration.then(() => {
 
       updateProgress(88, 'Lade Seiten und Komponenten …');
       editor.loadProjectData(result.projectData);
+      if (window.OluntirRepeatEngineV2 && result.projectData.oluntir && result.projectData.oluntir.repeatEngine) window.OluntirRepeatEngineV2.importState(result.projectData.oluntir.repeatEngine);
+      if (window.OluntirLayoutIdentities) window.OluntirLayoutIdentities.ensureAll(editor);
       if (result.includesConfig && window.OluntirIncludes) window.OluntirIncludes.importState(result.includesConfig);
       await nextFrame();
       if (typeof normalizeStableAssetReferences === 'function') normalizeStableAssetReferences(editor);

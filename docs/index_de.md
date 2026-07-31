@@ -33,3 +33,13 @@
 - [Release Notes](../RELEASE_NOTES_de.md)
 - [Was ist neu?](WHATS_NEW_1.2.0_de.md)
 - [Release-Audit](../audit/RELEASE_AUDIT_1.2.0.md)
+
+
+## Architektur 1.2.1
+
+- [Layout-Graph](040_LAYOUT_GRAPH_de.md)
+- [Layout-Identitäten](041_LAYOUT_IDENTITIES_de.md)
+- [Repeat Engine V2](042_REPEAT_ENGINE_V2_de.md)
+- [GrapesJS-Projektmodell](043_GRAPESJS_PROJECT_MODEL_de.md)
+- [Shared Content und Includes](044_SHARED_CONTENT_AND_INCLUDES_de.md)
+- [Projektmigration 1.2.1](045_PROJECT_MIGRATION_1.2.1_de.md)
