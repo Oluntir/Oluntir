@@ -1,5 +1,7 @@
 # 1.2.1
 
+- Projekt-Favicon-Dialog erkennt nun vorhandene Favicon-Assets zuverlässig, zeigt Vorschau, Quelldatei, Dateityp und Änderungszeitpunkt und kennzeichnet den Vorgang eindeutig als Ersetzen. Beim Ersetzen werden alte Varianten vor der Neuerzeugung vollständig entfernt.
+
 - Stabile, additive Layout-Identitäten für Seiten und GrapesJS-Komponenten ergänzt.
 - Repeat Engine V2 auf Basis persistenter Identitäten ergänzt.
 - Idempotente Migration von 1.2.0-Projekten und reine Exportbereinigung interner IDs ergänzt.
@@ -108,3 +110,21 @@ Oluntir 1.0.0 war die erste stabile öffentliche Version. Sie führte lokale Bea
 - Behebt das Springen der Einfügemarke an den Zeilenanfang, durch das eingegebener Text rückwärts erschien.
 - Shared Header und Footer werden nach Abschluss der Texteingabe einmalig synchronisiert.
 - Bildänderungen bleiben weiterhin zeitnah persistent; Textänderungen werden beim Verlassen des RTE gesichert.
+
+## 1.2.1 – Projekt-Favicon
+
+- Neues Stern-Symbol in der zweiten oberen Werkzeugleiste.
+- Ein Ausgangsbild erzeugt automatisch ICO-, Browser-, Apple- und Android-Faviconvarianten.
+- Projektweite Favicon-Metadaten und Dateien werden mit `.oluntir`-Backups gespeichert.
+- HTML-, SSI- und PHP-Export erhalten automatisch passende `<link>`-Einträge.
+- Ordner-, ZIP- und TAR-Export enthalten alle erzeugten Favicon-Dateien.
+
+### Favicon-Export-Vollständigkeit
+- `favicon-48x48.png` wird nun im Dokumentkopf referenziert.
+- Android-Icons mit 192 × 192 und 512 × 512 Pixeln werden explizit eingebunden.
+- `site.webmanifest` wird automatisch erzeugt, exportiert und im Dokumentkopf verknüpft.
+
+### Vollständiger Responsive-Upload-Export
+- Bei verwendeten Bildern unter `assets/user_upload/desktop/` werden nun automatisch auch die zugehörigen Tablet- und Mobile-Dateien exportiert.
+- Dasselbe gilt für die kompatiblen Legacy-Pfade unter `images/uploads/`.
+- Fehlt eine der drei erzeugten Varianten im Asset-Speicher, wird der Export mit einer konkreten Dateiliste abgebrochen, statt ein unvollständiges Paket zu erzeugen.

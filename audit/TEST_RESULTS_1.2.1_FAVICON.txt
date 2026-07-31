@@ -1,0 +1,22 @@
+Oluntir 1.2.1 – Projekt-Favicon
+
+PASS node --check editor/js/core/favicon-manager.js
+PASS node --check editor/js/core/editor.js
+PASS node --check editor/js/core/export.js
+PASS node tests/test-favicon-feature.js
+PASS node tests/test-rte-cursor-stability.js
+PASS node tests/test-export-model-readonly.js
+PASS node tests/test-layout-identities.js
+PASS node tools/test-grapesjs-adapter.js
+PASS python3 tools/validate-structure.py
+
+Statisch geprüft:
+- Favicon-Schaltfläche in der sekundären Werkzeugleiste
+- Dialog und Dateiauswahl
+- sieben Ausgabevarianten
+- ICO-Container mit eingebettetem PNG
+- Projektmetadaten und Backup-Transport
+- Head-Verknüpfungen für HTML, SSI und PHP
+- Dateien in Ordner-, ZIP- und TAR-Export
+- keine aktive Seitenauswahl im Canvas-Export
+- bestehender RTE-, Bildexport- und ID-Regressionsvertrag

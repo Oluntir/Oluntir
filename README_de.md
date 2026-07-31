@@ -99,3 +99,7 @@ Sicherheitsmeldungen werden nach [SECURITY_de.md](SECURITY_de.md) behandelt. Anf
 ## Architekturgrundlage Version 1.2.1
 
 Stabile Layout-Identitäten und Repeat Engine V2 sind in `docs/040_LAYOUT_GRAPH_de.md` bis `docs/045_PROJECT_MIGRATION_1.2.1_de.md` dokumentiert.
+
+### Projekt-Favicon
+
+Über das Stern-Symbol in der zweiten Werkzeugleiste lässt sich ein projektweites Favicon festlegen. Oluntir erzeugt aus einer PNG-, JPG-, WebP-, GIF- oder SVG-Datei automatisch alle benötigten Browser-, Apple- und Android-Varianten. Eine vollständige Anleitung steht unter [`docs/FAVICON_de.md`](docs/FAVICON_de.md).

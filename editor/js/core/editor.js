@@ -154,6 +154,7 @@ assetHydration.then(() => {
   }
   if (window.OluntirLayoutIdentities) window.OluntirLayoutIdentities.bind(editor);
   if (window.OluntirRepeatEngineV2) window.OluntirRepeatEngineV2.bind(editor);
+  if (window.OluntirFavicon) window.OluntirFavicon.bind(editor);
   window.dispatchEvent(new CustomEvent('oluntir:editorready'));
 
   // Ein paar generische Bausteine registriert grapesjs-preset-webpage unabhängig von
@@ -221,6 +222,12 @@ assetHydration.then(() => {
         icon: 'fa fa-floppy-o',
         titleKey: 'tool.save',
         action: () => document.getElementById('btn-save').click(),
+      },
+      {
+        id: 'pb-ui-toolbar-favicon',
+        icon: 'fa fa-star',
+        titleKey: 'tool.favicon',
+        action: () => window.OluntirFavicon && window.OluntirFavicon.openDialog(),
       },
       {
         id: 'pb-ui-toolbar-backup-save',
@@ -764,6 +771,7 @@ assetHydration.then(() => {
     let projectData = editor.getProjectData();
     if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
     if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
+    if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
     if (window.OluntirStartup) {
       window.OluntirStartup.setMeta({
@@ -856,6 +864,7 @@ assetHydration.then(() => {
         await importPortableAssetBackup(pending.assets);
         editor.loadProjectData(pending.projectData);
         if (window.OluntirRepeatEngineV2 && pending.projectData.oluntir && pending.projectData.oluntir.repeatEngine) window.OluntirRepeatEngineV2.importState(pending.projectData.oluntir.repeatEngine);
+        if (window.OluntirFavicon) window.OluntirFavicon.importState(pending.projectData.oluntir && pending.projectData.oluntir.favicon);
         if (window.OluntirLayoutIdentities) window.OluntirLayoutIdentities.ensureAll(editor);
         await nextFrame();
         patchUploadedImageRefs(editor.Canvas.getDocument());
@@ -904,6 +913,7 @@ assetHydration.then(() => {
       projectData = editor.getProjectData();
       if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
       if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
+      if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     }
 
     const items = await getPortableBackupAssetItems();
@@ -1147,6 +1157,7 @@ assetHydration.then(() => {
       updateProgress(88, 'Lade Seiten und Komponenten …');
       editor.loadProjectData(result.projectData);
       if (window.OluntirRepeatEngineV2 && result.projectData.oluntir && result.projectData.oluntir.repeatEngine) window.OluntirRepeatEngineV2.importState(result.projectData.oluntir.repeatEngine);
+      if (window.OluntirFavicon) window.OluntirFavicon.importState(result.projectData.oluntir && result.projectData.oluntir.favicon);
       if (window.OluntirLayoutIdentities) window.OluntirLayoutIdentities.ensureAll(editor);
       if (result.includesConfig && window.OluntirIncludes) window.OluntirIncludes.importState(result.includesConfig);
       await nextFrame();

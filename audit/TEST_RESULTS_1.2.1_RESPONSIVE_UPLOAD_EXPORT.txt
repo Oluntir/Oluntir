@@ -1,0 +1,16 @@
+Oluntir 1.2.1 – Responsive Upload Export Fix
+
+PASS node --check editor/js/core/export.js
+PASS node tests/test-responsive-upload-export.js
+PASS node tests/test-export-model-readonly.js
+PASS node tests/test-favicon-export-completeness.js
+PASS node tests/test-rte-cursor-stability.js
+PASS node tests/test-layout-identities.js
+PASS node tools/test-grapesjs-adapter.js
+PASS python3 tools/validate-structure.py
+
+Erwarteter Exportvertrag:
+- assets/user_upload/desktop/<datei>
+- assets/user_upload/tablet/<datei>
+- assets/user_upload/mobile/<datei>
+werden als zusammengehörige Gruppe exportiert.

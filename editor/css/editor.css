@@ -1632,3 +1632,19 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
 .oluntir-project-folder-info__dialog>footer{justify-content:flex-end;border-top:1px solid rgba(255,255,255,.14)}
 .oluntir-project-folder-info__dialog>footer button{border:1px solid rgba(255,255,255,.22);border-radius:4px;background:#353a42;color:#fff;padding:9px 13px;cursor:pointer}
 .oluntir-project-folder-info__dialog>footer button.is-primary{background:#2376c9;border-color:#3e91e2}
+
+
+/* Oluntir 1.2.1: projektweites Favicon */
+.oluntir-favicon-modal { width: min(680px, calc(100vw - 32px)); }
+.oluntir-favicon-content { display: grid; grid-template-columns: 150px 1fr; gap: 22px; align-items: center; margin: 18px 0 22px; }
+.oluntir-favicon-preview-box { width: 144px; height: 144px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.2); border-radius: 10px; background: linear-gradient(45deg, rgba(255,255,255,.06) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.06) 75%), linear-gradient(45deg, rgba(255,255,255,.06) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.06) 75%); background-position: 0 0, 10px 10px; background-size: 20px 20px; }
+.oluntir-favicon-preview-box img { display: block; width: 112px; height: 112px; object-fit: contain; }
+.oluntir-favicon-preview-box span { font-size: 52px; opacity: .55; }
+.oluntir-favicon-details p { margin: 8px 0 0; line-height: 1.45; }
+.oluntir-favicon-meta { margin: 12px 0; display: grid; gap: 5px; }
+.oluntir-favicon-meta > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 10px; }
+.oluntir-favicon-meta dt { font-weight: 600; opacity: .75; }
+.oluntir-favicon-meta dd { margin: 0; overflow-wrap: anywhere; }
+
+.oluntir-favicon-actions { flex-wrap: wrap; }
+@media (max-width: 620px) { .oluntir-favicon-content { grid-template-columns: 1fr; } .oluntir-favicon-preview-box { margin: 0 auto; } }

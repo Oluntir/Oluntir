@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Oluntir 1.2.0</title>
+  <title>Oluntir 1.2.1</title>
   <link rel="stylesheet" href="vendor/grapesjs/0.23.2/grapes.min.css">
   <link rel="stylesheet" href="plugins/editor/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="editor/css/editor.css?v=1.2.0-gallery-monitor3">
@@ -72,7 +72,7 @@
 
 
   <div id="toolbar">
-    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">1.2.0</span></div>
+    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">1.2.1</span></div>
 
     <div class="toolbar-language" role="group" data-i18n-aria="language.group" aria-label="Sprache">
       <button type="button" data-lang="de" class="active" data-i18n-title="language.de" title="Deutsch">DE</button>
@@ -139,6 +139,42 @@
       <p data-i18n="firefox.fallback">Der vollständige Export als ZIP oder TAR steht weiterhin zur Verfügung.</p>
       <label class="pb-modal-check"><input type="checkbox" id="firefox-export-notice-hide"> <span data-i18n="firefox.hide">Hinweis nicht erneut anzeigen</span></label>
       <div class="pb-modal-actions"><button id="firefox-export-notice-ok" class="btn-primary" data-i18n="common.understood">Verstanden</button></div>
+    </div>
+  </div>
+
+
+  <div id="oluntir-favicon-modal" class="pb-modal-overlay" hidden aria-hidden="true">
+    <div class="pb-modal oluntir-favicon-modal" role="dialog" aria-modal="true" aria-labelledby="oluntir-favicon-title">
+      <div class="pb-ui-header">
+        <div>
+          <h2 id="oluntir-favicon-title">Projekt-Favicon</h2>
+          <p>Ein Bild auswählen; Oluntir erzeugt automatisch alle benötigten Browser- und Gerätevarianten.</p>
+        </div>
+        <button id="oluntir-favicon-close" class="pb-ui-close" type="button" aria-label="Schließen">×</button>
+      </div>
+      <div class="oluntir-favicon-content">
+        <div class="oluntir-favicon-preview-box">
+          <img id="oluntir-favicon-preview" alt="Favicon-Vorschau" hidden>
+          <span id="oluntir-favicon-empty" aria-hidden="true"><i class="fa fa-picture-o"></i></span>
+        </div>
+        <div class="oluntir-favicon-details">
+          <strong id="oluntir-favicon-status">Noch kein eigenes Favicon gesetzt</strong>
+          <dl class="oluntir-favicon-meta">
+            <div><dt>Datei</dt><dd id="oluntir-favicon-source-name">Keine Bilddatei ausgewählt</dd></div>
+            <div hidden><dt>Ausgangsformat</dt><dd id="oluntir-favicon-source-type">–</dd></div>
+            <div hidden><dt>Zuletzt gesetzt</dt><dd id="oluntir-favicon-updated-at">–</dd></div>
+          </dl>
+          <p id="oluntir-favicon-instruction">Wählen Sie ein Bild aus. Oluntir erzeugt daraus automatisch alle benötigten Browser- und Gerätevarianten.</p>
+          <p>Geeignet sind quadratische PNG-, JPG-, WebP-, GIF- oder SVG-Dateien. Nichtquadratische Bilder werden proportional zentriert; der freie Bereich bleibt transparent.</p>
+          <p>Erzeugt werden: favicon.ico, PNG 16×16, 32×32 und 48×48, Apple Touch Icon 180×180 sowie Android Icons 192×192 und 512×512.</p>
+        </div>
+      </div>
+      <input id="oluntir-favicon-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden>
+      <div class="pb-modal-actions oluntir-favicon-actions">
+        <button id="oluntir-favicon-remove" type="button" disabled>Favicon entfernen</button>
+        <button id="oluntir-favicon-choose" class="btn-primary" type="button">Bild auswählen und Favicons erzeugen</button>
+        <button id="oluntir-favicon-done" type="button">Fertig</button>
+      </div>
     </div>
   </div>
 
@@ -294,6 +330,7 @@
   <script src="editor/integrations/grapesjs/grapesjs-adapter.js"></script>
   <script src="editor/js/core/site-assets-bundle.js"></script>
   <script src="editor/js/core/includes.js"></script>
+  <script src="editor/js/core/favicon-manager.js?v=1.2.1"></script>
   <script src="editor/js/core/shared-content-manager.js"></script>
   <script src="editor/js/core/layout-identities.js"></script>
   <script src="editor/js/core/repeat-engine-v2.js"></script>

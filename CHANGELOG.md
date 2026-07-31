@@ -1,5 +1,7 @@
 # 1.2.1
 
+- Projekt-Favicon-Dialog erkennt nun vorhandene Favicon-Assets zuverlässig, zeigt Vorschau, Quelldatei, Dateityp und Änderungszeitpunkt und kennzeichnet den Vorgang eindeutig als Ersetzen. Beim Ersetzen werden alte Varianten vor der Neuerzeugung vollständig entfernt.
+
 - Added stable, additive layout identities for pages and GrapesJS components.
 - Added Repeat Engine V2 core based on persistent identities.
 - Added idempotent 1.2.0 project migration and export-only identity sanitizing.
@@ -108,3 +110,21 @@ Oluntir 1.0.0 was the first stable public release. It introduced local static-si
 - Fixes the caret jumping to the beginning of the line, which caused typed text to appear reversed.
 - Shared headers and footers are synchronized once after text editing ends.
 - Image changes remain promptly persisted; text changes are saved when leaving the RTE.
+
+## 1.2.1 – Project favicon
+
+- Added a star icon to the secondary top toolbar.
+- One source image now generates ICO, browser, Apple, and Android favicon variants.
+- Project favicon metadata and files persist in portable `.oluntir` backups.
+- HTML, SSI, and PHP exports receive the matching `<link>` elements automatically.
+- Folder, ZIP, and TAR exports include all generated favicon files.
+
+### Complete favicon export
+- `favicon-48x48.png` is now referenced in the document head.
+- Android icons in 192 × 192 and 512 × 512 are linked explicitly.
+- `site.webmanifest` is generated, exported, and linked automatically.
+
+### Complete responsive upload export
+- Images used from `assets/user_upload/desktop/` now automatically include their related tablet and mobile files in every export.
+- The same rule applies to compatible legacy paths below `images/uploads/`.
+- If one of the three generated variants is missing from asset storage, export stops with an explicit file list instead of producing an incomplete package.

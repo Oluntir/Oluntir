@@ -1,0 +1,14 @@
+PASS JavaScript-Syntax favicon-manager.js
+PASS Favicon state reconciliation
+PASS Existing favicon preview restoration
+PASS Source file/type/date display
+PASS Replacement label and guidance
+PASS Old favicon variants removed before replacement
+PASS Favicon feature regression test
+PASS Favicon export completeness test
+PASS Responsive user-upload export test
+PASS RTE cursor stability test
+PASS Read-only model export test
+PASS Layout identities test
+PASS GrapesJS adapter test
+PASS Structure validation

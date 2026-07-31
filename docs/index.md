@@ -43,3 +43,5 @@
 - [GrapesJS Project Model](043_GRAPESJS_PROJECT_MODEL.md)
 - [Shared Content and Includes](044_SHARED_CONTENT_AND_INCLUDES.md)
 - [Project Migration 1.2.1](045_PROJECT_MIGRATION_1.2.1.md)
+
+- [Project favicon](FAVICON.md) – Select one image and generate all favicon variants automatically.

@@ -134,6 +134,39 @@ function collectUploadPaths(html, css, targetSet) {
 }
 
 
+function addResponsiveUploadVariants(path, targetSet) {
+  const value = String(path || '').split(/[?#]/)[0];
+  const groups = [
+    {
+      desktop: 'assets/user_upload/desktop/',
+      tablet: 'assets/user_upload/tablet/',
+      mobile: 'assets/user_upload/mobile/'
+    },
+    {
+      desktop: 'images/uploads/desktop/',
+      tablet: 'images/uploads/tablet/',
+      mobile: 'images/uploads/mobile/'
+    }
+  ];
+
+  for (const group of groups) {
+    for (const prefix of [group.desktop, group.tablet, group.mobile]) {
+      if (!value.startsWith(prefix)) continue;
+      const filename = value.slice(prefix.length);
+      targetSet.add(group.desktop + filename);
+      targetSet.add(group.tablet + filename);
+      targetSet.add(group.mobile + filename);
+      return;
+    }
+  }
+}
+
+function expandResponsiveUploadPaths(targetSet) {
+  Array.from(targetSet).forEach((path) => addResponsiveUploadVariants(path, targetSet));
+  return targetSet;
+}
+
+
 function commitCanvasAssetReferencesToModel(editor) {
   try {
     const doc = editor.Canvas.getDocument();
@@ -347,7 +380,7 @@ function buildPageHtml(title, bodyHtml) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(title)}</title>
 
-    <link rel="shortcut icon" href="images/favicon.ico">
+${window.OluntirFavicon ? window.OluntirFavicon.getHeadHtml() : '    <link rel="shortcut icon" href="images/favicon.ico">'}
     <link href="css/local-fonts.css" rel="stylesheet">
     <link rel="stylesheet" href="css/font-awesome/all.min.css">
     <link rel="stylesheet" href="css/bootstrap5/bootstrap.min.css">
@@ -371,7 +404,7 @@ ${bodyHtml}
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>${escapeHtml(title)}</title>
 
-    <link rel="shortcut icon" href="images/favicon.ico">
+${window.OluntirFavicon ? window.OluntirFavicon.getHeadHtml() : '    <link rel="shortcut icon" href="images/favicon.ico">'}
     <link href="css/local-fonts.css" rel="stylesheet">
 
     <link rel="stylesheet" href="css/font-awesome/all.min.css">
@@ -854,6 +887,11 @@ async function exportSitePackage(editor, mode) {
       pageFiles.push({ path: `${filename}.${prepared.extension || 'html'}`, content: buildPageHtml(pageName, prepared.html) });
     }
 
+    // Responsive Uploads bilden eine untrennbare Asset-Gruppe. Auch wenn das
+    // Seitenmarkup nur den Desktop-Pfad referenziert, müssen Tablet und Mobile im
+    // Export vorhanden bleiben.
+    expandResponsiveUploadPaths(usedUploadPaths);
+
     const missingUploads = [];
     const uploadEntries = [];
     let uploadBytes = 0;
@@ -874,8 +912,13 @@ async function exportSitePackage(editor, mode) {
       );
     }
 
+    const faviconEntries = window.OluntirFavicon ? window.OluntirFavicon.getExportEntries() : [];
+    if (window.OluntirFavicon && window.OluntirFavicon.exportState().configured && faviconEntries.length !== window.OluntirFavicon.OUTPUTS.length) {
+      throw new Error('Die erzeugten Favicon-Dateien sind unvollständig. Bitte das Projekt-Favicon erneut auswählen.');
+    }
+    const faviconPaths = new Set(faviconEntries.map(entry => entry.path));
     const baseCount = Object.values(baseZip.files).filter((entry) => !entry.dir).length;
-    const totalFiles = baseCount + pageFiles.length + includeFiles.length + uploadEntries.length + 2;
+    const totalFiles = baseCount + pageFiles.length + includeFiles.length + uploadEntries.length + faviconEntries.length + 2;
     const progressState = { done: 0, total: totalFiles };
 
     updateProgress(38,
@@ -886,8 +929,9 @@ async function exportSitePackage(editor, mode) {
       const entries = [];
       for (const name of Object.keys(baseZip.files)) {
         const entry = baseZip.files[name];
-        if (!entry.dir) entries.push({ path: name, data: await entry.async('uint8array') });
+        if (!entry.dir && !faviconPaths.has(name)) entries.push({ path: name, data: await entry.async('uint8array') });
       }
+      faviconEntries.forEach(entry => entries.push({ path: entry.path, data: entry.blob }));
       pageFiles.forEach(({ path, content }) => entries.push({ path, data: content }));
       includeFiles.forEach(({ path, content }) => entries.push({ path, data: content }));
       entries.push({ path: 'css/custom.css', data: customCss || '/* Keine individuellen Stil-Anpassungen */\n' });
@@ -899,6 +943,7 @@ async function exportSitePackage(editor, mode) {
         includes: includeFiles.map((item) => item.path),
         uploadedAssets: uploadEntries.length,
         uploadedBytes: uploadBytes,
+        faviconConfigured: faviconEntries.length > 0,
         bootstrap: (window.PAGEBUILDER_FRAMEWORK || { version: '4.4.1' }).version,
         frameworkProfile: (window.PAGEBUILDER_FRAMEWORK || { id: 'bs4' }).id,
         structure: 'website-tar'
@@ -913,6 +958,7 @@ async function exportSitePackage(editor, mode) {
     if (exportMode === 'zip') {
       updateProgress(45, 'Bereite direkt gestreamtes ZIP vor …');
       const zip = await cloneBaseZip(baseZip);
+      faviconEntries.forEach(entry => zip.file(entry.path, entry.blob, { compression: 'STORE' }));
       pageFiles.forEach(({ path, content }) => zip.file(path, content));
       includeFiles.forEach(({ path, content }) => zip.file(path, content));
       zip.file('css/custom.css', customCss || '/* Keine individuellen Stil-Anpassungen */\n');
@@ -924,6 +970,7 @@ async function exportSitePackage(editor, mode) {
         includes: includeFiles.map((item) => item.path),
         uploadedAssets: uploadEntries.length,
         uploadedBytes: uploadBytes,
+        faviconConfigured: faviconEntries.length > 0,
         bootstrap: (window.PAGEBUILDER_FRAMEWORK || { version: '4.4.1' }).version,
         frameworkProfile: (window.PAGEBUILDER_FRAMEWORK || { id: 'bs4' }).id,
         structure: 'website-zip'
@@ -949,6 +996,12 @@ async function exportSitePackage(editor, mode) {
     }
 
     await exportBaseAssetsToDirectory(baseZip, rootHandle, progressState);
+
+    for (const entry of faviconEntries) {
+      await writeFileToDirectory(rootHandle, entry.path, entry.blob);
+      progressState.done++;
+      updateProgress(50 + Math.round((progressState.done / totalFiles) * 48), `Schreibe ${entry.path} …`);
+    }
 
     for (const pageFile of pageFiles) {
       await writeFileToDirectory(rootHandle, pageFile.path, pageFile.content);
@@ -987,6 +1040,7 @@ async function exportSitePackage(editor, mode) {
       includes: includeFiles.map((item) => item.path),
       uploadedAssets: uploadEntries.length,
       uploadedBytes: uploadBytes,
+      faviconConfigured: faviconEntries.length > 0,
       bootstrap: (window.PAGEBUILDER_FRAMEWORK || { version: '4.4.1' }).version,
       frameworkProfile: (window.PAGEBUILDER_FRAMEWORK || { id: 'bs4' }).id,
       structure: 'website-folder',
