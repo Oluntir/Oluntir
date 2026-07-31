@@ -7,8 +7,8 @@ f3b1f9f51f037bfa3863ba1d40663079f7b2ccdffa212799bfa3f38e7022144f  ./.github/PULL
 d708c175a72a38ff344e95f7062762bf15578ced72967d6dcc5b2a8aef07b27f  ./.github/RELEASE_TEMPLATE.md
 4c08c1c65aa685d30e66b008c383726dd4e5c4dc90b1ff45420bcc4e69e4894f  ./.github/workflows/structure-check.yml
 820b7805afc3c6c82a1183a0452ca19d90ecec905e489ddfe4dc85fd8e3d412c  ./.gitignore
-c47e1275a5ffe315baa99a76a0497836052b097e6f4cb726df29b05f35c34c86  ./CHANGELOG.md
-4f1f68afc8b57115144f4362ee4ee4d2740090080eb7651ae32c4267a43080a7  ./CHANGELOG_de.md
+faeda5b0e857b378d2ba60e659bfb7c7325424d46c4ff136a4fead2548c5abdb  ./CHANGELOG.md
+f718be36926d66b44f1d6a658d7b1df286c5538344fe820b7e1f9bfe77ff9a53  ./CHANGELOG_de.md
 ab4c5c92b6340f72c9aff41f2880514485b0bf260e061f30473c5f45c7fd878d  ./CODE_OF_CONDUCT.md
 3421d18cdb5b831f5b7ca1c59d98917280b4f5f9f590d2c82ddfb96f9124ffb5  ./CODE_OF_CONDUCT_de.md
 3a4eaf1a1e3f6588b6a0310166ee34ef6e1a1838e69863bf25d3f30c0c93c159  ./CONTRIBUTING.md
@@ -243,6 +243,7 @@ ccca71f84dd10ed7d278455c64748a3a037700605509d4014f7898a1d4c3f6aa  ./audit/olunti
 163c85afc5f4da1b893ccda39d5ed361a0a449d9a88efdaa053da815d2438228  ./audit/oluntir-1.2.0-grid-image-persistence-second-monitor-scroll-fix.txt
 fa995cb6d05e3dec0392eea021bde360e926bf6af9b17eaaace82a5ef1fc67f4  ./audit/oluntir-1.2.0-last-image-action-persistence-fix.txt
 740a748c8270dfd7d7fc92a128b91281340760b41f77bd33fdb6bc660592a026  ./audit/oluntir-1.2.0-non-gallery-image-export-fix.txt
+b19f45923ba588c9ff7459874c91f54b7a1782ca0d32cd2b30bcb0b6195821de  ./audit/oluntir-1.2.0-section-insert-overlay.txt
 dfbcb971bd1dd2275a8949f2980470b09e3cb0300011a4d71f239078a3867cde  ./audit/oluntir-1.2.0-shared-content-html-export-dedup-fix.txt
 fd33fdda1a1701b639319caab72e346355ae2e658a7cd5a1379e66229e72c528  ./audit/structure-validator-1.1.0.txt
 f51b5675e0e7e452c58c5d422007d8ccad5d2a91b01fb616e2defa2fa8629182  ./audit/structure-validator-workspace-1.1.0-v2.txt
@@ -315,8 +316,8 @@ f6a95a837476b70b547525cac1e01a91a91b312aa7a1e58b247c59e00faaccee  ./editor/integ
 bc2a776ee57043fa749cf1b877227e67ce7457f95e77071436e4fc1a76dcfdaf  ./editor/integrations/grapesjs/grapesjs-compatibility.js
 564bdc7d3fcd191b894add16c715b352dd9a943901a19e4e0697f5d3e50356cc  ./editor/js/core/asset-store.js
 b8bc064c65bf26c1c93aec7d239ae45b06c415798bcccb20c84b4df772612804  ./editor/js/core/edition.js
-d54dc1b9c2bf69c52da716ebe9f6553a1abbfd5e0e9e27111d8d8a49b6932d75  ./editor/js/core/editor.js
-5d69b6d5e6f84c54ebd2f0453d7417817a332fbf728fdf792cfe78efbe7a0799  ./editor/js/core/export.js
+25cd95c30cd0f4111863e6d4f11b88156bb00bf4d0acb2a530659ed8c8a249e0  ./editor/js/core/editor.js
+fa1358e2f3b72eb7c56a3352dbab064358c786b83a35caf5fcba16a83a42ee57  ./editor/js/core/export.js
 7eedb5ada1a83455e4b2886b4da4ca15b42491aa82fe56890bf86cbdec0302f9  ./editor/js/core/framework.js
 bc79b099bad3c8e571200bf7c90d39e9bb464308db46689c80783873c810b6ee  ./editor/js/core/i18n.js
 d5c4d552a8ef5db78b98595b86ca14e5bb51dddc43afc4e7bd3d3330af32302c  ./editor/js/core/includes.js

@@ -45,3 +45,29 @@
 ## Oluntir 1.0.0 — 2026-07-29
 
 Oluntir 1.0.0 was the first stable public release. It introduced local static-site editing, Bootstrap 4 and 5 profiles, project persistence, recurring content elements and regions, the Oluntir include model, HTML/SSI/PHP export, folder/ZIP/TAR output, bilingual UI and documentation, quick editing, galleries, and bundled offline assets.
+
+## Oluntir 1.2.0 – Canvas scrolling and editor workspace
+
+- Removed the layout-changing placement buffer completely.
+- Explicitly restored vertical scrolling inside the GrapesJS canvas.
+- Added a permanent editor-only workspace below the final page element.
+- A truly empty `<main>` receives a small marked drop area only until its first content element is added.
+- Existing navigation, rows, cards, and footers receive no added padding, height, or classes.
+- The workspace and empty-main hint are neither persisted nor exported.
+
+### Fix: editor-only section insertion zone
+
+- Removed the large invisible workspace below the page.
+- Added a compact grid-style canvas overlay labelled “+ Hier Section einfügen”.
+- Reduced the scroll tail to 68 px and visually separated it from the footer.
+- Empty pages display the same insertion hint inside the empty `<main>` area.
+- The overlay and editor-only helpers are explicitly removed from rendered HTML exports.
+
+### Fix: empty `<main>` on newly created pages
+
+- Removed the global canvas spacing and fixed-overlay approach.
+- The cause was the empty `<main>` inheriting the start page's flex-growth rule.
+- Only a truly empty `<main>` is constrained to a compact 64 px insertion zone inside the editor.
+- The zone is labelled “+ Hier Section einfügen”.
+- As soon as the first section is inserted, all original classes and layout rules apply again automatically.
+- Populated pages, the index page, navigation, and footer remain unchanged.

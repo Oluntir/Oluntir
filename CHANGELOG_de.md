@@ -45,3 +45,29 @@
 ## Oluntir 1.0.0 — 29.07.2026
 
 Oluntir 1.0.0 war die erste stabile öffentliche Version. Sie führte lokale Bearbeitung statischer Websites, Bootstrap-4-/5-Profile, Projektpersistenz, sich inhaltlich wiederholende Elemente und Bereiche, das Oluntir-Include-Modell, HTML-/SSI-/PHP-Export, Ordner-/ZIP-/TAR-Ausgabe, zweisprachige Oberfläche und Dokumentation, Schnellbearbeitung, Galerien und lokal gebündelte Assets ein.
+
+## Oluntir 1.2.0 – Canvas-Scrollbereich und Editor-Arbeitsabstand
+
+- Den layoutverändernden Platzierungspuffer vollständig entfernt.
+- Vertikales Scrollen im GrapesJS-Canvas ausdrücklich wiederhergestellt.
+- Unterhalb des letzten Seitenelements steht dauerhaft ein ausschließlich editorinterner Arbeitsabstand zur Verfügung.
+- Ein wirklich leeres `<main>` erhält nur bis zum ersten Inhalt eine kleine gekennzeichnete Dropfläche.
+- Bestehende Navigationen, Rows, Cards und Footer erhalten keine zusätzlichen Innenabstände, Höhen oder Klassen.
+- Arbeitsabstand und Leerflächenhinweis werden weder gespeichert noch exportiert.
+
+### Korrektur: editorinterne Section-Einfügezone
+
+- Der große unsichtbare Arbeitsabstand unterhalb der Seite wurde entfernt.
+- Stattdessen zeigt der Canvas eine kompakte gerasterte Overlay-Hilfe mit „+ Hier Section einfügen“.
+- Der Scrollabschluss wurde auf 68 px begrenzt und ist optisch klar vom Footer getrennt.
+- Auf leeren Seiten wird dieselbe Einfügekennzeichnung direkt im leeren `<main>` angezeigt.
+- Overlay und Editorhilfen werden vor dem gerenderten HTML-Export ausdrücklich entfernt.
+
+### Korrektur: leeres `<main>` auf neu angelegten Seiten
+
+- Die globale Canvas-Abstands- und Fixed-Overlay-Lösung wurde entfernt.
+- Ursache war die von der Startseite übernommene Flex-Wachstumsregel des leeren `<main>`.
+- Ausschließlich ein tatsächlich leeres `<main>` wird im Editor auf eine kompakte 64-px-Einfügezone begrenzt.
+- Die Einfügezone ist mit „+ Hier Section einfügen“ gekennzeichnet.
+- Nach dem Einfügen der ersten Section gelten automatisch wieder alle ursprünglichen Klassen und Layoutregeln.
+- Befüllte Seiten, die Indexseite, Navigation und Footer bleiben unverändert.

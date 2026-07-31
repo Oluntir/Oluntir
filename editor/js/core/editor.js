@@ -463,13 +463,85 @@ assetHydration.then(() => {
     return true;
   }
 
+  // ---------------------------------------------------------------------------
+  // Editorinterne Einfügezone für ein tatsächlich leeres <main>.
+  //
+  // Neue Seiten übernehmen bewusst die Attribute und Klassen des <main> der
+  // Startseite. Enthält dieses z. B. eine Flex-Wachstumsregel, würde ein leeres
+  // <main> sonst die gesamte freie Canvas-Höhe beanspruchen. Nur im leeren Zustand
+  // wird diese Wachstumseigenschaft im Canvas neutralisiert und als kompakte
+  // Einfügezone dargestellt. Sobald eine Section eingefügt wurde, greifen wieder
+  // vollständig die ursprünglichen Projektklassen. Projektmodell und Export bleiben
+  // unverändert.
+  // ---------------------------------------------------------------------------
+  function ensureCanvasWorkspaceStyle() {
+    let doc;
+    try { doc = editor.Canvas.getDocument(); } catch (_) { return; }
+    if (!doc || doc.getElementById('oluntir-canvas-workspace-style')) return;
+
+    const style = doc.createElement('style');
+    style.id = 'oluntir-canvas-workspace-style';
+    style.textContent = `
+      html,
+      body {
+        overflow-y: auto !important;
+      }
+      main:empty {
+        position: relative !important;
+        flex: 0 0 64px !important;
+        flex-grow: 0 !important;
+        flex-shrink: 0 !important;
+        width: 100%;
+        height: 64px !important;
+        min-height: 64px !important;
+        max-height: 64px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box;
+        overflow: hidden;
+        outline: 1px dashed rgba(74, 144, 226, .9);
+        outline-offset: -6px;
+        background-color: rgba(241, 247, 255, .72);
+        background-image:
+          linear-gradient(45deg, rgba(74, 144, 226, .09) 25%, transparent 25%),
+          linear-gradient(-45deg, rgba(74, 144, 226, .09) 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, rgba(74, 144, 226, .09) 75%),
+          linear-gradient(-45deg, transparent 75%, rgba(74, 144, 226, .09) 75%);
+        background-size: 16px 16px;
+        background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+      }
+      main:empty::before {
+        content: '+ Hier Section einfügen';
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #245d98;
+        font: 600 12px/1.2 Arial, Helvetica, sans-serif;
+        letter-spacing: .02em;
+        pointer-events: none;
+        user-select: none;
+      }
+    `;
+    (doc.head || doc.documentElement).appendChild(style);
+
+    const staleOverlay = doc.getElementById('oluntir-section-insert-overlay');
+    if (staleOverlay) staleOverlay.remove();
+  }
+
+  editor.on('load', ensureCanvasWorkspaceStyle);
+  editor.on('page', () => window.requestAnimationFrame(ensureCanvasWorkspaceStyle));
+
   function refreshSelectedPageVisuals() {
     window.requestAnimationFrame(() => {
       patchCanvasUploadedImagesNow();
+      ensureCanvasWorkspaceStyle();
       if (ACTIVE_FRAMEWORK.id === 'bs4') reinitLightbox();
     });
     window.setTimeout(() => {
       patchCanvasUploadedImagesNow();
+      ensureCanvasWorkspaceStyle();
       if (ACTIVE_FRAMEWORK.id === 'bs4') reinitLightbox();
     }, 120);
   }

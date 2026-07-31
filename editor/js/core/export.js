@@ -251,7 +251,7 @@ function getRenderedCanvasHtmlForExport(editor) {
 
     // Ausschließlich editorinterne Zustände entfernen. Klassen und normale
     // Datenattribute des eigentlichen Templates bleiben unangetastet.
-    clone.querySelectorAll('[data-pb-image-insert-marker]').forEach((el) => el.remove());
+    clone.querySelectorAll('[data-pb-image-insert-marker], #oluntir-section-insert-overlay').forEach((el) => el.remove());
     clone.querySelectorAll('*').forEach((el) => {
       Array.from(el.attributes || []).forEach((attr) => {
         const name = attr.name.toLowerCase();
