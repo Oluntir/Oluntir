@@ -65,3 +65,19 @@ New features should be added to Oluntir's own services and adapters. They must n
 - [GrapesJS integration](GRAPESJS-INTEGRATION.md)
 - [Project structure](PROJECT-STRUCTURE.md)
 - [Project principles](PROJECT-PRINCIPLES.md)
+
+## Layout Identity Layer (1.2.1)
+
+`editor/js/core/layout-identities.js` adds persistent internal IDs inside the GrapesJS component model. The GrapesJS page wrapper is the logical page root; a single `main` is not the persistent export source. The identity layer changes neither Bootstrap classes nor visible HTML IDs.
+
+## Favicon pipeline
+
+`favicon-manager.js` generates and persists project-wide favicon variants. Export adds head references and writes generated binaries plus `site.webmanifest`.
+
+## Responsive asset pipeline
+
+The upload store manages desktop, tablet, and mobile variants. Export reads pages from the model and collects the complete variant group for every used upload.
+
+## Editor-only placeholder
+
+“+ Insert section here” is generated through Canvas CSS for `main:empty`; it is neither part of the component tree nor the export contract.

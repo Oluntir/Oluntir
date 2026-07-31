@@ -2,9 +2,9 @@
 
 # Technisches Handbuch Oluntir
 
-**Version:** 1.2.0  
+**Version:** 1.2.1  
 **Status:** Stabil  
-**Stand:** 30.07.2026
+**Stand:** 31.07.2026
 
 ## 1. Zweck
 
@@ -67,3 +67,23 @@ Die Dokumentation steht auf Deutsch und Englisch zur Verfügung. Einstiegspunkte
 ## Architekturgrundlage Version 1.2.1
 
 Stabile Layout-Identitäten und Repeat Engine V2 sind in `docs/040_LAYOUT_GRAPH_de.md` bis `docs/045_PROJECT_MIGRATION_1.2.1_de.md` dokumentiert.
+
+## 12. Layout-Identitäten und Migration
+
+Das persistente Projektmodell erhält interne IDs für Seiten und geeignete Komponenten. Die Zuweisung ist additiv und idempotent. Normale HTML-IDs werden nicht verändert. Interne Attribute werden erst aus einer finalen Exportkopie entfernt. Details stehen in `docs/040_LAYOUT_GRAPH_de.md` bis `docs/045_PROJECT_MIGRATION_1.2.1_de.md`.
+
+## 13. Neue Seiten und Einfügehinweis
+
+Neue Seiten verwenden die gemeinsamen Header-, Navigations- und Footerbereiche. Ihr `<main>` ist leer und wird im Canvas mit „+ Hier Section einfügen“ gekennzeichnet. Die Kennzeichnung stammt aus editorinternem CSS und wird nicht gespeichert oder exportiert.
+
+## 14. Projekt-Favicon
+
+`favicon-manager.js` verwaltet Metadaten, Vorschau, Erzeugung, Ersetzen, Entfernen und Export der projektweiten Faviconvarianten. Die Binärdateien werden im bestehenden Asset-Speicher geführt. `site.webmanifest` wird zusammen mit den Favicons exportiert.
+
+## 15. Responsiver Asset-Export
+
+Desktop-, Tablet- und Mobile-Dateien eines Uploads bilden einen Variantenverbund. Der Export sammelt die gesamte Gruppe und bricht bei fehlenden Varianten mit einer eindeutigen Meldung ab. Pfadnormalisierung findet ausschließlich in der temporären Exportkopie statt.
+
+## 16. Release-Testvertrag 1.2.1
+
+Vor Freigabe sind mindestens zu prüfen: Migration und zweites Öffnen, ID-Stabilität nach Kopieren, HTML/SSI/PHP, Shared Content, Card-Bilder, responsive Uploadvarianten, Rich-Text-Cursor, neue leere Seite mit Einfügehinweis, Favicon-Erzeugen/Ersetzen/Entfernen sowie Bootstrap 4 und 5.

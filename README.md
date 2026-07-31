@@ -103,3 +103,29 @@ Stable layout identities and Repeat Engine V2 are documented in `docs/040_LAYOUT
 ### Project favicon
 
 Use the star icon in the secondary toolbar to define a project-wide favicon. Oluntir automatically generates browser, Apple, and Android variants from one PNG, JPG, WebP, GIF, or SVG source. See [`docs/FAVICON.md`](docs/FAVICON.md).
+
+## New in Oluntir 1.2.1
+
+### Stable layout identities
+
+Oluntir additively assigns persistent internal identities to pages and suitable GrapesJS components: Page, Section, Row, Slot, Component, and Repeat. Existing HTML IDs, classes, and content remain untouched. Copies receive fresh internal IDs, while existing IDs survive save and reload. Internal attributes remain in the project model and are removed only from the final HTML, SSI, or PHP export copy.
+
+Technical details: [`docs/041_LAYOUT_IDENTITIES.md`](docs/041_LAYOUT_IDENTITIES.md) and [`docs/045_PROJECT_MIGRATION_1.2.1.md`](docs/045_PROJECT_MIGRATION_1.2.1.md).
+
+### New pages and “Insert section here”
+
+New pages inherit project header, navigation, and footer but intentionally do not copy page-specific content. An empty `<main>` is shown as a compact editor-only insertion zone labelled **“+ Insert section here”**. The hint disappears after the first section is added and is never saved or exported.
+
+Guide: [`docs/047_EDITOR_PLACEHOLDERS.md`](docs/047_EDITOR_PLACEHOLDERS.md).
+
+### Project favicon
+
+The star icon in the secondary toolbar defines one project-wide favicon. Oluntir generates ICO, browser, Apple, and Android variants plus `site.webmanifest` from PNG, JPG, WebP, GIF, or SVG. The dialog recognises an existing favicon and shows preview, source name, source type, and update time. Replacing it discards all old variants before regeneration.
+
+Guide: [`docs/046_PROJECT_FAVICON.md`](docs/046_PROJECT_FAVICON.md).
+
+### Complete responsive image export
+
+Used upload images are exported together with their desktop, tablet, and mobile variants. This applies to `assets/user_upload/` and compatible legacy paths below `images/uploads/`. If a required variant is missing, export stops with an explicit file list instead of creating an incomplete package.
+
+Details: [`docs/048_RESPONSIVE_IMAGE_EXPORT.md`](docs/048_RESPONSIVE_IMAGE_EXPORT.md).

@@ -103,3 +103,29 @@ Stabile Layout-Identitäten und Repeat Engine V2 sind in `docs/040_LAYOUT_GRAPH_
 ### Projekt-Favicon
 
 Über das Stern-Symbol in der zweiten Werkzeugleiste lässt sich ein projektweites Favicon festlegen. Oluntir erzeugt aus einer PNG-, JPG-, WebP-, GIF- oder SVG-Datei automatisch alle benötigten Browser-, Apple- und Android-Varianten. Eine vollständige Anleitung steht unter [`docs/FAVICON_de.md`](docs/FAVICON_de.md).
+
+## Neu in Oluntir 1.2.1
+
+### Stabile Layout-Identitäten
+
+Oluntir ergänzt Seiten und geeignete GrapesJS-Komponenten additiv um dauerhafte interne Identitäten für Page, Section, Row, Slot, Component und Repeat. Vorhandene HTML-IDs, Klassen und Inhalte bleiben unverändert. Beim Kopieren erhalten Duplikate neue interne IDs; beim erneuten Öffnen bleiben bestehende IDs erhalten. Die Identitäten werden nur im Projektmodell gespeichert und vor dem finalen HTML-, SSI- oder PHP-Export aus der Exportkopie entfernt.
+
+Technische Details: [`docs/041_LAYOUT_IDENTITIES_de.md`](docs/041_LAYOUT_IDENTITIES_de.md) und [`docs/045_PROJECT_MIGRATION_1.2.1_de.md`](docs/045_PROJECT_MIGRATION_1.2.1_de.md).
+
+### Neue Seiten und „Hier Section einfügen“
+
+Neu angelegte Seiten übernehmen Header, Navigation und Footer des Projekts, enthalten aber bewusst keinen kopierten Seiteninhalt. Ein leeres `<main>` wird im Editor als kompakte Einfügezone mit **„+ Hier Section einfügen“** angezeigt. Nach dem Einfügen der ersten Section verschwindet der Hinweis automatisch. Die Einfügezone ist eine reine Editorhilfe und wird weder gespeichert noch exportiert.
+
+Anleitung: [`docs/047_EDITOR_PLACEHOLDERS_de.md`](docs/047_EDITOR_PLACEHOLDERS_de.md).
+
+### Projekt-Favicon
+
+Über das Stern-Symbol in der zweiten Werkzeugleiste wird ein projektweites Favicon gesetzt. Aus einer PNG-, JPG-, WebP-, GIF- oder SVG-Datei erzeugt Oluntir automatisch ICO-, Browser-, Apple- und Android-Varianten sowie `site.webmanifest`. Der Dialog zeigt ein bereits gesetztes Favicon mit Vorschau, Quelldatei, Dateityp und Änderungszeitpunkt an. Beim Ersetzen werden alle bisherigen Varianten vollständig verworfen und neu erzeugt.
+
+Anleitung: [`docs/046_PROJECT_FAVICON_de.md`](docs/046_PROJECT_FAVICON_de.md).
+
+### Vollständiger Responsive-Bildexport
+
+Verwendete Uploadbilder werden zusammen mit ihren Desktop-, Tablet- und Mobile-Varianten exportiert. Das gilt für `assets/user_upload/` sowie die kompatiblen Legacy-Pfade unter `images/uploads/`. Fehlt eine benötigte Variante, bricht der Export mit einer konkreten Dateiliste ab, anstatt ein unvollständiges Paket zu erzeugen.
+
+Details: [`docs/048_RESPONSIVE_IMAGE_EXPORT_de.md`](docs/048_RESPONSIVE_IMAGE_EXPORT_de.md).

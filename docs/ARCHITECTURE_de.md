@@ -65,3 +65,19 @@ Neue Funktionen sollen in Oluntirs eigenen Diensten und Adaptern umgesetzt werde
 - [GrapesJS-Integration](GRAPESJS-INTEGRATION.md)
 - [Projektstruktur](PROJECT-STRUCTURE_de.md)
 - [Projektgrundsätze](PROJECT-PRINCIPLES_de.md)
+
+## Layout Identity Layer (1.2.1)
+
+`editor/js/core/layout-identities.js` ergänzt persistente interne IDs im GrapesJS-Komponentenmodell. Der GrapesJS-Seitenwrapper bildet den logischen Seitenroot; ein einzelnes `main` ist nicht die persistente Exportquelle. Die ID-Schicht verändert keine Bootstrap-Klassen und keine sichtbaren HTML-IDs.
+
+## Favicon-Pipeline
+
+`favicon-manager.js` erzeugt und persistiert projektweite Faviconvarianten. Der Export ergänzt die Head-Referenzen und schreibt die erzeugten Binärdateien sowie `site.webmanifest` in das Ausgabeziel.
+
+## Responsive Asset Pipeline
+
+Der Uploadspeicher verwaltet Desktop-, Tablet- und Mobile-Varianten. Die Exportpipeline liest Seiten ausschließlich aus dem Modell und sammelt zu jeder verwendeten Uploaddatei den vollständigen Variantenverbund.
+
+## Editor-only Placeholder
+
+Der Hinweis „+ Hier Section einfügen“ wird durch Canvas-CSS für `main:empty` erzeugt. Er gehört weder zum Komponentenbaum noch zum Exportvertrag.

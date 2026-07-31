@@ -45,3 +45,17 @@
 - [Projektmigration 1.2.1](045_PROJECT_MIGRATION_1.2.1_de.md)
 
 - [Projekt-Favicon](FAVICON_de.md) – Ein Bild auswählen und alle Favicon-Varianten automatisch erzeugen.
+
+## Oluntir 1.2.1
+
+- [Layout-Graph](040_LAYOUT_GRAPH_de.md)
+- [Layout-Identitäten](041_LAYOUT_IDENTITIES_de.md)
+- [Repeat Engine V2](042_REPEAT_ENGINE_V2_de.md)
+- [GrapesJS-Projektmodell](043_GRAPESJS_PROJECT_MODEL_de.md)
+- [Shared Content und Includes](044_SHARED_CONTENT_AND_INCLUDES_de.md)
+- [Projektmigration 1.2.1](045_PROJECT_MIGRATION_1.2.1_de.md)
+- [Projekt-Favicon](046_PROJECT_FAVICON_de.md)
+- [Editor-Platzhalter auf neuen Seiten](047_EDITOR_PLACEHOLDERS_de.md)
+- [Responsiver Bildexport](048_RESPONSIVE_IMAGE_EXPORT_de.md)
+- [Migration 1.2.0 → 1.2.1](MIGRATION_1.2.0_TO_1.2.1_de.md)
+- [Funktionsübersicht](../FEATURES_de.md)

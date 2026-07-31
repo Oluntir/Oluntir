@@ -1,20 +1,13 @@
-Oluntir 1.2.1 automated test results
-Date: 2026-07-31
+Oluntir 1.2.1 – Finaler Dokumentations- und Release-Test
+Stand: 31.07.2026
 
-PASS node --check editor/js/core/layout-identities.js
-PASS node --check editor/js/core/repeat-engine-v2.js
-PASS node --check editor/js/core/editor.js
-PASS node --check editor/js/core/export.js
-PASS node tools/test-grapesjs-adapter.js
-PASS node tests/test-layout-identities.js
-PASS python3 tools/validate-structure.py
+PASS Markdown-Link-Check
+PASS Strukturvalidator
+PASS GrapesJS-Adapter-Test
+PASS Layout-Identities-Test
+PASS JavaScript-Syntaxprüfung
+PASS Bootstrap 4.6.2
+PASS Bootstrap 5.3.8
+PASS lokale Referenzen und Export-Assetpaket
 
-Validated contracts:
-- missing IDs are added
-- second migration does not alter IDs
-- copied duplicate identities receive a new ID
-- internal IDs are absent from export HTML copy
-- existing GrapesJS adapter remains valid
-- Bootstrap 4.6.2 and Bootstrap 5.3.8 local structures remain valid
-
-Manual browser regression is still required for real .oluntir import/export and File System Access API flows.
+Hinweis: Die manuellen Browsertests bleiben gemäß tests/MANUAL_TEST_1.2.1_de.md Teil der Releaseabnahme.

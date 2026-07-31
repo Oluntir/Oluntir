@@ -2,7 +2,7 @@
 
 # Oluntir technical handbook
 
-**Version:** 1.2.0  
+**Version:** 1.2.1  
 **Status:** Stable  
 **Last updated:** 2026-07-30
 
@@ -67,3 +67,19 @@ The documentation is available in English and German. Start with [the documentat
 ## Version 1.2.1 architecture foundation
 
 Stable layout identities and Repeat Engine V2 are documented in `docs/040_LAYOUT_GRAPH.md` through `docs/045_PROJECT_MIGRATION_1.2.1.md`.
+
+## 12. Layout identities and migration
+
+The persistent project model receives internal IDs for pages and suitable components. Assignment is additive and idempotent, ordinary HTML IDs remain unchanged, and internal attributes are stripped only from a final export copy.
+
+## 13. New pages and insertion hint
+
+New pages inherit shared header, navigation, and footer regions. Their empty `<main>` is labelled “+ Insert section here” through editor-only CSS that is neither stored nor exported.
+
+## 14. Project favicon
+
+`favicon-manager.js` handles metadata, preview, generation, replacement, removal, and export of project-wide favicon variants and `site.webmanifest`.
+
+## 15. Responsive asset export
+
+Desktop, tablet, and mobile upload files form one variant group. Export collects the full group and stops with an explicit error if variants are missing. Path normalisation happens only in the temporary export copy.

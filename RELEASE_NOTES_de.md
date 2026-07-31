@@ -1,59 +1,58 @@
-# Oluntir 1.2.1
+# Release Notes – Oluntir 1.2.1
 
-Diese Version schafft stabile Layout-Identitäten und die technische Grundlage der Repeat Engine V2, ohne den sichtbaren Editor-Ablauf zu verändern. Bestehende 1.2.0-Projekte werden beim Laden additiv migriert und bleiben exportkompatibel.
+**Veröffentlichung:** 31.07.2026  
+**Release-Typ:** Stabilitäts- und Architekturrelease
 
-# Release Notes Oluntir 1.2.0
+## Überblick
 
-**Veröffentlichung:** 30.07.2026  
-**Release-Typ:** Stabil
-
-Oluntir 1.2.0 entwickelt den Editor zu einem eigenständigeren Anwendungs-Workspace weiter. GrapesJS bleibt dabei unverändert die visuelle Editor-Engine.
+Oluntir 1.2.1 führt ein stabiles internes ID-System ein und schafft damit die belastbare Grundlage für modellbasierte Synchronisation und Repeat Engine V2. Gleichzeitig wurde die bestehende Export-, Bild-, Rich-Text- und Seitenlogik gegen reale Bestandsprojekte stabilisiert. Der sichtbare Funktionsumfang bleibt bewusst vertraut.
 
 ## Höhepunkte
 
-### Zwei-Monitor-Arbeitsbereich
+### Stabile Projekt- und Layout-Identitäten
 
-Im Hauptfenster verbleibt der GrapesJS-Canvas. Die vollständige rechte GrapesJS-Werkzeugspalte mit Komponenten, Styles, Ebenen und Eigenschaften kann zusammen mit beiden Oluntir-Schnellbearbeitungssystemen in ein eigenes Werkzeugfenster verschoben werden. Schaltflächen in der zweiten Werkzeugleiste lagern die Spalte aus, rufen das Fenster erneut auf oder holen alles ins Hauptfenster zurück.
+Seiten und geeignete GrapesJS-Komponenten erhalten dauerhafte interne IDs. Diese IDs überleben Speichern, Import und erneutes Öffnen, überschreiben keine normalen HTML-IDs und werden nicht als Exportquelle verwendet. Kopierte Komponenten erhalten neue interne Identitäten.
 
-Arbeitsbereichspräferenz und optionale Fenstergrenzen werden in IndexedDB gespeichert. Wird das zweite Fenster blockiert, geschlossen oder auf einem Rechner mit nur einem Monitor wiederhergestellt, fällt Oluntir sicher auf das Hauptfenster zurück, ohne die bevorzugte Zwei-Monitor-Einstellung zu verwerfen.
+### Projekt-Favicon ohne Spezialwissen
 
-### Bildmanager und Projektordner-Synchronisation
+Über das Stern-Symbol in der zweiten Werkzeugleiste genügt eine einzige PNG-, JPG-, WebP-, GIF- oder SVG-Datei. Oluntir erzeugt daraus automatisch:
 
-Der Workspace-basierte Bildmanager bietet Suche, Filter, Raster- und Listenansicht, responsive Varianten, Details, Ersetzen und sicheres Löschen. Vor dem Ordnerzugriff erklärt ein Infofenster, dass der Projektstammordner gewählt werden muss. Oluntir verwendet oder erstellt anschließend automatisch `assets/user_upload/` und kann die IndexedDB-Uploads dorthin schreiben.
+```text
+images/favicon.ico
+images/favicon-16x16.png
+images/favicon-32x32.png
+images/favicon-48x48.png
+images/apple-touch-icon.png
+images/android-chrome-192x192.png
+images/android-chrome-512x512.png
+site.webmanifest
+```
 
-### Galerie-Modi Modal und Lightbox
+Ein vorhandenes Favicon wird mit Vorschau und Quelldaten erkannt. Beim Ersetzen werden die bisherigen Varianten vollständig verworfen.
 
-Galerien unterstützen keine Vergrößerung, ein gerahmtes Modal oder eine echte dunkle Lightbox. Beide Viewer besitzen Tastaturnavigation, Fokusfalle und Fokusrückgabe, Bildbezeichnung, Zähler und Originalbild-Download. Auf Desktop-Systemen bleibt nach unten mindestens eine Bedienelementhöhe Sicherheitsabstand, damit die Aktionen nicht an oder unter der sichtbaren Browserkante liegen.
+### Verständliche neue Seiten
 
-### Architektur
+Neue Seiten übernehmen die gemeinsamen Bereiche des Projekts, aber keinen individuellen Inhalt der Startseite. Ein leeres `<main>` zeigt im Editor **„+ Hier Section einfügen“**. Der Hinweis verschwindet nach der ersten Section und erscheint nicht im Export.
 
-- `OluntirWorkspaceManager` koordiniert größere Oluntir-Workspaces.
-- `multi-monitor-manager.js` verwaltet Werkzeugfenster und Wiederherstellung.
-- Allgemeine Einstellungen liegen in einer eigenen IndexedDB.
-- GrapesJS bleibt versioniert unter `vendor/grapesjs/` und wird über `editor/integrations/grapesjs/` angesprochen.
-- Außerhalb der Adaptergrenze dürfen Oluntir-Module nicht direkt von internen `.gjs-*`-DOM-Klassen abhängen.
+### Stabiler Export
 
-## Kompatibilitätshinweise
+HTML, SSI und PHP werden direkt aus dem GrapesJS-Projektmodell erzeugt. Der Export wechselt nicht mehr sichtbar zwischen Seiten und schreibt keine kurzfristigen Canvas-Zustände zurück. Dadurch bleiben Bilder, Reihenfolge und Include-Positionen stabil.
 
-- Ein aktueller Desktop-Browser ist erforderlich.
-- Mehrfenster- und Ordnerzugriff hängen von Browserberechtigungen und Sicherheitsrichtlinien ab.
-- Die direkte Auswahl des Zwei-Monitor-Modus über eine Benutzeraktion ist zuverlässiger als ein verzögertes Pop-up.
-- Gespeicherte Fensterkoordinaten werden vor der Wiederverwendung validiert.
-- Browserdaten ersetzen keine externe Projektsicherung.
+### Responsive Bildpakete
 
-## Aktualisierung
+Verwendete Uploadbilder werden mit Desktop-, Tablet- und Mobile-Variante exportiert. Ein unvollständiger Variantenbestand führt zu einer klaren Fehlermeldung statt zu einem unvollständigen Website-Paket.
 
-Version 1.2.0 in einen neuen Ordner entpacken und die neue `index.html` öffnen. Die vorherige Version und eine Projektsicherung aufbewahren, bis das Projekt erfolgreich geöffnet, geprüft und exportiert wurde. Keine alte Installation durch Vermischen alter und neuer Dateien überschreiben.
+## Aktualisierung von 1.2.0
 
-## Bekannte Einschränkungen
+1. Projekt in 1.2.0 sichern.
+2. Oluntir 1.2.1 in einen neuen Ordner entpacken.
+3. Bestehendes `.oluntir`-Projekt öffnen.
+4. Seiten, Shared Content, Bilder und Exporte prüfen.
+5. Projekt explizit speichern; dadurch werden fehlende interne IDs dauerhaft übernommen.
+6. HTML-, SSI- und PHP-Export mindestens einmal testen.
 
-Oluntir kann Browserberechtigungen für Dateisystem, Fensterpositionierung oder Pop-ups nicht erzwingen. Ist die Window Management API nicht verfügbar oder nicht freigegeben, bleibt das Werkzeugfenster manuell verschiebbar. Die automatische Platzierung auf einem zweiten Monitor setzt daher eine passende Browser- und Betriebssystemkonfiguration voraus.
+Die Migration verändert keine sichtbaren Inhalte und ist idempotent.
 
-## In 1.2.0 gestärkte Projektgrundsätze
+## Bekannte Grenze
 
-- GrapesJS bleibt eine unveränderte Open-Source-Engine; Oluntir-Funktionen werden über Adapter- und Integrationsschicht umgesetzt.
-- Arbeitsbereichseinstellungen werden lokal gespeichert und können Monitor-Modus, Fenstergeometrie und ausgewählte Workspace-Einstellungen wiederherstellen.
-- Der Bildmanager erläutert die Auswahl des Projektstamms, bevor `assets/user_upload/` verwendet oder angelegt wird.
-- Modal und Lightbox bleiben bewusst getrennte Darstellungskonzepte.
-- Das interne Projektmodell bleibt vom gewählten Exportformat unabhängig.
-- Englische und deutsche Release-Informationen werden als gleichwertige Projektdokumentation gepflegt.
+Repeat Engine V2 ist technisch vorbereitet, besitzt in 1.2.1 aber noch keine vollständige sichtbare Verwaltungsoberfläche.
