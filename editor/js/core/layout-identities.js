@@ -1,11 +1,24 @@
 (function (root, factory) {
-  const api = factory();
+  const dictionary = root && root.OluntirSemanticDictionary
+    ? root.OluntirSemanticDictionary
+    : (typeof module === 'object' && module.exports ? require('./semantic-dictionary.js') : null);
+  const identityResolver = root && root.OluntirIdentityResolver
+    ? root.OluntirIdentityResolver
+    : (typeof module === 'object' && module.exports ? require('./identity-resolver.js') : null);
+  const contextResolver = root && root.OluntirContextResolver
+    ? root.OluntirContextResolver
+    : (typeof module === 'object' && module.exports ? require('./context-resolver.js') : null);
+  const api = factory(dictionary, identityResolver, contextResolver);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.OluntirLayoutIdentities = api;
-})(typeof window !== 'undefined' ? window : globalThis, function () {
+})(typeof window !== 'undefined' ? window : globalThis, function (dictionary, identityResolver, contextResolver) {
   'use strict';
 
   const SCHEMA_VERSION = 1;
+  const SEMANTIC_SCHEMA_VERSION = dictionary ? dictionary.SCHEMA_VERSION : 0;
+  const SEMANTIC_DICTIONARY = dictionary || null;
+  const IDENTITY_RESOLVER = identityResolver || null;
+  const CONTEXT_RESOLVER = contextResolver || null;
   const ATTR = Object.freeze({
     page: 'data-oluntir-page-id', section: 'data-oluntir-section-id',
     row: 'data-oluntir-row-id', slot: 'data-oluntir-slot-id',
@@ -48,6 +61,54 @@
     if (hasColumnClass(classes)) return 'slot';
     if (type === 'wrapper') return null;
     return 'component';
+  }
+  function resolvePageId(component, context) {
+    if (context && context.pageId) return String(context.pageId);
+    if (context && context.page) {
+      const contextualPageId = pageId(context.page);
+      if (contextualPageId) return contextualPageId;
+    }
+    let current = component;
+    while (current) {
+      const value = attrsOf(current)[ATTR.page];
+      if (value) return value;
+      current = current.parent ? current.parent() : null;
+    }
+    return null;
+  }
+  function resolveSemanticIdentity(component) {
+    if (!identityResolver || typeof identityResolver.resolve !== 'function') return null;
+    return identityResolver.resolve({
+      tagName: tagOf(component),
+      type: typeOf(component),
+      classes: classesOf(component)
+    });
+  }
+  function describe(component, context) {
+    const structuralKind = classify(component, Boolean(context && context.isRoot));
+    const semanticIdentity = resolveSemanticIdentity(component);
+    const attrs = attrsOf(component);
+    const identityAttr = structuralKind && ATTR[structuralKind];
+    const resolvedPageId = resolvePageId(component, context);
+    const resolvedContext = contextResolver && typeof contextResolver.resolve === 'function'
+      ? contextResolver.resolve(component, {
+          pageId: resolvedPageId,
+          classify: classify
+        })
+      : null;
+    return Object.freeze({
+      identity: identityAttr ? (attrs[identityAttr] || null) : null,
+      pageId: resolvedPageId,
+      structuralKind: structuralKind,
+      componentType: semanticIdentity ? semanticIdentity.componentType : null,
+      role: semanticIdentity ? semanticIdentity.role : null,
+      cardinality: semanticIdentity ? semanticIdentity.cardinality : null,
+      capabilities: semanticIdentity ? semanticIdentity.capabilities : Object.freeze([]),
+      context: resolvedContext,
+      semanticSchemaVersion: SEMANTIC_SCHEMA_VERSION,
+      identityResolverSchemaVersion: semanticIdentity ? semanticIdentity.schemaVersion : 0,
+      contextResolverSchemaVersion: resolvedContext ? resolvedContext.schemaVersion : 0
+    });
   }
   function childrenOf(component) {
     if (!component || !component.components) return [];
@@ -150,5 +211,5 @@
     editor.on('page:add', () => ensureAll(editor));
     editor.on('component:add', ensureAdded);
   }
-  return { SCHEMA_VERSION, ATTR, PREFIX, createId, classify, walk, ensureAll, ensureAdded, bind, findById, pageId, decorateProjectData, stripInternalAttributes, getProjectMetadata };
+  return { SCHEMA_VERSION, SEMANTIC_SCHEMA_VERSION, SEMANTIC_DICTIONARY, IDENTITY_RESOLVER, CONTEXT_RESOLVER, ATTR, PREFIX, createId, classify, describe, walk, ensureAll, ensureAdded, bind, findById, pageId, decorateProjectData, stripInternalAttributes, getProjectMetadata };
 });

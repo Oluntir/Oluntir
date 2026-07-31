@@ -22,7 +22,8 @@ for ref in parser.refs:
 
 framework=(ROOT/'editor/js/core/framework.js').read_text(encoding='utf-8')
 for ref in re.findall(r"'(assets/[^']+|frameworks/[^']+|plugins/site/[^']+)'", framework):
-    if not (ROOT/ref).is_file(): errors.append(f'Fehlende Framework-Datei: {ref}')
+    clean_ref=ref.split('?',1)[0].split('#',1)[0]
+    if not (ROOT/clean_ref).is_file(): errors.append(f'Fehlende Framework-Datei: {ref}')
 
 site_images=(ROOT/'editor/js/core/site-images.js').read_text(encoding='utf-8')
 for ref in re.findall(r'"(images/[^\"]+)"', site_images):

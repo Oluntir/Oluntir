@@ -6,7 +6,8 @@
 const REQUIRED_EXPORT_FILES_BS4 = [
   'css/local-fonts.css',
   'css/bootstrap4/bootstrap.min.css',
-  'css/font-awesome/all.min.css',
+  'css/font-awesome4/font-awesome.min.css',
+  'css/fonts/fontawesome-webfont.woff2',
   'css/owl-carousel/owl.carousel.min.css',
   'css/magnific-popup/magnific-popup.css',
   'css/swiper/swiper.min.css',
@@ -23,7 +24,7 @@ const REQUIRED_EXPORT_FILES_BS4 = [
   'js/magnific-popup/jquery.magnific-popup.min.js',
   'js/shuffle/shuffle.min.js',
   'js/custom.js',
-  'js/pagebuilder-bs5-gallery.js',
+  'js/pagebuilder-bs4-gallery.js',
 ];
 
 const REQUIRED_EXPORT_FILES_BS5 = [
@@ -407,7 +408,7 @@ ${bodyHtml}
 ${window.OluntirFavicon ? window.OluntirFavicon.getHeadHtml() : '    <link rel="shortcut icon" href="images/favicon.ico">'}
     <link href="css/local-fonts.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="css/font-awesome/all.min.css">
+    <link rel="stylesheet" href="css/font-awesome4/font-awesome.min.css">
     <link rel="stylesheet" href="css/bootstrap4/bootstrap.min.css">
     <link rel="stylesheet" href="css/owl-carousel/owl.carousel.min.css">
     <link rel="stylesheet" href="css/magnific-popup/magnific-popup.css">
@@ -430,7 +431,7 @@ ${bodyHtml}
     <script src="js/magnific-popup/jquery.magnific-popup.min.js"></script>
     <script src="js/shuffle/shuffle.min.js"></script>
     <script src="js/custom.js"></script>
-    <script src="js/pagebuilder-bs5-gallery.js"></script>
+    <script src="js/pagebuilder-bs4-gallery.js"></script>
   </body>
 </html>
 `;

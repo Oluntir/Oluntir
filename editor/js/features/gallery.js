@@ -110,6 +110,49 @@ function galleryTrigger(entry, index, image, options, extraClass) {
   return `<a class="pb-gallery-trigger ${extraClass || ''}" href="${entry.desktopUrl}" data-stable-path="${entry.desktopPath}" data-pb-gallery-mobile="${entry.mobileUrl}" data-pb-gallery-tablet="${entry.tabletUrl}" data-pb-gallery-desktop="${entry.desktopUrl}" data-pb-gallery-mobile-path="${entry.mobilePath}" data-pb-gallery-tablet-path="${entry.tabletPath}" data-pb-gallery-desktop-path="${entry.desktopPath}" data-download="${entry.downloadPath}" data-filename="${entry.originalName}" data-alt="${label}" data-caption="${label}" aria-label="${label} vergrößern">${image}</a>`;
 }
 
+
+function getGalleryIconProfile() {
+  const framework = window.PAGEBUILDER_FRAMEWORK || { id: 'bs4' };
+  if (framework.id === 'bs5') {
+    return {
+      baseClass: 'fas',
+      zoomClass: 'fa-arrows-alt',
+      downloadClass: 'fa-download'
+    };
+  }
+  return {
+    baseClass: 'fa',
+    zoomClass: 'fa-arrows-alt',
+    downloadClass: 'fa-download'
+  };
+}
+
+function galleryActionIcon(type) {
+  const profile = getGalleryIconProfile();
+  const iconClass = type === 'download' ? profile.downloadClass : profile.zoomClass;
+  return `<i class="${profile.baseClass} ${iconClass}" aria-hidden="true"></i>`;
+}
+
+function ensureGalleryActionIcons(editorInstance) {
+  if (!editorInstance || !editorInstance.Pages) return;
+  const zoomMarkup = galleryActionIcon('zoom');
+  const downloadMarkup = galleryActionIcon('download');
+
+  editorInstance.Pages.getAll().forEach((page) => {
+    const root = page.getMainComponent ? page.getMainComponent() : null;
+    if (!root || !root.find) return;
+
+    root.find('.pb-gallery-open-button').forEach((component) => {
+      component.components(zoomMarkup);
+    });
+
+    root.find('.portfolio-download').forEach((component) => {
+      component.components(downloadMarkup);
+    });
+  });
+}
+window.ensureGalleryActionIcons = ensureGalleryActionIcons;
+
 function buildGalleryHtml(entries, viewerOptions) {
   const framework = window.PAGEBUILDER_FRAMEWORK || { id: 'bs4' };
   const galleryAttrs = galleryDataAttributes(viewerOptions);
@@ -125,9 +168,9 @@ function buildGalleryHtml(entries, viewerOptions) {
       return `<div class="col-12 col-sm-6 col-lg-4">
         <article class="card border-0 shadow-sm pb-bs5-gallery-card h-100">
           <div class="position-relative">${trigger}
-            <div class="pb-bs5-gallery-overlay">
-              ${viewerOptions.mode === 'none' ? '' : `<button class="btn btn-light pb-gallery-open-button" type="button" data-pb-gallery-open-index="${index}" aria-label="Bild vergrößern"><span aria-hidden="true">⛶</span></button>`}
-              <a class="btn btn-light portfolio-download" href="${e.downloadUrl}" data-stable-download-path="${e.downloadPath}" download="${e.originalName}" aria-label="Originalbild herunterladen"><span aria-hidden="true">⇩</span></a>
+            <div class="pb-gallery-actions" role="group" aria-label="Bildaktionen">
+              ${viewerOptions.mode === 'none' ? '' : `<button class="pb-gallery-action pb-gallery-open-button" type="button" data-pb-gallery-open-index="${index}" title="Bild vergrößern" aria-label="Bild vergrößern">${galleryActionIcon('zoom')}</button>`}
+              <a class="pb-gallery-action portfolio-download" href="${e.downloadUrl}" data-stable-download-path="${e.downloadPath}" download="${e.originalName}" title="Originalbild herunterladen" aria-label="Originalbild herunterladen">${galleryActionIcon('download')}</a>
             </div>
           </div>
         </article>
@@ -144,9 +187,9 @@ function buildGalleryHtml(entries, viewerOptions) {
     </picture>`;
     const trigger = galleryTrigger(e, index, image, viewerOptions, 'd-block');
     return `<div class="col-md-4 col-sm-6 mb-4"><div class="portfolio-item"><div class="position-relative">${trigger}
-      <div class="portfolio-overlay">
-        ${viewerOptions.mode === 'none' ? '' : `<button class="portfolio-img pb-gallery-open-button" type="button" data-pb-gallery-open-index="${index}" aria-label="Bild vergrößern"><i class="fas fa-arrows-alt" aria-hidden="true"></i></button>`}
-        <a class="portfolio-download" href="${e.downloadUrl}" data-stable-download-path="${e.downloadPath}" download="${e.originalName}" title="Originalbild herunterladen" aria-label="Originalbild herunterladen"><i class="fas fa-download" aria-hidden="true"></i></a>
+      <div class="pb-gallery-actions" role="group" aria-label="Bildaktionen">
+        ${viewerOptions.mode === 'none' ? '' : `<button class="pb-gallery-action pb-gallery-open-button" type="button" data-pb-gallery-open-index="${index}" title="Bild vergrößern" aria-label="Bild vergrößern">${galleryActionIcon('zoom')}</button>`}
+        <a class="pb-gallery-action portfolio-download" href="${e.downloadUrl}" data-stable-download-path="${e.downloadPath}" download="${e.originalName}" title="Originalbild herunterladen" aria-label="Originalbild herunterladen">${galleryActionIcon('download')}</a>
       </div></div></div></div>`;
   }).join('');
   return `<section class="space-ptb pb-gallery" ${galleryAttrs}><div class="container-fluid"><div class="row">${items}</div></div></section>`;

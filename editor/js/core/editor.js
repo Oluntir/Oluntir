@@ -166,6 +166,24 @@ assetHydration.then(() => {
     window.registerOluntirBlockSearch(editor);
   }
 
+
+  // Bestehende und neu geladene Galerien aus früheren DEV-Ständen reparieren.
+  // Der Download-Link erhält ein echtes DOM-Zeichen, das Vorschau und Export übernehmen.
+  const repairGalleryIcons = () => {
+    if (typeof window.ensureGalleryActionIcons === 'function') {
+      window.ensureGalleryActionIcons(editor);
+    }
+  };
+  editor.on('load', repairGalleryIcons);
+  editor.on('project:load', repairGalleryIcons);
+  editor.on('page', repairGalleryIcons);
+  editor.on('component:add', (component) => {
+    const classes = component && component.getClasses ? component.getClasses() : [];
+    if (classes.includes('portfolio-download') || classes.includes('pb-gallery')) {
+      window.requestAnimationFrame(repairGalleryIcons);
+    }
+  });
+
   // Zuvor hochgeladene Bilder (aus IndexedDB wiederhergestellt, siehe hydrateAssetStore
   // oben) auch wieder als auswählbare Assets im Asset-Manager anbieten – sonst wären sie
   // nach einem Neuladen nur noch über bereits platzierte Komponenten erreichbar.
@@ -464,6 +482,16 @@ assetHydration.then(() => {
     replaceRegion('nav', includeState.regions.navigation);
     replaceRegion('footer', includeState.regions.footer);
 
+    // Keep the page contract intact even when a legacy/partially initialized
+    // reusable page consists only of shared regions. The existing Canvas CSS
+    // renders its insertion hint exclusively on an actual empty <main>.
+    if (!template.content.querySelector('main')) {
+      const main = document.createElement('main');
+      const footer = template.content.querySelector('footer');
+      if (footer) template.content.insertBefore(main, footer);
+      else template.content.appendChild(main);
+    }
+
     const updatedHtml = template.innerHTML;
     if (updatedHtml === sourceHtml) return false;
     const component = page.getMainComponent && page.getMainComponent();
@@ -576,9 +604,24 @@ assetHydration.then(() => {
     if (!page) return false;
 
     const previousPage = editor.Pages.getSelected();
-    if (previousPage && previousPage !== page) synchronizeSharedRegionsFromPage(previousPage);
+    if (previousPage === page) {
+      refreshPageList();
+      return true;
+    }
+
+    // Complete a delayed shared-content transaction while its source page is
+    // still active. The manager keeps the original source page, so a debounce
+    // can never run against the page selected a few milliseconds later.
+    if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushPending === 'function') {
+      window.OluntirSharedContentManager.flushPending();
+    }
+
+    // A page switch must only select the existing GrapesJS page/frame. Rebuilding
+    // the target component tree here via component.components(...) detaches the
+    // visible Canvas frame from the selected page in GrapesJS 0.23.2. Shared
+    // regions are propagated when they actually change; the switch itself stays
+    // read-only for the target page.
     editor.Pages.select(page);
-    applySharedRegionsToPage(page);
     refreshPageList();
     refreshSelectedPageVisuals();
     return true;
@@ -628,14 +671,17 @@ assetHydration.then(() => {
     const name = prompt(oluntirT('page.newPrompt'));
     if (!name) return;
 
-    synchronizeSharedRegionsFromPage(editor.Pages.getSelected());
+    if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushPending === 'function') {
+      window.OluntirSharedContentManager.flushPending();
+    } else {
+      synchronizeSharedRegionsFromPage(editor.Pages.getSelected());
+    }
     const component = reusablePageTemplate();
     const pageConfig = component ? { name, component } : { name };
+    // reusablePageTemplate() already contains the current shared regions and an
+    // explicit empty <main>. Do not rebuild the freshly created page before its
+    // first Canvas selection, otherwise GrapesJS can retain the previous frame.
     const page = editor.Pages.add(pageConfig, { select: true });
-    if (page) {
-      editor.Pages.select(page);
-      applySharedRegionsToPage(page);
-    }
     refreshPageList();
     refreshSelectedPageVisuals();
     toast(oluntirT('page.created', { name }));
@@ -672,12 +718,15 @@ assetHydration.then(() => {
 
     // Änderungen an Header, Navigation und Footer gehören zum gemeinsamen Oluntir-Zustand
     // und müssen auch dann erhalten bleiben, wenn die aktuell bearbeitete Seite gelöscht wird.
-    synchronizeSharedRegionsFromPage(page);
+    if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushPending === 'function') {
+      window.OluntirSharedContentManager.flushPending();
+    } else {
+      synchronizeSharedRegionsFromPage(page);
+    }
     editor.Pages.remove(page);
 
     if (fallbackPage && editor.Pages.getAll().includes(fallbackPage)) {
       editor.Pages.select(fallbackPage);
-      applySharedRegionsToPage(fallbackPage);
     }
 
     refreshPageList();

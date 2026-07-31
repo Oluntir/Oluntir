@@ -10,6 +10,7 @@
   let editor = null;
   let applying = false;
   let flushTimer = 0;
+  let pendingFlushPage = null;
   let lastRegionsJson = '';
 
   function enabled() {
@@ -95,6 +96,18 @@
     }
 
     replace('footer');
+
+    // Reusable pages always need an explicit content region between the shared
+    // navigation/header and footer. Older or incompletely initialized pages can
+    // contain only the shared regions; without <main> the existing editor-only
+    // main:empty placeholder has no target and therefore disappears entirely.
+    if (!template.content.querySelector('main')) {
+      const main = document.createElement('main');
+      const footer = template.content.querySelector('footer');
+      if (footer) template.content.insertBefore(main, footer);
+      else template.content.appendChild(main);
+    }
+
     return template.innerHTML;
   }
 
@@ -159,16 +172,30 @@
     return typeof window.OluntirIsRichTextEditing === 'function' && window.OluntirIsRichTextEditing();
   }
 
+  function flushPending(options) {
+    const page = pendingFlushPage;
+    if (flushTimer) {
+      window.clearTimeout(flushTimer);
+      flushTimer = 0;
+    }
+    pendingFlushPage = null;
+    if (!page || isRichTextEditing()) return false;
+    return flushPage(page, options);
+  }
+
   function scheduleFlush() {
-    // Das Anwenden gemeinsamer Regionen ersetzt Komponenten auf allen Seiten.
-    // Während contenteditable aktiv ist würde dadurch die Einfügemarke springen.
-    // rte:disable übernimmt anschließend genau einen vollständigen Flush.
+    // Bind the delayed transaction to the page on which the component event
+    // actually occurred. A page switch during the debounce window must never
+    // make the timer read shared regions from the newly selected page.
     if (applying || !enabled() || isRichTextEditing()) return;
+    pendingFlushPage = editor && editor.Pages ? editor.Pages.getSelected() : null;
     window.clearTimeout(flushTimer);
     flushTimer = window.setTimeout(() => {
       flushTimer = 0;
-      if (isRichTextEditing()) return;
-      flushSelected();
+      const page = pendingFlushPage;
+      pendingFlushPage = null;
+      if (!page || isRichTextEditing()) return;
+      flushPage(page);
     }, 60);
   }
 
@@ -204,6 +231,7 @@
     isEnabled: enabled,
     flushPage,
     flushSelected,
+    flushPending,
     applyToPage,
     applyToAll,
     getRegionsFromPage: (page) => Object.assign({}, parseRegions(pageHtml(page))),
