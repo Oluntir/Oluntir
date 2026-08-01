@@ -12,6 +12,8 @@
   let flushTimer = 0;
   let pendingFlushPage = null;
   let lastRegionsJson = '';
+  const pageRegionCache = new WeakMap();
+  const pageAppliedFingerprints = new WeakMap();
 
   function enabled() {
     const includes = window.OluntirIncludes;
@@ -117,23 +119,88 @@
     return state && state.regions ? state.regions : null;
   }
 
+  function parseRegionElement(html, selector) {
+    const template = document.createElement('template');
+    template.innerHTML = String(html || '').trim();
+    return template.content.querySelector(selector);
+  }
+
+  function componentAttributes(component) {
+    if (!component || typeof component.getAttributes !== 'function') return {};
+    return Object.assign({}, component.getAttributes() || {});
+  }
+
+  function elementAttributes(element) {
+    const result = {};
+    if (!element || !element.attributes) return result;
+    Array.from(element.attributes).forEach((attribute) => {
+      result[attribute.name] = attribute.value;
+    });
+    return result;
+  }
+
+  function sameAttributes(left, right) {
+    return JSON.stringify(left || {}) === JSON.stringify(right || {});
+  }
+
+  function updateRegionComponent(component, tagName, html) {
+    const value = String(html || '').trim();
+    if (!value) return false;
+    const selector = String(tagName || '').toLowerCase();
+    const element = parseRegionElement(value, selector);
+    if (!element || !component || componentTagName(component) !== selector || typeof component.components !== 'function') return false;
+
+    const nextInnerHtml = String(element.innerHTML || '');
+    const currentInnerHtml = typeof component.getInnerHTML === 'function'
+      ? String(component.getInnerHTML() || '')
+      : '';
+    const nextAttributes = elementAttributes(element);
+    const currentAttributes = componentAttributes(component);
+    let changed = false;
+
+    if (currentInnerHtml !== nextInnerHtml) {
+      component.components(nextInnerHtml);
+      changed = true;
+    }
+    if (!sameAttributes(currentAttributes, nextAttributes) && typeof component.set === 'function') {
+      component.set('attributes', nextAttributes);
+      changed = true;
+    }
+    return changed;
+  }
+
   function applyToPage(page) {
     if (!enabled() || !page) return false;
     const regions = currentRegions();
     if (!regions) return false;
-    const before = pageHtml(page);
-    const after = replaceRegions(before, regions);
-    if (before === after) return false;
+    const root = page.getMainComponent && page.getMainComponent();
+    if (!root) return false;
 
-    const component = page.getMainComponent && page.getMainComponent();
-    if (!component || typeof component.components !== 'function') return false;
+    // Update only the three shared subtrees. Replacing the complete page root
+    // detaches the GrapesJS frame and is especially expensive for the index page.
+    const fingerprint = regionFingerprint(regions);
+    if (pageAppliedFingerprints.get(page) === fingerprint) return false;
+    const components = pageRegionComponents(page, root);
+
     applying = true;
     try {
-      component.components(after);
+      let changed = false;
+      const headerHtml = String(regions.header || '').trim();
+      const headerElement = parseRegionElement(headerHtml, 'header');
+      const headerOwnsNavigation = Boolean(headerElement && headerElement.querySelector('nav'));
+
+      if (headerHtml) changed = updateRegionComponent(components.header, 'header', headerHtml) || changed;
+      if (!headerOwnsNavigation && String(regions.navigation || '').trim()) {
+        changed = updateRegionComponent(components.navigation, 'nav', regions.navigation) || changed;
+      }
+      if (String(regions.footer || '').trim()) {
+        changed = updateRegionComponent(components.footer, 'footer', regions.footer) || changed;
+      }
+      pageAppliedFingerprints.set(page, fingerprint);
+      return changed;
     } finally {
       applying = false;
     }
-    return true;
   }
 
   function applyToAll(excludedPage) {
@@ -159,7 +226,7 @@
     const after = regionFingerprint(currentRegions());
     lastRegionsJson = after;
     const changed = before !== after;
-    if (changed && !(options && options.propagate === false)) applyToAll(page);
+    if (changed && options && options.propagate === true) applyToAll(page);
     return changed;
   }
 
@@ -199,6 +266,119 @@
     }, 60);
   }
 
+  function componentTagName(component) {
+    if (!component || typeof component.get !== 'function') return '';
+    return String(component.get('tagName') || '').toLowerCase();
+  }
+
+  function childComponents(component) {
+    if (!component || typeof component.components !== 'function') return [];
+    const collection = component.components();
+    if (!collection) return [];
+    if (Array.isArray(collection)) return collection;
+    if (Array.isArray(collection.models)) return collection.models;
+    return typeof collection.forEach === 'function' ? (() => {
+      const result = [];
+      collection.forEach((item) => result.push(item));
+      return result;
+    })() : [];
+  }
+
+  function findComponentByTag(component, tagName) {
+    if (!component) return null;
+    if (componentTagName(component) === tagName) return component;
+    const children = childComponents(component);
+    for (let index = 0; index < children.length; index += 1) {
+      const match = findComponentByTag(children[index], tagName);
+      if (match) return match;
+    }
+    return null;
+  }
+
+  function pageRegionComponents(page, root) {
+    const cached = pageRegionCache.get(page);
+    if (cached && cached.root === root) return cached;
+    const resolved = {
+      root,
+      header: findComponentByTag(root, 'header'),
+      navigation: findComponentByTag(root, 'nav'),
+      footer: findComponentByTag(root, 'footer')
+    };
+    pageRegionCache.set(page, resolved);
+    return resolved;
+  }
+
+  function commitSelectedCanvasToShared(page, options) {
+    if (!enabled() || !editor || !page || !editor.Pages || editor.Pages.getSelected() !== page) return false;
+
+    let canvasDocument = null;
+    try { canvasDocument = editor.Canvas && editor.Canvas.getDocument ? editor.Canvas.getDocument() : null; } catch (_) { /* no canvas */ }
+    if (!canvasDocument) return flushPage(page);
+
+    const root = page.getMainComponent && page.getMainComponent();
+    if (!root) return false;
+
+    const canvasHeader = canvasDocument.querySelector('header');
+    const headerOwnsNavigation = Boolean(canvasHeader && canvasHeader.querySelector('nav'));
+    const targets = [
+      { name: 'header', tagName: 'header', element: canvasHeader },
+      { name: 'navigation', tagName: 'nav', element: headerOwnsNavigation ? null : canvasDocument.querySelector('nav') },
+      { name: 'footer', tagName: 'footer', element: canvasDocument.querySelector('footer') }
+    ];
+
+    let committed = false;
+    applying = true;
+    try {
+      targets.forEach((target) => {
+        if (!target.element) return;
+        const regionComponents = pageRegionComponents(page, root);
+        const component = target.tagName === 'header' ? regionComponents.header
+          : target.tagName === 'nav' ? regionComponents.navigation
+            : regionComponents.footer;
+        if (!component || typeof component.components !== 'function') return;
+        const canvasInnerHtml = String(target.element.innerHTML || '');
+        const modelInnerHtml = typeof component.getInnerHTML === 'function'
+          ? String(component.getInnerHTML() || '')
+          : '';
+        if (canvasInnerHtml !== modelInnerHtml) {
+          component.components(canvasInnerHtml);
+          committed = true;
+        }
+      });
+    } finally {
+      applying = false;
+    }
+
+    if (flushTimer) {
+      window.clearTimeout(flushTimer);
+      flushTimer = 0;
+    }
+    pendingFlushPage = null;
+
+    const regions = parseRegions(pageHtml(page));
+    const hasAnyRegion = Object.keys(REGION_SELECTORS).some((name) => String(regions[name] || '').trim());
+    if (!hasAnyRegion || !window.OluntirIncludes || typeof window.OluntirIncludes.updateLayoutRegions !== 'function') {
+      return committed;
+    }
+
+    const before = regionFingerprint(currentRegions());
+    window.OluntirIncludes.updateLayoutRegions(regions);
+    const after = regionFingerprint(currentRegions());
+    lastRegionsJson = after;
+    const changed = before !== after;
+    if (changed || committed) pageAppliedFingerprints.set(page, after);
+
+    // Synchronize only the page that is about to become visible. Updating every
+    // project page during a page switch rebuilds large component trees and can
+    // block GrapesJS long enough to lose or delay the selection, especially for
+    // the index page. Other pages receive the current central regions when they
+    // are selected; export already consumes the same central shared-content state.
+    const targetPage = options && options.targetPage;
+    const targetUpdated = Boolean(targetPage && targetPage !== page && applyToPage(targetPage));
+
+    return changed || committed || targetUpdated;
+  }
+
   function bind(nextEditor) {
     if (!nextEditor || editor === nextEditor) return;
     editor = nextEditor;
@@ -219,7 +399,6 @@
         if (stateFingerprint === regionFingerprint({ header: '', navigation: '', footer: '' }) && pageFingerprint !== stateFingerprint) {
           flushPage(selected);
         } else {
-          applyToAll(selected);
           applyToPage(selected);
         }
       }
@@ -232,6 +411,7 @@
     flushPage,
     flushSelected,
     flushPending,
+    commitSelectedCanvasToShared,
     applyToPage,
     applyToAll,
     getRegionsFromPage: (page) => Object.assign({}, parseRegions(pageHtml(page))),

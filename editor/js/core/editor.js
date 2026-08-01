@@ -612,7 +612,9 @@ assetHydration.then(() => {
     // Complete a delayed shared-content transaction while its source page is
     // still active. The manager keeps the original source page, so a debounce
     // can never run against the page selected a few milliseconds later.
-    if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushPending === 'function') {
+    if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.commitSelectedCanvasToShared === 'function') {
+      window.OluntirSharedContentManager.commitSelectedCanvasToShared(previousPage, { targetPage: page });
+    } else if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushPending === 'function') {
       window.OluntirSharedContentManager.flushPending();
     }
 

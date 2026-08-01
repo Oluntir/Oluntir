@@ -14,6 +14,7 @@ node tests/test-semantic-dictionary.js
 node tests/test-identity-resolver.js
 node tests/test-context-resolver.js
 node tests/test-structure-resolver.js
+node tests/test-relationship-resolver.js
 node tests/test-bs4-gallery-controls.js
 node tests/test-gallery-overlay-modern.js
 node tests/test-gallery-overlay-icons.js
@@ -23,6 +24,9 @@ node tests/test-semantic-validator.js
 node tests/test-new-page-placeholder.js
 node tests/test-page-switch-frame-integrity.js
 node tests/test-shared-content-page-transaction.js
+node tests/test-shared-content-canvas-commit.js
+node tests/test-shared-content-targeted-regions.js
+node tests/test-shared-content-lazy-scaling.js
 python3 tools/validate-structure.py
 node tests/test-gallery-icons-idle-visible.js
 node tests/test-gallery-icon-assets.js
