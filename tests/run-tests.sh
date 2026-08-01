@@ -6,6 +6,7 @@ node --check editor/js/core/context-resolver.js
 node --check editor/js/core/layout-identities.js
 node --check editor/js/core/structure-resolver.js
 node --check editor/js/core/semantic-validator.js
+node --check editor/js/core/project-dependency-graph.js
 node --check editor/js/core/repeat-engine-v2.js
 node --check editor/js/core/editor.js
 node --check editor/js/core/export.js
@@ -15,6 +16,7 @@ node tests/test-identity-resolver.js
 node tests/test-context-resolver.js
 node tests/test-structure-resolver.js
 node tests/test-relationship-resolver.js
+node tests/test-project-dependency-graph.js
 node tests/test-bs4-gallery-controls.js
 node tests/test-gallery-overlay-modern.js
 node tests/test-gallery-overlay-icons.js
