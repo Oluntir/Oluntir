@@ -184,5 +184,6 @@
     }
     return paths.length;
   }
-  window.OluntirAssetService = { metadata, primary, imageSize, previewUrl, upload, removeGroup, pathOf, connectAndSyncProjectFolder, restoreConnectedProjectFolder };
+  function getConnectedProjectRoot() { return connectedProjectRoot; }
+  window.OluntirAssetService = { metadata, primary, imageSize, previewUrl, upload, removeGroup, pathOf, connectAndSyncProjectFolder, restoreConnectedProjectFolder, getConnectedProjectRoot };
 })();

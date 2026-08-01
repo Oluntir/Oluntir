@@ -784,6 +784,9 @@ function requestExportFormat() {
 }
 
 async function exportSitePackage(editor, mode) {
+  const runtimeActions = window.OluntirRuntimeActions;
+  const exportStartedAt = typeof performance !== 'undefined' ? performance.now() : Date.now();
+  if (runtimeActions) runtimeActions.emit('export.started', { mode: mode || 'folder' });
   let selectedBefore = null;
   let rootHandle = null;
   let zipFileHandle = null;
@@ -953,6 +956,7 @@ async function exportSitePackage(editor, mode) {
       saveAs(tarBlob, `${projectName}.tar`);
       updateProgress(100, `TAR-Archiv ${projectName}.tar wurde erstellt.`);
       toast(`Export abgeschlossen: ${projectName}.tar`);
+      if (runtimeActions) runtimeActions.emit('export.completed', { mode: 'tar', projectName, pages: pageFiles.length, durationMs: (typeof performance !== 'undefined' ? performance.now() : Date.now()) - exportStartedAt });
       return;
     }
 
@@ -993,6 +997,7 @@ async function exportSitePackage(editor, mode) {
       }
       updateProgress(100, `ZIP ${projectName}.zip wurde erstellt.`);
       toast(`Export abgeschlossen: ${projectName}.zip`);
+      if (runtimeActions) runtimeActions.emit('export.completed', { mode: 'zip', projectName, pages: pageFiles.length, durationMs: (typeof performance !== 'undefined' ? performance.now() : Date.now()) - exportStartedAt });
       return;
     }
 
@@ -1051,7 +1056,9 @@ async function exportSitePackage(editor, mode) {
 
     updateProgress(100, `Ordner ${projectName} wurde vollständig geschrieben.`);
     toast(`Export abgeschlossen: ${projectName}`);
+    if (runtimeActions) runtimeActions.emit('export.completed', { mode: 'folder', projectName, pages: pageFiles.length, durationMs: (typeof performance !== 'undefined' ? performance.now() : Date.now()) - exportStartedAt });
   } catch (error) {
+    if (runtimeActions) runtimeActions.emit('export.failed', { mode: exportMode, message: error && error.message ? error.message : String(error), durationMs: (typeof performance !== 'undefined' ? performance.now() : Date.now()) - exportStartedAt });
     console.error('Export fehlgeschlagen:', error);
     alert(`Export fehlgeschlagen:\n\n${error && error.message ? error.message : error}`);
   } finally {

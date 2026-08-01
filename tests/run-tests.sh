@@ -7,6 +7,8 @@ node --check editor/js/core/layout-identities.js
 node --check editor/js/core/structure-resolver.js
 node --check editor/js/core/semantic-validator.js
 node --check editor/js/core/project-dependency-graph.js
+node --check editor/js/core/oluntir-logger.js
+node --check editor/js/core/semantic-action-engine.js
 node --check editor/js/core/repeat-engine-v2.js
 node --check editor/js/core/editor.js
 node --check editor/js/core/export.js
@@ -17,6 +19,13 @@ node tests/test-context-resolver.js
 node tests/test-structure-resolver.js
 node tests/test-relationship-resolver.js
 node tests/test-project-dependency-graph.js
+node tests/test-oluntir-logger.js
+node tests/test-oluntir-logger-files.js
+node tests/test-oluntir-logging-consent.js
+node tests/test-foundation-consent-contract.js
+node tests/test-foundation-consent-version.js
+node tests/test-runtime-actions.js
+node tests/test-semantic-action-engine.js
 node tests/test-bs4-gallery-controls.js
 node tests/test-gallery-overlay-modern.js
 node tests/test-gallery-overlay-icons.js

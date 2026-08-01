@@ -112,6 +112,7 @@
     </div>
 
     <div class="toolbar-group toolbar-right">
+      <button id="oluntir-logging-open" type="button" title="Logging verwalten">Logs</button>
       <span id="export-controls" class="toolbar-export-controls">
         <button id="btn-export-folder" class="btn-primary" hidden data-i18n-title="toolbar.exportFolderTitle" title="Website in einen frei benennbaren lokalen Ordner exportieren" data-i18n="toolbar.exportFolder">Export in Ordner</button>
         <button id="btn-export-zip" class="btn-primary" hidden data-i18n-title="toolbar.exportZipTitle" title="Website als frei benennbares ZIP-Archiv exportieren">ZIP</button>
@@ -284,6 +285,72 @@
     </div>
   </div>
 
+
+  <div id="oluntir-logging-modal" class="pb-modal-overlay" hidden aria-hidden="true">
+    <div class="pb-modal oluntir-logging-modal" role="dialog" aria-modal="true" aria-labelledby="oluntir-logging-title">
+      <div class="pb-ui-modal-head">
+        <div>
+          <h2 id="oluntir-logging-title">Oluntir – Zustimmung und lokale Diagnoseprotokolle</h2>
+          <p>Bitte lesen und bestätigen Sie die grundlegenden Nutzungs-, Datenschutz- und Sicherheitsbedingungen. Technisches Logging bleibt freiwillig.</p>
+        </div>
+        <button id="oluntir-logging-close" class="pb-ui-close" type="button" aria-label="Schließen">×</button>
+      </div>
+      <div class="oluntir-logging-content">
+        <section class="oluntir-consent-documents">
+          <h3>Verbindliche Grundbestätigungen</h3>
+          <label class="oluntir-consent-check"><input id="oluntir-consent-license" type="checkbox"> <span>Ich habe die <a href="LICENSING_de.md" target="_blank" rel="noopener">Lizenzbestimmungen</a> gelesen und akzeptiere sie.</span></label>
+          <label class="oluntir-consent-check"><input id="oluntir-consent-privacy" type="checkbox"> <span>Ich habe die <a href="PRIVACY_de.md" target="_blank" rel="noopener">Datenschutzrichtlinie</a> gelesen und akzeptiere die ausschließlich lokale Verarbeitung.</span></label>
+          <label class="oluntir-consent-check"><input id="oluntir-consent-security" type="checkbox"> <span>Ich habe die <a href="SECURITY_de.md" target="_blank" rel="noopener">Sicherheitsrichtlinien</a> gelesen und werde sensible Daten nicht bewusst in Diagnosevorgänge einbringen.</span></label>
+        </section>
+        <section class="oluntir-redaction-box">
+          <h3>Automatische Maskierung sensibler Daten</h3>
+          <p>Bei aktiviertem Logging maskiert Oluntir unter anderem:</p>
+          <ul>
+            <li>Passwörter</li><li>Tokens</li><li>Secrets</li><li>API-Schlüssel</li>
+            <li>Authorization-Daten</li><li>Cookies</li><li>Credentials</li><li>private Schlüssel</li>
+            <li>Benutzeranteile von Windows-Pfaden</li><li>Token- und Passwortparameter in URLs</li>
+          </ul>
+          <p><strong>Keine Garantie:</strong> Automatische Maskierung reduziert Risiken, ersetzt aber nicht die Datenminimierung. Seiteninhalte werden nicht absichtlich protokolliert.</p>
+        </section>
+        <section>
+          <h3>Freiwilliges lokales Logging</h3>
+          <ul>
+            <li>Standardmäßig deaktiviert; Aktivierung nur durch ausdrückliche Ordnerfreigabe.</li>
+            <li>Least Privilege: Zugriff ausschließlich auf den gewählten <code>logs</code>-Ordner.</li>
+            <li>Keine automatische Übertragung, kein Cloud-Upload.</li>
+            <li>Jederzeit widerrufbar; Dateien bleiben unter Kontrolle des Benutzers.</li>
+          </ul>
+        </section>
+        <label>Log-Level
+          <select id="oluntir-logging-level">
+            <option value="error">Nur Fehler</option><option value="warn">Warnungen und Fehler</option>
+            <option value="info" selected>Informationen, Warnungen und Fehler</option><option value="debug">Debug</option><option value="trace">Trace</option>
+          </select>
+        </label>
+        <section class="oluntir-logging-path-box">
+          <strong>Welcher Ordner muss ausgewählt werden?</strong>
+          <p>Öffnen Sie im Ordnerdialog den entpackten <strong>Oluntir-Programmordner</strong> und wählen Sie ausschließlich dessen bereits vorhandenen Unterordner <code>logs</code> aus.</p>
+          <p><strong>Nicht auswählen:</strong> den gesamten Oluntir-Programmordner, einen Projektordner oder einen übergeordneten Ordner.</p>
+          <strong>Speicherort der Berechtigungs- und Logdateien</strong>
+          <code id="oluntir-logging-path">Noch kein logs-Ordner freigegeben.</code>
+          <p>Nur im gewählten Ordner wird <code>.oluntir-logging.json</code> angelegt. Darin stehen Freigabeumfang, Zustimmungsversion, Log-Level, Maskierungsklassen und Rotationsgrenzen.</p>
+        </section>
+        <section id="oluntir-logging-success" class="oluntir-logging-success" hidden>
+          <h3>Einrichtung abgeschlossen</h3>
+          <p>Die Grundzustimmung und die Schreibfreigabe für den ausgewählten <code>logs</code>-Ordner wurden erfolgreich gespeichert.</p>
+          <p>Starten Sie Oluntir jetzt über die Schaltfläche unten. Eine erneute Ordnerauswahl ist nur erforderlich, wenn Sie bewusst einen anderen <code>logs</code>-Ordner verwenden möchten.</p>
+        </section>
+        <p id="oluntir-logging-status" class="oluntir-logging-status" aria-live="polite"></p>
+      </div>
+      <div class="pb-modal-actions oluntir-consent-actions">
+        <button id="oluntir-logging-revoke" type="button">Log-Freigabe widerrufen</button>
+        <button id="oluntir-consent-accept" type="button">Zustimmen und ohne Logging starten</button>
+        <button id="oluntir-logging-choose" class="btn-primary" type="button">Zustimmen, Programmordner öffnen und Unterordner logs wählen</button>
+        <button id="oluntir-logging-start" class="btn-primary" type="button" hidden>Oluntir starten</button>
+      </div>
+    </div>
+  </div>
+
   <div id="gjs"></div>
 
   <div id="toast"></div>
@@ -339,6 +406,10 @@
   <script src="editor/js/core/structure-resolver.js"></script>
   <script src="editor/js/core/relationship-resolver.js"></script>
   <script src="editor/js/core/project-dependency-graph.js"></script>
+  <script src="editor/js/core/oluntir-logger.js"></script>
+  <script src="editor/js/core/semantic-action-engine.js"></script>
+  <script src="editor/js/core/oluntir-runtime-actions.js"></script>
+  <script src="editor/js/core/oluntir-logging-consent.js"></script>
   <script src="editor/js/core/semantic-validator.js"></script>
   <script src="editor/js/core/repeat-engine-v2.js"></script>
   <script src="editor/js/core/startup.js"></script>

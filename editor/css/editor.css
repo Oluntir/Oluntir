@@ -1648,3 +1648,27 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
 
 .oluntir-favicon-actions { flex-wrap: wrap; }
 @media (max-width: 620px) { .oluntir-favicon-content { grid-template-columns: 1fr; } .oluntir-favicon-preview-box { margin: 0 auto; } }
+
+/* DEV_033 FIX1: transparent, least-privilege logging consent */
+.oluntir-logging-modal { max-width: 760px; }
+.oluntir-logging-content { display: grid; gap: 1rem; }
+.oluntir-logging-content h3 { margin: 0 0 .5rem; }
+.oluntir-logging-content ul { margin: 0; padding-left: 1.25rem; }
+.oluntir-logging-content label { display: grid; gap: .35rem; font-weight: 600; }
+.oluntir-logging-content select { max-width: 320px; }
+.oluntir-logging-path-box { display: grid; gap: .45rem; padding: .85rem; border: 1px solid rgba(127,127,127,.35); border-radius: .4rem; }
+.oluntir-logging-path-box code { display: block; overflow-wrap: anywhere; }
+.oluntir-logging-status[data-kind="success"] { color: #167c35; }
+.oluntir-logging-status[data-kind="error"] { color: #b42318; }
+
+/* DEV_033 FIX2: foundational consent and explicit redaction disclosure */
+.oluntir-consent-documents, .oluntir-redaction-box { padding: .9rem; border: 1px solid rgba(127,127,127,.35); border-radius: .4rem; }
+.oluntir-consent-check { display: grid !important; grid-template-columns: auto 1fr; align-items: start; gap: .65rem !important; font-weight: 500 !important; margin: .55rem 0; }
+.oluntir-consent-check input { margin-top: .2rem; }
+.oluntir-redaction-box ul { columns: 2; column-gap: 2rem; }
+.oluntir-consent-actions { flex-wrap: wrap; }
+.oluntir-consent-actions button:disabled { opacity: .45; cursor: not-allowed; }
+#oluntir-logging-modal[data-required="true"] { z-index: 100000; }
+@media (max-width: 700px) { .oluntir-redaction-box ul { columns: 1; } }
+.oluntir-logging-success { padding: .9rem; border: 1px solid rgba(22,124,53,.45); border-radius: .4rem; }
+.oluntir-logging-success h3 { margin-top: 0; }

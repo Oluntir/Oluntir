@@ -89,6 +89,30 @@ assetHydration.then(() => {
     },
   });
 
+  if (window.OluntirLoggingConsent && typeof window.OluntirLoggingConsent.initialize === 'function') {
+    window.OluntirLoggingConsent.initialize().catch(error => console.warn('Logging-Freigabe konnte nicht initialisiert werden:', error));
+  }
+
+  if (window.OluntirRuntimeActions) {
+    window.OluntirRuntimeActions.ensure();
+    window.OluntirRuntimeActions.emit('editor.loaded', { framework: ACTIVE_FRAMEWORK.id });
+    editor.on('page:select', page => window.OluntirRuntimeActions.emit('page.selected', { pageId: page && page.id, pageName: page && page.getName ? page.getName() : null }));
+    editor.on('page:add', page => window.OluntirRuntimeActions.emit('page.created', { pageId: page && page.id, pageName: page && page.getName ? page.getName() : null }));
+    editor.on('page:remove', page => window.OluntirRuntimeActions.emit('page.deleted', { pageId: page && page.id, pageName: page && page.getName ? page.getName() : null }));
+    editor.on('component:add', component => {
+      const classes = component && component.getClasses ? component.getClasses() : [];
+      const isGallery = classes && classes.indexOf('pb-gallery') >= 0;
+      window.OluntirRuntimeActions.emit(isGallery ? 'gallery.updated' : 'component.added', { componentId: component && component.getId ? component.getId() : null, type: component && component.get ? component.get('type') : null });
+    });
+    editor.on('component:update', component => {
+      const tag = component && component.get ? String(component.get('tagName') || '').toLowerCase() : '';
+      const category = tag === 'nav' || tag === 'header' || tag === 'footer' ? 'shared-content.updated' : 'component.updated';
+      window.OluntirRuntimeActions.emit(category, { componentId: component && component.getId ? component.getId() : null, tagName: tag || null });
+    });
+    editor.on('component:remove', component => window.OluntirRuntimeActions.emit('component.removed', { componentId: component && component.getId ? component.getId() : null }));
+    editor.on('storage:store', () => window.OluntirRuntimeActions.emit('project.saved', { storage: 'local' }));
+  }
+
   if (typeof window.registerTextMediaEditing === 'function') {
     window.registerTextMediaEditing(editor);
   }
