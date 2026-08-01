@@ -129,3 +129,9 @@ Guide: [`docs/046_PROJECT_FAVICON.md`](docs/046_PROJECT_FAVICON.md).
 Used upload images are exported together with their desktop, tablet, and mobile variants. This applies to `assets/user_upload/` and compatible legacy paths below `images/uploads/`. If a required variant is missing, export stops with an explicit file list instead of creating an incomplete package.
 
 Details: [`docs/048_RESPONSIVE_IMAGE_EXPORT.md`](docs/048_RESPONSIVE_IMAGE_EXPORT.md).
+
+
+## DEV_029 Structure Resolver
+
+Oluntir 1.3.0 DEV_029 adds read-only structure resolution for complete pages and projects. It returns immutable parent/child, role, area and cardinality snapshots without changing the editor, export or document model. Details: [`docs/049_STRUCTURE_RESOLVER.md`](docs/049_STRUCTURE_RESOLVER.md).
+

@@ -4,6 +4,7 @@ node --check editor/js/core/semantic-dictionary.js
 node --check editor/js/core/identity-resolver.js
 node --check editor/js/core/context-resolver.js
 node --check editor/js/core/layout-identities.js
+node --check editor/js/core/structure-resolver.js
 node --check editor/js/core/semantic-validator.js
 node --check editor/js/core/repeat-engine-v2.js
 node --check editor/js/core/editor.js
@@ -12,6 +13,7 @@ node tools/test-grapesjs-adapter.js
 node tests/test-semantic-dictionary.js
 node tests/test-identity-resolver.js
 node tests/test-context-resolver.js
+node tests/test-structure-resolver.js
 node tests/test-bs4-gallery-controls.js
 node tests/test-gallery-overlay-modern.js
 node tests/test-gallery-overlay-icons.js

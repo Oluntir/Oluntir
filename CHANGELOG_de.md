@@ -1,5 +1,25 @@
 # Änderungsprotokoll
 
+## 1.3.0 DEV_029 — 01.08.2026
+
+### Hinzugefügt
+
+- Read-only Structure Resolver für vollständige semantische Seiten- und Projektstrukturen.
+- Unveränderliche Snapshots mit Parent-/Child-Beziehungen, Rollen, Strukturarten, semantischen Bereichen und Cardinality-Zusammenfassungen.
+- Öffentliche Kern-API `OluntirStructureResolver.resolvePage(page)` und `resolveProject(editor)`.
+- Automatisierter Test, der zusätzlich die unveränderte GrapesJS-Struktur nach der Auflösung prüft.
+
+### Unverändert
+
+- Keine UI, keine automatische Korrektur und keine Framework-, Editor- oder Exportlogik im Resolver.
+- Repeat Engine, Shared Content, Export und Semantic Validator verwenden in DEV_029 weiterhin ihre bestehenden Abläufe.
+- Galerie- und Icon-Implementierung bleiben unangetastet.
+
+### Verifikation
+
+- Lokale Benutzung und Export wurden erfolgreich getestet.
+
+
 > **Sprache:** Deutsch · [English](CHANGELOG.md)
 
 ## 1.2.1 — 31.07.2026

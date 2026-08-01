@@ -83,3 +83,9 @@ New pages inherit shared header, navigation, and footer regions. Their empty `<m
 ## 15. Responsive asset export
 
 Desktop, tablet, and mobile upload files form one variant group. Export collects the full group and stops with an explicit error if variants are missing. Path normalisation happens only in the temporary export copy.
+
+
+## DEV_029 Structure Resolver
+
+Oluntir 1.3.0 DEV_029 adds read-only structure resolution for complete pages and projects. It returns immutable parent/child, role, area and cardinality snapshots without changing the editor, export or document model. Details: [`docs/049_STRUCTURE_RESOLVER.md`](docs/049_STRUCTURE_RESOLVER.md).
+

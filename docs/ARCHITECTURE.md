@@ -1,5 +1,5 @@
 > **Language:** English · [Deutsch](ARCHITECTURE_de.md)  
-> **Version:** 1.2.0 · **Updated:** 2026-07-30
+> **Version:** 1.3.0 DEV_029 · **Updated:** 2026-08-01
 
 # Architecture overview
 
@@ -81,3 +81,10 @@ The upload store manages desktop, tablet, and mobile variants. Export reads page
 ## Editor-only placeholder
 
 “+ Insert section here” is generated through Canvas CSS for `main:empty`; it is neither part of the component tree nor the export contract.
+
+
+## Structure Resolver (1.3.0 DEV_029)
+
+`editor/js/core/structure-resolver.js` creates immutable, read-only structure snapshots from the GrapesJS project model. The API resolves parent/child relationships, stable identities, structure kinds, semantic areas, roles and cardinality. It contains no framework, editor, export or correction logic. Existing consumers remain unchanged in DEV_029; the API forms the shared basis for later integrations.
+
+See [Structure Resolver](049_STRUCTURE_RESOLVER.md).

@@ -10,6 +10,8 @@
 
 ## Concepts and architecture
 
+- [Structure Resolver (DEV_029)](049_STRUCTURE_RESOLVER.md)
+
 - [Architecture overview](ARCHITECTURE.md)
 - [Project principles](PROJECT-PRINCIPLES.md)
 - [GrapesJS integration](GRAPESJS-INTEGRATION.md)

@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.3.0 DEV_029 — 2026-08-01
+
+### Added
+
+- Read-only Structure Resolver for complete semantic page and project structures.
+- Immutable snapshots containing parent/child relationships, roles, structure kinds, semantic areas and cardinality summaries.
+- Public core API `OluntirStructureResolver.resolvePage(page)` and `resolveProject(editor)`.
+- Automated test that also verifies the GrapesJS structure remains unchanged after resolution.
+
+### Unchanged
+
+- No UI, automatic correction, framework, editor or export logic in the resolver.
+- Repeat Engine, Shared Content, Export and Semantic Validator retain their existing flows in DEV_029.
+- Gallery and icon implementation remain untouched.
+
+### Verification
+
+- Local application use and export were successfully tested.
+
+
 > **Language:** English · [Deutsch](CHANGELOG_de.md)
 
 ## 1.2.1 — 2026-07-31

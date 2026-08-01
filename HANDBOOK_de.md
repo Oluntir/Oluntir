@@ -64,6 +64,11 @@ Oluntir ist als lokale Open-Source-Projektumgebung für Websites konzipiert und 
 Die Dokumentation steht auf Deutsch und Englisch zur Verfügung. Einstiegspunkte sind die [Dokumentationsübersicht](docs/index_de.md), [Warum Oluntir?](docs/WHY_OLUNTIR_de.md) und die [Architekturübersicht](docs/ARCHITECTURE_de.md).
 
 
+
+## DEV_029 Structure Resolver
+
+Oluntir 1.3.0 DEV_029 ergänzt eine rein lesende Strukturauflösung für vollständige Seiten und Projekte. Sie liefert unveränderliche Parent-/Child-, Rollen-, Bereichs- und Cardinality-Snapshots, ohne Editor, Export oder Dokumentmodell zu verändern. Details: [`docs/049_STRUCTURE_RESOLVER_de.md`](docs/049_STRUCTURE_RESOLVER_de.md).
+
 ## Architekturgrundlage Version 1.2.1
 
 Stabile Layout-Identitäten und Repeat Engine V2 sind in `docs/040_LAYOUT_GRAPH_de.md` bis `docs/045_PROJECT_MIGRATION_1.2.1_de.md` dokumentiert.

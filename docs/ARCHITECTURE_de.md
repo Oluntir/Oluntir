@@ -1,5 +1,5 @@
 > **Sprache:** Deutsch · [English](ARCHITECTURE.md)  
-> **Version:** 1.2.0 · **Aktualisiert:** 30.07.2026
+> **Version:** 1.3.0 DEV_029 · **Aktualisiert:** 01.08.2026
 
 # Architekturübersicht
 
@@ -81,3 +81,10 @@ Der Uploadspeicher verwaltet Desktop-, Tablet- und Mobile-Varianten. Die Exportp
 ## Editor-only Placeholder
 
 Der Hinweis „+ Hier Section einfügen“ wird durch Canvas-CSS für `main:empty` erzeugt. Er gehört weder zum Komponentenbaum noch zum Exportvertrag.
+
+
+## Structure Resolver (1.3.0 DEV_029)
+
+`editor/js/core/structure-resolver.js` erzeugt unveränderliche, rein lesende Struktur-Snapshots aus dem GrapesJS-Projektmodell. Die API löst Parent-/Child-Beziehungen, stabile Identitäten, Strukturarten, semantische Bereiche, Rollen und Cardinality auf. Sie enthält keine Framework-, Editor-, Export- oder Korrekturlogik. In DEV_029 bleiben die bestehenden Verbraucher unverändert; die API bildet die gemeinsame Grundlage für spätere Integrationen.
+
+Weiterführend: [Structure Resolver](049_STRUCTURE_RESOLVER_de.md).
