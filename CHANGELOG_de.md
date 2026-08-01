@@ -1,83 +1,33 @@
-# Änderungsprotokoll
+# Changelog
 
-## 1.3.0 DEV_029 — 01.08.2026
+## 1.3.0 — 01.08.2026
 
-### Hinzugefügt
+### Architektur
+- Semantic Dictionary sowie Identity-, Context-, Structure- und Relationship Resolver ergänzt.
+- Project Dependency Graph als explizit aufgebautes, read-only Abhängigkeitsmodell ergänzt.
+- Semantic Action Engine mit Lifecycle, Actions, Handlern, Phasen, Queue, Batches, Deduplizierung, Transaktionen, Fehlern und Metriken ergänzt.
+- Semantic Validator und technische Repeat-Engine-V2-Grundlage beibehalten.
 
-- Read-only Structure Resolver für vollständige semantische Seiten- und Projektstrukturen.
-- Unveränderliche Snapshots mit Parent-/Child-Beziehungen, Rollen, Strukturarten, semantischen Bereichen und Cardinality-Zusammenfassungen.
-- Öffentliche Kern-API `OluntirStructureResolver.resolvePage(page)` und `resolveProject(editor)`.
-- Automatisierter Test, der zusätzlich die unveränderte GrapesJS-Struktur nach der Auflösung prüft.
+### Shared Content und Performance
+- Shared Content für Header, Navigation und Footer auf gezielte Regionsupdates umgestellt.
+- Fingerprints und Lazy Sync eingeführt.
+- Vollseiten- und Vollprojekt-Neuaufbauten beim normalen Seitenwechsel vermieden.
 
-### Unverändert
+### Logging und Diagnose
+- Optionales lokales Logging mit Ringpuffer, JSONL-Dateien, Rotation und Maskierung ergänzt.
+- Runtime Actions für Editor-, Seiten-, Shared-Content-, Galerie- und Exportereignisse ergänzt.
+- Installationsbezogene, versionierte Zustimmung für Lizenz, Datenschutz und Sicherheitsrichtlinien ergänzt.
+- Developer Diagnostics Center mit manueller Graphanalyse und Snapshot-Export ergänzt.
 
-- Keine UI, keine automatische Korrektur und keine Framework-, Editor- oder Exportlogik im Resolver.
-- Repeat Engine, Shared Content, Export und Semantic Validator verwenden in DEV_029 weiterhin ihre bestehenden Abläufe.
-- Galerie- und Icon-Implementierung bleiben unangetastet.
+### Editor und Export
+- Framework- und Iconquellen für Bootstrap 4 und 5 konsolidiert.
+- Projekt-Favicon, Editor-Platzhalter und responsive Bildvarianten stabilisiert.
+- HTML-, SSI- und PHP-Export einschließlich Shared Content lokal getestet.
 
-### Verifikation
+### Dokumentation
+- Hauptdokumentation auf 1.3.0 konsolidiert.
+- Architektur- und AI-Wissensbasis ergänzt.
+- Release-Audit ergänzt.
 
-- Lokale Benutzung und Export wurden erfolgreich getestet.
-
-
-> **Sprache:** Deutsch · [English](CHANGELOG.md)
-
-## 1.2.1 — 31.07.2026
-
-### Hinzugefügt
-
-- Stabile, additive interne Identitäten für Page, Section, Row, Slot, Component und Repeat.
-- Schema-Versionen für Projekt, Layout-Identitäten und Repeat Engine V2.
-- Idempotente Migration vorhandener 1.2.0-Projekte beim Laden.
-- Technische Repeat-Engine-V2-Grundlage mit modellbasierter Zielauflösung.
-- Projekt-Favicon-Dialog in der zweiten Werkzeugleiste.
-- Automatische Erzeugung von ICO-, PNG-, Apple- und Android-Faviconvarianten sowie `site.webmanifest`.
-- Zustandsprüfung im Favicon-Dialog mit Vorschau, Quelldatei, Dateityp und Änderungszeitpunkt.
-- Editorhinweis **„+ Hier Section einfügen“** für leere neue Seiten.
-- Automatisierte Tests für Identitäten, Read-only-Export, responsive Uploads, Favicon, RTE-Cursor und GrapesJS-Adapter.
-
-### Geändert
-
-- HTML-, SSI- und PHP-Export lesen Seiten direkt aus dem jeweiligen GrapesJS-`MainComponent`.
-- Der Export ist nicht-destruktiv: keine sichtbaren Seitenwechsel, keine Canvas-Rückschreibung und keine automatische Projektspeicherung während des Exports.
-- Shared Header, Navigation, Footer und Include-Bereiche werden an ihrer bestehenden Modellposition verarbeitet statt pauschal neu angeordnet.
-- Neue Seiten übernehmen gemeinsame Projektbereiche, aber keinen individuellen Inhalt der Startseite.
-- Favicon-Ersetzen entfernt alle alten Varianten vor der Neuerzeugung.
-- Upload-Export nimmt Desktop-, Tablet- und Mobile-Varianten als zusammengehörige Assetgruppe auf.
-
-### Behoben
-
-- Zusätzliche Row/Spalte aus dem gerenderten Canvas im Export.
-- Fehler `headerContainsNavigation is not defined` bei HTML-, SSI- und PHP-Export.
-- Falsche SSI-/PHP-Reihenfolge und doppelte Shared-Inhalte in bestehenden Projekten.
-- Verlust neu gesetzter Card-Bilder während des Export-Layers.
-- Fehlende Tablet- und Mobile-Dateien unter `assets/user_upload/` und Legacy-Pfaden.
-- Cursor-Sprung an den Zeilenanfang während aktiver Rich-Text-Bearbeitung.
-- Künstlicher Abstand zwischen letzter Row und Footer auf neuen Seiten.
-- Nicht erreichbarer unterer Canvas-Bereich bei langen Seiten.
-- Fehlende Head-Verweise für 48×48- und Android-Favicons sowie fehlende Manifest-Verknüpfung.
-- Favicon-Dialog meldete trotz vorhandener Assets fälschlich, es sei kein eigenes Favicon gesetzt.
-
-### Migration und Kompatibilität
-
-- Vorhandene HTML-IDs, Klassen, Texte, Bilder und Links werden nicht verändert.
-- Fehlende interne IDs werden ergänzt; vorhandene interne IDs bleiben erhalten.
-- Interne `data-oluntir-*`-Attribute bleiben im `.oluntir`-Projekt und werden nur aus der finalen Exportkopie entfernt.
-- Bootstrap 4 und Bootstrap 5 bleiben unterstützt.
-- Bestehende Shared-Content- und OPE-Include-Strukturen werden nicht automatisch umgebaut.
-
-### Bekannte Grenze
-
-- Repeat Engine V2 ist in 1.2.1 als technische Grundlage und Datenmodell vorhanden. Eine vollständige sichtbare Verwaltungsoberfläche für Wiederholungen ist nicht Bestandteil dieses Releases.
-
-## 1.2.0 — 30.07.2026
-
-- Zwei-Monitor-Arbeitsbereich mit auslagerbarer GrapesJS-Werkzeugspalte.
-- Workspace-basierter Bildmanager mit responsiven Varianten.
-- Projektordner-Synchronisation für `assets/user_upload/`.
-- Galerie-Modi `none`, `modal` und `lightbox`.
-- Verbesserte Workspace-, Persistenz- und GrapesJS-Adapterarchitektur.
-
-## 1.0.0 — 29.07.2026
-
-Erste stabile öffentliche Version mit lokaler Website-Bearbeitung, Bootstrap-4-/5-Profilen, Projektpersistenz, Shared Content, OPE-Includes, HTML-/SSI-/PHP-Export, Schnellbearbeitung, Galerien und lokal gebündelten Assets.
+## Frühere Versionen
+Die Historie bis 1.2.1 bleibt im Git-Verlauf und in den vorhandenen migrationsbezogenen Dokumenten erhalten.

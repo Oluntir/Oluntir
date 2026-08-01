@@ -2,7 +2,7 @@
 
 # Sicherheitsrichtlinie
 
-**Unterstützte Version:** 1.2.0
+**Unterstützte Version:** 1.3.0
 
 ## Meldung
 

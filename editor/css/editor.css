@@ -1634,7 +1634,7 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
 .oluntir-project-folder-info__dialog>footer button.is-primary{background:#2376c9;border-color:#3e91e2}
 
 
-/* Oluntir 1.2.1: projektweites Favicon */
+/* Project-wide favicon controls. */
 .oluntir-favicon-modal { width: min(680px, calc(100vw - 32px)); }
 .oluntir-favicon-content { display: grid; grid-template-columns: 150px 1fr; gap: 22px; align-items: center; margin: 18px 0 22px; }
 .oluntir-favicon-preview-box { width: 144px; height: 144px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.2); border-radius: 10px; background: linear-gradient(45deg, rgba(255,255,255,.06) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.06) 75%), linear-gradient(45deg, rgba(255,255,255,.06) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.06) 75%); background-position: 0 0, 10px 10px; background-size: 20px 20px; }
@@ -1649,7 +1649,7 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
 .oluntir-favicon-actions { flex-wrap: wrap; }
 @media (max-width: 620px) { .oluntir-favicon-content { grid-template-columns: 1fr; } .oluntir-favicon-preview-box { margin: 0 auto; } }
 
-/* DEV_033 FIX1: transparent, least-privilege logging consent */
+/* Release 1.3.0: consolidated technical rule. */
 .oluntir-logging-modal { max-width: 760px; }
 .oluntir-logging-content { display: grid; gap: 1rem; }
 .oluntir-logging-content h3 { margin: 0 0 .5rem; }
@@ -1661,7 +1661,7 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
 .oluntir-logging-status[data-kind="success"] { color: #167c35; }
 .oluntir-logging-status[data-kind="error"] { color: #b42318; }
 
-/* DEV_033 FIX2: foundational consent and explicit redaction disclosure */
+/* Release 1.3.0: consolidated technical rule. */
 .oluntir-consent-documents, .oluntir-redaction-box { padding: .9rem; border: 1px solid rgba(127,127,127,.35); border-radius: .4rem; }
 .oluntir-consent-check { display: grid !important; grid-template-columns: auto 1fr; align-items: start; gap: .65rem !important; font-weight: 500 !important; margin: .55rem 0; }
 .oluntir-consent-check input { margin-top: .2rem; }
@@ -1672,3 +1672,18 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
 @media (max-width: 700px) { .oluntir-redaction-box ul { columns: 1; } }
 .oluntir-logging-success { padding: .9rem; border: 1px solid rgba(22,124,53,.45); border-radius: .4rem; }
 .oluntir-logging-success h3 { margin-top: 0; }
+
+/* Release 1.3.0: consolidated technical rule. */
+.oluntir-diagnostics-modal{width:min(1180px,calc(100vw - 28px));max-width:none;height:min(860px,calc(100vh - 28px));display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden}
+.oluntir-diagnostics-toolbar{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;padding:.75rem 1rem;border-bottom:1px solid rgba(127,127,127,.35)}
+.oluntir-diagnostics-toolbar label{display:flex;align-items:center;gap:.4rem}
+.oluntir-diagnostics-grid{min-height:0;overflow:auto;padding:1rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.oluntir-diagnostics-grid section{min-width:0;border:1px solid rgba(127,127,127,.35);border-radius:.45rem;padding:.8rem;background:rgba(0,0,0,.08)}
+.oluntir-diagnostics-grid h3{margin:0 0 .65rem;font-size:1rem}
+.oluntir-diagnostics-grid pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;max-height:260px;overflow:auto}
+.oluntir-diagnostics-wide{grid-column:1/-1}
+.oluntir-diagnostics-log{max-height:300px;overflow:auto;font:12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace}
+.oluntir-diagnostics-log-row{display:grid;grid-template-columns:180px 70px 120px minmax(0,1fr);gap:.55rem;padding:.3rem .4rem;border-bottom:1px solid rgba(127,127,127,.2)}
+.oluntir-diagnostics-log-row[data-level="error"],.oluntir-diagnostics-log-row[data-level="fatal"]{background:rgba(180,35,24,.12)}
+.oluntir-diagnostics-log-row[data-level="warn"]{background:rgba(180,120,20,.12)}
+@media(max-width:780px){.oluntir-diagnostics-grid{grid-template-columns:1fr}.oluntir-diagnostics-wide{grid-column:auto}.oluntir-diagnostics-log-row{grid-template-columns:1fr}}

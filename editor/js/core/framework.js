@@ -17,7 +17,7 @@
         'assets/css/local-fonts.css',
         'frameworks/bootstrap5/css/bootstrap.min.css',
         'plugins/site/css/font-awesome/all.min.css',
-        'assets/css/pagebuilder-bs5.css?v=1.3.0-dev028'
+        'assets/css/pagebuilder-bs5.css?v=1.3.0'
       ],
       canvasScripts: [
         'frameworks/bootstrap5/js/bootstrap.bundle.min.js',
@@ -40,7 +40,7 @@
         'assets/css/local-fonts.css',
         'frameworks/bootstrap4/css/bootstrap.min.css',
         'plugins/editor/font-awesome/css/font-awesome.min.css',
-        'assets/css/pagebuilder-bs4.css?v=1.3.0-dev028'
+        'assets/css/pagebuilder-bs4.css?v=1.3.0'
       ],
       canvasScripts: [
         'plugins/site/js/jquery-3.4.1.min.js',

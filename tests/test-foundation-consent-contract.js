@@ -10,6 +10,7 @@ const privacy = fs.readFileSync('PRIVACY_de.md', 'utf8');
   'Zustimmen und ohne Logging starten',
   'Zustimmen, Programmordner öffnen und Unterordner logs wählen',
   'Oluntir starten',
+  'gilt ausschließlich für diesen entpackten Oluntir-Programmordner',
   'entpackten <strong>Oluntir-Programmordner</strong>',
   'Passwörter', 'Tokens', 'Secrets', 'API-Schlüssel', 'Authorization-Daten',
   'Cookies', 'Credentials', 'private Schlüssel', 'Benutzeranteile von Windows-Pfaden',
@@ -24,6 +25,8 @@ assert.ok(js.includes('startOluntir'));
 assert.ok(js.includes('isFoundationConsentValid'));
 assert.ok(js.includes('getConsentStatus'));
 assert.ok(js.includes("reason: 'version-mismatch'"));
+assert.ok(js.includes("reason: 'installation-mismatch'"));
+assert.ok(js.includes('getInstallationIdentity'));
 assert.ok(js.includes("String(handle.name || '').toLowerCase() !== 'logs'"));
 assert.ok(privacy.includes('Automatische Maskierung'));
 console.log('FOUNDATION-CONSENT-CONTRACT-TEST ERFOLGREICH');

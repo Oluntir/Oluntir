@@ -29,3 +29,7 @@ coverage/
 
 # Local project data
 .oluntir/
+logs/*.log
+logs/*.log.*
+logs/.oluntir-logging.json
+oluntir-diagnostics-*.json

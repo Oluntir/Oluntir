@@ -1,137 +1,70 @@
-> **Language:** English (reference) · [Deutsch](README_de.md)
+> **Language:** English · [Deutsch](README_de.md)
 
-# Oluntir
+# Oluntir 1.3.0
 
-**Version:** 1.2.0  
-**Status:** Stable  
-**Release date:** 2026-07-30
+Oluntir is a local browser-based website editor built on GrapesJS 0.23.2. It manages multi-page projects, local assets, shared page regions and exports without a server-side application runtime.
 
-**Open Source website editor with project management, a two-monitor workspace, and local export.**
+**Release:** 1.3.0  
+**Date:** August 1, 2026  
+**Status:** Release
 
-Oluntir is an offline-first, browser-based editor for static websites. It creates and maintains HTML, CSS, and JavaScript projects locally without requiring a database or a server-side application runtime.
+## Supported profiles and output
 
-## GrapesJS as the editor engine
-
-Oluntir uses **GrapesJS 0.23.2** as its central visual editor engine. GrapesJS remains an unchanged, versioned Open Source vendor dependency below `vendor/grapesjs/`; Oluntir does not modify the engine itself. Oluntir-specific behavior is isolated behind the integration and compatibility layer in `editor/integrations/grapesjs/`. This keeps Oluntir's project, asset, workspace, export, and multi-monitor architecture independent from internal GrapesJS DOM structures.
-
-## Highlights of version 1.2.0
-
-- **Two-monitor workspace:** the GrapesJS canvas stays in the main window while the complete right tool column and Oluntir quick-edit areas can be moved to a separate tool window.
-- **Safe restoration:** blocked pop-ups, closed windows, unavailable screens, invalid saved positions, and single-monitor computers fall back safely without discarding the preferred monitor mode.
-- **Persistent workspace settings:** monitor mode, startup choice, window size, and position are stored in a dedicated IndexedDB settings store.
-- **Workspace-based image manager:** search, filters, grid/list views, details, responsive variants, replacement, deletion, and project-folder synchronization.
-- **Project-folder connection:** users select the project root; Oluntir explains the process first and then automatically uses or creates `assets/user_upload/`.
-- **Gallery viewers:** independent Modal and true Lightbox modes with keyboard navigation, focus management, captions, counters, original-image download, and a protected bottom safe area.
-- **Sticky and clearer controls:** persistent upper toolbar, improved dark-theme contrast, and explicit controls for moving or recalling the tool column.
+- Bootstrap 4.6.2
+- Bootstrap 5.3.8
+- HTML, Apache SSI and PHP include export
+- folder, ZIP and TAR output
 
 ## Main capabilities
 
-- Bootstrap 4.6.2 and Bootstrap 5.3.8 project profiles;
-- classic HTML projects and projects with recurring content elements and regions;
-- page management, browser persistence, project backup, restore, and portable `.oluntir` project files;
-- Shared Content Manager for header, navigation, footer, and optional shared regions;
-- editable Oluntir include model with visible `<ope-include>` references;
-- export to resolved HTML, Apache SSI, or PHP includes;
-- folder, ZIP, and TAR export targets;
-- German and English user interface and documentation;
-- quick setup, quick editing, block search, responsive editor views, galleries, and image management;
-- locally bundled framework, font, image, editor, and website assets.
+- visual editing with GrapesJS;
+- multi-page projects and shared regions;
+- stable internal layout identities;
+- shared header, navigation and footer content;
+- fingerprint-based lazy synchronization without full-project rebuilds;
+- responsive image variants, gallery and project favicon;
+- single- and dual-monitor workspace;
+- portable `.oluntir` project files;
+- optional local diagnostic logging after explicit consent;
+- installation-bound consent for licensing, privacy and security documents;
+- Developer Diagnostics Center for runtime, action, log and graph snapshots.
 
-## Start locally
-
-1. Extract the release archive.
-2. Open `index.html` in a current desktop browser.
-3. Choose single-monitor or two-monitor operation when prompted.
-4. Continue an existing project or create a new project.
-5. Keep a separate project backup before major changes or migrations.
-
-Folder access and multi-window behavior depend on browser permissions. A later attempt to open the tool window can be treated as a pop-up; opening it directly from a user action is the most reliable path.
-
-## Project-folder connection
-
-In the Image Manager, choose **Connect project folder** and select the root folder of the current Oluntir project—not `assets` and not `user_upload`. Oluntir then uses or creates:
+## Semantic core
 
 ```text
-assets/user_upload/
+Semantic Dictionary
+→ Identity Resolver
+→ Context Resolver
+→ Structure Resolver
+→ Relationship Resolver
+→ Project Dependency Graph
+→ Semantic Action Engine
+→ Semantic Validator / Shared Content / Repeat Engine / Export
 ```
 
-Browser permissions can be lost after a restart, on another computer, or after clearing site data. The IndexedDB asset store and the physical project folder therefore remain separate persistence layers.
+The Structure Resolver, Relationship Resolver and Project Dependency Graph are read-only when explicitly invoked. The Semantic Action Engine is present as an isolated orchestration core. Version 1.3.0 does not yet route all production modules through it.
 
-## Repository structure
+## Start
 
-```text
-assets/       Local fonts, images, and project assets
-editor/       Oluntir UI, services, workspaces, and core functions
-frameworks/   Versioned Bootstrap profiles
-plugins/      Bundled editor and website libraries
-vendor/       Unchanged, versioned third-party editor dependencies
-docs/         User and technical documentation
-compliance/   License and asset records
-templates/    Edition and project templates
-examples/     Example material
-.github/      Repository templates and automation
-```
+1. Extract the archive.
+2. Open `index.html` in a current Chromium-based desktop browser.
+3. Accept the licensing, privacy and security documents.
+4. Optionally select the existing `logs` subdirectory and enable local logging.
+5. Open or create a project.
+
+Consent is bound to the extracted application directory. Starting another extracted copy requires separate consent.
 
 ## Documentation
 
 - [Documentation index](docs/index.md)
-- [Why Oluntir?](docs/WHY_OLUNTIR.md)
-- [Architecture overview](docs/ARCHITECTURE.md)
-- [Project principles](docs/PROJECT-PRINCIPLES.md)
-- [Versioning](docs/VERSIONING.md)
-- [First start](docs/FIRST_START.md)
-- [Multi-monitor workspace](docs/MULTI_MONITOR.md)
-- [Image Manager](docs/IMAGE_MANAGER.md)
-- [Workspace architecture](docs/WORKSPACE-ARCHITECTURE.md)
-- [GrapesJS integration](docs/GRAPESJS-INTEGRATION.md)
-- [Project structure](docs/PROJECT-STRUCTURE.md)
-- [Oluntir include system](docs/OLUNTIR-INCLUDE-SYSTEM.md)
 - [Technical handbook](HANDBOOK.md)
+- [Architecture](docs/ARCHITECTURE.md)
 - [Release notes](RELEASE_NOTES.md)
+- [Privacy](PRIVACY.md)
+- [Security](SECURITY.md)
+- [AI knowledge base](docs/AI/000_PROJECT.md)
+- [Release audit](audit/OLUNTIR_1.3.0_AUDIT.md)
 
-## Licensing and security
+## License
 
-Original Oluntir source code is licensed under the MIT License. Bundled libraries, fonts, and other third-party components retain their respective licenses. See [LICENSE](LICENSE), [LICENSING.md](LICENSING.md), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), and [compliance/LICENSE_MATRIX.md](compliance/LICENSE_MATRIX.md).
-
-Security reports are handled according to [SECURITY.md](SECURITY.md). Contribution requirements are documented in [CONTRIBUTING.md](CONTRIBUTING.md).
-
-
-## Version 1.2.1 architecture foundation
-
-Stable layout identities and Repeat Engine V2 are documented in `docs/040_LAYOUT_GRAPH.md` through `docs/045_PROJECT_MIGRATION_1.2.1.md`.
-
-### Project favicon
-
-Use the star icon in the secondary toolbar to define a project-wide favicon. Oluntir automatically generates browser, Apple, and Android variants from one PNG, JPG, WebP, GIF, or SVG source. See [`docs/FAVICON.md`](docs/FAVICON.md).
-
-## New in Oluntir 1.2.1
-
-### Stable layout identities
-
-Oluntir additively assigns persistent internal identities to pages and suitable GrapesJS components: Page, Section, Row, Slot, Component, and Repeat. Existing HTML IDs, classes, and content remain untouched. Copies receive fresh internal IDs, while existing IDs survive save and reload. Internal attributes remain in the project model and are removed only from the final HTML, SSI, or PHP export copy.
-
-Technical details: [`docs/041_LAYOUT_IDENTITIES.md`](docs/041_LAYOUT_IDENTITIES.md) and [`docs/045_PROJECT_MIGRATION_1.2.1.md`](docs/045_PROJECT_MIGRATION_1.2.1.md).
-
-### New pages and “Insert section here”
-
-New pages inherit project header, navigation, and footer but intentionally do not copy page-specific content. An empty `<main>` is shown as a compact editor-only insertion zone labelled **“+ Insert section here”**. The hint disappears after the first section is added and is never saved or exported.
-
-Guide: [`docs/047_EDITOR_PLACEHOLDERS.md`](docs/047_EDITOR_PLACEHOLDERS.md).
-
-### Project favicon
-
-The star icon in the secondary toolbar defines one project-wide favicon. Oluntir generates ICO, browser, Apple, and Android variants plus `site.webmanifest` from PNG, JPG, WebP, GIF, or SVG. The dialog recognises an existing favicon and shows preview, source name, source type, and update time. Replacing it discards all old variants before regeneration.
-
-Guide: [`docs/046_PROJECT_FAVICON.md`](docs/046_PROJECT_FAVICON.md).
-
-### Complete responsive image export
-
-Used upload images are exported together with their desktop, tablet, and mobile variants. This applies to `assets/user_upload/` and compatible legacy paths below `images/uploads/`. If a required variant is missing, export stops with an explicit file list instead of creating an incomplete package.
-
-Details: [`docs/048_RESPONSIVE_IMAGE_EXPORT.md`](docs/048_RESPONSIVE_IMAGE_EXPORT.md).
-
-
-## DEV_029 Structure Resolver
-
-Oluntir 1.3.0 DEV_029 adds read-only structure resolution for complete pages and projects. It returns immutable parent/child, role, area and cardinality snapshots without changing the editor, export or document model. Details: [`docs/049_STRUCTURE_RESOLVER.md`](docs/049_STRUCTURE_RESOLVER.md).
-
+Oluntir-owned source code is licensed under MIT. Third-party components retain their own licenses. See [LICENSING.md](LICENSING.md), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and `compliance/`.

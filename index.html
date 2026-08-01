@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Oluntir 1.2.1</title>
+  <title>Oluntir 1.3.0</title>
   <link rel="stylesheet" href="vendor/grapesjs/0.23.2/grapes.min.css">
   <link rel="stylesheet" href="plugins/editor/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="editor/css/editor.css?v=1.2.1-release">
+  <link rel="stylesheet" href="editor/css/editor.css?v=1.3.0">
 </head>
 <body>
   
@@ -72,7 +72,7 @@
 
 
   <div id="toolbar">
-    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">1.2.1</span></div>
+    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">1.3.0</span></div>
 
     <div class="toolbar-language" role="group" data-i18n-aria="language.group" aria-label="Sprache">
       <button type="button" data-lang="de" class="active" data-i18n-title="language.de" title="Deutsch">DE</button>
@@ -113,6 +113,7 @@
 
     <div class="toolbar-group toolbar-right">
       <button id="oluntir-logging-open" type="button" title="Logging verwalten">Logs</button>
+      <button id="oluntir-diagnostics-open" type="button" title="Developer Diagnostics Center öffnen">Diagnose</button>
       <span id="export-controls" class="toolbar-export-controls">
         <button id="btn-export-folder" class="btn-primary" hidden data-i18n-title="toolbar.exportFolderTitle" title="Website in einen frei benennbaren lokalen Ordner exportieren" data-i18n="toolbar.exportFolder">Export in Ordner</button>
         <button id="btn-export-zip" class="btn-primary" hidden data-i18n-title="toolbar.exportZipTitle" title="Website als frei benennbares ZIP-Archiv exportieren">ZIP</button>
@@ -292,6 +293,7 @@
         <div>
           <h2 id="oluntir-logging-title">Oluntir – Zustimmung und lokale Diagnoseprotokolle</h2>
           <p>Bitte lesen und bestätigen Sie die grundlegenden Nutzungs-, Datenschutz- und Sicherheitsbedingungen. Technisches Logging bleibt freiwillig.</p>
+          <p>Die Zustimmung gilt ausschließlich für diesen entpackten Oluntir-Programmordner. Wird Oluntir aus einem anderen Ordner gestartet, ist eine neue Zustimmung erforderlich.</p>
         </div>
         <button id="oluntir-logging-close" class="pb-ui-close" type="button" aria-label="Schließen">×</button>
       </div>
@@ -372,7 +374,7 @@
   <script src="editor/js/features/ui-settings.js"></script>
   <script src="editor/js/features/block-search.js"></script>
   <script src="editor/js/core/edition.js"></script>
-  <script src="editor/js/core/framework.js?v=1.3.0-dev028"></script>
+  <script src="editor/js/core/framework.js?v=1.3.0"></script>
   <script src="editor/js/core/site-images.js"></script>
   <script src="editor/js/features/bootstrap-blocks.js"></script>
   <script src="editor/js/features/variant-blocks.js"></script>
@@ -383,8 +385,8 @@
   <script src="editor/config/editor-dependencies.js"></script>
   <script src="editor/js/core/asset-store.js?v=1.1.0-sync1"></script>
   <script src="editor/services/workspace-manager.js"></script>
-  <script src="editor/services/indexeddb-settings-store.js?v=1.2.1"></script>
-  <script src="editor/services/multi-monitor-manager.js?v=1.2.1-release"></script>
+  <script src="editor/services/indexeddb-settings-store.js?v=1.3.0"></script>
+  <script src="editor/services/multi-monitor-manager.js?v=1.3.0"></script>
   <script src="editor/services/indexeddb-asset-store.js?v=1.1.0-sync1"></script>
   <script src="editor/services/image-variant-service.js"></script>
   <script src="editor/services/asset-usage-service.js"></script>
@@ -397,7 +399,7 @@
   <script src="editor/integrations/grapesjs/grapesjs-adapter.js"></script>
   <script src="editor/js/core/site-assets-bundle.js"></script>
   <script src="editor/js/core/includes.js"></script>
-  <script src="editor/js/core/favicon-manager.js?v=1.2.1"></script>
+  <script src="editor/js/core/favicon-manager.js?v=1.3.0"></script>
   <script src="editor/js/core/shared-content-manager.js"></script>
   <script src="editor/js/core/semantic-dictionary.js"></script>
   <script src="editor/js/core/identity-resolver.js"></script>
@@ -405,19 +407,44 @@
   <script src="editor/js/core/layout-identities.js"></script>
   <script src="editor/js/core/structure-resolver.js"></script>
   <script src="editor/js/core/relationship-resolver.js"></script>
+
+  <div id="oluntir-diagnostics-modal" class="pb-modal-overlay" hidden aria-hidden="true">
+    <div class="pb-modal oluntir-diagnostics-modal" role="dialog" aria-modal="true" aria-labelledby="oluntir-diagnostics-title">
+      <div class="pb-ui-modal-head">
+        <div><h2 id="oluntir-diagnostics-title">Developer Diagnostics Center</h2><p>Interne Laufzeitdiagnose für Entwicklung und Belastungsanalyse.</p></div>
+        <button id="oluntir-diagnostics-close" class="pb-ui-close" type="button" aria-label="Schließen">×</button>
+      </div>
+      <div class="oluntir-diagnostics-toolbar">
+        <button id="oluntir-diagnostics-refresh" class="btn-primary" type="button">Aktualisieren</button>
+        <label><input id="oluntir-diagnostics-live" type="checkbox" checked> Live-Aktualisierung</label>
+        <button id="oluntir-diagnostics-graph" type="button">Dependency Graph analysieren</button>
+        <button id="oluntir-diagnostics-export" type="button">Snapshot exportieren</button>
+        <button id="oluntir-diagnostics-clear" type="button">Log-Ringpuffer leeren</button>
+      </div>
+      <div class="oluntir-diagnostics-grid">
+        <section><h3>Runtime</h3><pre id="oluntir-diagnostics-runtime"></pre></section>
+        <section><h3>Action Engine</h3><pre id="oluntir-diagnostics-actions"></pre></section>
+        <section><h3>Shared Content / Fingerprints</h3><pre id="oluntir-diagnostics-shared"></pre></section>
+        <section><h3>Dependency Graph</h3><pre id="oluntir-diagnostics-dependency"></pre></section>
+        <section class="oluntir-diagnostics-wide"><h3>Letzte Logeinträge</h3><div id="oluntir-diagnostics-logs" class="oluntir-diagnostics-log"></div></section>
+      </div>
+      <div class="pb-modal-actions"><span id="oluntir-diagnostics-status" aria-live="polite"></span><button id="oluntir-diagnostics-done" class="btn-primary" type="button">Fertig</button></div>
+    </div>
+  </div>
   <script src="editor/js/core/project-dependency-graph.js"></script>
   <script src="editor/js/core/oluntir-logger.js"></script>
   <script src="editor/js/core/semantic-action-engine.js"></script>
   <script src="editor/js/core/oluntir-runtime-actions.js"></script>
   <script src="editor/js/core/oluntir-logging-consent.js"></script>
+  <script src="editor/js/core/developer-diagnostics-center.js"></script>
   <script src="editor/js/core/semantic-validator.js"></script>
   <script src="editor/js/core/repeat-engine-v2.js"></script>
   <script src="editor/js/core/startup.js"></script>
   <script src="editor/js/core/export.js"></script>
-  <script src="editor/js/features/gallery.js?v=1.3.0-dev028"></script>
+  <script src="editor/js/features/gallery.js?v=1.3.0"></script>
   <script src="editor/js/features/text-media-editor.js"></script>
   <script src="editor/js/features/link-editor.js"></script>
   <script src="editor/js/core/oluntir-code-view.js"></script>
-  <script src="editor/js/core/editor.js?v=1.1.0-sync1"></script>
+  <script src="editor/js/core/editor.js?v=1.3.0"></script>
 </body>
 </html>

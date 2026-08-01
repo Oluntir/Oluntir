@@ -1,5 +1,5 @@
 > **Language:** English · [Deutsch](049_STRUCTURE_RESOLVER_de.md)  
-> **Development state:** Oluntir 1.3.0 DEV_029
+> **Development state:** Oluntir 1.3.0
 
 # Structure Resolver
 
@@ -88,9 +88,9 @@ Resolves all pages available through `editor.Pages.getAll()` and returns:
 
 All returned snapshots, nodes, child lists, capabilities and summaries are protected with `Object.freeze()`. The resolver does not write to the GrapesJS model and performs no persistence.
 
-## DEV_029 integration status
+## Integration status
 
-DEV_029 provides shared structure resolution as an independent core API. Repeat Engine, Shared Content, Export and Semantic Validator are not migrated to this API in this development state. This keeps the introduction small, testable and low-risk.
+Version 1.3.0 provides shared structure resolution as an independent core API. Repeat Engine, Shared Content, Export and Semantic Validator are not migrated to this API in this development state. This keeps the introduction small, testable and low-risk.
 
 ## Tests
 

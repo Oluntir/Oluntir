@@ -12,6 +12,6 @@ must(gallery.includes("root.find('.pb-gallery-open-button')"), 'Zoom migration m
 must(gallery.includes("root.find('.portfolio-download')"), 'Download migration missing');
 must(framework.includes('plugins/editor/font-awesome/css/font-awesome.min.css'), 'BS4 FA4 canvas source missing');
 must(framework.includes('plugins/site/css/font-awesome/all.min.css'), 'BS5 icon canvas source missing');
-must(bs4.includes('.pb-gallery-action > .fa'), 'BS4 icon visibility rule missing');
-must(bs5.includes('.pb-gallery-action > .fas'), 'BS5 icon visibility rule missing');
+must(/\.pb-gallery-action\s*>\s*\.fa\s*\{/.test(bs4), 'BS4 icon visibility rule missing');
+must(/\.pb-gallery-action\s*>\s*\.fas\s*\{/.test(bs5), 'BS5 icon visibility rule missing');
 console.log('GALLERY ICON SOURCE TEST ERFOLGREICH');

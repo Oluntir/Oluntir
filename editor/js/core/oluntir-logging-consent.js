@@ -5,9 +5,34 @@
   const FOUNDATION_KEY = 'oluntir-foundation-consent';
   const CONSENT_VERSION = '1.1';
   const CONSENT_FILE = '.oluntir-logging.json';
+  const INSTALLATION_SCHEMA_VERSION = 1;
   const REQUIRED_IDS = ['oluntir-consent-license', 'oluntir-consent-privacy', 'oluntir-consent-security'];
 
   function store() { return root.OluntirSettingsStore; }
+
+  function installationSource() {
+    const location = root.location || {};
+    const href = String(location.href || '');
+    if (!href) return 'unknown-installation';
+    const clean = href.split('#')[0].split('?')[0];
+    const slash = Math.max(clean.lastIndexOf('/'), clean.lastIndexOf('\\'));
+    return slash >= 0 ? clean.slice(0, slash + 1) : clean;
+  }
+  function hashInstallation(value) {
+    let hash = 2166136261;
+    const text = String(value || 'unknown-installation');
+    for (let index = 0; index < text.length; index += 1) {
+      hash ^= text.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+    return ('00000000' + (hash >>> 0).toString(16)).slice(-8);
+  }
+  function getInstallationIdentity() {
+    return {
+      schemaVersion: INSTALLATION_SCHEMA_VERSION,
+      installationId: 'oluntir-installation-' + hashInstallation(installationSource())
+    };
+  }
   async function hasPermission(handle, request) {
     if (!handle) return false;
     const options = { mode: 'readwrite' };
@@ -36,6 +61,7 @@
       directory: displayPath,
       permissionScope: 'Selected logs directory only',
       logLevel: level,
+      installation: getInstallationIdentity(),
       foundationConsent: foundation,
       privacy: {
         optIn: true,
@@ -113,7 +139,8 @@
       accepted: true,
       consentVersion: CONSENT_VERSION,
       acceptedAt: new Date().toISOString(),
-      documents: acceptedDocuments()
+      documents: acceptedDocuments(),
+      installation: getInstallationIdentity()
     };
     const settings = store();
     if (!settings) throw new Error('Der lokale Einstellungsspeicher ist nicht verfügbar.');
@@ -156,6 +183,9 @@
   }
   function isFoundationConsentValid(foundation) {
     if (!foundation || foundation.accepted !== true || foundation.consentVersion !== CONSENT_VERSION) return false;
+    const currentInstallation = getInstallationIdentity();
+    const storedInstallation = foundation.installation || {};
+    if (storedInstallation.schemaVersion !== currentInstallation.schemaVersion || storedInstallation.installationId !== currentInstallation.installationId) return false;
     const expected = acceptedDocuments();
     const actual = foundation.documents || {};
     return Object.keys(expected).every(key => {
@@ -170,6 +200,9 @@
     if (!foundation) return { valid: false, reason: 'missing', consentVersion: CONSENT_VERSION };
     if (foundation.accepted !== true) return { valid: false, reason: 'not-accepted', consentVersion: CONSENT_VERSION };
     if (foundation.consentVersion !== CONSENT_VERSION) return { valid: false, reason: 'version-mismatch', storedVersion: foundation.consentVersion || null, consentVersion: CONSENT_VERSION };
+    const currentInstallation = getInstallationIdentity();
+    const storedInstallation = foundation.installation || {};
+    if (storedInstallation.schemaVersion !== currentInstallation.schemaVersion || storedInstallation.installationId !== currentInstallation.installationId) return { valid: false, reason: 'installation-mismatch', storedInstallationId: storedInstallation.installationId || null, installationId: currentInstallation.installationId, consentVersion: CONSENT_VERSION };
     if (!isFoundationConsentValid(foundation)) return { valid: false, reason: 'documents-mismatch', storedVersion: foundation.consentVersion || null, consentVersion: CONSENT_VERSION };
     return { valid: true, reason: 'valid', acceptedAt: foundation.acceptedAt || null, consentVersion: CONSENT_VERSION };
   }
@@ -206,5 +239,5 @@
     const revokeButton = document.getElementById('oluntir-logging-revoke'); if (revokeButton) revokeButton.addEventListener('click', () => revoke().catch(error => setStatus(error.message || String(error), 'error')));
     const level = document.getElementById('oluntir-logging-level'); if (level) level.addEventListener('change', async () => { root.OluntirLogger.configure({ level: level.value }); const settings = store(); const current = settings ? await settings.get(PREF_KEY, {}) : {}; if (settings) await settings.set(PREF_KEY, Object.assign({}, current, { level: level.value })); });
   }
-  root.OluntirLoggingConsent = Object.freeze({ initialize, show, hide, selectDirectory, acceptWithoutLogging, restore, revoke, requiredAccepted, startOluntir, getConsentStatus, isFoundationConsentValid, consentVersion: CONSENT_VERSION });
+  root.OluntirLoggingConsent = Object.freeze({ initialize, show, hide, selectDirectory, acceptWithoutLogging, restore, revoke, requiredAccepted, startOluntir, getConsentStatus, isFoundationConsentValid, getInstallationIdentity, consentVersion: CONSENT_VERSION });
 })(window);

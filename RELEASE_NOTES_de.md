@@ -1,58 +1,27 @@
-# Release Notes – Oluntir 1.2.1
+# Release Notes – Oluntir 1.3.0
 
-**Veröffentlichung:** 31.07.2026  
-**Release-Typ:** Stabilitäts- und Architekturrelease
+## Umfang
 
-## Überblick
+Version 1.3.0 konsolidiert den internen semantischen Kern, die Shared-Content-Synchronisation, das optionale Logging, die Zustimmung und die Entwicklerdiagnose.
 
-Oluntir 1.2.1 führt ein stabiles internes ID-System ein und schafft damit die belastbare Grundlage für modellbasierte Synchronisation und Repeat Engine V2. Gleichzeitig wurde die bestehende Export-, Bild-, Rich-Text- und Seitenlogik gegen reale Bestandsprojekte stabilisiert. Der sichtbare Funktionsumfang bleibt bewusst vertraut.
+## Relevante Änderungen
 
-## Höhepunkte
+- read-only Structure und Relationship Resolver;
+- expliziter Project Dependency Graph;
+- isolierter Semantic-Action-Engine-Kern;
+- Fingerprints, Lazy Sync und gezielte Shared-Content-Updates;
+- lokales Opt-in-Logging mit Maskierung und Rotation;
+- installationsbezogene Zustimmung;
+- Developer Diagnostics Center;
+- vereinheitlichte Versionsangaben und Dokumentation.
 
-### Stabile Projekt- und Layout-Identitäten
+## Verhalten und Kompatibilität
 
-Seiten und geeignete GrapesJS-Komponenten erhalten dauerhafte interne IDs. Diese IDs überleben Speichern, Import und erneutes Öffnen, überschreiben keine normalen HTML-IDs und werden nicht als Exportquelle verwendet. Kopierte Komponenten erhalten neue interne Identitäten.
+Bestehende 1.2.x-Projekte werden weiterhin über die vorhandenen Migrations- und Identity-Routinen geladen. Vor einer Migration sollte eine portable Projektsicherung erzeugt werden. Interne Oluntir-Identitäten werden nicht in den finalen HTML-, SSI- oder PHP-Export übernommen.
 
-### Projekt-Favicon ohne Spezialwissen
+## Bekannte Grenzen
 
-Über das Stern-Symbol in der zweiten Werkzeugleiste genügt eine einzige PNG-, JPG-, WebP-, GIF- oder SVG-Datei. Oluntir erzeugt daraus automatisch:
-
-```text
-images/favicon.ico
-images/favicon-16x16.png
-images/favicon-32x32.png
-images/favicon-48x48.png
-images/apple-touch-icon.png
-images/android-chrome-192x192.png
-images/android-chrome-512x512.png
-site.webmanifest
-```
-
-Ein vorhandenes Favicon wird mit Vorschau und Quelldaten erkannt. Beim Ersetzen werden die bisherigen Varianten vollständig verworfen.
-
-### Verständliche neue Seiten
-
-Neue Seiten übernehmen die gemeinsamen Bereiche des Projekts, aber keinen individuellen Inhalt der Startseite. Ein leeres `<main>` zeigt im Editor **„+ Hier Section einfügen“**. Der Hinweis verschwindet nach der ersten Section und erscheint nicht im Export.
-
-### Stabiler Export
-
-HTML, SSI und PHP werden direkt aus dem GrapesJS-Projektmodell erzeugt. Der Export wechselt nicht mehr sichtbar zwischen Seiten und schreibt keine kurzfristigen Canvas-Zustände zurück. Dadurch bleiben Bilder, Reihenfolge und Include-Positionen stabil.
-
-### Responsive Bildpakete
-
-Verwendete Uploadbilder werden mit Desktop-, Tablet- und Mobile-Variante exportiert. Ein unvollständiger Variantenbestand führt zu einer klaren Fehlermeldung statt zu einem unvollständigen Website-Paket.
-
-## Aktualisierung von 1.2.0
-
-1. Projekt in 1.2.0 sichern.
-2. Oluntir 1.2.1 in einen neuen Ordner entpacken.
-3. Bestehendes `.oluntir`-Projekt öffnen.
-4. Seiten, Shared Content, Bilder und Exporte prüfen.
-5. Projekt explizit speichern; dadurch werden fehlende interne IDs dauerhaft übernommen.
-6. HTML-, SSI- und PHP-Export mindestens einmal testen.
-
-Die Migration verändert keine sichtbaren Inhalte und ist idempotent.
-
-## Bekannte Grenze
-
-Repeat Engine V2 ist technisch vorbereitet, besitzt in 1.2.1 aber noch keine vollständige sichtbare Verwaltungsoberfläche.
+- Die Semantic Action Engine steuert in 1.3.0 noch nicht alle produktiven Fachmodule.
+- Der Dependency Graph wird im Diagnostics Center nur auf ausdrücklichen Befehl aufgebaut.
+- Repeat Engine V2 ist als technisches Modell vorhanden; die vollständige sichtbare Verwaltung wiederholbarer Elemente ist für Version 2.0 vorgesehen.
+- Ordnerzugriff und Logdateien hängen von der File System Access API und einer Benutzerfreigabe ab.

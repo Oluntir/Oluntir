@@ -1,94 +1,54 @@
-> **Sprache:** Deutsch · [English (reference)](HANDBOOK.md)
+# Oluntir 1.3.0 – Technisches Handbuch
 
-# Technisches Handbuch Oluntir
+## 1. Laufzeit
 
-**Version:** 1.2.1  
-**Status:** Stabil  
-**Stand:** 31.07.2026
+Oluntir wird über `index.html` gestartet. GrapesJS liegt unverändert unter `vendor/grapesjs/`. Oluntir-spezifische Integration liegt unter `editor/integrations/grapesjs/`.
 
-## 1. Zweck
+## 2. Projektmodell
 
-Oluntir bearbeitet und exportiert statische Website-Projekte lokal im Browser. Die Browserpersistenz ermöglicht bequemes Fortsetzen; portable Projektsicherungen und exportierte Dateien bleiben jedoch die maßgeblichen externen Sicherheitskopien.
+Seiten und Komponenten werden im GrapesJS-Projektmodell gespeichert. `layout-identities.js` ergänzt interne stabile IDs. Diese IDs bleiben im Projekt erhalten und werden vor dem finalen Export entfernt.
 
-## 2. Editor-Fundament
+## 3. Semantische Pipeline
 
-GrapesJS 0.23.2 stellt Canvas und visuelle Komponentenbearbeitung bereit. Oluntir verantwortet die umgebende Anwendung: Start, Projekte, Includes, Export, Bildservices, Workspaces, Einstellungen, Schnellbearbeitung und Mehrmonitorbetrieb. Vendor-Dateien werden nicht verändert; Kompatibilitätscode gehört nach `editor/integrations/grapesjs/`.
+- `semantic-dictionary.js`: bekannte Rollen und Cardinality.
+- `identity-resolver.js`: Zuordnung eines Komponenten-Kontexts.
+- `context-resolver.js`: Ahnen- und Strukturkontext.
+- `structure-resolver.js`: unveränderliche Struktur-Snapshots.
+- `relationship-resolver.js`: funktionale Gruppen und Mitglieder.
+- `project-dependency-graph.js`: Knoten, Kanten und Dirty-Propagation.
+- `semantic-action-engine.js`: isolierte Action-Orchestrierung.
+- `semantic-validator.js`: semantische Prüfungen.
 
-## 3. Projektarten
+## 4. Shared Content
 
-Ein klassisches Projekt speichert vollständiges HTML je Seite. Ein Projekt mit sich inhaltlich wiederholenden Elementen und Bereichen verwaltet gemeinsame Layoutquellen und referenziert sie über `<ope-include>`. Der zentrale Resolver erzeugt aufgelöstes HTML, Apache SSI oder PHP-Includes.
+`shared-content-manager.js` verwaltet Header, Navigation und Footer. Änderungen werden zentral gespeichert. Beim Seitenwechsel wird nur die benötigte Zielseite aktualisiert. Fingerprints verhindern unveränderte Schreibvorgänge. Komponentenreferenzen werden pro Seite gecacht.
 
-## 4. Start und Persistenz
+## 5. Repeat Engine V2
 
-Beim Start prüft Oluntir vorhandene Browserdaten und bietet Fortsetzen, Wiederherstellen oder ein neues Projekt an. Allgemeine Anwendungseinstellungen verwenden `oluntir-settings`; Bildassets verwenden ihre versionierte Asset-Datenbank. Beide Speicher erfüllen unterschiedliche Aufgaben und ersetzen keine Projektsicherung.
+`repeat-engine-v2.js` enthält das technische Datenmodell für wiederholbare Strukturen. Die vollständige sichtbare Verwaltung ist nicht Bestandteil von 1.3.0.
 
-## 5. Ein- und Zwei-Monitor-Betrieb
+## 6. Logging
 
-Der bevorzugte Modus lautet `ask`, `single` oder `dual`. Im Zwei-Monitor-Modus bleibt der Canvas im Hauptfenster; die rechte GrapesJS-Werkzeugspalte und die Oluntir-Schnellbearbeitungsbereiche wechseln in ein separates Fenster. Ein eigener Sitzungsstatus beschreibt, ob der Modus tatsächlich aktiv ist. Wird das Werkzeugfenster geschlossen oder verloren, kehren alle ausgelagerten Bereiche ins Hauptfenster zurück.
+`oluntir-logger.js` schreibt nach Opt-in kategorisierte JSONL-Dateien in den ausgewählten `logs`-Ordner. Die Zustimmung wird über `oluntir-logging-consent.js` verwaltet. `oluntir-runtime-actions.js` führt reale Editorereignisse durch die Semantic Action Engine.
 
-Die gespeicherte Präferenz wird nicht überschrieben, nur weil aktuell ein Monitor verfügbar ist. Gespeicherte Fenstergrenzen werden vor der Wiederverwendung geprüft. Ohne Window Management API positioniert der Benutzer das Werkzeugfenster manuell.
+## 7. Diagnose
 
-## 6. Bildmanager
-
-Der Bildmanager ist ein Oluntir-Workspace und nicht die sichtbare GrapesJS-Asset-Manager-Oberfläche. Er verwendet gemeinsame Asset-Services und IndexedDB und bietet Raster-/Listenansicht, Suche, Filter, Details, responsive Varianten, Ersetzen, Löschen und Auswahlmodi.
-
-Für die physische Synchronisation liest der Benutzer zuerst das Infofenster und wählt anschließend den Projektstammordner. Oluntir verwendet oder erstellt `assets/user_upload/`. In einer späteren Browsersitzung kann eine erneute Berechtigung erforderlich sein.
-
-## 7. Galerien
-
-Jede Galerie wählt `none`, `modal` oder `lightbox`. Modal ist ein gerahmter Dialog; Lightbox ein dunkler, rahmenloser Viewer. Beide verwenden gemeinsame Navigation, Tastatursteuerung, Fokusfalle, Fokusrückgabe, Bildbezeichnung, Zähler und Originalbild-Download. Desktop-Layouts reservieren unten einen Sicherheitsabstand; kleinere Displays behalten das bestehende responsive Verhalten.
+`developer-diagnostics-center.js` zeigt Runtime-, Action-, Queue-, Shared-Content- und Log-Snapshots. Der Dependency Graph wird nur auf Benutzerbefehl analysiert.
 
 ## 8. Export
 
-Exportformat und Ziel sind getrennte Entscheidungen. Vor dem Schreiben prüft Oluntir fehlende Ziele, doppelte Pfade und zyklische Include-Referenzen. Ordnerzugriff bleibt browserabhängig. ZIP und TAR sind alternative Archivziele.
+`export.js` erzeugt HTML-, SSI- und PHP-Ausgaben. Der Export löst gemeinsame Bereiche entsprechend dem Ziel auf, sammelt lokale Assets und entfernt editorinterne Metadaten.
 
-## 9. Validierung und Release-Prüfungen
+## 9. Tests
 
-Ausführen:
+`tests/run-tests.sh` führt Syntax-, Architektur-, Resolver-, Logging-, Action-, Shared-Content-, Galerie- und Strukturtests aus. Einzelne Tests können mit Node direkt aufgerufen werden.
 
-```text
-python tools/validate-structure.py
-node tools/test-grapesjs-adapter.js
-```
+## 10. Architekturregeln
 
-Zusätzlich gehören JavaScript-Syntaxprüfung, statische Prüfung lokaler Referenzen, Archivintegrität sowie manuelle Browsertests für Start, Projektwiederherstellung, beide Bootstrap-Profile, Export, Bildmanager, Modal, Lightbox und Monitorumschaltung zum Releaseprozess.
-
-## 10. Betriebliche Einschränkungen
-
-Oluntir kann Browser-Sicherheitsabfragen nicht umgehen und keine automatische Platzierung auf einem anderen Bildschirm garantieren. Importiertes HTML kann unsichere Inhalte enthalten; unbekannte Projekte vor Vorschau und Export prüfen. Vor Migrationen und größeren Änderungen externe Sicherungen anlegen.
-
-## 11. Projektphilosophie und Dokumentationsübersicht
-
-Oluntir ist als lokale Open-Source-Projektumgebung für Websites konzipiert und nicht nur als visueller Seiteneditor. GrapesJS stellt die visuelle Editor-Engine bereit; Oluntir verantwortet Projekt, Workspace, Assets, Shared Content, Persistenz und Export über eigene Adapter und Dienste.
-
-Die Dokumentation steht auf Deutsch und Englisch zur Verfügung. Einstiegspunkte sind die [Dokumentationsübersicht](docs/index_de.md), [Warum Oluntir?](docs/WHY_OLUNTIR_de.md) und die [Architekturübersicht](docs/ARCHITECTURE_de.md).
-
-
-
-## DEV_029 Structure Resolver
-
-Oluntir 1.3.0 DEV_029 ergänzt eine rein lesende Strukturauflösung für vollständige Seiten und Projekte. Sie liefert unveränderliche Parent-/Child-, Rollen-, Bereichs- und Cardinality-Snapshots, ohne Editor, Export oder Dokumentmodell zu verändern. Details: [`docs/049_STRUCTURE_RESOLVER_de.md`](docs/049_STRUCTURE_RESOLVER_de.md).
-
-## Architekturgrundlage Version 1.2.1
-
-Stabile Layout-Identitäten und Repeat Engine V2 sind in `docs/040_LAYOUT_GRAPH_de.md` bis `docs/045_PROJECT_MIGRATION_1.2.1_de.md` dokumentiert.
-
-## 12. Layout-Identitäten und Migration
-
-Das persistente Projektmodell erhält interne IDs für Seiten und geeignete Komponenten. Die Zuweisung ist additiv und idempotent. Normale HTML-IDs werden nicht verändert. Interne Attribute werden erst aus einer finalen Exportkopie entfernt. Details stehen in `docs/040_LAYOUT_GRAPH_de.md` bis `docs/045_PROJECT_MIGRATION_1.2.1_de.md`.
-
-## 13. Neue Seiten und Einfügehinweis
-
-Neue Seiten verwenden die gemeinsamen Header-, Navigations- und Footerbereiche. Ihr `<main>` ist leer und wird im Canvas mit „+ Hier Section einfügen“ gekennzeichnet. Die Kennzeichnung stammt aus editorinternem CSS und wird nicht gespeichert oder exportiert.
-
-## 14. Projekt-Favicon
-
-`favicon-manager.js` verwaltet Metadaten, Vorschau, Erzeugung, Ersetzen, Entfernen und Export der projektweiten Faviconvarianten. Die Binärdateien werden im bestehenden Asset-Speicher geführt. `site.webmanifest` wird zusammen mit den Favicons exportiert.
-
-## 15. Responsiver Asset-Export
-
-Desktop-, Tablet- und Mobile-Dateien eines Uploads bilden einen Variantenverbund. Der Export sammelt die gesamte Gruppe und bricht bei fehlenden Varianten mit einer eindeutigen Meldung ab. Pfadnormalisierung findet ausschließlich in der temporären Exportkopie statt.
-
-## 16. Release-Testvertrag 1.2.1
-
-Vor Freigabe sind mindestens zu prüfen: Migration und zweites Öffnen, ID-Stabilität nach Kopieren, HTML/SSI/PHP, Shared Content, Card-Bilder, responsive Uploadvarianten, Rich-Text-Cursor, neue leere Seite mit Einfügehinweis, Favicon-Erzeugen/Ersetzen/Entfernen sowie Bootstrap 4 und 5.
+- Bestehende Module erweitern; keine Parallelarchitektur.
+- Resolver analysieren und verändern keine Dokumente.
+- Die Action Engine orchestriert und enthält keine Fachlogik.
+- Der Dependency Graph beschreibt Abhängigkeiten und Auswirkungen.
+- Keine vollständigen Projekt- oder Seiten-Neuaufbauten für lokale Änderungen.
+- Logging bleibt lokal, optional und auf den gewählten Ordner begrenzt.
+- Dokumentation beschreibt zuerst Zweck und Grenzen, danach API und Umsetzung.

@@ -415,6 +415,16 @@
     applyToPage,
     applyToAll,
     getRegionsFromPage: (page) => Object.assign({}, parseRegions(pageHtml(page))),
-    getPageHtml: pageHtml
+    getPageHtml: pageHtml,
+    getDiagnostics: () => {
+      const selected = editor && editor.Pages && editor.Pages.getSelected ? editor.Pages.getSelected() : null;
+      const centralFingerprint = regionFingerprint(currentRegions());
+      const selectedFingerprint = selected ? regionFingerprint(parseRegions(pageHtml(selected))) : null;
+      return Object.freeze({
+        enabled: enabled(), applying: Boolean(applying), pendingFlush: Boolean(flushTimer || pendingFlushPage),
+        centralFingerprint, selectedFingerprint, selectedPageId: selected && selected.getId ? selected.getId() : null,
+        selectedUpToDate: Boolean(selected && centralFingerprint === selectedFingerprint)
+      });
+    }
   };
 })();

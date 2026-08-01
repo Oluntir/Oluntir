@@ -1,35 +1,44 @@
-# Oluntir – Funktionsübersicht
+# Oluntir 1.3.0 – Funktionsübersicht
 
-## Projekt und Editor
-
-- Lokale visuelle Website-Bearbeitung mit GrapesJS
-- Bootstrap 4 und Bootstrap 5
-- Mehrere Seiten, Navigation, Header und Footer
+## Editor und Projekte
+- GrapesJS 0.23.2
+- Bootstrap 4.6.2 und Bootstrap 5.3.8
+- mehrere Seiten
+- Rich-Text- und Schnellbearbeitung
 - Ein- und Zwei-Monitor-Arbeitsbereich
-- Schnellbearbeitung und Rich-Text-Bearbeitung
-- Platzhalter „+ Hier Section einfügen“ auf leeren neuen Seiten
+- portable `.oluntir`-Projekte
 
-## Persistenz und Struktur
+## Struktur und Semantik
+- stabile Layout-Identitäten
+- Semantic Dictionary
+- Identity-, Context-, Structure- und Relationship Resolver
+- Semantic Validator
+- Project Dependency Graph
+- Semantic Action Engine
+- technische Repeat Engine V2
 
-- Portable `.oluntir`-Projekte
-- Stabile interne Layout-Identitäten
-- Additive Migration bestehender 1.2.0-Projekte
-- Shared Content und OPE-Includes
-- Technische Repeat-Engine-V2-Grundlage
+## Gemeinsame Inhalte
+- Header, Navigation und Footer
+- Fingerprint-basierter Zustandsvergleich
+- Lazy Sync pro benötigter Seite
+- gezielte Regionsupdates statt vollständiger Seiten-Neuaufbauten
 
 ## Bilder und Assets
-
-- Bildmanager mit Desktop-, Tablet- und Mobile-Varianten
-- Projektordner-Synchronisation
-- Vollständiger responsiver Export
-- Galerie, Modal und Lightbox
-- Projektweites Favicon mit automatischer Varianten- und Manifest-Erzeugung
+- lokale Assetverwaltung
+- Desktop-, Tablet- und Mobile-Varianten
+- Galerie und Lightbox
+- Projekt-Favicon und Manifest
 
 ## Export
-
 - HTML
 - Apache SSI
 - PHP-Includes
 - Ordner, ZIP und TAR
-- Nicht-destruktiver modellbasierter Export
-- Lokale Assets ohne externe Laufzeitabhängigkeit
+- lokale Assets
+
+## Diagnose und Zustimmung
+- optionales lokales JSONL-Logging
+- Logrotation und Ringpuffer
+- Maskierung typischer sensibler Werte
+- installationsbezogene, versionierte Grundzustimmung
+- Developer Diagnostics Center

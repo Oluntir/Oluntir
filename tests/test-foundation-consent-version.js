@@ -6,6 +6,7 @@ const values = new Map();
 const context = {
   console,
   window: null,
+  location: { href: 'file:///C:/Oluntir/RELEASE/index.html' },
   document: { getElementById(){ return null; } },
   OluntirSettingsStore: {
     async get(key, fallback){ return values.has(key) ? values.get(key) : fallback; },
@@ -16,6 +17,7 @@ const context = {
 context.window = context;
 vm.runInNewContext(code, context);
 const api = context.OluntirLoggingConsent;
+const installation = api.getInstallationIdentity();
 assert.strictEqual(api.consentVersion, '1.1');
 (async () => {
   let status = await api.getConsentStatus();
@@ -28,7 +30,8 @@ assert.strictEqual(api.consentVersion, '1.1');
       license: { file: 'LICENSING_de.md', version: '1.0' },
       privacy: { file: 'PRIVACY_de.md', version: '1.0' },
       security: { file: 'SECURITY_de.md', version: '1.0' }
-    }
+    },
+    installation
   });
   status = await api.getConsentStatus();
   assert.strictEqual(status.valid, false);
@@ -40,7 +43,8 @@ assert.strictEqual(api.consentVersion, '1.1');
       license: { file: 'LICENSING_de.md', version: '1.1' },
       privacy: { file: 'PRIVACY_de.md', version: '1.1' },
       security: { file: 'SECURITY_de.md', version: '1.1' }
-    }
+    },
+    installation
   });
   status = await api.getConsentStatus();
   assert.strictEqual(status.valid, true);
