@@ -1,4 +1,0 @@
-PASS node --check editor/js/core/favicon-manager.js
-PASS node tests/test-favicon-export-completeness.js
-PASS node tests/test-favicon-feature.js
-PASS python3 tools/validate-structure.py

@@ -1,9 +1,0 @@
-Oluntir 1.1.0 – Upload-Sync und frische Bilderdatenbank
-
-- neue versionierte IndexedDB: oluntir-assets-1.1.0
-- alte pagebuilder-assets DB wird nicht gelöscht, aber nicht mehr automatisch geladen
-- Projektordner-Handle wird in IndexedDB gespeichert
-- vollständiger Initial-Sync nach manueller Ordnerverbindung
-- automatische Wiederverbindung, sofern Browserberechtigung weiterhin erteilt ist
-- neue Uploads werden während der Sitzung direkt nach assets/user_upload geschrieben
-- gelöschte Bildvarianten werden bei bestehender Verbindung auch aus dem Projektordner entfernt
