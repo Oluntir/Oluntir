@@ -31,6 +31,8 @@ const targetOne=make({ tagName:'section', attributes:{'data-oluntir-section-id':
 ]});
 const targetTwo=make({ tagName:'aside', attributes:{'data-oluntir-section-id':'target-two'}, components:[] });
 const editor={ Pages:{ getAll(){ return [page('source-page',source),page('target-page-one',targetOne),page('target-page-two',targetTwo)]; } } };
+const beforeOne=targetOne.toJSON();
+const beforeTwo=targetTwo.toJSON();
 const adapter=adapterApi.create(editor);
 const service=syncApi.create();
 const plan={ schemaVersion:1,type:'repeat-targeted-sync-plan',valid:true,blocked:false,cycleCount:0,operations:[
@@ -38,10 +40,9 @@ const plan={ schemaVersion:1,type:'repeat-targeted-sync-plan',valid:true,blocked
   {operationId:'op-2',definitionId:'d1',instanceId:'i2',sourcePageId:'source-page',sourceIdentity:'source-root',targetPageId:'target-page-two',targetIdentity:'target-two'}
 ]};
 const result=service.execute(plan,adapter);
-assert.strictEqual(result.status,syncApi.STATUS.ROLLED_BACK);
-assert.strictEqual(result.mutationPerformed,false);
-assert.strictEqual(targetOne.components().models.length,1);
-assert.strictEqual(targetOne.components().models[0].getAttributes()['data-oluntir-component-id'],'target-a');
-assert.strictEqual(targetOne.components().models[0].get('content'),'Alt');
-assert.ok(result.issues.some(issue=>issue.code==='REPEAT_SYNC_ROOT_TAG_MISMATCH'));
-console.log('Repeat Structural Rollback DEV_007: OK');
+assert.strictEqual(result.status, syncApi.STATUS.BLOCKED);
+assert.strictEqual(result.executionEnabled, false);
+assert.strictEqual(result.mutationPerformed, false);
+assert.deepStrictEqual(targetOne.toJSON(), beforeOne);
+assert.deepStrictEqual(targetTwo.toJSON(), beforeTwo);
+console.log('Repeat structural execution gate 1.3.1: OK');

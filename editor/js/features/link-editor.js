@@ -110,15 +110,14 @@
     return { desktop: url, tablet: url, mobile: url, download: url };
   }
 
-  function setPathAttribute(component, attribute, path, stableAttribute) {
-    if (!component) return;
+  function pathAttributeUpdate(component, attribute, path, stableAttribute) {
+    if (!component) return null;
     const attrs = {};
     attrs[attribute] = path;
+    const remove = [];
     if (stableAttribute && path.indexOf('images/') === 0) attrs[stableAttribute] = path;
-    component.addAttributes(attrs);
-    if (stableAttribute && path.indexOf('images/') !== 0 && component.removeAttributes) {
-      component.removeAttributes(stableAttribute);
-    }
+    else if (stableAttribute) remove.push(stableAttribute);
+    return { component, attributes: attrs, remove };
   }
 
   function updateGalleryImage(editor, galleryLink, selectedUrl) {
@@ -133,24 +132,38 @@
 
     if (!image) throw new Error('Im Galerieelement wurde kein Bild gefunden.');
 
-    setPathAttribute(image, 'src', paths.desktop, 'data-stable-path');
+    const updates = [pathAttributeUpdate(image, 'src', paths.desktop, 'data-stable-path')];
 
     sources.forEach((source) => {
       const media = String((source.getAttributes && source.getAttributes().media) || '');
       const path = media.indexOf('767.98px') >= 0 ? paths.mobile : paths.tablet;
-      setPathAttribute(source, 'srcset', path, 'data-stable-srcset-path');
+      updates.push(pathAttributeUpdate(source, 'srcset', path, 'data-stable-srcset-path'));
     });
 
-    setPathAttribute(galleryLink, 'href', paths.desktop, 'data-stable-path');
+    updates.push(pathAttributeUpdate(galleryLink, 'href', paths.desktop, 'data-stable-path'));
 
     if (downloads[0]) {
-      setPathAttribute(downloads[0], 'href', paths.download, 'data-stable-download-path');
+      const downloadUpdate = pathAttributeUpdate(downloads[0], 'href', paths.download, 'data-stable-download-path');
       const name = paths.download.split('/').pop() || 'bild';
-      downloads[0].addAttributes({ download: name, title: 'Bild herunterladen', 'aria-label': 'Bild herunterladen' });
+      downloadUpdate.attributes.download = name;
+      downloadUpdate.attributes.title = 'Bild herunterladen';
+      downloadUpdate.attributes['aria-label'] = 'Bild herunterladen';
+      updates.push(downloadUpdate);
+    }
+
+    const validUpdates = updates.filter(Boolean);
+    if (window.OluntirDocumentApi && typeof window.OluntirDocumentApi.updateAttributesBatch === 'function') {
+      window.OluntirDocumentApi.updateAttributesBatch(validUpdates, { label: 'gallery.image.replace' });
+    } else {
+      validUpdates.forEach((entry) => {
+        entry.component.addAttributes(entry.attributes);
+        (entry.remove || []).forEach((name) => entry.component.removeAttributes && entry.component.removeAttributes(name));
+      });
     }
 
     editor.select(galleryLink);
-    editor.trigger('component:update', galleryLink);
+    validUpdates.forEach((entry) => editor.trigger('component:update', entry.component));
+    editor.trigger('oluntir:history:changed');
     if (window.toast) window.toast('Galeriebild und Vergrößerung wurden aktualisiert.');
   }
 

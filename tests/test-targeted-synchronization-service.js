@@ -49,7 +49,7 @@ assert.strictEqual(result.status, api.STATUS.DRY_RUN_COMPLETED);
 assert.strictEqual(result.operationCounts.changed, 1);
 assert.strictEqual(result.operationCounts.unchanged, 1);
 assert.strictEqual(result.mutationPerformed, false);
-assert.strictEqual(result.executionEnabled, true);
+assert.strictEqual(result.executionEnabled, false);
 assert.ok(Object.isFrozen(result));
 assert.ok(result.operations[0].rollbackToken);
 assert.strictEqual(service.getState().activeLockCount, 0);
@@ -63,28 +63,11 @@ const writeAdapter = Object.assign({}, adapter, {
   restoreTarget(operation, rollback) { writeTargets[operation.operationId] = JSON.parse(JSON.stringify(rollback.previous)); }
 });
 const executed = service.execute(plan, writeAdapter);
-assert.strictEqual(executed.status, api.STATUS.EXECUTED);
-assert.strictEqual(executed.operationCounts.changed, 1);
-assert.strictEqual(executed.mutationPerformed, true);
-assert.deepStrictEqual(writeTargets['repeat-sync:instance-a'], sources['repeat-sync:instance-a']);
-
-const failingTargets = JSON.parse(JSON.stringify(targets));
-let writes = 0;
-const failingAdapter = Object.assign({}, adapter, {
-  readTarget(operation) { return failingTargets[operation.operationId]; },
-  writeTarget(operation, source) { writes += 1; if (writes === 2) { const error = new Error('fail'); error.code = 'TEST_WRITE_FAILED'; throw error; } failingTargets[operation.operationId] = JSON.parse(JSON.stringify(source)); },
-  restoreTarget(operation, rollback) { failingTargets[operation.operationId] = JSON.parse(JSON.stringify(rollback.previous)); }
-});
-const changedPlan = JSON.parse(JSON.stringify(plan));
-changedPlan.operations[1].operationId = 'repeat-sync:instance-c';
-changedPlan.operations[1].instanceId = 'instance-c';
-changedPlan.operations[1].targetIdentity = 'target-c';
-sources['repeat-sync:instance-c'] = { title: 'new' };
-failingTargets['repeat-sync:instance-c'] = { title: 'old' };
-const rolledExecution = service.execute(changedPlan, failingAdapter);
-assert.strictEqual(rolledExecution.status, api.STATUS.ROLLED_BACK);
-assert.strictEqual(rolledExecution.mutationPerformed, false);
-assert.deepStrictEqual(failingTargets['repeat-sync:instance-a'], targets['repeat-sync:instance-a']);
+assert.strictEqual(executed.status, api.STATUS.BLOCKED);
+assert.strictEqual(executed.executionEnabled, false);
+assert.strictEqual(executed.mutationPerformed, false);
+assert.ok(executed.issues.some(item => item.code === 'TARGETED_SYNC_EXECUTION_DISABLED_1_3_1'));
+assert.deepStrictEqual(writeTargets, targets);
 
 const blocker = api.create();
 const prepared = blocker.prepare(plan, adapter);

@@ -199,7 +199,9 @@
     // Shared Sections werden nur an ihrer tatsächlich vorhandenen Modellposition
     // ersetzt. Es gibt kein Entfernen aller Tags und kein Voranstellen vor den Body.
     replaceLayoutRegionInPlace(template, 'header', selected, diagnostics);
-    if (!headerContainsNavigation()) replaceLayoutRegionInPlace(template, 'navigation', selected, diagnostics);
+    const configuredHeader = firstElementFromHtml(state.regions.header);
+    const configuredHeaderContainsNavigation = Boolean(configuredHeader && (configuredHeader.matches('nav') || configuredHeader.querySelector('nav')));
+    if (!configuredHeaderContainsNavigation) replaceLayoutRegionInPlace(template, 'navigation', selected, diagnostics);
     replaceAssignedSectionsInPlace(template, selected, currentPageId, diagnostics);
     replaceLayoutRegionInPlace(template, 'footer', selected, diagnostics);
 
@@ -438,6 +440,21 @@
         sections: Array.isArray(value.sections) ? value.sections.map(normalizeSection) : []
       });
       save();
+    },
+    removePageReferences: (pageId) => {
+      const normalized = String(pageId || '');
+      if (!normalized) return false;
+      let changed = false;
+      state.sections = state.sections.map((section) => {
+        const pages = (section.pages || []).filter(id => String(id) !== normalized);
+        if (pages.length !== (section.pages || []).length) changed = true;
+        return Object.assign({}, section, { pages });
+      });
+      if (changed) {
+        save();
+        syncForm();
+      }
+      return changed;
     },
     updateLayoutRegions: (regions) => {
       if (!state.enabled || !regions || typeof regions !== 'object') return clone(state.regions);

@@ -71,7 +71,7 @@
       repeatKey: repeatKey,
       source: normalizeSource(value.source || previous.source),
       scope: text(value.scope || previous.scope) || 'structure',
-      synchronizationPolicy: text(value.synchronizationPolicy || previous.synchronizationPolicy) || SYNC_POLICY.AUTOMATIC,
+      synchronizationPolicy: text(value.synchronizationPolicy || previous.synchronizationPolicy) || SYNC_POLICY.MANUAL,
       referencePolicy: text(value.referencePolicy || previous.referencePolicy) || REFERENCE_POLICY.ALLOW,
       schemaVersion: SCHEMA_VERSION,
       revision: Number(value.revision || previous.revision || 1),
@@ -371,13 +371,10 @@
   }
 
   function apply(reference) {
-    const runtime = typeof globalThis !== 'undefined' ? globalThis.OluntirRepeatSynchronizationRuntime : null;
-    if (!editor || !runtime || typeof runtime.apply !== 'function') {
-      const error = new Error('Die produktive Repeat-Synchronisation ist nicht vollständig gebunden.');
-      error.code = 'REPEAT_SYNC_RUNTIME_NOT_BOUND';
-      throw error;
-    }
-    return runtime.apply(editor, text(reference));
+    const error = new Error('Produktive Repeat-Synchronisation ist in Oluntir 1.3.1 bewusst deaktiviert.');
+    error.code = 'REPEAT_SYNC_NOT_AVAILABLE_IN_1_3_1';
+    error.reference = text(reference) || null;
+    throw error;
   }
 
   function reset() { state = emptyState(); return snapshot(); }

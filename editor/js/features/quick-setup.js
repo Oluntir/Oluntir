@@ -210,6 +210,69 @@
     return result;
   }
 
+  function normalizeConfigValue(value) {
+    return typeof value === 'boolean' ? value : String(value == null ? '' : value);
+  }
+
+  function onlyFieldChanged(previous, next, fieldName, defaults) {
+    const keys = Object.keys(Object.assign({}, defaults || {}, previous || {}, next || {}));
+    let selectedFieldChanged = false;
+    for (const key of keys) {
+      const before = normalizeConfigValue(previous && previous[key] != null ? previous[key] : defaults && defaults[key]);
+      const after = normalizeConfigValue(next && next[key] != null ? next[key] : defaults && defaults[key]);
+      if (key === fieldName) selectedFieldChanged = before !== after;
+      else if (before !== after) return false;
+    }
+    return selectedFieldChanged;
+  }
+
+  function componentClasses(component) {
+    if (!component) return [];
+    if (typeof component.getClasses === 'function') return component.getClasses();
+    const attrs = component.getAttributes ? component.getAttributes() : {};
+    return String(attrs && attrs.class || '').split(/\s+/).filter(Boolean);
+  }
+
+  function findDescendantByClass(component, className) {
+    if (!component) return null;
+    if (componentClasses(component).includes(className)) return component;
+    const collection = component.components && component.components();
+    const children = collection && (collection.models || collection);
+    if (!children || typeof children.forEach !== 'function') return null;
+    let result = null;
+    children.forEach((child) => {
+      if (!result) result = findDescendantByClass(child, className);
+    });
+    return result;
+  }
+
+  function isTextNode(component) {
+    if (!component) return false;
+    if (typeof component.is === 'function' && component.is('textnode')) return true;
+    return component.get && component.get('type') === 'textnode';
+  }
+
+  function updateNavbarBrandPreservingStructure(component, value) {
+    const brand = findDescendantByClass(component, 'navbar-brand');
+    if (!brand) return false;
+    const collection = brand.components && brand.components();
+    const children = collection && (collection.models || collection);
+    let firstText = null;
+    const extraTextNodes = [];
+    if (children && typeof children.forEach === 'function') {
+      children.forEach((child) => {
+        if (!isTextNode(child)) return;
+        if (!firstText) firstText = child;
+        else extraTextNodes.push(child);
+      });
+    }
+    if (firstText && typeof firstText.set === 'function') firstText.set('content', String(value || ''));
+    else if (typeof brand.append === 'function') brand.append({ type: 'textnode', content: String(value || '') });
+    extraTextNodes.forEach((child) => child && typeof child.remove === 'function' && child.remove());
+    try { if (brand.view && typeof brand.view.render === 'function') brand.view.render(); } catch (_) {}
+    return brand;
+  }
+
   window.registerQuickSetup = function registerQuickSetup(editor, version) {
     const bs5 = version === 'bs5';
     const panel = document.createElement('aside');
@@ -218,6 +281,7 @@
     panel.innerHTML = `<div class="pbq-head"><div><strong data-pbq-i18n="heading">${tk('quickSetup.heading')}</strong><small data-pbq-i18n="subtitle">${tk('quickSetup.subtitle')}</small></div><button type="button" data-pbq-close aria-label="${tk('common.close')}">×</button></div><div class="pbq-body"></div><div class="pbq-advanced"><strong data-pbq-i18n="advanced">${tk('quickSetup.advanced')}</strong><p data-pbq-i18n="advancedText">${tk('quickSetup.advancedText')}</p></div>`;
     document.body.appendChild(panel);
     let current = null;
+    let openedConfig = null;
 
     function open(component) {
       component = getRoot(component);
@@ -228,6 +292,7 @@
       let saved = {};
       try { saved = JSON.parse(attr(component, 'data-pb-config', '{}')); } catch (_) {}
       const cfg = Object.assign({}, def.defaults, saved);
+      openedConfig = Object.assign({}, cfg);
       panel.querySelector('.pbq-body').innerHTML = `<h2>${esc(tr(def.title))}</h2><div class="pbq-fields">${def.fields.map((f) => makeField(f, cfg[f[0]])).join('')}</div><div class="pbq-actions"><button type="button" data-pbq-apply class="btn-primary">${tk('common.apply')}</button><button type="button" data-pbq-reset>${tk('common.reset')}</button></div>`;
       panel.hidden = false;
       document.dispatchEvent(new CustomEvent('pb:quick-setup-open'));
@@ -238,10 +303,35 @@
       const type = attr(current, 'data-pb-quick', '');
       const def = definitions[type];
       if (!def) return;
+      let saved = {};
+      try { saved = JSON.parse(attr(current, 'data-pb-config', '{}')); } catch (_) {}
+      const previous = Object.assign({}, def.defaults, openedConfig || saved);
       const cfg = useDefaults ? Object.assign({}, def.defaults) : readForm(panel, def);
-      setInner(current, def.render(cfg, bs5));
+      const updatedBrand = type === 'navbar'
+        && !useDefaults
+        && onlyFieldChanged(previous, cfg, 'brand', def.defaults)
+        ? updateNavbarBrandPreservingStructure(current, cfg.brand)
+        : null;
+      const preserveNavbar = Boolean(updatedBrand);
+      if (!preserveNavbar) setInner(current, def.render(cfg, bs5));
+      else current.set('pbConfigured', true);
       current.addAttributes({'data-pb-config': JSON.stringify(cfg)});
       editor.select(current);
+
+      // Quick Setup changes are model-authoritative. Commit the selected page
+      // immediately to Shared Content and propagate header/navigation/footer to
+      // all project pages before a page switch can restore stale Canvas markup.
+      const shared = window.OluntirSharedContentManager;
+      const selectedPage = editor.Pages && editor.Pages.getSelected ? editor.Pages.getSelected() : null;
+      if (shared && selectedPage && preserveNavbar && typeof shared.commitSharedComponentChange === 'function') {
+        shared.commitSharedComponentChange(updatedBrand, selectedPage, { propagate: true });
+      } else if (shared && selectedPage && typeof shared.commitModelChange === 'function') {
+        shared.commitModelChange(selectedPage, { propagate: true });
+      } else if (shared && selectedPage && typeof shared.flushPage === 'function') {
+        shared.flushPage(selectedPage, { propagate: true });
+        if (typeof editor.store === 'function') Promise.resolve().then(() => editor.store()).catch(() => {});
+      }
+
       if (window.toast) window.toast('Element aktualisiert');
       open(current);
     }

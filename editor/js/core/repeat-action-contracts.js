@@ -131,8 +131,8 @@
       operations: plan && plan.operations || [],
       issues: issues,
       mutationPerformed: false,
-      applyEnabled: true,
-      executionEnabled: true
+      applyEnabled: false,
+      executionEnabled: false
     });
   }
   function registerReadOnlyHandlers(engine, editorProvider) {
@@ -147,11 +147,15 @@
     add(ACTION_TYPE.MARK_DIRTY, markDirty);
     add(ACTION_TYPE.PLAN, createPlan);
     add(ACTION_TYPE.PREPARE_SYNC, prepareSync);
-    add(ACTION_TYPE.SYNC, (editor, payload) => {
-      const runtime = typeof globalThis !== 'undefined' ? globalThis.OluntirRepeatSynchronizationRuntime : null;
-      if (!runtime || typeof runtime.apply !== 'function') throw new Error('Repeat synchronization runtime is required.');
-      return payload.plan && typeof runtime.applyPlan === 'function' ? runtime.applyPlan(editor, payload.plan) : runtime.apply(editor, referenceFrom(payload));
-    });
+    add(ACTION_TYPE.SYNC, (_editor, payload) => frozen({
+      schemaVersion: SCHEMA_VERSION,
+      type: ACTION_TYPE.SYNC,
+      status: 'not-available',
+      code: 'REPEAT_SYNC_NOT_AVAILABLE_IN_1_3_1',
+      reference: referenceFrom(payload) || null,
+      mutationPerformed: false,
+      executionEnabled: false
+    }));
     return frozen({ schemaVersion: SCHEMA_VERSION, handlerIds: handlers });
   }
   function createAction(type, payload, metadata) {

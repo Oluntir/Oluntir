@@ -8,10 +8,13 @@
   const contextResolver = root && root.OluntirContextResolver
     ? root.OluntirContextResolver
     : (typeof module === 'object' && module.exports ? require('./context-resolver.js') : null);
-  const api = factory(dictionary, identityResolver, contextResolver);
+  const templateSemantics = root && root.OluntirTemplateSemantics
+    ? root.OluntirTemplateSemantics
+    : (typeof module === 'object' && module.exports ? require('./template-semantics.js') : null);
+  const api = factory(dictionary, identityResolver, contextResolver, templateSemantics);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.OluntirLayoutIdentities = api;
-})(typeof window !== 'undefined' ? window : globalThis, function (dictionary, identityResolver, contextResolver) {
+})(typeof window !== 'undefined' ? window : globalThis, function (dictionary, identityResolver, contextResolver, templateSemantics) {
   'use strict';
 
   const SCHEMA_VERSION = 1;
@@ -45,22 +48,24 @@
   }
   function tagOf(component) { return String(component && component.get ? (component.get('tagName') || '') : '').toLowerCase(); }
   function typeOf(component) { return String(component && component.get ? (component.get('type') || '') : '').toLowerCase(); }
-  function hasColumnClass(classes) { return classes.some(name => /^col(?:$|-)/.test(name)); }
-  function classify(component, isRoot) {
-    if (isRoot) return 'page';
+  function templateDescription(component, isRoot) {
     const attrs = attrsOf(component);
-    if (attrs[ATTR.section]) return 'section';
-    if (attrs[ATTR.row]) return 'row';
-    if (attrs[ATTR.slot]) return 'slot';
-    if (attrs[ATTR.component]) return 'component';
-    const classes = classesOf(component);
-    const tag = tagOf(component);
-    const type = typeOf(component);
-    if (tag === 'section' || classes.includes('section') || classes.some(c => /^section-/.test(c))) return 'section';
-    if (classes.includes('row')) return 'row';
-    if (hasColumnClass(classes)) return 'slot';
-    if (type === 'wrapper') return null;
-    return 'component';
+    const context = {
+      tagName: tagOf(component),
+      type: typeOf(component),
+      classes: classesOf(component),
+      attributes: attrs
+    };
+    const resolved = templateSemantics && typeof templateSemantics.resolveRole === 'function'
+      ? templateSemantics.resolveRole(context)
+      : { role: isRoot ? 'page' : (tagOf(component) || 'element'), frameworkRole: null, framework: null };
+    const structuralKind = templateSemantics && typeof templateSemantics.structuralKind === 'function'
+      ? templateSemantics.structuralKind(resolved, isRoot)
+      : (isRoot ? 'page' : 'component');
+    return { resolved, structuralKind };
+  }
+  function classify(component, isRoot) {
+    return templateDescription(component, Boolean(isRoot)).structuralKind;
   }
   function resolvePageId(component, context) {
     if (context && context.pageId) return String(context.pageId);
@@ -85,7 +90,8 @@
     });
   }
   function describe(component, context) {
-    const structuralKind = classify(component, Boolean(context && context.isRoot));
+    const template = templateDescription(component, Boolean(context && context.isRoot));
+    const structuralKind = template.structuralKind;
     const semanticIdentity = resolveSemanticIdentity(component);
     const attrs = attrsOf(component);
     const identityAttr = structuralKind && ATTR[structuralKind];
@@ -100,6 +106,11 @@
       identity: identityAttr ? (attrs[identityAttr] || null) : null,
       pageId: resolvedPageId,
       structuralKind: structuralKind,
+      templateRole: template.resolved ? template.resolved.role : null,
+      frameworkRole: template.resolved ? template.resolved.frameworkRole : null,
+      framework: template.resolved ? template.resolved.framework : null,
+      tagName: template.resolved ? template.resolved.tagName : tagOf(component),
+      classes: template.resolved ? template.resolved.classes : Object.freeze(classesOf(component)),
       componentType: semanticIdentity ? semanticIdentity.componentType : null,
       role: semanticIdentity ? semanticIdentity.role : null,
       cardinality: semanticIdentity ? semanticIdentity.cardinality : null,
@@ -191,7 +202,7 @@
       return source.replace(/\sdata-oluntir-(?:page|section|row|slot|component|repeat)-id=(?:"[^"]*"|'[^']*')/gi, '');
     }
     const template = document.createElement('template'); template.innerHTML = source;
-    Object.values(ATTR).forEach(attr => template.content.querySelectorAll('[' + attr + ']').forEach(el => el.removeAttribute(attr)));
+    Object.values(ATTR).concat(['data-oluntir-repeat-instance-id', 'data-oluntir-repeat-name', 'data-oluntir-repeat-role']).forEach(attr => template.content.querySelectorAll('[' + attr + ']').forEach(el => el.removeAttribute(attr)));
     return template.innerHTML;
   }
   function findById(page, identity) {
@@ -211,5 +222,5 @@
     editor.on('page:add', () => ensureAll(editor));
     editor.on('component:add', ensureAdded);
   }
-  return { SCHEMA_VERSION, SEMANTIC_SCHEMA_VERSION, SEMANTIC_DICTIONARY, IDENTITY_RESOLVER, CONTEXT_RESOLVER, ATTR, PREFIX, createId, classify, describe, walk, ensureAll, ensureAdded, bind, findById, pageId, decorateProjectData, stripInternalAttributes, getProjectMetadata };
+  return { SCHEMA_VERSION, SEMANTIC_SCHEMA_VERSION, SEMANTIC_DICTIONARY, IDENTITY_RESOLVER, CONTEXT_RESOLVER, TEMPLATE_SEMANTICS: templateSemantics, ATTR, PREFIX, createId, classify, describe, walk, ensureAll, ensureAdded, bind, findById, pageId, decorateProjectData, stripInternalAttributes, getProjectMetadata };
 });

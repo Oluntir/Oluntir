@@ -287,9 +287,17 @@
           if (!Object.prototype.hasOwnProperty.call(attrs, 'data-stable-path')) {
             delete nextAttributes['data-stable-path'];
           }
-          imageComponent.set('attributes', nextAttributes);
+          if (window.OluntirDocumentApi && typeof window.OluntirDocumentApi.updateAttributes === 'function') {
+            window.OluntirDocumentApi.updateAttributes(imageComponent, nextAttributes, {
+              label: 'image.replace',
+              merge: false
+            });
+          } else {
+            imageComponent.set('attributes', nextAttributes);
+          }
           editor.select(imageComponent);
           editor.trigger('component:update', imageComponent);
+          editor.trigger('oluntir:history:changed');
           if (typeof window.OluntirPersistProjectSoon === 'function') {
             window.OluntirPersistProjectSoon(100);
           }

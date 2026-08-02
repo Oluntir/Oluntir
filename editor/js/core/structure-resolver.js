@@ -24,6 +24,8 @@
   function freezeNode(node) {
     return Object.freeze(Object.assign({}, node, {
       capabilities: Object.freeze((node.capabilities || []).slice()),
+      classes: Object.freeze((node.classes || []).slice()),
+      framework: node.framework ? Object.freeze(Object.assign({}, node.framework)) : null,
       children: Object.freeze((node.children || []).map(freezeNode))
     }));
   }
@@ -45,6 +47,11 @@
       parentIdentity: parentIdentity || null,
       depth: depth,
       structuralKind: description.structuralKind,
+      templateRole: description.templateRole || null,
+      frameworkRole: description.frameworkRole || null,
+      framework: description.framework || null,
+      tagName: description.tagName || null,
+      classes: description.classes || [],
       componentType: description.componentType,
       role: description.role,
       cardinality: description.cardinality,

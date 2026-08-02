@@ -113,6 +113,56 @@ assetHydration.then(() => {
     editor.on('storage:store', () => window.OluntirRuntimeActions.emit('project.saved', { storage: 'local' }));
   }
 
+
+  let oluntirHistoryReplayActive = false;
+
+  function bindOluntirUndoRedo(editorInstance) {
+    if (!editorInstance || editorInstance.__oluntirUndoRedoBound) return;
+    editorInstance.__oluntirUndoRedoBound = true;
+    const commands = editorInstance.Commands;
+    const panels = editorInstance.Panels;
+    const manager = editorInstance.UndoManager;
+    if (!commands || !panels || !manager) return;
+    commands.add('oluntir:undo', {
+      run() {
+        if (typeof manager.undo === 'function' && (typeof manager.hasUndo !== 'function' || manager.hasUndo())) {
+          cancelPendingProjectPersist();
+          oluntirHistoryReplayActive = true;
+          try {
+            manager.undo();
+          } finally {
+            oluntirHistoryReplayActive = false;
+          }
+          persistHistoryReplayStateSoon();
+          return true;
+        }
+        return false;
+      }
+    });
+    commands.add('oluntir:redo', {
+      run() {
+        if (typeof manager.redo === 'function' && (typeof manager.hasRedo !== 'function' || manager.hasRedo())) {
+          cancelPendingProjectPersist();
+          oluntirHistoryReplayActive = true;
+          try {
+            manager.redo();
+          } finally {
+            oluntirHistoryReplayActive = false;
+          }
+          persistHistoryReplayStateSoon();
+          return true;
+        }
+        return false;
+      }
+    });
+    const undoButton = panels.getButton('options', 'undo');
+    const redoButton = panels.getButton('options', 'redo');
+    if (undoButton) undoButton.set('command', 'oluntir:undo');
+    if (redoButton) redoButton.set('command', 'oluntir:redo');
+  }
+  window.bindOluntirUndoRedo = bindOluntirUndoRedo;
+  bindOluntirUndoRedo(editor);
+
   if (typeof window.registerTextMediaEditing === 'function') {
     window.registerTextMediaEditing(editor);
   }
@@ -173,12 +223,14 @@ assetHydration.then(() => {
   window.OluntirEditor = editor;
   window.OluntirGrapes = window.OluntirGrapesAdapter.create(editor);
   console.info('Oluntir GrapesJS adapter:', window.OluntirGrapes.selfTest());
+  if (window.OluntirDocumentApi && typeof window.OluntirDocumentApi.bind === 'function') {
+    window.OluntirDocumentApi.bind(editor);
+  }
   if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.bind === 'function') {
     window.OluntirSharedContentManager.bind(editor);
   }
   if (window.OluntirLayoutIdentities) window.OluntirLayoutIdentities.bind(editor);
   if (window.OluntirRepeatEngineV2) window.OluntirRepeatEngineV2.bind(editor);
-  if (window.OluntirRepeatAutoSynchronization) window.OluntirRepeatAutoSynchronization.bind(editor);
   if (window.OluntirFavicon) window.OluntirFavicon.bind(editor);
   window.dispatchEvent(new CustomEvent('oluntir:editorready'));
 
@@ -208,6 +260,9 @@ assetHydration.then(() => {
       window.requestAnimationFrame(repairGalleryIcons);
     }
   });
+  if (typeof window.bindGalleryItemLifecycle === 'function') {
+    window.bindGalleryItemLifecycle(editor);
+  }
 
   // Zuvor hochgeladene Bilder (aus IndexedDB wiederhergestellt, siehe hydrateAssetStore
   // oben) auch wieder als auswählbare Assets im Asset-Manager anbieten – sonst wären sie
@@ -462,7 +517,11 @@ assetHydration.then(() => {
     template.innerHTML = pageComponentHtml(page);
     const read = (selector) => {
       const element = template.content.querySelector(selector);
-      return element ? element.outerHTML : '';
+      const raw = element ? element.outerHTML : '';
+      const semantics = window.OluntirTemplateSemantics;
+      return semantics && typeof semantics.normalizeReferencedIds === 'function'
+        ? semantics.normalizeReferencedIds(raw)
+        : raw;
     };
     return {
       header: read('header'),
@@ -517,7 +576,10 @@ assetHydration.then(() => {
       else template.content.appendChild(main);
     }
 
-    const updatedHtml = template.innerHTML;
+    const semantics = window.OluntirTemplateSemantics;
+    const updatedHtml = semantics && typeof semantics.normalizeReferencedIds === 'function'
+      ? semantics.normalizeReferencedIds(template.innerHTML)
+      : template.innerHTML;
     if (updatedHtml === sourceHtml) return false;
     const component = page.getMainComponent && page.getMainComponent();
     if (!component || typeof component.components !== 'function') return false;
@@ -694,6 +756,22 @@ assetHydration.then(() => {
       .join('\n');
   }
 
+  function createUniquePageRecord() {
+    const existing = new Set(editor.Pages.getAll().map(page => String(page && page.id || '')));
+    const identities = window.OluntirLayoutIdentities;
+    let semanticId = identities && typeof identities.createId === 'function'
+      ? identities.createId('page')
+      : `ol_page_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    let modelId = `oluntir-page-${semanticId.replace(/^ol_page_/, '')}`;
+    while (existing.has(modelId)) {
+      semanticId = identities && typeof identities.createId === 'function'
+        ? identities.createId('page')
+        : `ol_page_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+      modelId = `oluntir-page-${semanticId.replace(/^ol_page_/, '')}`;
+    }
+    return { modelId, semanticId };
+  }
+
   document.getElementById('btn-new-page').addEventListener('click', () => {
     const name = prompt(oluntirT('page.newPrompt'));
     if (!name) return;
@@ -704,7 +782,10 @@ assetHydration.then(() => {
       synchronizeSharedRegionsFromPage(editor.Pages.getSelected());
     }
     const component = reusablePageTemplate();
-    const pageConfig = component ? { name, component } : { name };
+    const pageRecord = createUniquePageRecord();
+    const pageConfig = component
+      ? { id: pageRecord.modelId, name, component, oluntirPageId: pageRecord.semanticId }
+      : { id: pageRecord.modelId, name, oluntirPageId: pageRecord.semanticId };
     // reusablePageTemplate() already contains the current shared regions and an
     // explicit empty <main>. Do not rebuild the freshly created page before its
     // first Canvas selection, otherwise GrapesJS can retain the previous frame.
@@ -750,7 +831,18 @@ assetHydration.then(() => {
     } else {
       synchronizeSharedRegionsFromPage(page);
     }
+    const deletedModelId = String(page.id || '');
+    const deletedSemanticId = window.OluntirLayoutIdentities && typeof window.OluntirLayoutIdentities.pageId === 'function'
+      ? window.OluntirLayoutIdentities.pageId(page)
+      : null;
     editor.Pages.remove(page);
+
+    if (window.OluntirIncludes && typeof window.OluntirIncludes.removePageReferences === 'function') {
+      window.OluntirIncludes.removePageReferences(deletedModelId);
+    }
+    if (window.OluntirRepeatEngineV2 && typeof window.OluntirRepeatEngineV2.removePageReferences === 'function') {
+      window.OluntirRepeatEngineV2.removePageReferences(deletedSemanticId || deletedModelId);
+    }
 
     if (fallbackPage && editor.Pages.getAll().includes(fallbackPage)) {
       editor.Pages.select(fallbackPage);
@@ -758,6 +850,10 @@ assetHydration.then(() => {
 
     refreshPageList();
     refreshSelectedPageVisuals();
+    // Deletion is a project-state mutation, not a display-only action. Persist it
+    // immediately so a newly created page with the same label can never revive
+    // the deleted model from an older autosave snapshot.
+    persistCurrentProjectStateSoon(0);
     toast(oluntirT('page.deleted', { name: page.getName() || page.id }));
   });
 
@@ -792,6 +888,7 @@ assetHydration.then(() => {
   // bildbedingten Speichern wird deshalb der sichtbare Canvas-Zustand verbindlich ins
   // Projektmodell übernommen. So kann niemals die zuletzt eingefügte Bildaktion fehlen.
   let projectPersistTimer = 0;
+  let historyReplayPersistTimer = 0;
   let projectPersistRunning = false;
   let projectPersistAgain = false;
   let projectCommitRunning = false;
@@ -881,6 +978,37 @@ assetHydration.then(() => {
     }
   }
 
+  function cancelPendingProjectPersist() {
+    window.clearTimeout(projectPersistTimer);
+    projectPersistTimer = 0;
+  }
+
+  function writeHistoryReplaySnapshotSynchronously() {
+    let projectData = editor.getProjectData();
+    if (window.OluntirLayoutIdentities) {
+      projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData);
+    }
+    if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
+    if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
+    localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
+    return projectData;
+  }
+
+  function persistHistoryReplayStateSoon() {
+    window.clearTimeout(historyReplayPersistTimer);
+    historyReplayPersistTimer = window.setTimeout(async () => {
+      historyReplayPersistTimer = 0;
+      try {
+        // Undo/Redo darf keine nachträgliche Canvas-Normalisierung auslösen. Jede
+        // zusätzliche Modellmutation würde GrapesJS' Redo-Stack verwerfen.
+        await editor.store();
+        writeHistoryReplaySnapshotSynchronously();
+      } catch (error) {
+        console.error('Undo-/Redo-Zustand konnte nicht gespeichert werden:', error);
+      }
+    }, 0);
+  }
+
   function persistCurrentProjectStateSoon(delay) {
     // Während aktiver Texteingabe niemals das Komponentenmodell neu schreiben.
     // Der Abschluss wird durch rte:disable einmalig und vollständig gespeichert.
@@ -921,7 +1049,7 @@ assetHydration.then(() => {
   // Textkomponenten löst eine kurze, zusammengefasste Persistierung aus. Damit werden
   // auch mehrere direkt nacheinander eingefügte Card-/Inline-Bilder vollständig erfasst.
   editor.on('component:update', (component) => {
-    if (projectCommitRunning || richTextEditingActive || !component || !component.get) return;
+    if (oluntirHistoryReplayActive || projectCommitRunning || richTextEditingActive || !component || !component.get) return;
     const type = String(component.get('type') || '').toLowerCase();
     const tag = String(component.get('tagName') || '').toLowerCase();
     // Bildänderungen werden weiterhin zeitnah gesichert. Text wird erst beim
@@ -1329,7 +1457,8 @@ assetHydration.then(() => {
   editor.on('run:open-assets', () => window.requestAnimationFrame(() => patchUploadedImageRefs(document)));
   editor.on('asset:open', () => window.requestAnimationFrame(() => patchUploadedImageRefs(document)));
   editor.on('asset:add', () => window.requestAnimationFrame(() => patchUploadedImageRefs(document)));
-  editor.on('asset:select', (asset) => {
+  editor.on('asset:select', (asset, _complete, meta) => {
+    if (meta && meta.oluntirHandled) return;
     const stablePath = asset && asset.get ? String(asset.get('src') || '') : '';
     const isPersistentUpload = stablePath.indexOf('assets/user_upload/') === 0 ||
       stablePath.indexOf('images/uploads/') === 0 || stablePath.indexOf('images/downloads/') === 0;
@@ -1345,7 +1474,11 @@ assetHydration.then(() => {
       const type = String(component.get('type') || '').toLowerCase();
       if (tagName !== 'img' && type !== 'image') return;
 
-      component.addAttributes({ src: stablePath, 'data-stable-path': stablePath });
+      if (window.OluntirDocumentApi && typeof window.OluntirDocumentApi.updateAttributes === 'function') {
+        window.OluntirDocumentApi.updateAttributes(component, { src: stablePath, 'data-stable-path': stablePath }, { label: 'image.replace', merge: true });
+      } else {
+        component.addAttributes({ src: stablePath, 'data-stable-path': stablePath });
+      }
       editor.trigger('component:update', component);
       persistCurrentProjectStateSoon(100);
       try {

@@ -138,12 +138,19 @@
       apply(panel) {
         setText(component, formValue(panel,'text'));
         const chosenSize = formValue(panel,'fontSize') === 'custom' ? formValue(panel,'fontSizeCustom') : formValue(panel,'fontSize');
-        component.addStyle({
+        const presentation = {
           'font-family': formValue(panel,'fontFamily') || '', 'font-size': chosenSize || '',
           'font-weight': formValue(panel,'fontWeight') || '', 'line-height': formValue(panel,'lineHeight') || '',
           'letter-spacing': formValue(panel,'letterSpacing') || '', 'text-align': formValue(panel,'align') || '',
           'color': formValue(panel,'colorText') || formValue(panel,'color') || ''
-        });
+        };
+        const presentationApi = window.OluntirPresentationApi;
+        if (presentationApi && typeof presentationApi.apply === 'function') {
+          presentationApi.apply(component, presentation, { persistInline: true });
+        } else {
+          component.addStyle(presentation);
+        }
+        return { presentation };
       }
     };
   }
@@ -157,7 +164,12 @@
         '<section><h3>Darstellung</h3>',field('width','Breite','text',style(component,'width','100%'),null,'Zum Beispiel 100%, 480px oder 30rem'),field('height','Höhe','text',style(component,'height','auto')),field('fit','Bildanpassung','select',style(component,'object-fit','cover'),[['cover','Ausfüllen'],['contain','Einpassen'],['fill','Strecken'],['none','Original']]),field('radius','Eckenradius','text',style(component,'border-radius',''),null,'Zum Beispiel 0.5rem, 12px oder 50%'),field('shadow','Schatten','checkbox',hasClass(component,'shadow')||hasClass(component,'shadow-sm')),'</section>'
       ].join(''),
       apply(panel){
-        component.addAttributes({src:formValue(panel,'src'),alt:formValue(panel,'alt'),title:formValue(panel,'title')});
+        const imageAttributes={src:formValue(panel,'src'),alt:formValue(panel,'alt'),title:formValue(panel,'title')};
+        if(window.OluntirDocumentApi&&typeof window.OluntirDocumentApi.updateAttributes==='function'){
+          window.OluntirDocumentApi.updateAttributes(component,imageAttributes,{label:'image.attributes',merge:true});
+        }else{
+          component.addAttributes(imageAttributes);
+        }
         component.addStyle({'width':formValue(panel,'width')||'','height':formValue(panel,'height')||'','object-fit':formValue(panel,'fit')||'','border-radius':formValue(panel,'radius')||''});
         replaceClassGroup(component,c=>c==='shadow'||c==='shadow-sm',formValue(panel,'shadow')?'shadow-sm':'');
       }
@@ -207,6 +219,11 @@
       if (!current || !definition) return;
       definition.apply(panel);
       editor.select(current);
+      const shared = window.OluntirSharedContentManager;
+      const selectedPage = editor.Pages && editor.Pages.getSelected ? editor.Pages.getSelected() : null;
+      if (shared && selectedPage && typeof shared.commitSharedComponentChange === 'function') {
+        shared.commitSharedComponentChange(current, selectedPage, { propagate: true });
+      }
       if (window.toast) window.toast(tk('quickEdit.applied'));
       open(current);
     }

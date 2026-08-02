@@ -17,6 +17,7 @@
   let lastRegionsJson = '';
   const pageRegionCache = new WeakMap();
   const pageAppliedFingerprints = new WeakMap();
+  const modelAuthoritativePages = new WeakSet();
 
   function enabled() {
     const includes = window.OluntirIncludes;
@@ -44,7 +45,11 @@
     const result = {};
     Object.keys(REGION_SELECTORS).forEach((name) => {
       const element = template.content.querySelector(REGION_SELECTORS[name]);
-      result[name] = element ? element.outerHTML : '';
+      const raw = element ? element.outerHTML : '';
+      const semantics = window.OluntirTemplateSemantics;
+      result[name] = semantics && typeof semantics.normalizeReferencedIds === 'function'
+        ? semantics.normalizeReferencedIds(raw)
+        : raw;
     });
     return result;
   }
@@ -113,7 +118,10 @@
       else template.content.appendChild(main);
     }
 
-    return template.innerHTML;
+    const semantics = window.OluntirTemplateSemantics;
+    return semantics && typeof semantics.normalizeReferencedIds === 'function'
+      ? semantics.normalizeReferencedIds(template.innerHTML)
+      : template.innerHTML;
   }
 
   function currentRegions() {
@@ -163,10 +171,14 @@
 
     if (currentInnerHtml !== nextInnerHtml) {
       component.components(nextInnerHtml);
+      const presentationApi = window.OluntirPresentationApi;
+      if (presentationApi && typeof presentationApi.hydrateTree === 'function') presentationApi.hydrateTree(component);
       changed = true;
     }
     if (!sameAttributes(currentAttributes, nextAttributes) && typeof component.set === 'function') {
       component.set('attributes', nextAttributes);
+      const presentationApi = window.OluntirPresentationApi;
+      if (presentationApi && typeof presentationApi.hydrate === 'function') presentationApi.hydrate(component, false);
       changed = true;
     }
     return changed;
@@ -314,6 +326,17 @@
   function commitSelectedCanvasToShared(page, options) {
     if (!enabled() || !editor || !page || !editor.Pages || editor.Pages.getSelected() !== page) return false;
 
+    // Quick Setup mutates the GrapesJS model directly. During the following
+    // render turn the Canvas DOM can still contain the previous markup. Never
+    // copy that stale DOM back into the already updated model on page switch.
+    if (modelAuthoritativePages.has(page)) {
+      modelAuthoritativePages.delete(page);
+      const changed = flushPage(page, { propagate: true });
+      const targetPage = options && options.targetPage;
+      const targetUpdated = Boolean(targetPage && targetPage !== page && applyToPage(targetPage));
+      return changed || targetUpdated;
+    }
+
     let canvasDocument = null;
     try { canvasDocument = editor.Canvas && editor.Canvas.getDocument ? editor.Canvas.getDocument() : null; } catch (_) { /* no canvas */ }
     if (!canvasDocument) return flushPage(page);
@@ -382,6 +405,214 @@
     return changed || committed || targetUpdated;
   }
 
+
+
+  function componentParent(component) {
+    return component && typeof component.parent === 'function' ? component.parent() : null;
+  }
+
+  function sharedRegionInfo(component) {
+    let current = component;
+    let nav = null;
+    while (current) {
+      const tagName = componentTagName(current);
+      if (tagName === 'nav') nav = current;
+      if (tagName === 'header') return { name: 'header', root: current };
+      if (tagName === 'footer') return { name: 'footer', root: current };
+      current = componentParent(current);
+    }
+    return nav ? { name: 'navigation', root: nav } : null;
+  }
+
+  function componentIndex(parent, component) {
+    const children = childComponents(parent);
+    for (let index = 0; index < children.length; index += 1) {
+      if (children[index] === component) return index;
+      const left = children[index] && typeof children[index].getId === 'function' ? children[index].getId() : null;
+      const right = component && typeof component.getId === 'function' ? component.getId() : null;
+      if (left && right && left === right) return index;
+    }
+    return -1;
+  }
+
+  function relativeComponentPath(root, component) {
+    const path = [];
+    let current = component;
+    while (current && current !== root) {
+      const parent = componentParent(current);
+      if (!parent) return null;
+      const index = componentIndex(parent, current);
+      if (index < 0) return null;
+      path.unshift(index);
+      current = parent;
+    }
+    return current === root ? path : null;
+  }
+
+  function componentAtPath(root, path) {
+    let current = root;
+    for (let index = 0; index < path.length; index += 1) {
+      const children = childComponents(current);
+      current = children[path[index]] || null;
+      if (!current) return null;
+    }
+    return current;
+  }
+
+  function copyEditableState(source, target) {
+    if (!source || !target) return false;
+    let changed = false;
+    const sourceInner = typeof source.getInnerHTML === 'function' ? String(source.getInnerHTML() || '') : '';
+    const targetInner = typeof target.getInnerHTML === 'function' ? String(target.getInnerHTML() || '') : '';
+    if (sourceInner !== targetInner && typeof target.components === 'function') {
+      target.components(sourceInner);
+      changed = true;
+    }
+
+    const protectedAttributes = /^(id|data-oluntir-|data-gjs-|data-pb-unit|data-pb-page)/i;
+    const sourceAttributes = componentAttributes(source);
+    const targetAttributes = componentAttributes(target);
+    const nextAttributes = Object.assign({}, targetAttributes);
+    Object.keys(nextAttributes).forEach((name) => {
+      if (!protectedAttributes.test(name) && !Object.prototype.hasOwnProperty.call(sourceAttributes, name)) delete nextAttributes[name];
+    });
+    Object.keys(sourceAttributes).forEach((name) => {
+      if (!protectedAttributes.test(name)) nextAttributes[name] = sourceAttributes[name];
+    });
+    if (!sameAttributes(targetAttributes, nextAttributes) && typeof target.set === 'function') {
+      target.set('attributes', nextAttributes);
+      changed = true;
+    }
+
+    const presentationApi = window.OluntirPresentationApi;
+    if (presentationApi && typeof presentationApi.copy === 'function') {
+      if (presentationApi.copy(source, target)) changed = true;
+    } else {
+      const sourceStyle = source && typeof source.getStyle === 'function' ? Object.assign({}, source.getStyle() || {}) : {};
+      const targetStyle = target && typeof target.getStyle === 'function' ? Object.assign({}, target.getStyle() || {}) : {};
+      if (JSON.stringify(sourceStyle) !== JSON.stringify(targetStyle)) {
+        if (typeof target.setStyle === 'function') target.setStyle(sourceStyle);
+        else if (typeof target.addStyle === 'function') target.addStyle(sourceStyle);
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
+  function styleAttributeValue(component) {
+    if (!component || typeof component.getStyle !== 'function') return '';
+    const styles = Object.assign({}, component.getStyle() || {});
+    return Object.keys(styles)
+      .filter((name) => styles[name] != null && String(styles[name]).trim() !== '')
+      .sort()
+      .map((name) => `${name}: ${String(styles[name]).trim()}`)
+      .join('; ');
+  }
+
+  function persistEditableStyleInMarkup(component) {
+    const presentationApi = window.OluntirPresentationApi;
+    if (presentationApi && typeof presentationApi.capture === 'function' && typeof presentationApi.apply === 'function') {
+      const before = component && typeof component.getAttributes === 'function'
+        ? String((component.getAttributes() || {}).style || '').trim().replace(/;\s*$/, '')
+        : '';
+      const presentation = presentationApi.capture(component);
+      presentationApi.apply(component, presentation, { persistInline: true });
+      const after = component && typeof component.getAttributes === 'function'
+        ? String((component.getAttributes() || {}).style || '').trim().replace(/;\s*$/, '')
+        : '';
+      return before !== after;
+    }
+    if (!component || typeof component.getAttributes !== 'function' || typeof component.set !== 'function') return false;
+    const attributes = Object.assign({}, component.getAttributes() || {});
+    const nextStyle = styleAttributeValue(component);
+    const currentStyle = String(attributes.style || '').trim().replace(/;\s*$/, '');
+    if (currentStyle === nextStyle) return false;
+    if (nextStyle) attributes.style = nextStyle;
+    else delete attributes.style;
+    component.set('attributes', attributes);
+    return true;
+  }
+
+  function renderComponent(component) {
+    try {
+      if (component && component.view && typeof component.view.render === 'function') component.view.render();
+    } catch (_) { /* GrapesJS refresh fallback below */ }
+    try {
+      if (editor && typeof editor.refresh === 'function') editor.refresh({ tools: true });
+    } catch (_) { /* optional */ }
+  }
+
+  function commitSharedComponentChange(component, page, options) {
+    if (!enabled() || !editor || !component || !page) return false;
+    const info = sharedRegionInfo(component);
+    if (!info) return false;
+    const path = relativeComponentPath(info.root, component);
+    if (!path) return false;
+
+    if (flushTimer) {
+      window.clearTimeout(flushTimer);
+      flushTimer = 0;
+    }
+    pendingFlushPage = null;
+    modelAuthoritativePages.add(page);
+    // GrapesJS stores component styles in CssComposer. Shared Content persists
+    // HTML regions, so mirror the edited component style into its markup before
+    // the central snapshot and target-page propagation are created.
+    persistEditableStyleInMarkup(component);
+    renderComponent(component);
+
+    let changed = false;
+    applying = true;
+    try {
+      if (options && options.propagate === false) return false;
+      editor.Pages.getAll().forEach((targetPage) => {
+        if (targetPage === page) return;
+        const root = targetPage.getMainComponent && targetPage.getMainComponent();
+        if (!root) return;
+        const regions = pageRegionComponents(targetPage, root);
+        const targetRoot = info.name === 'header' ? regions.header : info.name === 'navigation' ? regions.navigation : regions.footer;
+        const target = targetRoot && componentAtPath(targetRoot, path);
+        if (target && copyEditableState(component, target)) {
+          const presentationApi = window.OluntirPresentationApi;
+          if (presentationApi && typeof presentationApi.hydrate === 'function') presentationApi.hydrate(target, false);
+          changed = true;
+        }
+      });
+    } finally {
+      applying = false;
+    }
+
+    // Refresh the central shared snapshot once, but do not rebuild every page.
+    const centralChanged = flushPage(page, { propagate: false });
+    pageAppliedFingerprints.set(page, regionFingerprint(currentRegions()));
+    if (typeof editor.store === 'function') {
+      window.clearTimeout(commitSharedComponentChange.storeTimer || 0);
+      commitSharedComponentChange.storeTimer = window.setTimeout(() => {
+        Promise.resolve(editor.store()).catch((error) => {
+          console.warn('Schnellbearbeitung konnte nicht gespeichert werden:', error);
+        });
+      }, 0);
+    }
+    return changed || centralChanged;
+  }
+
+  function commitModelChange(page, options) {
+    if (!enabled() || !editor || !page) return false;
+    if (flushTimer) {
+      window.clearTimeout(flushTimer);
+      flushTimer = 0;
+    }
+    pendingFlushPage = null;
+    modelAuthoritativePages.add(page);
+    const changed = flushPage(page, { propagate: !options || options.propagate !== false });
+    if (typeof editor.store === 'function') {
+      Promise.resolve().then(() => editor.store()).catch((error) => {
+        console.warn('Schnellbearbeitung konnte nicht sofort gespeichert werden:', error);
+      });
+    }
+    return changed;
+  }
+
   async function prepareForExport(page) {
     if (!enabled() || !page) {
       return Object.freeze({ committed: false, pendingFlush: false, commitToken: null });
@@ -396,7 +627,16 @@
       }
       pendingFlushPage = null;
 
-      const committed = commitSelectedCanvasToShared(page);
+      // Export is model-first and read-only with regard to presentation. The
+      // quick-edit translation already persists the edited component through
+      // semantic data-oluntir-presentation-* attributes and matching inline CSS.
+      // Do not walk the complete shared tree here: capturing every GrapesJS
+      // model style would freeze framework/default values (for example black
+      // footer headings) as inline CSS and would visibly change the canvas just
+      // before export. materializeHtml() resolves only explicitly translated
+      // presentation metadata when the immutable export snapshot is created.
+      const committed = flushPage(page, { propagate: true });
+      applyToAll(page);
 
       // GrapesJS may emit component events while the model is committed. Keep
       // scheduling suppressed through the next render turn and then discard any
@@ -460,6 +700,8 @@
     flushSelected,
     flushPending,
     commitSelectedCanvasToShared,
+    commitModelChange,
+    commitSharedComponentChange,
     prepareForExport,
     verifyExportCommit,
     applyToPage,

@@ -61,7 +61,7 @@ assert.strictEqual(migrated.definitions[0].source.rootIdentity, 'ol_section_old'
 assert.strictEqual(migrated.definitions[0].metadata.unitIdRetainedAsSourceOnly, true);
 assert.deepStrictEqual(migrated.definitions[0].metadata.legacyTargetPageIds, ['page-target']);
 
-assert.throws(() => repeat.apply('ol_repeat_legacy'), error => error.code === 'REPEAT_SYNC_RUNTIME_NOT_BOUND');
+assert.throws(() => repeat.apply('ol_repeat_legacy'), error => error.code === 'REPEAT_SYNC_NOT_AVAILABLE_IN_1_3_1');
 
 const projectData = repeat.decorateProjectData({ pages: [] });
 assert.strictEqual(projectData.oluntir.repeatEngineSchemaVersion, 3);

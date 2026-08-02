@@ -1,0 +1,15 @@
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+const assert = require('assert');
+const source = fs.readFileSync(path.join(__dirname, '..', 'editor/js/core/oluntir-document-api.js'), 'utf8');
+const context = { console, globalThis: {} };
+context.window = context.globalThis;
+vm.runInNewContext(source, context);
+const api = context.globalThis.OluntirDocumentApi;
+assert(api, 'Document API missing');
+assert.strictEqual(typeof api.buildInsertionModel, 'function');
+assert.strictEqual(typeof api.undo, 'function');
+assert.strictEqual(typeof api.redo, 'function');
+assert(!source.includes('OluntirHistoryService'), 'experimental history service must not be referenced');
+console.log('OLUNTIR-DOCUMENT-API-TEST ERFOLGREICH');

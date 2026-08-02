@@ -1,0 +1,11 @@
+const fs = require('fs');
+const path = require('path');
+const assert = require('assert');
+const root = path.resolve(__dirname, '..');
+const adapter = fs.readFileSync(path.join(root, 'editor/integrations/grapesjs/grapesjs-adapter.js'), 'utf8');
+assert(adapter.includes('const view = element.__gjsv || null;'), 'GrapesJS DOM view bridge is missing.');
+assert(adapter.includes('if (view && view.model) return view.model;'), 'GrapesJS component model must be resolved through __gjsv.model.');
+assert(!adapter.includes('domComponents.getComponent(mainElement)'), 'Invalid DomComponents.getComponent(DOMElement) lookup must be removed.');
+assert(adapter.includes('main = componentFromElement(mainElement);'), 'MAIN must be resolved from the actual canvas element.');
+assert(adapter.includes('boundary = componentFromElement(boundaryElement);'), 'MAIN boundary must be resolved from the actual canvas element.');
+console.log('DEV_011-FIX14-DOM-ELEMENT-COMPONENT-BRIDGE-TEST ERFOLGREICH');

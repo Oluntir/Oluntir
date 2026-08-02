@@ -1,0 +1,10 @@
+'use strict';
+const fs = require('fs');
+const assert = require('assert');
+const adapter = fs.readFileSync('editor/integrations/grapesjs/grapesjs-adapter.js', 'utf8');
+assert(adapter.includes('while (candidate)'), 'anchor-model boundary fallback missing');
+assert(adapter.includes('element.parentElement === mainElement'), 'direct MAIN-child DOM validation missing');
+assert(adapter.includes('if (!main && boundary && boundary.parent)'), 'MAIN recovery from boundary model missing');
+assert(adapter.includes('const declaredIdentity = adapter.componentIdentity(declaredParent);'), 'declared MAIN stable identity comparison missing');
+assert(!adapter.includes('declaredParent !== main'), 'Backbone model reference comparison must not be used');
+console.log('DEV_011-FIX15-RUNTIME-AREA-INSERTION-RESOLUTION-TEST ERFOLGREICH');

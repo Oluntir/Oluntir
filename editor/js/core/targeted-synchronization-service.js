@@ -213,68 +213,21 @@
     }
 
     execute(plan, accessAdapter) {
-      const planValidation = validatePlan(plan);
-      const adapterValidation = validateAccessAdapter(accessAdapter);
-      const writeIssues = [];
-      ['writeTarget', 'restoreTarget'].forEach(name => {
-        if (!accessAdapter || typeof accessAdapter[name] !== 'function') writeIssues.push(issue('TARGETED_SYNC_WRITE_METHOD_MISSING', 'Der Schreibadapter ist unvollständig.', { method: name }));
+      return frozen({
+        schemaVersion: TRANSACTION_SCHEMA_VERSION,
+        transactionId: this.nextTransactionId(),
+        status: STATUS.BLOCKED,
+        valid: false,
+        issues: [issue('TARGETED_SYNC_EXECUTION_DISABLED_1_3_1', 'Produktive Synchronisation ist in Oluntir 1.3.1 bewusst deaktiviert.')],
+        mutationPerformed: false,
+        executionEnabled: false
       });
-      const issues = [].concat(planValidation.issues || [], adapterValidation.issues || [], writeIssues);
-      const transactionId = this.nextTransactionId();
-      if (issues.length) return frozen({ schemaVersion: TRANSACTION_SCHEMA_VERSION, transactionId: transactionId, status: STATUS.BLOCKED, valid: false, issues: issues, mutationPerformed: false, executionEnabled: true });
-
-      const lockResult = this.acquireLocks(transactionId, plan.operations);
-      if (!lockResult.valid) return frozen({ schemaVersion: TRANSACTION_SCHEMA_VERSION, transactionId: transactionId, status: STATUS.BLOCKED, valid: false, issues: lockResult.issues, mutationPerformed: false, executionEnabled: true });
-      const fingerprint = typeof accessAdapter.fingerprint === 'function' ? accessAdapter.fingerprint : defaultFingerprint;
-      const compare = typeof accessAdapter.compare === 'function' ? accessAdapter.compare : ((source, target) => stableStringify(source) === stableStringify(target));
-      const captureRollback = typeof accessAdapter.captureRollback === 'function' ? accessAdapter.captureRollback : target => clone(target);
-      const transaction = { schemaVersion: TRANSACTION_SCHEMA_VERSION, transactionId, status: STATUS.PREPARED, plan: clone(plan), locks: lockResult.locks, operations: [], issues: [], createdAt: new Date().toISOString(), completedAt: null, mutationPerformed: false };
-      this.transactions.set(transactionId, transaction);
-      try {
-        for (const operation of plan.operations) {
-          const source = accessAdapter.readSource(clone(operation));
-          const target = accessAdapter.readTarget(clone(operation));
-          const rollbackToken = captureRollback(target);
-          const equal = compare(source, target) === true;
-          const result = Object.assign({}, clone(operation), {
-            sourceFingerprint: text(fingerprint(source)), targetFingerprint: text(fingerprint(target)),
-            status: equal ? OPERATION_STATUS.UNCHANGED : OPERATION_STATUS.CHANGED,
-            rollbackToken, mutationPerformed: false, issues: []
-          });
-          if (!equal) {
-            if (typeof accessAdapter.validateWrite === 'function') accessAdapter.validateWrite(clone(operation), source, target);
-            accessAdapter.writeTarget(clone(operation), source, { transactionId });
-            result.mutationPerformed = true;
-            transaction.mutationPerformed = true;
-          }
-          transaction.operations.push(result);
-        }
-        transaction.status = STATUS.EXECUTED;
-        transaction.completedAt = new Date().toISOString();
-        return this.snapshotTransaction(transactionId);
-      } catch (error) {
-        transaction.issues.push(issue(error && error.code ? error.code : 'TARGETED_SYNC_WRITE_FAILED', 'Die gezielte Synchronisation ist fehlgeschlagen.', { message: error && error.message ? error.message : String(error) }));
-        for (let index = transaction.operations.length - 1; index >= 0; index -= 1) {
-          const applied = transaction.operations[index];
-          if (!applied.mutationPerformed) continue;
-          try { accessAdapter.restoreTarget(clone(applied), clone(applied.rollbackToken), { transactionId }); }
-          catch (rollbackError) { transaction.issues.push(issue('TARGETED_SYNC_ROLLBACK_FAILED', 'Rollback einer Zielinstanz ist fehlgeschlagen.', { operationId: applied.operationId, message: rollbackError && rollbackError.message ? rollbackError.message : String(rollbackError) })); }
-        }
-        transaction.status = STATUS.ROLLED_BACK;
-        transaction.completedAt = new Date().toISOString();
-        transaction.rollbackReason = 'execution-failed';
-        transaction.mutationPerformed = false;
-        return this.snapshotTransaction(transactionId);
-      } finally {
-        this.releaseLocks(transaction);
-        transaction.locks = [];
-        this.prune();
-      }
     }
 
     getTransaction(transactionId) { return this.snapshotTransaction(transactionId); }
     listTransactions() { return frozen(Array.from(this.transactions.keys()).map(id => this.snapshotTransaction(id))); }
-    getState() { return frozen({ schemaVersion: SCHEMA_VERSION, transactionCount: this.transactions.size, activeLockCount: this.locks.size, executionEnabled: true }); }
+    getState() { return frozen({ schemaVersion: SCHEMA_VERSION, transactionCount: this.transactions.size, activeLockCount: this.locks.size, executionEnabled: false }); }
+
 
     snapshotTransaction(transactionId) {
       const transaction = this.transactions.get(text(transactionId));
@@ -283,7 +236,7 @@
         result[operation.status] = (result[operation.status] || 0) + 1;
         return result;
       }, {});
-      return frozen(Object.assign({}, transaction, { valid: transaction.status !== STATUS.BLOCKED, operationCounts: operationCounts, executionEnabled: true }));
+      return frozen(Object.assign({}, transaction, { valid: transaction.status !== STATUS.BLOCKED, operationCounts: operationCounts, executionEnabled: false }));
     }
 
     prune() {

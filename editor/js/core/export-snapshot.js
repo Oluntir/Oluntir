@@ -17,11 +17,15 @@
     if (!page || typeof page.getMainComponent !== 'function') return '';
     const component = page.getMainComponent();
     if (!component) return '';
-    if (typeof component.getInnerHTML === 'function') return String(component.getInnerHTML() || '');
-    if (editor && typeof editor.getHtml === 'function') {
-      try { return String(editor.getHtml({ component }) || ''); } catch (_) { /* fallback */ }
-    }
-    return typeof component.toHTML === 'function' ? String(component.toHTML() || '') : '';
+    let html = '';
+    if (typeof component.getInnerHTML === 'function') html = String(component.getInnerHTML() || '');
+    else if (editor && typeof editor.getHtml === 'function') {
+      try { html = String(editor.getHtml({ component }) || ''); } catch (_) { html = ''; }
+    } else html = typeof component.toHTML === 'function' ? String(component.toHTML() || '') : '';
+    const presentation = root.OluntirPresentationApi;
+    return presentation && typeof presentation.materializeHtml === 'function'
+      ? presentation.materializeHtml(html, { stripMetadata: true })
+      : html;
   }
 
   async function create(editor, options) {

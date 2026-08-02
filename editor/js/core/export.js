@@ -122,7 +122,11 @@ function restoreStablePathsFromBlobUrls(html) {
 }
 
 function normalizeExportHtml(html) {
-  return resolveUploadPathsInHtml(restoreStablePathsFromBlobUrls(html))
+  const presentationApi = window.OluntirPresentationApi;
+  const materialized = presentationApi && typeof presentationApi.materializeHtml === 'function'
+    ? presentationApi.materializeHtml(html, { stripMetadata: true })
+    : html;
+  return resolveUploadPathsInHtml(restoreStablePathsFromBlobUrls(materialized))
     .replace(/(?:\.\/)?site-assets\//g, '')
     .replace(/(?:\.\/)?assets\/images\//g, 'images/')
     .replace(/blob:[^"')\s]+/g, '');
