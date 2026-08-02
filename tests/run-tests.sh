@@ -27,6 +27,7 @@ node tests/test-foundation-consent-version.js
 node tests/test-foundation-consent-installation.js
 node tests/test-runtime-actions.js
 node tests/test-semantic-action-engine.js
+node tests/test-repeat-engine-v2-contracts.js
 node tests/test-developer-diagnostics-center.js
 node tests/test-bs4-gallery-controls.js
 node tests/test-gallery-overlay-modern.js
