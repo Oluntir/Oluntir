@@ -35,6 +35,83 @@ const ASSET_SETTINGS_STORE_NAME = 'settings';
 const assetBlobs = new Map(); // stabiler Pfad -> Blob
 const assetUrls = new Map(); // stabiler Pfad -> aktuelle "blob:"-URL dieser Sitzung
 
+// Export-Readiness für asynchrone Bildverarbeitung und IndexedDB-Schreibvorgänge.
+let assetOperationSequence = 0;
+let completedAssetOperationSequence = 0;
+const pendingAssetOperations = new Map();
+
+function trackAssetOperation(promise, label) {
+  const token = ++assetOperationSequence;
+  const tracked = Promise.resolve(promise).finally(() => {
+    pendingAssetOperations.delete(token);
+    if (token > completedAssetOperationSequence) completedAssetOperationSequence = token;
+  });
+  pendingAssetOperations.set(token, { token, label: String(label || 'asset-operation'), promise: tracked });
+  return tracked;
+}
+
+async function prepareAssetsForExport() {
+  let token = assetOperationSequence;
+  for (;;) {
+    const relevant = Array.from(pendingAssetOperations.values()).filter(item => item.token <= token);
+    if (relevant.length) await Promise.all(relevant.map(item => item.promise));
+    await Promise.resolve();
+    if (assetOperationSequence === token && !Array.from(pendingAssetOperations.keys()).some(value => value <= token)) break;
+    token = assetOperationSequence;
+  }
+  return Object.freeze({ committed: true, commitToken: token, pendingOperations: pendingAssetOperations.size });
+}
+
+function verifyAssetExportCommit(commitToken) {
+  const token = Number(commitToken || 0);
+  return Number.isInteger(token) && token >= 0 && completedAssetOperationSequence >= token && assetOperationSequence === token && pendingAssetOperations.size === 0;
+}
+
+
+async function captureAssetExportSnapshot(options) {
+  const quietFrames = Math.max(1, Number(options && options.quietFrames) || 2);
+  const timeoutMs = Math.max(500, Number(options && options.timeoutMs) || 10000);
+  const started = Date.now();
+  let stableFrames = 0;
+  let lastSequence = -1;
+
+  while (Date.now() - started < timeoutMs) {
+    const operations = Array.from(pendingAssetOperations.values());
+    if (operations.length) {
+      await Promise.all(operations.map(item => item.promise));
+      stableFrames = 0;
+    }
+
+    await new Promise(resolve => {
+      if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => resolve());
+      else setTimeout(resolve, 0);
+    });
+
+    if (pendingAssetOperations.size === 0 && assetOperationSequence === lastSequence) stableFrames += 1;
+    else stableFrames = 0;
+    lastSequence = assetOperationSequence;
+    if (stableFrames >= quietFrames) {
+      const entries = Array.from(assetBlobs.entries()).map(([path, blob]) => Object.freeze({ path, blob }));
+      return Object.freeze({
+        schemaVersion: 1,
+        capturedAt: new Date().toISOString(),
+        operationSequence: assetOperationSequence,
+        entries: Object.freeze(entries)
+      });
+    }
+  }
+  throw new Error('EXPORT_ASSET_SNAPSHOT_TIMEOUT');
+}
+
+function getAssetReadinessDiagnostics() {
+  return Object.freeze({
+    operationSequence: assetOperationSequence,
+    completedOperationSequence: completedAssetOperationSequence,
+    pendingOperations: pendingAssetOperations.size,
+    pendingLabels: Object.freeze(Array.from(pendingAssetOperations.values()).map(item => item.label))
+  });
+}
+
 function openAssetDb() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(ASSET_DB_NAME, ASSET_DB_VERSION);
@@ -223,24 +300,28 @@ function resizeImageToBlob(file, maxWidth, quality) {
 // Erzeugt für ein Bild drei responsive Webvarianten und behält zusätzlich das Original.
 // Desktop: 1920 px / 90 %, Tablet: 1600 px / 88 %, Mobil: 1200 px / 85 %.
 async function createResponsiveImageAssets(file) {
-  const paths = makeResponsiveAssetPaths(file.name);
-  const desktopBlob = await resizeImageToBlob(file, 1920, 0.90);
-  const tabletBlob = await resizeImageToBlob(file, 1600, 0.88);
-  const mobileBlob = await resizeImageToBlob(file, 1200, 0.85);
+  return trackAssetOperation((async () => {
+    const paths = makeResponsiveAssetPaths(file.name);
+    const desktopBlob = await resizeImageToBlob(file, 1920, 0.90);
+    const tabletBlob = await resizeImageToBlob(file, 1600, 0.88);
+    const mobileBlob = await resizeImageToBlob(file, 1200, 0.85);
 
-  registerUploadedAssetAtPath(desktopBlob, paths.desktopPath);
-  registerUploadedAssetAtPath(tabletBlob, paths.tabletPath);
-  registerUploadedAssetAtPath(mobileBlob, paths.mobilePath);
-  registerUploadedAssetAtPath(file, paths.downloadPath);
+    await Promise.all([
+      registerUploadedAssetAtPathAsync(desktopBlob, paths.desktopPath),
+      registerUploadedAssetAtPathAsync(tabletBlob, paths.tabletPath),
+      registerUploadedAssetAtPathAsync(mobileBlob, paths.mobilePath),
+      registerUploadedAssetAtPathAsync(file, paths.downloadPath)
+    ]);
 
-  return {
-    ...paths,
-    desktopUrl: resolveAssetUrl(paths.desktopPath),
-    tabletUrl: resolveAssetUrl(paths.tabletPath),
-    mobileUrl: resolveAssetUrl(paths.mobilePath),
-    downloadUrl: resolveAssetUrl(paths.downloadPath),
-    originalName: file.name
-  };
+    return {
+      ...paths,
+      desktopUrl: resolveAssetUrl(paths.desktopPath),
+      tabletUrl: resolveAssetUrl(paths.tabletPath),
+      mobileUrl: resolveAssetUrl(paths.mobilePath),
+      downloadUrl: resolveAssetUrl(paths.downloadPath),
+      originalName: file.name
+    };
+  })(), 'responsive-image:' + String(file && file.name || 'image'));
 }
 
 function registerUploadedAssetAtPath(blob, path) {
@@ -500,4 +581,14 @@ async function importPortableAssetBackup(assets) {
     if (i % 3 === 0 && typeof nextFrame === 'function') await nextFrame();
   }
   return list.length;
+}
+
+
+if (typeof window !== 'undefined') {
+  window.OluntirAssetReadiness = Object.freeze({
+    prepareForExport: prepareAssetsForExport,
+    verifyExportCommit: verifyAssetExportCommit,
+    getDiagnostics: getAssetReadinessDiagnostics,
+    captureExportSnapshot: captureAssetExportSnapshot
+  });
 }

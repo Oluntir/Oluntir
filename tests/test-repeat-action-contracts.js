@@ -1,0 +1,51 @@
+const assert = require('assert');
+function collection(items) { return { models: items, forEach(cb) { items.forEach(cb); }, map(cb) { return items.map(cb); } }; }
+function attr(tag, classes) { if (tag === 'body') return 'data-oluntir-page-id'; if (tag === 'section') return 'data-oluntir-section-id'; if ((classes || []).includes('row')) return 'data-oluntir-row-id'; return 'data-oluntir-component-id'; }
+function component(identity, tag, children = [], classes = []) { return { getAttributes() { return { [attr(tag, classes)]: identity }; }, get(key) { if (key === 'tagName') return tag; if (key === 'type') return ''; return null; }, getClasses() { return classes; }, components() { return collection(children); } }; }
+function page(id, root) { return { get(key) { return key === 'oluntirPageId' ? id : null; }, getMainComponent() { return root; } }; }
+const home = page('page-home', component('ol_page_home', 'body', [component('ol_source', 'section')]));
+const contact = page('page-contact', component('ol_page_contact', 'body', [component('ol_target', 'section')]));
+const editor = { Pages: { getAll() { return [home, contact]; } } };
+global.OluntirLayoutIdentities = require('../editor/js/core/layout-identities.js');
+global.OluntirSemanticDictionary = require('../editor/js/core/semantic-dictionary.js');
+global.OluntirIdentityResolver = require('../editor/js/core/identity-resolver.js');
+global.OluntirContextResolver = require('../editor/js/core/context-resolver.js');
+global.OluntirStructureResolver = require('../editor/js/core/structure-resolver.js');
+global.OluntirRelationshipResolver = require('../editor/js/core/relationship-resolver.js');
+const actionApi = require('../editor/js/core/semantic-action-engine.js');
+global.OluntirActionEngine = actionApi;
+const repeat = require('../editor/js/core/repeat-engine-v2.js');
+global.OluntirRepeatEngineV2 = repeat;
+global.OluntirRepeatContractResolver = require('../editor/js/core/repeat-contract-resolver.js');
+global.OluntirRepeatDependencyGraph = require('../editor/js/core/repeat-dependency-graph.js');
+global.OluntirTargetedSynchronizationService = require('../editor/js/core/targeted-synchronization-service.js');
+const contracts = require('../editor/js/core/repeat-action-contracts.js');
+repeat.reset();
+const def = repeat.createDefinition({ repeatKey: 'cards', source: { pageId: 'page-home', rootIdentity: 'ol_source', relativeIdentityPath: [] }, scope: 'section' });
+const inst = repeat.createInstance(def.definitionId, { pageId: 'page-contact', rootIdentity: 'ol_target' });
+const before = JSON.stringify(repeat.snapshot());
+const engine = actionApi.create({ autoStart: true });
+const registration = contracts.registerReadOnlyHandlers(engine, () => editor);
+assert.strictEqual(registration.handlerIds.length, 6);
+assert.strictEqual(engine.listActions().filter(a => a.type.startsWith('repeat.')).length, 6);
+let result = engine.dispatchSync(contracts.createAction(contracts.ACTION_TYPE.ANALYZE, { definitionId: def.definitionId }));
+assert.strictEqual(result.status, 'completed');
+assert.strictEqual(result.results[0].value.resolved, true);
+result = engine.dispatchSync(contracts.createAction(contracts.ACTION_TYPE.MARK_DIRTY, { reference: def.definitionId, reason: 'source-updated' }));
+assert.ok(result.results[0].value.impact.affectedInstances.includes(inst.instanceId));
+result = engine.dispatchSync(contracts.createAction(contracts.ACTION_TYPE.PLAN, { reference: def.definitionId }));
+const plan = result.results[0].value;
+assert.strictEqual(plan.valid, true);
+assert.strictEqual(plan.operations.length, 1);
+assert.strictEqual(plan.operations[0].targetIdentity, 'ol_target');
+assert.ok(Object.isFrozen(plan));
+result = engine.dispatchSync(contracts.createAction(contracts.ACTION_TYPE.PREPARE_SYNC, { plan }));
+assert.strictEqual(result.results[0].value.ready, true);
+assert.strictEqual(result.results[0].value.applyEnabled, true);
+assert.strictEqual(result.results[0].value.executionEnabled, true);
+assert.strictEqual(result.results[0].value.serviceSchemaVersion, 1);
+assert.strictEqual(result.results[0].value.mutationPerformed, false);
+assert.strictEqual(JSON.stringify(repeat.snapshot()), before, 'Action contracts must not mutate Repeat state.');
+assert.throws(() => repeat.apply(), error => error && error.code === 'REPEAT_SYNC_RUNTIME_NOT_BOUND');
+assert.throws(() => contracts.createAction(contracts.ACTION_TYPE.PLAN, {}), /Invalid payload/);
+console.log('Repeat Action Contracts DEV_004: OK');

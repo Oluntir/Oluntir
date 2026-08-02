@@ -18,7 +18,8 @@
     } : null;
     return { timestamp: new Date().toISOString(), editorReady: Boolean(ed), pageCount: pages.length || 0,
       selectedPageId: selected && selected.getId ? selected.getId() : null,
-      logging: root.OluntirLogger ? root.OluntirLogger.getState() : null, memory };
+      logging: root.OluntirLogger ? root.OluntirLogger.getState() : null,
+      exportReadiness: root.OluntirExportReadiness && root.OluntirExportReadiness.getState ? root.OluntirExportReadiness.getState() : null, memory };
   }
   function actionSnapshot() {
     const value = engine();

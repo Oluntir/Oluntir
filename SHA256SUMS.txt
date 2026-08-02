@@ -335,7 +335,10 @@ a57e1e7daab777e0c839f6326260898644c321fbc942cdae67b2f1ff8961609a  ./editor/js/co
 65a94d362ed420f67c6d9928270f0e41fce065d9f5f74c2527ef27f28e4961bd  ./editor/js/core/progress.js
 877b55849d33b02234ca1c1c43b00235744fc39b9aa78037fbc130df622daca8  ./editor/js/core/project-dependency-graph.js
 734409be9e6e85a79f72388ddd4ac82c5893b32221ef2ea2b5079e16629f42c8  ./editor/js/core/relationship-resolver.js
-9fcbda9c5211de7279bdd106550600bb6de5b2afc2cdbe3158b59e1ef8f01cb9  ./editor/js/core/repeat-engine-v2.js
+c63d69a6383bbd3dbb258aba8429b5bd222d61f6a5f6b36210d2ce2e7638140c  ./editor/js/core/repeat-action-contracts.js
+3b890084ad95b8ea8f6cd7a9009fcd65458ba8b491aabe4ee3a727feab0a01db  ./editor/js/core/repeat-contract-resolver.js
+c09114fe852c45815751772c144955c167f90f2224428d4cde6f7f62cc97fa8a  ./editor/js/core/repeat-dependency-graph.js
+f4f76a709010a06230c28d3b94e544df4e08f93d6d0add2e70550fe3cfc7715e  ./editor/js/core/repeat-engine-v2.js
 7f84505b863346356596c6c49721a65147f1048ab9443e662df9c802fec8b059  ./editor/js/core/semantic-action-engine.js
 37c1665fac9b5241c9c4a7e9c097c4a6104c192964e9eed7745d824e92bb2b5a  ./editor/js/core/semantic-dictionary.js
 6b3cd58068601bcf2e52eadcfc0b4a4f50299a0c7b0c90a880e278b1b4f6e2af  ./editor/js/core/semantic-validator.js
@@ -376,7 +379,7 @@ d85327d99c7a3ee1f9b5d0500d1370acea3ad2db39c163c2f51f232baedbdede  ./frameworks/b
 48144faf6aa0fb3cd2ce748d9730238f888f4ab715f05dabd1c9af2c5671988a  ./frameworks/bootstrap5/css/bootstrap.min.css.map
 e4fd49181388c48ec5040bd3fe66f57c29c8e67fcd8502b3354b96ec7ab47cc7  ./frameworks/bootstrap5/js/bootstrap.bundle.min.js
 c61123e58cc0a4b65d737ba070c485911b3dbec6d7b802bdf6628395abd9c08b  ./frameworks/bootstrap5/js/bootstrap.bundle.min.js.map
-693714e93d8df1d951fbef5d20cbdb8111bf4f4fe2df5c9180a24861377d33f1  ./index.html
+25683e824b2f985045a7e9282e6526a776a3f3c5a92b1451f5eb759c2dde53a1  ./index.html
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./logs/.gitkeep
 214452d08bbddaf0369b8e8fcce37cfd9de932d8509a3121a7d86c666f4fb0f6  ./logs/README.md
 c68874cbaa2fd1650b7d770b328680ea765fb3376023cc3608427fde4f0d0481  ./plugins/editor/filesaver/FileSaver.min.js
@@ -434,7 +437,7 @@ d55a8c695d83b79ccf441b2866d8f442a12b33ced5b76bdebcca116506a9078e  ./templates/ed
 e0eb0519cc1406536c672f36968b0ef83109719ed57387bb5d568d03f13e46f3  ./tests/MANUAL_TEST_1.2.1_de.md
 a4f84e967eb4402aaeaade9a3beea6855496624eac8f6286e23c06ef4bd5659e  ./tests/fixtures/layout-repeat-export-contract.json
 d7a50203179f79aba7d6c14371563b2267a4fa43c5ab74172bc2de14b924429e  ./tests/gallery-empty-buttons-visual.html
-e9f1606b6575a205a09e36db0a75e16c51d4ed22f3370c9a0f4758a77f1632ff  ./tests/run-tests.sh
+046318e8f926d1fb21d39308d5170d364df90dda5aa493268dfa2ca7e1bd498c  ./tests/run-tests.sh
 ff3525bfdb40e92d7046aa0be4bb0730d7bed9d4f3c2b8f84ab5e2255fcbd136  ./tests/test-bs4-gallery-controls.js
 e529d5c5a5b4e8e43cc36680870aa63d25c2229846b8be2f03c3324677e01cf3  ./tests/test-context-resolver.js
 a911e6d28132a190e0ecf129142a9fd3af83ab2dd20b60d74600469f1d93eb09  ./tests/test-developer-diagnostics-center.js
@@ -463,6 +466,10 @@ d02bf1238a4c38ba7533516906be95a346c529b7a3a2ea75cbce06d31ae4d6ac  ./tests/test-o
 d466fa0a0562d2623fa5cade5cd7975a3b01b5b15ef883c0b280e8b7d5fa09ee  ./tests/test-page-switch-frame-integrity.js
 d64918b46d40bc484ca4b8f02d158783c096151729c31b74a845efa843090b22  ./tests/test-project-dependency-graph.js
 649798f0120a6424834639d0c0a0caf8cfe5fa26eed6703d948dd4c858ddb47a  ./tests/test-relationship-resolver.js
+af2c7fe2ce6f7d292a8e73c0a9fe839e44f7565d5c7ce5d3cc1af21b82f796e4  ./tests/test-repeat-action-contracts.js
+250fbeb78e3566c24d65402dc0e42123663d813af20298a9f55cc3117dd6cfdd  ./tests/test-repeat-contract-resolver.js
+79ef9d4affe7e76bdfc056c20cd849aff9b0eec178545ca23d0a7a04cb933442  ./tests/test-repeat-dependency-graph.js
+41ad817941f67fb9e5ddfb73594f36bd450e06f8bc417c2ff35c6590ae7b4f0e  ./tests/test-repeat-engine-v2-contracts.js
 78c950245d0cbe86339344d6a72c3eb8925f50aa2f5b9e12f4cee49790c15bc7  ./tests/test-responsive-upload-export.js
 e42d9900a2448a00200fe8c0bf9aad31cc5e668dc07074760d8a31b5dcda7e4c  ./tests/test-rte-cursor-stability.js
 d6674c06b6c73b7f2fb8e423d9e03a4b0a52bdf4fbd3abb7afb3fa7b0ca959e4  ./tests/test-runtime-actions.js

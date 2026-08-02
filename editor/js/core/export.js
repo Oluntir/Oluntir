@@ -784,6 +784,18 @@ function requestExportFormat() {
 }
 
 async function exportSitePackage(editor, mode) {
+  const readiness = window.OluntirExportReadiness;
+  if (readiness && typeof readiness.prepare === 'function') {
+    var exportSnapshot = await readiness.prepare(editor, { mode: mode || 'folder' });
+  }
+  try {
+    return await exportSitePackagePrepared(editor, mode, exportSnapshot || null);
+  } finally {
+    if (readiness && typeof readiness.release === 'function') readiness.release();
+  }
+}
+
+async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
   const runtimeActions = window.OluntirRuntimeActions;
   const exportStartedAt = typeof performance !== 'undefined' ? performance.now() : Date.now();
   if (runtimeActions) runtimeActions.emit('export.started', { mode: mode || 'folder' });
@@ -842,13 +854,13 @@ async function exportSitePackage(editor, mode) {
     const baseZip = await loadBaseAssetsZip();
 
     updateProgress(7, 'Prüfe gespeicherte Upload-Bilder …');
-    await refreshUploadedAssetsFromDb();
+    if (!exportSnapshot) await refreshUploadedAssetsFromDb();
     await nextFrame();
 
-    const pages = editor.Pages.getAll();
+    const pages = exportSnapshot && Array.isArray(exportSnapshot.pages) ? exportSnapshot.pages : editor.Pages.getAll();
     if (!pages.length) throw new Error('Das Projekt enthält keine exportierbare Seite.');
 
-    selectedBefore = editor.Pages.getSelected();
+    selectedBefore = exportSnapshot ? null : editor.Pages.getSelected();
 
     // Export ist eine reine Leseoperation. Bildauswahl und Rich-Text-Werkzeuge
     // schreiben ihre Änderungen bereits beim Anwenden in das GrapesJS-Modell. Der
@@ -862,7 +874,7 @@ async function exportSitePackage(editor, mode) {
 
     for (let idx = 0; idx < pages.length; idx++) {
       const page = pages[idx];
-      const pageName = page.getName() || page.id || `Seite ${idx + 1}`;
+      const pageName = exportSnapshot ? page.name : (page.getName() || page.id || `Seite ${idx + 1}`);
       updateProgress(10 + Math.round((idx / pages.length) * 25), `Baue Seite „${pageName}“ …`);
       await nextFrame();
 
@@ -870,16 +882,16 @@ async function exportSitePackage(editor, mode) {
       // sichtbaren Seitenwechsel auslösen noch Canvas-Bildzustände in andere Seiten
       // zurückschreiben. Jede Seite wird direkt aus ihrem eigenen MainComponent-Modell
       // serialisiert.
-      let html = normalizeExportHtml(getPageModelHtml(editor, page));
+      let html = normalizeExportHtml(exportSnapshot ? page.html : getPageModelHtml(editor, page));
       if (window.OluntirLayoutIdentities) html = window.OluntirLayoutIdentities.stripInternalAttributes(html);
-      const css = editor.getCss() || '';
+      const css = exportSnapshot ? (exportSnapshot.css || '') : (editor.getCss() || '');
 
       if (css.trim()) customCss += `/* ${pageName} */\n${css}\n\n`;
       collectUploadPathsFromHtml(html, usedUploadPaths);
       collectUploadPaths('', css, usedUploadPaths);
 
       const prepared = window.OluntirIncludes
-        ? window.OluntirIncludes.preparePage(html, includeTarget, page.id)
+        ? window.OluntirIncludes.preparePage(html, includeTarget, exportSnapshot ? page.id : page.id)
         : { html, extension: 'html', includeFiles: [] };
       if (prepared.includeFiles && prepared.includeFiles.length) includeFiles = prepared.includeFiles;
 
@@ -896,11 +908,12 @@ async function exportSitePackage(editor, mode) {
     // Export vorhanden bleiben.
     expandResponsiveUploadPaths(usedUploadPaths);
 
+    const snapshotAssetMap = exportSnapshot ? new Map(exportSnapshot.assets.map(item => [item.path, item.blob])) : assetBlobs;
     const missingUploads = [];
     const uploadEntries = [];
     let uploadBytes = 0;
     for (const path of usedUploadPaths) {
-      const blob = assetBlobs.get(path);
+      const blob = snapshotAssetMap.get(path);
       if (!blob) missingUploads.push(path);
       else {
         uploadEntries.push({ path, blob });

@@ -10,6 +10,13 @@ node --check editor/js/core/project-dependency-graph.js
 node --check editor/js/core/oluntir-logger.js
 node --check editor/js/core/semantic-action-engine.js
 node --check editor/js/core/repeat-engine-v2.js
+node --check editor/js/core/repeat-contract-resolver.js
+node --check editor/js/core/repeat-dependency-graph.js
+node --check editor/js/core/targeted-synchronization-service.js
+node --check editor/js/core/repeat-action-contracts.js
+node --check editor/js/core/repeat-sync-access-adapter.js
+node --check editor/js/core/repeat-synchronization-runtime.js
+node --check editor/js/core/repeat-auto-synchronization.js
 node --check editor/js/core/editor.js
 node --check editor/js/core/export.js
 node tools/test-grapesjs-adapter.js
@@ -28,6 +35,15 @@ node tests/test-foundation-consent-installation.js
 node tests/test-runtime-actions.js
 node tests/test-semantic-action-engine.js
 node tests/test-repeat-engine-v2-contracts.js
+node tests/test-repeat-contract-resolver.js
+node tests/test-repeat-dependency-graph.js
+node tests/test-targeted-synchronization-service.js
+node tests/test-repeat-sync-access-adapter.js
+node tests/test-repeat-sync-identity-mapping.js
+node tests/test-repeat-structural-rollback.js
+node tests/test-repeat-synchronization-runtime.js
+node tests/test-repeat-auto-synchronization.js
+node tests/test-repeat-action-contracts.js
 node tests/test-developer-diagnostics-center.js
 node tests/test-bs4-gallery-controls.js
 node tests/test-gallery-overlay-modern.js
@@ -49,3 +65,11 @@ node tests/test-gallery-svg-icons.js
 node tests/test-gallery-toolbar-css-icons.js
 
 node tests/test-gallery-framework-icon-sources.js
+
+node tests/test-asset-readiness-contract.js
+node tests/test-export-readiness-asset-commit.js
+node tests/test-export-readiness-atomic-contract.js
+node tests/test-export-readiness-commit-token.js
+node tests/test-export-snapshot-transaction.js
+node tests/test-export-snapshot-consumer.js
+node tests/test-export-readiness.js

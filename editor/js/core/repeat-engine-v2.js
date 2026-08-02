@@ -370,10 +370,14 @@
     });
   }
 
-  function apply() {
-    const error = new Error('DEV_001 ist read-only: Produktive Repeat-Synchronisation wird erst nach den Resolver-, Graph- und Action-Verträgen aktiviert.');
-    error.code = 'REPEAT_SYNC_NOT_IMPLEMENTED';
-    throw error;
+  function apply(reference) {
+    const runtime = typeof globalThis !== 'undefined' ? globalThis.OluntirRepeatSynchronizationRuntime : null;
+    if (!editor || !runtime || typeof runtime.apply !== 'function') {
+      const error = new Error('Die produktive Repeat-Synchronisation ist nicht vollständig gebunden.');
+      error.code = 'REPEAT_SYNC_RUNTIME_NOT_BOUND';
+      throw error;
+    }
+    return runtime.apply(editor, text(reference));
   }
 
   function reset() { state = emptyState(); return snapshot(); }

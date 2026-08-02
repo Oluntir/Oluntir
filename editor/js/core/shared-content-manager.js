@@ -11,6 +11,9 @@
   let applying = false;
   let flushTimer = 0;
   let pendingFlushPage = null;
+  let exportPreparing = false;
+  let exportCommitSequence = 0;
+  let completedExportCommitSequence = 0;
   let lastRegionsJson = '';
   const pageRegionCache = new WeakMap();
   const pageAppliedFingerprints = new WeakMap();
@@ -254,7 +257,7 @@
     // Bind the delayed transaction to the page on which the component event
     // actually occurred. A page switch during the debounce window must never
     // make the timer read shared regions from the newly selected page.
-    if (applying || !enabled() || isRichTextEditing()) return;
+    if (applying || exportPreparing || !enabled() || isRichTextEditing()) return;
     pendingFlushPage = editor && editor.Pages ? editor.Pages.getSelected() : null;
     window.clearTimeout(flushTimer);
     flushTimer = window.setTimeout(() => {
@@ -379,6 +382,51 @@
     return changed || committed || targetUpdated;
   }
 
+  async function prepareForExport(page) {
+    if (!enabled() || !page) {
+      return Object.freeze({ committed: false, pendingFlush: false, commitToken: null });
+    }
+
+    const commitToken = ++exportCommitSequence;
+    exportPreparing = true;
+    try {
+      if (flushTimer) {
+        window.clearTimeout(flushTimer);
+        flushTimer = 0;
+      }
+      pendingFlushPage = null;
+
+      const committed = commitSelectedCanvasToShared(page);
+
+      // GrapesJS may emit component events while the model is committed. Keep
+      // scheduling suppressed through the next render turn and then discard any
+      // debounce that belongs to this already committed transaction.
+      await new Promise((resolve) => {
+        if (typeof window.requestAnimationFrame === 'function') {
+          window.requestAnimationFrame(() => resolve());
+        } else {
+          window.setTimeout(resolve, 0);
+        }
+      });
+
+      if (flushTimer) {
+        window.clearTimeout(flushTimer);
+        flushTimer = 0;
+      }
+      pendingFlushPage = null;
+      completedExportCommitSequence = commitToken;
+
+      return Object.freeze({ committed: Boolean(committed), pendingFlush: false, commitToken });
+    } finally {
+      exportPreparing = false;
+    }
+  }
+
+  function verifyExportCommit(commitToken) {
+    const token = Number(commitToken || 0);
+    return Boolean(token > 0 && completedExportCommitSequence >= token && !exportPreparing);
+  }
+
   function bind(nextEditor) {
     if (!nextEditor || editor === nextEditor) return;
     editor = nextEditor;
@@ -412,6 +460,8 @@
     flushSelected,
     flushPending,
     commitSelectedCanvasToShared,
+    prepareForExport,
+    verifyExportCommit,
     applyToPage,
     applyToAll,
     getRegionsFromPage: (page) => Object.assign({}, parseRegions(pageHtml(page))),
@@ -421,7 +471,8 @@
       const centralFingerprint = regionFingerprint(currentRegions());
       const selectedFingerprint = selected ? regionFingerprint(parseRegions(pageHtml(selected))) : null;
       return Object.freeze({
-        enabled: enabled(), applying: Boolean(applying), pendingFlush: Boolean(flushTimer || pendingFlushPage),
+        enabled: enabled(), applying: Boolean(applying), exportPreparing: Boolean(exportPreparing), pendingFlush: Boolean(flushTimer || pendingFlushPage),
+        exportCommitSequence, completedExportCommitSequence,
         centralFingerprint, selectedFingerprint, selectedPageId: selected && selected.getId ? selected.getId() : null,
         selectedUpToDate: Boolean(selected && centralFingerprint === selectedFingerprint)
       });

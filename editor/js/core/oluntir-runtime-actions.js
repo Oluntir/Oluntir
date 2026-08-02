@@ -4,7 +4,7 @@
   const actionTypes = [
     'editor.loaded','page.selected','page.created','page.renamed','page.deleted','project.saved',
     'component.added','component.updated','component.removed','shared-content.updated','gallery.updated',
-    'export.started','export.completed','export.failed'
+    'export.prepare','export.ready','export.started','export.completed','export.failed'
   ];
   function ensure() {
     if (engine) return engine;

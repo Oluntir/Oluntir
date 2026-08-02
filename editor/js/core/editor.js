@@ -178,6 +178,7 @@ assetHydration.then(() => {
   }
   if (window.OluntirLayoutIdentities) window.OluntirLayoutIdentities.bind(editor);
   if (window.OluntirRepeatEngineV2) window.OluntirRepeatEngineV2.bind(editor);
+  if (window.OluntirRepeatAutoSynchronization) window.OluntirRepeatAutoSynchronization.bind(editor);
   if (window.OluntirFavicon) window.OluntirFavicon.bind(editor);
   window.dispatchEvent(new CustomEvent('oluntir:editorready'));
 
