@@ -1,6 +1,6 @@
 # Projektkontext
 
-Oluntir ist ein lokaler, browserbasierter Editor für mehrseitige Websites. Version 1.3.0 ist die Architekturbasis für die anschließende Entwicklung wiederholbarer Elemente.
+Oluntir ist ein lokaler, browserbasierter Editor für mehrseitige Websites. Version 1.3.1 ist die Architekturbasis für die anschließende Entwicklung wiederholbarer Elemente.
 
 ## Verbindliches Verhalten
 

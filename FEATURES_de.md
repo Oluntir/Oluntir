@@ -1,44 +1,38 @@
-# Oluntir 1.3.0 – Funktionsübersicht
+# Funktionen – Oluntir 1.3.1
 
 ## Editor und Projekte
-- GrapesJS 0.23.2
-- Bootstrap 4.6.2 und Bootstrap 5.3.8
-- mehrere Seiten
-- Rich-Text- und Schnellbearbeitung
+
+- Lokaler browserbasierter GrapesJS-Editor
+- Mehrseitige Projekte
+- Portable `.oluntir`-Projektdateien
 - Ein- und Zwei-Monitor-Arbeitsbereich
-- portable `.oluntir`-Projekte
+- Projekt-Favicon und lokale Assets
 
-## Struktur und Semantik
+## Inhalte und Layout
+
+- Text-, Bild-, Galerie- und Komponentenbearbeitung
+- Responsive Bilder für Desktop, Tablet und Mobil
+- Shared Content für Header, Navigation und Footer
+- Schnellbearbeitung gemeinsamer Inhalte
+- Galerie-Einschübe in vorhandenen Containern
+- Neue Galerie-Bereiche zwischen vollständigen Seitenbereichen
+- Undo und Redo für Text- und Bildänderungen
+
+## Frameworks und Export
+
+- Bootstrap 4.6.2
+- Bootstrap 5.3.8
+- HTML-, Apache-SSI- und PHP-Include-Export
+- Ausgabe als Ordner, ZIP oder TAR
+- Entfernung editorinterner Metadaten im finalen Export
+
+## Technische Grundlage
+
 - stabile Layout-Identitäten
-- Semantic Dictionary
-- Identity-, Context-, Structure- und Relationship Resolver
-- Semantic Validator
-- Project Dependency Graph
-- Semantic Action Engine
-- technische Repeat Engine V2
+- read-only Resolver und Dependency Graph
+- Action- und Validierungsverträge
+- inaktive Repeat Foundation als Vorbereitung; keine sichtbare oder produktive Synchronisation
 
-## Gemeinsame Inhalte
-- Header, Navigation und Footer
-- Fingerprint-basierter Zustandsvergleich
-- Lazy Sync pro benötigter Seite
-- gezielte Regionsupdates statt vollständiger Seiten-Neuaufbauten
+## Bekannte Einschränkung
 
-## Bilder und Assets
-- lokale Assetverwaltung
-- Desktop-, Tablet- und Mobile-Varianten
-- Galerie und Lightbox
-- Projekt-Favicon und Manifest
-
-## Export
-- HTML
-- Apache SSI
-- PHP-Includes
-- Ordner, ZIP und TAR
-- lokale Assets
-
-## Diagnose und Zustimmung
-- optionales lokales JSONL-Logging
-- Logrotation und Ringpuffer
-- Maskierung typischer sensibler Werte
-- installationsbezogene, versionierte Grundzustimmung
-- Developer Diagnostics Center
+Eine explizit gesetzte Footer-Schriftfarbe kann in der Arbeitsansicht anders erscheinen als im Export. Der Export übernimmt den gewählten Wert korrekt.

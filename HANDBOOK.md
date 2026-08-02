@@ -1,4 +1,4 @@
-# Oluntir 1.3.0 – Technical handbook
+# Oluntir 1.3.1 – Technical handbook
 
 ## 1. Runtime
 
@@ -23,9 +23,9 @@ Pages and components are stored in the GrapesJS project model. `layout-identitie
 
 `shared-content-manager.js` manages header, navigation and footer. Changes are stored centrally. Only the required target page is updated during page selection. Fingerprints skip unchanged writes, and component references are cached per page.
 
-## 5. Repeat Engine V2
+## 5. Repeat Foundation
 
-`repeat-engine-v2.js` contains the technical model for repeatable structures. Complete visible repeat management is not part of 1.3.0.
+`repeat-engine-v2.js` contains the technical model for repeatable structures. Complete visible repeat management is not part of 1.3.1.
 
 ## 6. Logging
 

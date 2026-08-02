@@ -1,27 +1,22 @@
-# Release Notes – Oluntir 1.3.0
+# Release Notes – Oluntir 1.3.1
 
-## Scope
-
-Version 1.3.0 consolidates the semantic core, shared-content synchronization, optional logging, consent handling and developer diagnostics.
+Oluntir 1.3.1 is a stabilization and consolidation release for Bootstrap 4 and Bootstrap 5.
 
 ## Main changes
 
-- read-only Structure and Relationship Resolvers;
-- explicit Project Dependency Graph;
-- isolated Semantic Action Engine core;
-- fingerprints, lazy synchronization and targeted shared-content updates;
-- local opt-in logging with redaction and rotation;
-- installation-bound consent;
-- Developer Diagnostics Center;
-- consolidated version metadata and documentation.
+- more reliable persistence of shared header, navigation and footer regions;
+- project-wide quick editing without rebuilding the navigation;
+- transfer of text, font size and explicit presentation values into exports;
+- undo and redo for text and image changes;
+- new gallery insertion points between complete page areas;
+- more reliable export snapshots and responsive image output;
+- consolidated framework and icon sources for Bootstrap 4 and 5;
+- an inactive Repeat Foundation with no productive behavior.
 
 ## Compatibility
 
-Existing 1.2.x projects continue to use the existing migration and identity routines. Create a portable project backup before migration. Internal Oluntir identities are removed from final HTML, SSI and PHP output.
+Existing projects continue to load through the available migration and identity routines. A portable project backup is recommended before major changes.
 
-## Known limits
+## Known limitation
 
-- The Semantic Action Engine does not yet control every production module.
-- The Diagnostics Center builds the dependency graph only on explicit request.
-- Repeat Engine V2 is present as a technical model; complete visible repeat management is planned for version 2.0.
-- Directory and log-file access depend on the File System Access API and user permission.
+An explicitly selected footer text color may appear differently in the editor than in the exported result. The export preserves the explicitly selected value.

@@ -1,5 +1,5 @@
 > **Language:** English · [Deutsch](ARCHITECTURE_de.md)  
-> **Version:** 1.3.0
+> **Version:** 1.3.1
 
 # Architecture overview
 

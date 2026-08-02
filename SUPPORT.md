@@ -2,10 +2,10 @@
 
 # Support
 
-**Version:** 1.3.0  
+**Version:** 1.3.1  
 **Language:** English  
 **Status:** Stable  
-**Applies to:** Oluntir 1.3.0  
+**Applies to:** Oluntir 1.3.1  
 **Last updated:** 2026-07-30
 
 ## Supported requests

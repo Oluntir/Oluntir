@@ -1,5 +1,5 @@
 > **Sprache:** Deutsch · [English](049_STRUCTURE_RESOLVER.md)  
-> **Entwicklungsstand:** Oluntir 1.3.0
+> **Entwicklungsstand:** Oluntir 1.3.1
 
 # Structure Resolver
 
@@ -90,7 +90,7 @@ Alle zurückgegebenen Snapshots, Knoten, Kindlisten, Capabilities und Zusammenfa
 
 ## Integrationsstatus
 
-Version 1.3.0 stellt die gemeinsame Strukturauflösung als eigenständige Kern-API bereit. Repeat Engine, Shared Content, Export und Semantic Validator werden in diesem Entwicklungsstand noch nicht auf die API umgestellt. Dadurch bleibt die Einführung klein, testbar und regressionsarm.
+Version 1.3.1 stellt die gemeinsame Strukturauflösung als eigenständige Kern-API bereit. Repeat Engine, Shared Content, Export und Semantic Validator werden in diesem Entwicklungsstand noch nicht auf die API umgestellt. Dadurch bleibt die Einführung klein, testbar und regressionsarm.
 
 ## Tests
 

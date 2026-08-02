@@ -1,6 +1,6 @@
 # Project context
 
-Oluntir is a local browser-based multi-page website editor. Version 1.3.0 is the architecture baseline for the next repeat-feature development branch.
+Oluntir is a local browser-based multi-page website editor. Version 1.3.1 is the architecture baseline for the next repeat-feature development branch.
 
 ## Required behavior
 

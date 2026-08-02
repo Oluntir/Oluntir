@@ -7,7 +7,7 @@
 5. HTML, SSI und PHP jeweils als ZIP exportieren.
 6. Prüfen: Header/Footer-Reihenfolge, Include-Positionen, keine doppelten Shared-Inhalte, keine leeren Restcontainer, keine `data-oluntir-*-id`-Attribute im Export.
 7. Den Ablauf mit Bootstrap 4 und Bootstrap 5 wiederholen.
-8. In der Browserkonsole Repeat Engine V2 mit einer ausgewählten Komponente definieren und auf eine Zielseite anwenden; beim zweiten Anwenden darf keine zweite identische Row entstehen.
+8. In der Browserkonsole Repeat Foundation mit einer ausgewählten Komponente definieren und auf eine Zielseite anwenden; beim zweiten Anwenden darf keine zweite identische Row entstehen.
 
 ## Erwartetes Ergebnis
 

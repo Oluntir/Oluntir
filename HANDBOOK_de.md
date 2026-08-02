@@ -1,4 +1,4 @@
-# Oluntir 1.3.0 – Technisches Handbuch
+# Oluntir 1.3.1 – Technisches Handbuch
 
 ## 1. Laufzeit
 
@@ -23,9 +23,9 @@ Seiten und Komponenten werden im GrapesJS-Projektmodell gespeichert. `layout-ide
 
 `shared-content-manager.js` verwaltet Header, Navigation und Footer. Änderungen werden zentral gespeichert. Beim Seitenwechsel wird nur die benötigte Zielseite aktualisiert. Fingerprints verhindern unveränderte Schreibvorgänge. Komponentenreferenzen werden pro Seite gecacht.
 
-## 5. Repeat Engine V2
+## 5. Repeat Foundation
 
-`repeat-engine-v2.js` enthält das technische Datenmodell für wiederholbare Strukturen. Die vollständige sichtbare Verwaltung ist nicht Bestandteil von 1.3.0.
+`repeat-engine-v2.js` enthält das technische Datenmodell für wiederholbare Strukturen. Die vollständige sichtbare Verwaltung ist nicht Bestandteil von 1.3.1.
 
 ## 6. Logging
 

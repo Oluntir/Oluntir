@@ -1,21 +1,11 @@
-# Roadmap
+# Roadmap – Oluntir 1.3.1
 
-## Abgeschlossen mit 1.3.0
+Version 1.3.1 ist als stabile Referenzversion abgeschlossen.
 
-- stabile Layout-Identitäten;
-- Semantic Dictionary und Resolver-Pipeline;
-- Project Dependency Graph;
-- Semantic Action Engine als isolierter Kern;
-- Shared-Content-Fingerprints und Lazy Sync;
-- lokales Opt-in-Logging;
-- installationsbezogene Zustimmung;
-- Developer Diagnostics Center.
+Weitere Änderungen in diesem Releasezweig beschränken sich auf:
 
-## Nächster Entwicklungszweig: 2.0
+- reproduzierbare Fehlerbehebungen;
+- Sicherheitskorrekturen;
+- Kompatibilitäts- und Dokumentationspflege.
 
-- vollständige sichtbare Verwaltung wiederholbarer Elemente;
-- wiederholbare Bereiche;
-- produktive Nutzung von Action Engine und Dependency Graph durch Repeat-Funktionen;
-- weitere Shared-Component-Verträge.
-
-Planungen sind keine Zusage eines Liefertermins.
+Neue Funktionen sind nicht Bestandteil dieses Releasezweigs.

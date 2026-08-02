@@ -1,44 +1,38 @@
-# Oluntir 1.3.0 – Feature overview
+# Features – Oluntir 1.3.1
 
 ## Editor and projects
-- GrapesJS 0.23.2
-- Bootstrap 4.6.2 and Bootstrap 5.3.8
-- multi-page projects
-- rich-text and quick editing
-- single- and dual-monitor workspace
-- portable `.oluntir` projects
 
-## Structure and semantics
-- stable layout identities
-- Semantic Dictionary
-- Identity, Context, Structure and Relationship Resolvers
-- Semantic Validator
-- Project Dependency Graph
-- Semantic Action Engine
-- Repeat Engine V2 technical foundation
+- Local browser-based GrapesJS editor
+- Multi-page projects
+- Portable `.oluntir` project files
+- Single- and dual-monitor workspace
+- Project favicon and local assets
 
-## Shared content
-- shared header, navigation and footer
-- fingerprint-based state comparison
-- lazy synchronization per required page
-- targeted region updates instead of full-page rebuilds
+## Content and layout
 
-## Images and assets
-- local asset management
-- desktop, tablet and mobile variants
-- gallery and lightbox
-- project favicon and manifest
+- Text, image, gallery and component editing
+- Responsive desktop, tablet and mobile images
+- Shared header, navigation and footer content
+- Quick editing of shared content
+- Gallery insertion in existing containers
+- New gallery areas between complete page areas
+- Undo and redo for text and image changes
 
-## Export
-- HTML
-- Apache SSI
-- PHP includes
-- folder, ZIP and TAR
-- local assets
+## Frameworks and export
 
-## Diagnostics and consent
-- optional local JSONL logging
-- rotation and in-memory ring buffer
-- redaction of common sensitive values
-- installation-bound versioned consent
-- Developer Diagnostics Center
+- Bootstrap 4.6.2
+- Bootstrap 5.3.8
+- HTML, Apache SSI and PHP include export
+- Folder, ZIP and TAR output
+- Removal of editor-only metadata from final exports
+
+## Technical foundation
+
+- Stable layout identities
+- Read-only resolvers and dependency graph
+- Action and validation contracts
+- Inactive Repeat Foundation for preparation only; no visible or productive synchronization
+
+## Known limitation
+
+An explicitly selected footer text color may appear differently in the editor than in the export. The export preserves the selected value.

@@ -2,10 +2,10 @@
 
 # Governance
 
-**Version:** 1.3.0  
+**Version:** 1.3.1  
 **Language:** English  
 **Status:** Stable  
-**Applies to:** Oluntir 1.3.0  
+**Applies to:** Oluntir 1.3.1  
 **Last updated:** 2026-07-30
 
 Oluntir is currently maintained by a single project maintainer.
@@ -20,4 +20,4 @@ Changes are accepted when they are technically justified, compatible with the pr
 
 ## Releases
 
-Release candidates may include feature consolidation and compatibility corrections. Stable releases require completion of the release checklist and resolution of release-blocking defects.
+Pre-release builds may include feature consolidation and compatibility corrections. Stable releases require completion of the release checklist and resolution of release-blocking defects.
