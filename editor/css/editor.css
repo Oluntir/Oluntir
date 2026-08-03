@@ -1812,3 +1812,43 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
 .pb-gallery-structure-option:hover .pb-gallery-structure-radio,
 .pb-gallery-structure-option:focus .pb-gallery-structure-radio{border-color:#1687ff;background:#1687ff}
 
+
+/* Oluntir-eigener Hinweis beim Eintritt in die Vorschau.
+   GrapesJS-Steuerelemente bleiben bewusst unverändert. */
+.oluntir-preview-hint {
+  position: fixed;
+  top: 12px;
+  left: 38px;
+  z-index: 2147483646 !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(320px, calc(100vw - 28px));
+  padding: 10px 13px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-left: 3px solid var(--oluntir-accent, #3b97e3);
+  border-radius: 3px;
+  background: rgba(26,28,32,.94);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,.32);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+  isolation: isolate;
+}
+.oluntir-preview-hint.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition-delay: 0s;
+}
+.oluntir-preview-hint > .fa { font-size: 22px; flex: 0 0 auto; }
+.oluntir-preview-hint strong,
+.oluntir-preview-hint small { display: block; }
+.oluntir-preview-hint strong { font-size: 14px; line-height: 1.25; }
+.oluntir-preview-hint small { margin-top: 2px; font-size: 12px; color: rgba(255,255,255,.78); }
+@media (prefers-reduced-motion: reduce) {
+  .oluntir-preview-hint { transition: none; transform: none; }
+}

@@ -17,15 +17,17 @@
         'assets/css/local-fonts.css',
         'frameworks/bootstrap5/css/bootstrap.min.css',
         'plugins/site/css/font-awesome/all.min.css',
-        'assets/css/pagebuilder-bs5.css?v=1.3.0'
+        'assets/css/pagebuilder-bs5.css?v=1.3.0',
+        'assets/css/oluntir-image-lightbox.css'
       ],
       canvasScripts: [
         'frameworks/bootstrap5/js/bootstrap.bundle.min.js',
-        'assets/js/pagebuilder-bs5-gallery.js'
+        'assets/js/pagebuilder-bs5-gallery.js',
+        'assets/js/oluntir-image-lightbox.js'
       ],
       exportAssets: {
-        css: ['assets/css/local-fonts.css', 'frameworks/bootstrap5/css/bootstrap.min.css', 'plugins/site/css/font-awesome/all.min.css', 'assets/css/pagebuilder-bs5.css'],
-        js: ['frameworks/bootstrap5/js/bootstrap.bundle.min.js', 'assets/js/pagebuilder-bs5-gallery.js']
+        css: ['assets/css/local-fonts.css', 'frameworks/bootstrap5/css/bootstrap.min.css', 'plugins/site/css/font-awesome/all.min.css', 'assets/css/pagebuilder-bs5.css', 'assets/css/oluntir-image-lightbox.css'],
+        js: ['frameworks/bootstrap5/js/bootstrap.bundle.min.js', 'assets/js/pagebuilder-bs5-gallery.js', 'assets/js/oluntir-image-lightbox.js']
       }
     },
     bs4: {
@@ -40,16 +42,18 @@
         'assets/css/local-fonts.css',
         'frameworks/bootstrap4/css/bootstrap.min.css',
         'plugins/editor/font-awesome/css/font-awesome.min.css',
-        'assets/css/pagebuilder-bs4.css?v=1.3.0'
+        'assets/css/pagebuilder-bs4.css?v=1.3.0',
+        'assets/css/oluntir-image-lightbox.css'
       ],
       canvasScripts: [
         'plugins/site/js/jquery-3.4.1.min.js',
         'frameworks/bootstrap4/js/bootstrap.bundle.min.js',
-        'assets/js/pagebuilder-bs4-gallery.js'
+        'assets/js/pagebuilder-bs4-gallery.js',
+        'assets/js/oluntir-image-lightbox.js'
       ],
       exportAssets: {
-        css: ['assets/css/local-fonts.css', 'frameworks/bootstrap4/css/bootstrap.min.css', 'plugins/editor/font-awesome/css/font-awesome.min.css', 'assets/css/pagebuilder-bs4.css'],
-        js: ['plugins/site/js/jquery-3.4.1.min.js', 'frameworks/bootstrap4/js/bootstrap.bundle.min.js', 'assets/js/pagebuilder-bs4-gallery.js']
+        css: ['assets/css/local-fonts.css', 'frameworks/bootstrap4/css/bootstrap.min.css', 'plugins/editor/font-awesome/css/font-awesome.min.css', 'assets/css/pagebuilder-bs4.css', 'assets/css/oluntir-image-lightbox.css'],
+        js: ['plugins/site/js/jquery-3.4.1.min.js', 'frameworks/bootstrap4/js/bootstrap.bundle.min.js', 'assets/js/pagebuilder-bs4-gallery.js', 'assets/js/oluntir-image-lightbox.js']
       }
     }
   };

@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.3.1 — 02.08.2026
+- Globale optionale Klickvergrößerung für Bilder ergänzt: Aktivierung direkt im Bildmanager oder nachträglich über die Schnellbearbeitung; persistent in Cards, Grids, Textbereichen und beliebigen Bildkomponenten sowie vollständig in HTML-, SSI- und PHP-Exporten verfügbar.
 
 ### Stabilität und Persistenz
 - Shared Content für Header, Navigation und Footer stabilisiert.

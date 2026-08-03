@@ -1,6 +1,12 @@
 # Changelog
+- Corrected preview UX so only the dynamically displayed exit control is enlarged; the normal preview activation icon remains unchanged.
+
+- Klickvergrößerte Bilder bleiben im Bearbeitungsmodus direkt auswählbar; die Lightbox öffnet sich im Editor nur noch im Vorschaumodus.
 
 ## 1.3.1 — 2026-08-02
+- Added optional project-wide click-to-enlarge support for images, configurable in the image manager and quick editor, persisted across cards, grids, text areas and arbitrary image components, and included in HTML, SSI and PHP exports.
+- Exportierte Bild-Lightbox: Download-Symbol als fest eingebettetes, frameworkunabhängiges SVG vereinheitlicht; kein abweichendes Unicode-Fallback-Icon mehr.
+- Improved preview-mode discoverability with a larger 24 px exit icon, an automatic “ESC or eye” hint and ESC-key exit support.
 
 ### Stability and persistence
 - Stabilized shared header, navigation and footer content.

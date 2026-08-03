@@ -163,6 +163,88 @@ assetHydration.then(() => {
   window.bindOluntirUndoRedo = bindOluntirUndoRedo;
   bindOluntirUndoRedo(editor);
 
+  function bindOluntirPreviewUx(editorInstance) {
+    if (!editorInstance || editorInstance.__oluntirPreviewUxBound) return;
+    editorInstance.__oluntirPreviewUxBound = true;
+
+    const PREVIEW_COMMAND = 'preview';
+    let hintTimer = null;
+    let previewWasActive = false;
+
+    function previewIsActive() {
+      try {
+        return !!(editorInstance.Commands && editorInstance.Commands.isActive && editorInstance.Commands.isActive(PREVIEW_COMMAND));
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function ensureHint() {
+      let hint = document.getElementById('oluntir-preview-hint');
+      if (hint) return hint;
+      hint = document.createElement('div');
+      hint.id = 'oluntir-preview-hint';
+      hint.className = 'oluntir-preview-hint';
+      hint.setAttribute('role', 'status');
+      hint.setAttribute('aria-live', 'polite');
+      hint.setAttribute('aria-atomic', 'true');
+      hint.innerHTML = '<span class="fa fa-eye" aria-hidden="true"></span><span><strong>Vorschau aktiv</strong><small>ESC zum Beenden</small></span>';
+      document.body.appendChild(hint);
+      return hint;
+    }
+
+    function hideHint() {
+      if (hintTimer) {
+        window.clearTimeout(hintTimer);
+        hintTimer = null;
+      }
+      const hint = document.getElementById('oluntir-preview-hint');
+      if (hint) hint.classList.remove('is-visible');
+    }
+
+    function showHint() {
+      const hint = ensureHint();
+      hideHint();
+      // Zwei Frames stellen sicher, dass die Preview-Umschaltung und ihre
+      // Sichtbarkeitsregeln bereits abgeschlossen sind.
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          hint.classList.add('is-visible');
+          hintTimer = window.setTimeout(() => {
+            hint.classList.remove('is-visible');
+            hintTimer = null;
+          }, 3200);
+        });
+      });
+    }
+
+    function syncPreviewState() {
+      const active = previewIsActive();
+      if (active && !previewWasActive) showHint();
+      if (!active && previewWasActive) hideHint();
+      previewWasActive = active;
+    }
+
+    // GrapesJS-Ereignisse dienen nur als schnelle Benachrichtigung. Der
+    // Statusabgleich bleibt bewusst Oluntir-eigen und funktioniert auch dann,
+    // wenn sich Ereignisnamen oder deren Reihenfolge ändern.
+    editorInstance.on('run:preview', () => window.setTimeout(syncPreviewState, 0));
+    editorInstance.on('stop:preview', () => window.setTimeout(syncPreviewState, 0));
+    window.setInterval(syncPreviewState, 150);
+    syncPreviewState();
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !previewIsActive()) return;
+      const lightbox = document.querySelector('.oluntir-lightbox[aria-hidden="false"], .oluntir-lightbox.is-open');
+      if (lightbox) return;
+      event.preventDefault();
+      event.stopPropagation();
+      editorInstance.stopCommand(PREVIEW_COMMAND);
+      window.setTimeout(syncPreviewState, 0);
+    }, true);
+  }
+  bindOluntirPreviewUx(editor);
+
   if (typeof window.registerTextMediaEditing === 'function') {
     window.registerTextMediaEditing(editor);
   }

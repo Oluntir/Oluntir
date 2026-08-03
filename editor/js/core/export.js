@@ -14,6 +14,7 @@ const REQUIRED_EXPORT_FILES_BS4 = [
   'css/animate/animate.min.css',
   'css/style.css',
   'css/pagebuilder-bs4.css',
+  'css/oluntir-image-lightbox.css',
   'js/jquery-3.4.1.min.js',
   'js/bootstrap4/bootstrap.bundle.min.js',
   'js/jquery.appear.js',
@@ -25,6 +26,7 @@ const REQUIRED_EXPORT_FILES_BS4 = [
   'js/shuffle/shuffle.min.js',
   'js/custom.js',
   'js/pagebuilder-bs4-gallery.js',
+  'js/oluntir-image-lightbox.js',
 ];
 
 const REQUIRED_EXPORT_FILES_BS5 = [
@@ -32,8 +34,10 @@ const REQUIRED_EXPORT_FILES_BS5 = [
   'css/font-awesome/all.min.css',
   'css/bootstrap5/bootstrap.min.css',
   'css/pagebuilder-bs5.css',
+  'css/oluntir-image-lightbox.css',
   'js/bootstrap5/bootstrap.bundle.min.js',
   'js/pagebuilder-bs5-gallery.js',
+  'js/oluntir-image-lightbox.js',
 ];
 
 function getRequiredExportFiles() {
@@ -391,12 +395,14 @@ ${window.OluntirFavicon ? window.OluntirFavicon.getHeadHtml() : '    <link rel="
     <link rel="stylesheet" href="css/bootstrap5/bootstrap.min.css">
     <link rel="stylesheet" href="css/pagebuilder-bs5.css">
     <link rel="stylesheet" href="css/custom.css">
+    <link rel="stylesheet" href="css/oluntir-image-lightbox.css">
   </head>
   <body>
 ${bodyHtml}
 
     <script src="js/bootstrap5/bootstrap.bundle.min.js"></script>
     <script src="js/pagebuilder-bs5-gallery.js"></script>
+    <script src="js/oluntir-image-lightbox.js"></script>
   </body>
 </html>
 `;
@@ -436,6 +442,7 @@ ${bodyHtml}
     <script src="js/shuffle/shuffle.min.js"></script>
     <script src="js/custom.js"></script>
     <script src="js/pagebuilder-bs4-gallery.js"></script>
+    <script src="js/oluntir-image-lightbox.js"></script>
   </body>
 </html>
 `;

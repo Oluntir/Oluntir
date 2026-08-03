@@ -161,7 +161,8 @@
       title:'Bild · Schnellbearbeitung', hint:'Bildquelle, Beschreibung und sichtbare Form',
       html:[
         '<section><h3>Bild</h3>',field('src','Bildquelle','text',a.src || ''),field('alt','Alternativtext','text',a.alt || ''),field('title','Titel','text',a.title || ''),'</section>',
-        '<section><h3>Darstellung</h3>',field('width','Breite','text',style(component,'width','100%'),null,'Zum Beispiel 100%, 480px oder 30rem'),field('height','Höhe','text',style(component,'height','auto')),field('fit','Bildanpassung','select',style(component,'object-fit','cover'),[['cover','Ausfüllen'],['contain','Einpassen'],['fill','Strecken'],['none','Original']]),field('radius','Eckenradius','text',style(component,'border-radius',''),null,'Zum Beispiel 0.5rem, 12px oder 50%'),field('shadow','Schatten','checkbox',hasClass(component,'shadow')||hasClass(component,'shadow-sm')),'</section>'
+        '<section><h3>Darstellung</h3>',field('width','Breite','text',style(component,'width','100%'),null,'Zum Beispiel 100%, 480px oder 30rem'),field('height','Höhe','text',style(component,'height','auto')),field('fit','Bildanpassung','select',style(component,'object-fit','cover'),[['cover','Ausfüllen'],['contain','Einpassen'],['fill','Strecken'],['none','Original']]),field('radius','Eckenradius','text',style(component,'border-radius',''),null,'Zum Beispiel 0.5rem, 12px oder 50%'),field('shadow','Schatten','checkbox',hasClass(component,'shadow')||hasClass(component,'shadow-sm')),'</section>',
+        '<section><h3>Interaktion</h3>',field('lightbox','Klickvergrößerung','checkbox',window.OluntirImageLightboxApi&&window.OluntirImageLightboxApi.isEnabled(component)),field('lightboxDownload','Download-Button anzeigen','checkbox',window.OluntirImageLightboxApi&&window.OluntirImageLightboxApi.isDownloadEnabled(component)),field('lightboxCaption','Bildname anzeigen','checkbox',window.OluntirImageLightboxApi&&window.OluntirImageLightboxApi.isCaptionEnabled(component)), '<p class="pbe-hint">Bildname und Download bleiben standardmäßig ausgeblendet. Ein vorhandener Bildlink wird bei aktivierter Klickvergrößerung nicht ausgeführt.</p></section>'
       ].join(''),
       apply(panel){
         const imageAttributes={src:formValue(panel,'src'),alt:formValue(panel,'alt'),title:formValue(panel,'title')};
@@ -172,6 +173,9 @@
         }
         component.addStyle({'width':formValue(panel,'width')||'','height':formValue(panel,'height')||'','object-fit':formValue(panel,'fit')||'','border-radius':formValue(panel,'radius')||''});
         replaceClassGroup(component,c=>c==='shadow'||c==='shadow-sm',formValue(panel,'shadow')?'shadow-sm':'');
+        if(window.OluntirImageLightboxApi){
+          window.OluntirImageLightboxApi.apply(component,!!formValue(panel,'lightbox'),{download:!!formValue(panel,'lightboxDownload'),caption:!!formValue(panel,'lightboxCaption')});
+        }
       }
     };
   }
