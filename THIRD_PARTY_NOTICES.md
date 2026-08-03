@@ -1,13 +1,5 @@
 > **Language:** English (reference) · [Deutsch](THIRD_PARTY_NOTICES_de.md)
 
-# Third-party notices
-
-**Version:** 1.2.0  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.2.0  
-**Last updated:** 2026-07-30
-
 Oluntir bundles third-party software and assets for offline operation. Each component retains its original license.
 # Third-party notices
 
