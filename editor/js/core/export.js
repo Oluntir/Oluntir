@@ -812,16 +812,11 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
   const projectName = requestExportName();
   if (!projectName) return;
   if (window.OluntirIncludes && typeof window.OluntirIncludes.validateExport === 'function') {
-    const exportValidation = window.OluntirIncludes.validateExport(includeTarget);
-    if (!exportValidation.ok) {
-      throw new Error(
-        'Der Export wurde wegen fehlerhafter sich inhaltlich wiederholender Elemente und Bereiche abgebrochen:\n\n' +
-        exportValidation.errors.map(message => `- ${message}`).join('\n')
-      );
-    }
-    if (exportValidation.warnings.length) {
-      console.warn('Exporthinweise:', exportValidation.warnings);
-    }
+    const exportValidation = window.OluntirIncludes.validateExport(includeTarget) || {};
+    const exportHints = []
+      .concat(Array.isArray(exportValidation.errors) ? exportValidation.errors : [])
+      .concat(Array.isArray(exportValidation.warnings) ? exportValidation.warnings : []);
+    if (exportHints.length) console.warn('Exporthinweise (Export wird fortgesetzt):', exportHints);
   }
 
   if (exportMode === 'folder') {

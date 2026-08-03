@@ -13,8 +13,10 @@
 - Neue Galerie-Bereiche können vor, zwischen und nach vollständigen Seitenbereichen eingefügt werden.
 - Orange Vorschau- und Scrollmarkierungen für neue Seitenbereiche ergänzt.
 - Leere oder doppelte Einfügepositionen entfernt.
+- Vollständig leere neue Projekte und leere HTML-Seiten bieten nun eine gültige Position für die erste Galerie; die Seitenwurzel wird dabei stabil über die Seiten-ID adressiert.
 
 ### Export und Frameworks
+- Der Export bleibt auch bei leerem Header, leerer Navigation, leerem Footer oder noch unvollständigen wiederverwendbaren Bereichen möglich; diese Zustände werden nur noch als Hinweise protokolliert.
 - Export-Snapshots und responsive Bildvarianten stabilisiert.
 - Bootstrap 4.6.2 und Bootstrap 5.3.8 geprüft.
 - Framework- und Iconquellen konsolidiert.

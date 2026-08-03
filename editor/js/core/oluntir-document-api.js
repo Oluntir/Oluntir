@@ -357,6 +357,39 @@
       }
     }
 
+    // A completely blank new project may contain neither a semantic MAIN nor
+    // any resolved Bootstrap/layout component. In that case the selected
+    // GrapesJS page root is the only truthful insertion boundary available.
+    // Expose one dedicated new-area slot so a gallery can bootstrap the page.
+    if (!areaSlots.length && !visualAreas.length && !groups.length) {
+      const pageRoot = page && typeof page.getMainComponent === 'function'
+        ? page.getMainComponent()
+        : null;
+      // The GrapesJS page wrapper intentionally has no Oluntir layout identity
+      // in a pristine project. Use a page-scoped synthetic boundary key here;
+      // the adapter resolves it exclusively back to this selected page root.
+      const pageRootBoundary = structure.pageId
+        ? `page-root:${structure.pageId}`
+        : null;
+      if (pageRoot && pageRootBoundary) {
+        areaSlots.push(Object.freeze({
+          slotId: `new-area:${pageRootBoundary}:empty-page`,
+          pageId: structure.pageId,
+          nodeId: `new-area:${pageRootBoundary}:empty-page`,
+          mode: 'inside-end',
+          parentIdentity: pageRootBoundary,
+          anchorIdentity: null,
+          slotKind: 'new-gallery-area',
+          actionKind: 'new-area',
+          structureScope: 'page-root',
+          structureKind: 'section-container-row-gallery',
+          visualIndex: 0,
+          emptyPage: true,
+          label: 'Neuen Galerie-Bereich auf der leeren Seite erstellen'
+        }));
+      }
+    }
+
     slots.push(...areaSlots);
 
     function topLevelAreaIdentity(group) {

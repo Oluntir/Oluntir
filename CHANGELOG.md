@@ -13,8 +13,10 @@
 - New gallery areas can be inserted before, between and after complete page areas.
 - Added orange preview and scroll markers for new page areas.
 - Removed empty and duplicate insertion positions.
+- Completely empty new projects and blank HTML pages now expose a valid position for inserting the first gallery; the page root is addressed through the stable page ID.
 
 ### Export and frameworks
+- Export remains available with an empty header, navigation, footer or otherwise incomplete reusable regions; these states are now logged as non-blocking diagnostics only.
 - Stabilized export snapshots and responsive image variants.
 - Verified Bootstrap 4.6.2 and Bootstrap 5.3.8.
 - Consolidated framework and icon sources.

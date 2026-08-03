@@ -130,10 +130,31 @@
         if (!target) return setAreaDiagnostic('TARGET_MISSING', 'input', target);
         if (target.slotKind !== 'new-gallery-area') return setAreaDiagnostic('SLOT_KIND_INVALID', 'input', target, { slotKind: target.slotKind || null });
         if (!target.pageId) return setAreaDiagnostic('PAGE_ID_MISSING', 'input', target);
-        if (target.structureScope !== 'main') return setAreaDiagnostic('STRUCTURE_SCOPE_INVALID', 'input', target, { structureScope: target.structureScope || null });
+        if (!['main', 'page-root'].includes(target.structureScope)) return setAreaDiagnostic('STRUCTURE_SCOPE_INVALID', 'input', target, { structureScope: target.structureScope || null });
         if (target.actionKind !== 'new-area') return setAreaDiagnostic('ACTION_KIND_INVALID', 'input', target, { actionKind: target.actionKind || null });
         const page = adapter.getPageById(target.pageId);
         if (!page) return setAreaDiagnostic('PAGE_NOT_FOUND', 'page', target);
+
+        // Completely empty projects have no semantic MAIN yet. Their page root
+        // is therefore the only valid insertion owner. This path is accepted
+        // exclusively for the explicit empty-page slot emitted by the document
+        // model and does not weaken normal MAIN-boundary validation.
+        if (target.structureScope === 'page-root') {
+          if (target.mode !== 'inside-end' || target.anchorIdentity || target.emptyPage !== true) {
+            return setAreaDiagnostic('EMPTY_PAGE_CONTRACT_INVALID', 'empty-page', target);
+          }
+          const pageRoot = page.getMainComponent ? page.getMainComponent() : null;
+          const pageRootBoundary = `page-root:${target.pageId}`;
+          if (!pageRoot || typeof pageRoot.append !== 'function') return setAreaDiagnostic('EMPTY_PAGE_ROOT_NOT_APPENDABLE', 'empty-page', target);
+          if (!target.parentIdentity || String(pageRootBoundary) !== String(target.parentIdentity)) {
+            return setAreaDiagnostic('EMPTY_PAGE_ROOT_IDENTITY_MISMATCH', 'empty-page', target, { expected: target.parentIdentity || null, actual: pageRootBoundary });
+          }
+          const collection = pageRoot.components && pageRoot.components();
+          const children = collection && Array.isArray(collection.models) ? collection.models : [];
+          if (children.length) return setAreaDiagnostic('EMPTY_PAGE_NO_LONGER_EMPTY', 'empty-page', target, { childCount: children.length });
+          lastAreaInsertionDiagnostic = Object.freeze({ timestamp: new Date().toISOString(), code: 'OK', stage: 'resolved-empty-page', slotId: target.slotId || null, details: { at: 0, pageRoot: componentSummary(pageRoot) } });
+          return { page, parent: pageRoot, at: 0, anchor: null, structureScope: 'page-root' };
+        }
 
         if (target.mode === 'inside-end' && !target.anchorIdentity) {
           if (!target.parentIdentity) return setAreaDiagnostic('EMPTY_MAIN_PARENT_IDENTITY_MISSING', 'empty-main', target);

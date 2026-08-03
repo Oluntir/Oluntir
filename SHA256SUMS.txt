@@ -4,12 +4,14 @@ e4523e7b785f02dce553f2d432b45eebcf9b219ed68be227aa80822d7f982813  ./.gitattribut
 ed6f3fbb2305d2054c7eb24ff1bdfcef5c52c534f45790c524b058728b7d96de  ./.github/ISSUE_TEMPLATE/feature_request.yml
 4c08c1c65aa685d30e66b008c383726dd4e5c4dc90b1ff45420bcc4e69e4894f  ./.github/workflows/structure-check.yml
 79b5fe3c5cb4eda9fd29d7698a05ec7ee4c015a00ed1138f7ab79172e7a3bcc7  ./.gitignore
-e204c35d22034c07c3c4f0f7b035d6fdd7e0757ac9200ce28df7a7bd24bd5810  ./CHANGELOG.md
-7cc7e6637b3f5b48eabed312badbc366e6ab51c4d5a41b6df3e5ffb6dc0b0932  ./CHANGELOG_de.md
+fc9174e31bfb949d5a9224d2d57e8ada82a468a3f141f95e602842988564c4ad  ./CHANGELOG.md
+d9ad8256ff368d77827b4477a3ef8f05a503a1844d1cf47f981d0e4c5e5ad3ec  ./CHANGELOG_de.md
 ab4c5c92b6340f72c9aff41f2880514485b0bf260e061f30473c5f45c7fd878d  ./CODE_OF_CONDUCT.md
 3421d18cdb5b831f5b7ca1c59d98917280b4f5f9f590d2c82ddfb96f9124ffb5  ./CODE_OF_CONDUCT_de.md
 3a4eaf1a1e3f6588b6a0310166ee34ef6e1a1838e69863bf25d3f30c0c93c159  ./CONTRIBUTING.md
 2f3fba94a6594cc8fa922283c706455957f4a36193d7b1da86243719248b9aa3  ./CONTRIBUTING_de.md
+387a5b8aeb8ab37f0fbd7f5536a012a43d41b259d5c6c4d0af99837ab329265a  ./DEV_011_IMPLEMENTATION_REPORT_de.md
+7574dbc652be890d15ccd8b16a523d9369033c17500462fc8c254e3212371dee  ./DEV_012_IMPLEMENTATION_REPORT_de.md
 c8cc3a520d9a0d95644a8b1c2684a8e874e6a4797aa4c56a2ef557a15a15c2c9  ./FEATURES.md
 7eb33f05b4cbd2df6c66cca5081efae6da83e084e2f62fa8a399b053e8c4935f  ./FEATURES_de.md
 90eebfe8ad20e1a3c9461c3946b6a5eca41ee555787d7e9c2eac979a60077656  ./GOVERNANCE.md
@@ -205,6 +207,7 @@ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./assets/user_
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./assets/user_upload/mobile/.gitkeep
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./assets/user_upload/original/.gitkeep
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./assets/user_upload/tablet/.gitkeep
+f1e163a2bd4f668b8a3edb2fd34aa6da5669d74cc4cd851379003346e007a637  ./audit/OLUNTIR_1.3.0_AUDIT.md
 3aba46f9dead45c287cd132dd5867703247acc76d126f90ddc90c0374f4173cc  ./audit/OLUNTIR_1.3.1_AUDIT.md
 5d9e1742a0978a4acc98c88e3d9216c6e8e3f5a386f7190325cc114ea8f503bb  ./compliance/ASSET_INVENTORY.md
 10924258445ac4e3211c84dd43a983e2b6ca628d39e90a07964b18461b3678e2  ./compliance/ASSET_INVENTORY_de.md
@@ -218,6 +221,8 @@ a4195e74f79f56cc46edd7013be1e1a51c0fe218df59a5b5b064e432b87ae6ca  ./docs/040_LAY
 b94399e257dfb8c47fd418bd264bea621ad46f5d4d3c46f1ca40f3de5d6f060c  ./docs/040_LAYOUT_GRAPH_de.md
 ebc550e71656b01192b9458695176a5689a743bc7091d00e3a6ec9e1ba864737  ./docs/041_LAYOUT_IDENTITIES.md
 abfad13d22eca89d509a39a557ba139aac83563a328770278ab0971192e4840a  ./docs/041_LAYOUT_IDENTITIES_de.md
+13cc2f68a4e20f231a4d32df52b5e8a503e3cf34c2d384ffdb90ee3aa6d6bba7  ./docs/042_REPEAT_ENGINE_V2.md
+b6021e21d87ec3dd4a68e375c3ed79a7248523c348455e686ef66f4cf7047f45  ./docs/042_REPEAT_ENGINE_V2_de.md
 dc5400dfc7d5f3d07b02da7595b858b049b422b8704dd9cec9595e00c8c562f8  ./docs/043_GRAPESJS_PROJECT_MODEL.md
 124aad97800c8e15a6849f354c50dbd91263fb9c4971ec4bff05e51187f6464d  ./docs/043_GRAPESJS_PROJECT_MODEL_de.md
 b78d80d37775779011db5d8a85b653a166d583a7910c53bfd92e83d647d32ebb  ./docs/044_SHARED_CONTENT_AND_INCLUDES.md
@@ -230,6 +235,7 @@ e1d64eb3d0e288ec68b3886e58bfe32b870f6ef4a8df2c41f2cc752fba433f88  ./docs/047_EDI
 b9a70bfb0a7ba258407eda4ebf57b3a3fd926004318cc7846d821cce4541ed51  ./docs/048_RESPONSIVE_IMAGE_EXPORT_de.md
 4fa4a2da31080d1ad78b25ceca6062f13904a84e6af82ed332adb83ba7274287  ./docs/049_STRUCTURE_RESOLVER.md
 ef92e31f4070fa8fa9e4be93611208e88ac7d31a2c111eb973558d3b0f286d88  ./docs/049_STRUCTURE_RESOLVER_de.md
+8bd3e1647a0636df23170876add7cbe80654c2647300c125371cce5e812410af  ./docs/050_DEV_011_GALLERY_MAIN_AREA_INSERTION_de.md
 5f78a67826e8bf8e4125a34bc2b12f50690d7d6478ee4a8b0e67fa2fbb4d7180  ./docs/AI/000_PROJECT.md
 cba4cf8b8d5b2ce25bcae1146af769c66f4962e023d7349e2f1daa6824c25685  ./docs/AI/000_PROJECT_de.md
 8e540629198b4b75f1fe25f49bf7e204e315fccc6398d5f2a70f0f71c131fd64  ./docs/AI/010_GOALS.md
@@ -315,7 +321,7 @@ a743224c94cc789b0d895bc25ef1b7e355a6cb0f4f53a3611362c7b01dc222d8  ./docs/index.m
 b35245dd68299c85a0e787a1cce39db250c4e089b8d293b4dcf9cd164685f0ea  ./editor/config/editor-dependencies.js
 619206987af030f38f6ab188a28d5ba407f757c6a2984f2df30fe72e1a32e724  ./editor/css/editor.css
 3988d2d9a8bd2fb88227e2f753dfb5ad6fa18bc8c0964c27e26a798edb05dc1e  ./editor/integrations/grapesjs/COMPATIBILITY.md
-ba819215158ef041eaef4b92e22ae51440a50373262472967e3594bade9a8fd0  ./editor/integrations/grapesjs/grapesjs-adapter.js
+939a582b8378aba997644854e6bb3f031b4940dbd8f65cce1ec1c0370e40c1e1  ./editor/integrations/grapesjs/grapesjs-adapter.js
 bc2a776ee57043fa749cf1b877227e67ce7457f95e77071436e4fc1a76dcfdaf  ./editor/integrations/grapesjs/grapesjs-compatibility.js
 dacf7103de133344d697fda200313f187612205db1ef1a0d5dcd761970296d03  ./editor/js/core/asset-store.js
 09d187fe6bea1c47912ea0f628495787bc9dd16dc8b97d6a5f4627364050a73e  ./editor/js/core/context-resolver.js
@@ -332,7 +338,7 @@ b58b82c3050ae240912a82d7e2ba411baa0286a10fa576db855cc8114db5865a  ./editor/js/co
 5890966e07681fbeff67a308324b1e0dc859c2a6ff87fa20f32c10ad3bd49838  ./editor/js/core/includes.js
 fee24a5291861f2209790a90c1afc1a71fb30a1419e779d4095cebc80d84608a  ./editor/js/core/layout-identities.js
 1f9448225c20e26cbacb7e189123377c93932e9632fa7739feab4dc6345ba558  ./editor/js/core/oluntir-code-view.js
-c89a67df4768938fac0c674eb17e545e8c30cc06e674e133213da0d97bafa1b1  ./editor/js/core/oluntir-document-api.js
+0d43dc97ec1fe3f090ad21f18d62d0d4dc9505a7466a6e00469562bb121b42e3  ./editor/js/core/oluntir-document-api.js
 21da00629dcae7e1ef6828f861403a1a182e9f2ca9ad1453140180c9dd379401  ./editor/js/core/oluntir-logger.js
 4b41c31fd42e2a2320b4495eff43b579061eefc8ee705a69961897948dfed09e  ./editor/js/core/oluntir-logging-consent.js
 84cc5c4d529bd1e32815f2bcf3f648ed818963449ea5f40fc6ccfdade20e78cc  ./editor/js/core/oluntir-preview-api.js
@@ -343,11 +349,13 @@ d448d4654e274f4cb30c3fa708af1aabf89dd8e52fd5fdd781cad4494e3a10ea  ./editor/js/co
 a50a4119717dae2d0def99ea2adbc0a49efe7f5b72cd7413cb03885b567c124d  ./editor/js/core/project-state-store.js
 734409be9e6e85a79f72388ddd4ac82c5893b32221ef2ea2b5079e16629f42c8  ./editor/js/core/relationship-resolver.js
 70ce4d4d3cc4e01ae2df4b42589e08d1fbf1ef1ce6cbfff084781dcf9b70d42f  ./editor/js/core/repeat-action-contracts.js
+84a2b13ebaeb1f523dabe8ad236224fac7b9756fa7a9bde7e8ac6bd1e0001d8c  ./editor/js/core/repeat-auto-synchronization.js
 3b890084ad95b8ea8f6cd7a9009fcd65458ba8b491aabe4ee3a727feab0a01db  ./editor/js/core/repeat-contract-resolver.js
 c09114fe852c45815751772c144955c167f90f2224428d4cde6f7f62cc97fa8a  ./editor/js/core/repeat-dependency-graph.js
 48b8e4fbc9f46cf57983785d62a763543f27f16eb9d12e95a98ffb4e727eedb1  ./editor/js/core/repeat-engine-v2.js
 e69887a2ed50373d2aa4ccf794963dad371f51cb56e118c5bc77d5fc08d0dae5  ./editor/js/core/repeat-foundation-readiness.js
 0a762fa9d13b4824cd253bd85fb5c0d14839cf38c2cf61a87f18d988cc29ab1c  ./editor/js/core/repeat-sync-access-adapter.js
+155c1ecf1b55f80ca091725d8a07ed897a1cb5fea43b71b1716276c5bc239789  ./editor/js/core/repeat-synchronization-runtime.js
 7f84505b863346356596c6c49721a65147f1048ab9443e662df9c802fec8b059  ./editor/js/core/semantic-action-engine.js
 37c1665fac9b5241c9c4a7e9c097c4a6104c192964e9eed7745d824e92bb2b5a  ./editor/js/core/semantic-dictionary.js
 6b3cd58068601bcf2e52eadcfc0b4a4f50299a0c7b0c90a880e278b1b4f6e2af  ./editor/js/core/semantic-validator.js
@@ -450,7 +458,7 @@ d55a8c695d83b79ccf441b2866d8f442a12b33ced5b76bdebcca116506a9078e  ./templates/ed
 dfd7890237dd562f8f3646813c83c571c871bda86dcbbb579f8c142d2fd72dc7  ./tests/MANUAL_TEST_1.2.1_de.md
 a4f84e967eb4402aaeaade9a3beea6855496624eac8f6286e23c06ef4bd5659e  ./tests/fixtures/layout-repeat-export-contract.json
 d7a50203179f79aba7d6c14371563b2267a4fa43c5ab74172bc2de14b924429e  ./tests/gallery-empty-buttons-visual.html
-390ecb3251c1920851e85e5822519be511a7a59d65bd6d51460219915050396f  ./tests/run-tests.sh
+9fb04f92910b94a6a9c738f300bb31232268b5856a486614df48e9dca2f4990f  ./tests/run-tests.sh
 eb6fe0f1fe342c142054b5db1a1a93e32ca3ad478907508ea83bad1c19bf0647  ./tests/test-1.3.1-export-presentation-readonly.js
 b7bf4f58ca95096f8b9ffddd4b5fe5d3b8babcbb3db65ca4a90a7b135318dbaa  ./tests/test-1.3.1-export-presentation-translation.js
 1d30e4cd35f3bce35f9072ca9cce540868cc4fbc420250b602648509782915f5  ./tests/test-1.3.1-presentation-attribute-atomicity.js
@@ -481,6 +489,8 @@ ae27fb620b19bd3ba174d163a2fa03c7bd2ebf2c435447a06d77a055408120b4  ./tests/test-d
 86ec17bb924e5d4e9139fb4af7e7b78dc7120fab0286f1a1b2e4c34a62a46e87  ./tests/test-dev012-fix1-undo-redo-regression.js
 a59d1b346dd6d4ea2eaffa8747df747e3e4e1248ea36d6f8b701a290a382bde4  ./tests/test-dev012-fix2-image-redo-stack.js
 418f6287f1868d09a30e1a4c53c1a011f6dc5c9531304f936212354815b5d338  ./tests/test-dev012-image-undo-redo.js
+a911e6d28132a190e0ecf129142a9fd3af83ab2dd20b60d74600469f1d93eb09  ./tests/test-developer-diagnostics-center.js
+8d0d2c1d905e8d34a2a032cff81223b6f7e213cb433eb21f1312b9ddd7e5a7de  ./tests/test-empty-project-gallery-insertion.js
 eec576b372e2406ad1d01db5e3e80e363bd14687821ce8f312523854d9f37c64  ./tests/test-export-model-readonly.js
 7a755c1b29225fd316fee3ead6ee4dacd6e3fe279bbb254608c74f96e55285c0  ./tests/test-export-readiness-asset-commit.js
 2abe68341551a14878ca59a06eeb7bbec15aa78eea5b3240bac1ef431637770b  ./tests/test-export-readiness-atomic-contract.js
@@ -523,12 +533,14 @@ d64918b46d40bc484ca4b8f02d158783c096151729c31b74a845efa843090b22  ./tests/test-p
 47b4e08c2421bc3177f91bb9733c845e8e2ad038cbb2457de64bb20d58f20812  ./tests/test-project-state-store.js
 649798f0120a6424834639d0c0a0caf8cfe5fa26eed6703d948dd4c858ddb47a  ./tests/test-relationship-resolver.js
 610f34170a66507c799d4c897a08177eeb8270a67130061f9aac6efd01f23314  ./tests/test-repeat-action-contracts.js
+f199ac6de41c96db0db074a60aca998efa91bf28fff27d22fd5bb592150b6753  ./tests/test-repeat-auto-synchronization.js
 250fbeb78e3566c24d65402dc0e42123663d813af20298a9f55cc3117dd6cfdd  ./tests/test-repeat-contract-resolver.js
 b14c73c3a0ae215ad0bda765df620c49e94f1e3c1dfc86adedd4127539e7f63f  ./tests/test-repeat-dependency-graph.js
 ed9a6a6a7a60afb278a0ea49796f624a7b910962767cc27e7a6bdf434ed0a43d  ./tests/test-repeat-engine-v2-contracts.js
 394218b702c7fef4eb6fbfe7557f18924a28944200bc65155873bfb23f748aba  ./tests/test-repeat-structural-rollback.js
 28bf307ed0071e751c04efcdfc25aded6b5315ccda910b53a7fd883e1bba45de  ./tests/test-repeat-sync-access-adapter.js
 e4ebb1fda055bcdc08ed6e3987fab365e365ea0a2c6a68261f8a7fc8dabfddad  ./tests/test-repeat-sync-identity-mapping.js
+78ead63b2ce2a207c25d3912d686400bcc7651d8928359f03ac9668bcae25595  ./tests/test-repeat-synchronization-runtime.js
 78c950245d0cbe86339344d6a72c3eb8925f50aa2f5b9e12f4cee49790c15bc7  ./tests/test-responsive-upload-export.js
 e42d9900a2448a00200fe8c0bf9aad31cc5e668dc07074760d8a31b5dcda7e4c  ./tests/test-rte-cursor-stability.js
 d6674c06b6c73b7f2fb8e423d9e03a4b0a52bdf4fbd3abb7afb3fa7b0ca959e4  ./tests/test-runtime-actions.js

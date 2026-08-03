@@ -134,3 +134,5 @@ node tests/test-1.3.1-export-presentation-translation.js
 node tests/test-1.3.1-export-presentation-readonly.js
 
 node tests/test-1.3.1-presentation-attribute-atomicity.js
+
+node tests/test-empty-project-gallery-insertion.js
