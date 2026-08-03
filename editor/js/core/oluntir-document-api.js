@@ -361,7 +361,7 @@
     // any resolved Bootstrap/layout component. In that case the selected
     // GrapesJS page root is the only truthful insertion boundary available.
     // Expose one dedicated new-area slot so a gallery can bootstrap the page.
-    if (!areaSlots.length && !visualAreas.length && !groups.length) {
+    if (!areaSlots.length && !visualAreas.length) {
       const pageRoot = page && typeof page.getMainComponent === 'function'
         ? page.getMainComponent()
         : null;
@@ -371,7 +371,9 @@
       const pageRootBoundary = structure.pageId
         ? `page-root:${structure.pageId}`
         : null;
-      if (pageRoot && pageRootBoundary) {
+      const rootCollection = pageRoot && pageRoot.components ? pageRoot.components() : null;
+      const rootChildren = rootCollection && Array.isArray(rootCollection.models) ? rootCollection.models : [];
+      if (pageRoot && pageRootBoundary && rootChildren.length === 0) {
         areaSlots.push(Object.freeze({
           slotId: `new-area:${pageRootBoundary}:empty-page`,
           pageId: structure.pageId,

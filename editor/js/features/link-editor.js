@@ -28,8 +28,46 @@
     return null;
   }
 
+
+  function isGalleryItem(component) {
+    const attrs = component && component.getAttributes ? component.getAttributes() : {};
+    return hasClass(component, 'pb-gallery-item') ||
+      Object.prototype.hasOwnProperty.call(attrs || {}, 'data-pb-gallery-item') ||
+      Object.prototype.hasOwnProperty.call(attrs || {}, 'data-oluntir-gallery-item');
+  }
+
+  function firstGalleryLinkInside(component) {
+    if (!component || typeof component.find !== 'function') return null;
+    const selectors = [
+      'a[data-oluntir-gallery-image]',
+      'a.pb-gallery-trigger',
+      'a.pb-bs5-gallery-open',
+      'a.portfolio-img'
+    ];
+    for (const selector of selectors) {
+      const matches = component.find(selector) || [];
+      if (matches[0]) return matches[0];
+    }
+    return null;
+  }
+
+  function galleryLinkForSelection(component) {
+    const direct = closestLinkComponent(component);
+    if (direct && isGalleryLink(direct)) return direct;
+    let current = component;
+    while (current) {
+      if (isGalleryItem(current)) return firstGalleryLinkInside(current);
+      current = current.parent ? current.parent() : null;
+    }
+    return null;
+  }
+
   function isGalleryLink(component) {
-    return hasClass(component, 'portfolio-img');
+    const attrs = component && component.getAttributes ? component.getAttributes() : {};
+    return hasClass(component, 'portfolio-img') ||
+      hasClass(component, 'pb-gallery-trigger') ||
+      hasClass(component, 'pb-bs5-gallery-open') ||
+      Object.prototype.hasOwnProperty.call(attrs || {}, 'data-oluntir-gallery-image');
   }
 
   function isBootstrapButton(component) {
@@ -110,12 +148,17 @@
     return { desktop: url, tablet: url, mobile: url, download: url };
   }
 
+  function isPersistentProjectPath(path) {
+    const value = String(path || '').replace(/\\/g, '/');
+    return value.indexOf('assets/user_upload/') === 0 || value.indexOf('images/') === 0;
+  }
+
   function pathAttributeUpdate(component, attribute, path, stableAttribute) {
     if (!component) return null;
     const attrs = {};
     attrs[attribute] = path;
     const remove = [];
-    if (stableAttribute && path.indexOf('images/') === 0) attrs[stableAttribute] = path;
+    if (stableAttribute && isPersistentProjectPath(path)) attrs[stableAttribute] = path;
     else if (stableAttribute) remove.push(stableAttribute);
     return { component, attributes: attrs, remove };
   }
@@ -140,7 +183,15 @@
       updates.push(pathAttributeUpdate(source, 'srcset', path, 'data-stable-srcset-path'));
     });
 
-    updates.push(pathAttributeUpdate(galleryLink, 'href', paths.desktop, 'data-stable-path'));
+    const linkUpdate = pathAttributeUpdate(galleryLink, 'href', paths.desktop, 'data-stable-path');
+    linkUpdate.attributes['data-pb-gallery-desktop'] = paths.desktop;
+    linkUpdate.attributes['data-pb-gallery-tablet'] = paths.tablet;
+    linkUpdate.attributes['data-pb-gallery-mobile'] = paths.mobile;
+    linkUpdate.attributes['data-pb-gallery-desktop-path'] = paths.desktop;
+    linkUpdate.attributes['data-pb-gallery-tablet-path'] = paths.tablet;
+    linkUpdate.attributes['data-pb-gallery-mobile-path'] = paths.mobile;
+    linkUpdate.attributes['data-download'] = paths.download;
+    updates.push(linkUpdate);
 
     if (downloads[0]) {
       const downloadUpdate = pathAttributeUpdate(downloads[0], 'href', paths.download, 'data-stable-download-path');
@@ -179,6 +230,8 @@
       },
     });
   }
+
+  window.OluntirOpenGalleryAssetManager = openGalleryAssetManager;
 
   function openLinkDialog(editor, linkComponent) {
     const attrs = linkComponent.getAttributes ? linkComponent.getAttributes() : {};
@@ -255,6 +308,35 @@
     ];
   }
 
+  function componentFromElement(editor, element) {
+    if (!element) return null;
+    try {
+      if (element.__gjsv) return element.__gjsv;
+      if (element.__gjsmodel) return element.__gjsmodel;
+    } catch (_) {}
+    try {
+      const dc = editor.getModel && editor.getModel().get('DomComponents');
+      if (dc && typeof dc.getComponent === 'function') {
+        const found = dc.getComponent(element);
+        if (found) return found;
+      }
+    } catch (_) {}
+    const selected = editor.getSelected && editor.getSelected();
+    if (selected) {
+      const selectedEl = selected.getEl && selected.getEl();
+      if (selectedEl === element || (selectedEl && selectedEl.contains && selectedEl.contains(element)) || (element.contains && element.contains(selectedEl))) return selected;
+    }
+    return null;
+  }
+
+  function openGalleryForComponent(editor, component) {
+    const gallery = galleryLinkForSelection(component);
+    if (!gallery || typeof window.OluntirOpenGalleryAssetManager !== 'function') return false;
+    editor.select(gallery);
+    window.OluntirOpenGalleryAssetManager(editor, gallery);
+    return true;
+  }
+
   window.registerSmartLinkEditing = function registerSmartLinkEditing(editor) {
     editor.on('component:selected', (component) => {
       const link = closestLinkComponent(component);
@@ -262,31 +344,44 @@
       link.set('toolbar', toolbarFor(link));
     });
 
+    let lastGalleryOpenAt = 0;
+    function openFromCanvasEvent(event) {
+      if (event.type === 'click' && Number(event.detail || 0) < 2) return;
+      const now = Date.now();
+      if (now - lastGalleryOpenAt < 350) return;
+      const target = event.target;
+      let anchor = target && target.closest ? target.closest('a') : null;
+      if (!anchor && target && target.closest) {
+        const item = target.closest('[data-oluntir-gallery-item], [data-pb-gallery-item], .pb-gallery-item');
+        anchor = item && item.querySelector
+          ? item.querySelector('a[data-oluntir-gallery-image], a.pb-gallery-trigger, a.pb-bs5-gallery-open, a.portfolio-img')
+          : null;
+      }
+      if (!anchor) return;
+      let component = componentFromElement(editor, target) || componentFromElement(editor, anchor) || editor.getSelected();
+      component = galleryLinkForSelection(component) || closestLinkComponent(component);
+      if (!component || !isGalleryLink(component)) return;
+      lastGalleryOpenAt = now;
+      event.preventDefault();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      event.stopPropagation();
+      editor.select(component);
+      openGalleryAssetManager(editor, component);
+    }
+
     function bindCanvasDblClick() {
       const doc = editor.Canvas.getDocument();
       if (!doc || doc.__pageBuilderSmartLinksBound) return;
       doc.__pageBuilderSmartLinksBound = true;
-      doc.addEventListener('dblclick', (event) => {
-        const anchor = event.target && event.target.closest ? event.target.closest('a') : null;
-        if (!anchor) return;
-        event.preventDefault();
-        event.stopPropagation();
-
-        let component = null;
-        try {
-          const dc = editor.getModel().get('DomComponents');
-          if (dc && typeof dc.getComponent === 'function') component = dc.getComponent(anchor);
-        } catch (e) { /* Fallback unten */ }
-
-        component = closestLinkComponent(component || editor.getSelected());
-        if (!component) return;
-        editor.select(component);
-        if (isGalleryLink(component)) openGalleryAssetManager(editor, component);
-        else openLinkDialog(editor, component);
-      }, true);
+      doc.addEventListener('dblclick', openFromCanvasEvent, true);
+      doc.addEventListener('click', openFromCanvasEvent, true);
     }
 
     editor.on('load', bindCanvasDblClick);
     editor.on('page', () => setTimeout(bindCanvasDblClick, 0));
+    editor.on('canvas:frame:load', () => setTimeout(bindCanvasDblClick, 0));
+    editor.on('component:dblclick', (component) => {
+      openGalleryForComponent(editor, component);
+    });
   };
 })();

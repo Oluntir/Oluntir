@@ -271,6 +271,10 @@ assetHydration.then(() => {
     window.registerQuickEditing(editor);
   }
 
+  if (window.OluntirImageLightboxApi && typeof window.OluntirImageLightboxApi.bindEditorPreview === 'function') {
+    window.OluntirImageLightboxApi.bindEditorPreview(editor);
+  }
+
 
   function categoryLabel(category) {
     if (typeof category === 'string') return category;
@@ -1521,16 +1525,6 @@ assetHydration.then(() => {
       window.removeEventListener('oluntir:languagechange', applyNoticeLanguage);
     }, { once: true });
   })();
-
-  document.getElementById('input-gallery-files').addEventListener('change', (ev) => {
-    insertGalleryFromFiles(editor, ev.target.files);
-    ev.target.value = '';
-  });
-
-  document.getElementById('input-gallery-folder').addEventListener('change', (ev) => {
-    insertGalleryFromFiles(editor, ev.target.files);
-    ev.target.value = '';
-  });
 
   // "+ Bild hochladen": fügt (ein oder mehrere) Bilder dem Asset-Manager hinzu, ohne
   // Base64 – Auswahl über den Asset-Manager (Doppelklick auf ein Bild-Element) möglich.

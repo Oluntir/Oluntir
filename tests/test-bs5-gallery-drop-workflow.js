@@ -1,0 +1,20 @@
+const fs = require('fs');
+const path = require('path');
+function must(v, m){ if(!v) throw new Error(m); }
+const gallery = fs.readFileSync(path.join(__dirname, '..', 'editor/js/features/gallery.js'), 'utf8');
+const blocks = fs.readFileSync(path.join(__dirname, '..', 'editor/js/features/blocks-bs5.js'), 'utf8');
+const genericBlocks = fs.readFileSync(path.join(__dirname, '..', 'editor/js/features/bootstrap-blocks.js'), 'utf8');
+must(blocks.includes('data-oluntir-gallery-launcher="bs5"'), 'Dedicated BS5-Gallery block must be a launcher, not a dummy gallery.');
+must(genericBlocks.includes("'gallery': bs5 ? '<div data-oluntir-gallery-launcher=\"bs5\""), 'Responsive BS5-Gallery block must use the launcher instead of dummy images.');
+must(gallery.includes("editorInstance.on('component:add'"), 'Launcher must be detected via the actual component:add model event.');
+must(gallery.includes('launchDroppedFrameworkGallery(component)'), 'Shared launcher handler missing.');
+must(gallery.includes("editorInstance.on('block:drag:stop'"), 'Compatibility fallback for block:drag:stop missing.');
+must(gallery.includes('dropComponent: component'), 'Dropped component must be passed as position anchor.');
+must(gallery.includes("cfg.source === 'framework-block' && cfg.dropComponent"), 'Framework-block workflow branch missing.');
+must(gallery.includes('const viewerOptions = await chooseGalleryViewerOptions();'), 'Modal/Lightbox dialog must open after drop.');
+must(gallery.includes("document.getElementById('input-gallery-files')"), 'Windows multi-file input must be used.');
+must(gallery.includes("structureMode: Object.freeze({ mode: 'new-area', width: 'container-fluid' })"), 'Dropped BS5-Gallery must build a complete framework gallery area.');
+must(gallery.includes('anchor.replaceWith(html)'), 'Drop anchor must be replaced at the exact drop position.');
+must(gallery.includes('if (!viewerOptions) { removeDropAnchor(); return false; }'), 'Canceling options must remove the drop anchor.');
+must(gallery.includes('if (!files || !files.length) { removeDropAnchor(); return false; }'), 'Canceling file selection must remove the drop anchor.');
+console.log('PASS BS5-Gallery drop workflow');

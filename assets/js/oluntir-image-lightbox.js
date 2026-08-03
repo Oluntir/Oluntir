@@ -83,10 +83,18 @@
     return !!(document.documentElement && document.documentElement.getAttribute('data-oluntir-editor-canvas') === 'true') ||
       !!(document.body && document.body.classList.contains('gjs-dashed'));
   }
+  function lightboxImageForTarget(target) {
+    if (!target || !target.closest) return null;
+    var direct = target.closest('img[data-oluntir-lightbox="true"]');
+    if (direct) return direct;
+    if (target.closest('a[data-oluntir-gallery-download], a.portfolio-download, [data-oluntir-lightbox-download]')) return null;
+    var item = target.closest('[data-oluntir-gallery-item], [data-pb-gallery-item], .pb-gallery-item');
+    return item && item.querySelector ? item.querySelector('img[data-oluntir-lightbox="true"]') : null;
+  }
   document.addEventListener('click', function (event) {
-    var image = event.target.closest && event.target.closest('img[data-oluntir-lightbox="true"]');
+    var image = lightboxImageForTarget(event.target);
     if (!image || editorDesignMode()) return;
-    event.preventDefault(); event.stopPropagation(); open(image);
+    event.preventDefault(); event.stopImmediatePropagation(); event.stopPropagation(); open(image);
   }, true);
   document.addEventListener('keydown', function (event) {
     if (!state) return;

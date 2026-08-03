@@ -1852,3 +1852,50 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
 @media (prefers-reduced-motion: reduce) {
   .oluntir-preview-hint { transition: none; transform: none; }
 }
+
+/* Interne Galerie-Dateieingaben behalten ihre erwartete DOM-Struktur,
+   erscheinen jedoch nicht als Aktionen in der oberen Werkzeugleiste. */
+
+
+/* Oluntir 1.3.1 – kurze Commit-Anzeige nach der Schnellbearbeitung */
+#oluntir-quick-edit-commit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(12, 14, 18, .68);
+  backdrop-filter: blur(2px);
+}
+#oluntir-quick-edit-commit-overlay[hidden] { display: none !important; }
+.oluntir-quick-edit-commit-card {
+  width: min(430px, calc(100vw - 48px));
+  box-sizing: border-box;
+  padding: 24px 26px;
+  border: 1px solid #505661;
+  border-radius: 10px;
+  background: #292c33;
+  color: #f5f5f5;
+  text-align: center;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, .55);
+}
+.oluntir-quick-edit-commit-card strong,
+.oluntir-quick-edit-commit-card small { display: block; }
+.oluntir-quick-edit-commit-card strong { margin-top: 14px; font-size: 18px; }
+.oluntir-quick-edit-commit-card small { margin-top: 7px; color: #d4d8df; font-size: 14px; }
+.oluntir-quick-edit-commit-card p { margin: 14px 0 0; color: #aeb4bf; font-size: 12px; line-height: 1.5; }
+.oluntir-quick-edit-commit-spinner {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, .28);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: oluntir-quick-edit-commit-spin .8s linear infinite;
+}
+@keyframes oluntir-quick-edit-commit-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .oluntir-quick-edit-commit-spinner { animation-duration: 1.8s; }
+}

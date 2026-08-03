@@ -4,10 +4,12 @@ const GALLERY_MAX_TOTAL_MB = 300;
 const GALLERY_VIEWER_STORAGE_KEY = 'oluntir-gallery-viewer-options-v1';
 
 function getStoredGalleryViewerOptions() {
-  const defaults = { mode: 'modal', caption: true, counter: true, loop: true };
+  const defaults = { mode: 'modal', caption: true, download: true, counter: true, loop: true };
   try {
     const stored = JSON.parse(localStorage.getItem(GALLERY_VIEWER_STORAGE_KEY) || '{}');
-    return Object.assign(defaults, stored || {});
+    const result = Object.assign(defaults, stored || {});
+    if (!['modal', 'lightbox'].includes(result.mode)) result.mode = 'modal';
+    return result;
   } catch (_) {
     return defaults;
   }
@@ -21,45 +23,31 @@ function chooseGalleryViewerOptions() {
     overlay.setAttribute('role', 'presentation');
     overlay.innerHTML = `
       <div class="pb-modal pb-gallery-options-modal" role="dialog" aria-modal="true" aria-labelledby="pb-gallery-options-title">
-        <h2 id="pb-gallery-options-title">Darstellung der Klickvergrößerung</h2>
-        <p>Wähle, wie Bilder dieser Galerie beim Anklicken geöffnet werden.</p>
-        <label class="pb-gallery-options-field">
-          <span>Darstellungsmodus</span>
-          <select data-gallery-option="mode">
-            <option value="none">Keine Vergrößerung</option>
-            <option value="modal">Modal</option>
-            <option value="lightbox">Lightbox</option>
-          </select>
-        </label>
-        <label class="pb-modal-check"><input type="checkbox" data-gallery-option="caption"> Bildunterschrift anzeigen</label>
-        <label class="pb-modal-check"><input type="checkbox" data-gallery-option="counter"> Bildzähler anzeigen</label>
-        <label class="pb-modal-check"><input type="checkbox" data-gallery-option="loop"> Navigation am Ende fortsetzen</label>
-        <p class="pb-gallery-options-note">Die Tastaturnavigation ist bei Modal und Lightbox immer aktiv: Pfeiltasten, Pos1, Ende und Escape.</p>
+        <h2 id="pb-gallery-options-title">Galerie erstellen</h2>
+        <p>Wähle die Vergrößerungsart und die sichtbaren Bildfunktionen.</p>
+        <fieldset class="pb-gallery-options-field">
+          <legend>Vergrößerung</legend>
+          <label class="pb-modal-check"><input type="radio" name="pb-gallery-viewer-mode" value="modal" data-gallery-option="mode"> Modal</label>
+          <label class="pb-modal-check"><input type="radio" name="pb-gallery-viewer-mode" value="lightbox" data-gallery-option="mode"> Lightbox</label>
+        </fieldset>
+        <label class="pb-modal-check"><input type="checkbox" data-gallery-option="caption"> Bildbezeichnung anzeigen</label>
+        <label class="pb-modal-check"><input type="checkbox" data-gallery-option="download"> Download ermöglichen</label>
+        <p class="pb-gallery-options-note">Anschließend öffnet sich die Windows-Dateiauswahl. Dort können mehrere Bilder gleichzeitig ausgewählt werden.</p>
         <div class="pb-modal-actions">
           <button type="button" class="btn btn-secondary" data-gallery-cancel>Abbrechen</button>
-          <button type="button" class="btn btn-primary" data-gallery-confirm>Galerie erstellen</button>
+          <button type="button" class="btn btn-primary" data-gallery-confirm>Bilder auswählen…</button>
         </div>
       </div>`;
 
     document.body.appendChild(overlay);
     const modal = overlay.querySelector('.pb-gallery-options-modal');
-    const mode = overlay.querySelector('[data-gallery-option="mode"]');
+    const modes = Array.from(overlay.querySelectorAll('[data-gallery-option="mode"]'));
     const caption = overlay.querySelector('[data-gallery-option="caption"]');
-    const counter = overlay.querySelector('[data-gallery-option="counter"]');
-    const loop = overlay.querySelector('[data-gallery-option="loop"]');
-    mode.value = saved.mode;
+    const download = overlay.querySelector('[data-gallery-option="download"]');
+    const selectedMode = modes.find(input => input.value === saved.mode) || modes[0];
+    if (selectedMode) selectedMode.checked = true;
     caption.checked = saved.caption !== false;
-    counter.checked = saved.counter !== false;
-    loop.checked = saved.loop !== false;
-
-    const updateDisabled = () => {
-      const disabled = mode.value === 'none';
-      caption.disabled = disabled;
-      counter.disabled = disabled;
-      loop.disabled = disabled;
-    };
-    updateDisabled();
-    mode.addEventListener('change', updateDisabled);
+    download.checked = saved.download !== false;
 
     let finished = false;
     const finish = (value) => {
@@ -75,7 +63,7 @@ function chooseGalleryViewerOptions() {
         finish(null);
       }
       if (event.key === 'Tab') {
-        const focusable = Array.from(modal.querySelectorAll('button, select, input:not(:disabled)'));
+        const focusable = Array.from(modal.querySelectorAll('button, input:not(:disabled)'));
         if (!focusable.length) return;
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
@@ -90,88 +78,80 @@ function chooseGalleryViewerOptions() {
     overlay.addEventListener('click', (event) => { if (event.target === overlay) finish(null); });
     overlay.querySelector('[data-gallery-cancel]').addEventListener('click', () => finish(null));
     overlay.querySelector('[data-gallery-confirm]').addEventListener('click', () => {
-      const options = { mode: mode.value, caption: caption.checked, counter: counter.checked, loop: loop.checked };
+      const checkedMode = modes.find(input => input.checked);
+      const options = {
+        mode: checkedMode ? checkedMode.value : 'modal',
+        caption: caption.checked,
+        download: download.checked,
+        counter: true,
+        loop: true
+      };
       localStorage.setItem(GALLERY_VIEWER_STORAGE_KEY, JSON.stringify(options));
       finish(options);
     });
-    mode.focus();
+    if (selectedMode) selectedMode.focus();
   });
 }
 
 
-function chooseGalleryInsertionTarget(editorInstance) {
-  if (!window.OluntirStructureInsertionTarget || typeof window.OluntirStructureInsertionTarget.choose !== 'function') {
-    return Promise.reject(new Error('STRUCTURE_INSERTION_TARGET_SERVICE_MISSING'));
-  }
-  return window.OluntirStructureInsertionTarget.choose(editorInstance, {
-    title: 'Einfügeposition der Galerie',
-    itemLabel: 'die Galerie'
-  });
-}
-window.chooseGalleryInsertionTarget = chooseGalleryInsertionTarget;
-
-
-function chooseGalleryStructureMode(options) {
+function chooseGalleryFiles(inputElement, options) {
   const cfg = options || {};
+  const input = inputElement || document.getElementById('input-gallery-files');
+  if (!input) return Promise.reject(new Error('GALLERY_FILE_INPUT_MISSING'));
   return new Promise((resolve) => {
     const overlay = document.createElement('div');
-    overlay.className = 'pb-modal-overlay pb-gallery-structure-overlay';
-    overlay.innerHTML = `<div class="pb-modal pb-gallery-structure-modal" role="dialog" aria-modal="true" aria-labelledby="pb-gallery-structure-title">
-      <h2 id="pb-gallery-structure-title">Neuen Galerie-Bereich erstellen</h2>
-      <p>Der neue Bereich wird als direkte SECTION innerhalb von MAIN an der gewählten Position eingefügt.</p>
-      <div class="pb-gallery-structure-options">
-        ${cfg.newAreaOnly ? '' : `<button type="button" class="pb-gallery-structure-option" data-gallery-structure-mode="existing-layout">
-          <strong>Bestehenden Layoutbereich verwenden</strong>
-          <span>Die Galerie wird als neue Bootstrap-ROW in den ausgewählten Bereich eingefügt.</span>
-        </button>`}
-        <button type="button" class="pb-gallery-structure-option" data-gallery-structure-mode="new-area" data-gallery-structure-width="container">
-          <strong><span class="pb-gallery-structure-radio" aria-hidden="true"></span>Container</strong>
-          <span>SECTION mit Bootstrap-CONTAINER, ROW und Galerie.</span>
-        </button>
-        <button type="button" class="pb-gallery-structure-option" data-gallery-structure-mode="new-area" data-gallery-structure-width="container-fluid">
-          <strong><span class="pb-gallery-structure-radio" aria-hidden="true"></span>Container Fluid</strong>
-          <span>SECTION mit Bootstrap-CONTAINER-FLUID, ROW und Galerie.</span>
-        </button>
+    overlay.className = 'pb-modal-overlay pb-gallery-file-overlay';
+    overlay.innerHTML = `<div class="pb-modal pb-gallery-file-modal" role="dialog" aria-modal="true" aria-labelledby="pb-gallery-file-title">
+      <h2 id="pb-gallery-file-title">Bilder für die Galerie auswählen</h2>
+      <div class="pb-modal-actions">
+        <button type="button" class="btn btn-secondary" data-gallery-file-cancel>Abbrechen</button>
+        <button type="button" class="btn btn-primary" data-gallery-file-select>Bilder auswählen</button>
       </div>
-      <div class="pb-modal-actions"><button type="button" class="btn btn-secondary" data-gallery-structure-cancel>Abbrechen</button></div>
     </div>`;
     document.body.appendChild(overlay);
     let finished = false;
+    const cleanup = () => {
+      input.removeEventListener('change', onChange);
+      input.removeEventListener('cancel', onCancel);
+      document.removeEventListener('keydown', onKey, true);
+      overlay.remove();
+    };
     const finish = (value) => {
       if (finished) return;
       finished = true;
-      document.removeEventListener('keydown', onKey, true);
-      overlay.remove();
+      cleanup();
       resolve(value);
     };
+    const onChange = () => {
+      const files = Array.from(input.files || []);
+      input.value = '';
+      finish(files.length ? files : null);
+    };
+    const onCancel = () => finish(null);
     const onKey = (event) => {
       if (event.key === 'Escape') { event.preventDefault(); finish(null); }
     };
+    input.value = '';
+    input.addEventListener('change', onChange);
+    input.addEventListener('cancel', onCancel);
     document.addEventListener('keydown', onKey, true);
-    overlay.addEventListener('click', event => { if (event.target === overlay) finish(null); });
-    overlay.querySelector('[data-gallery-structure-cancel]').addEventListener('click', () => finish(null));
-    overlay.querySelectorAll('[data-gallery-structure-mode]').forEach((button) => {
-      button.addEventListener('click', () => finish(Object.freeze({
-        mode: button.getAttribute('data-gallery-structure-mode'),
-        width: button.getAttribute('data-gallery-structure-width') || null
-      })));
-    });
-    const first = overlay.querySelector('[data-gallery-structure-mode]');
-    if (first) first.focus();
+    overlay.addEventListener('click', (event) => { if (event.target === overlay) finish(null); });
+    overlay.querySelector('[data-gallery-file-cancel]').addEventListener('click', () => finish(null));
+    overlay.querySelector('[data-gallery-file-select]').addEventListener('click', () => input.click());
+    overlay.querySelector('[data-gallery-file-select]').focus();
   });
 }
-window.chooseGalleryStructureMode = chooseGalleryStructureMode;
+window.chooseGalleryFiles = chooseGalleryFiles;
 
 function galleryDataAttributes(options) {
   const cfg = options || getStoredGalleryViewerOptions();
-  return `data-pb-gallery data-pb-gallery-viewer="${cfg.mode}" data-pb-gallery-caption="${cfg.caption ? 'true' : 'false'}" data-pb-gallery-counter="${cfg.counter ? 'true' : 'false'}" data-pb-gallery-loop="${cfg.loop ? 'true' : 'false'}"`;
+  return `data-pb-gallery data-pb-gallery-viewer="${cfg.mode}" data-pb-gallery-caption="${cfg.caption ? 'true' : 'false'}" data-pb-gallery-counter="${cfg.counter ? 'true' : 'false'}" data-pb-gallery-loop="${cfg.loop ? 'true' : 'false'}" data-pb-gallery-download="${cfg.download !== false ? 'true' : 'false'}"`;
 }
 
 function galleryTrigger(entry, index, image, options, extraClass) {
   const cfg = options || getStoredGalleryViewerOptions();
-  if (cfg.mode === 'none') return image;
   const label = entry.originalName || `Galeriebild ${index + 1}`;
-  return `<a class="pb-gallery-trigger ${extraClass || ''}" href="${entry.desktopUrl}" data-stable-path="${entry.desktopPath}" data-pb-gallery-mobile="${entry.mobileUrl}" data-pb-gallery-tablet="${entry.tabletUrl}" data-pb-gallery-desktop="${entry.desktopUrl}" data-pb-gallery-mobile-path="${entry.mobilePath}" data-pb-gallery-tablet-path="${entry.tabletPath}" data-pb-gallery-desktop-path="${entry.desktopPath}" data-download="${entry.downloadPath}" data-filename="${entry.originalName}" data-alt="${label}" data-caption="${label}" aria-label="${label} vergrößern">${image}</a>`;
+  return `<a class="pb-gallery-trigger ${extraClass || ''}" data-oluntir-gallery-image href="${entry.desktopUrl}" data-stable-path="${entry.desktopPath}" data-pb-gallery-mobile="${entry.mobileUrl}" data-pb-gallery-tablet="${entry.tabletUrl}" data-pb-gallery-desktop="${entry.desktopUrl}" data-pb-gallery-mobile-path="${entry.mobilePath}" data-pb-gallery-tablet-path="${entry.tabletPath}" data-pb-gallery-desktop-path="${entry.desktopPath}" data-download="${entry.downloadPath}" data-filename="${entry.originalName}" data-alt="${label}" data-caption="${label}" aria-label="${label} vergrößern">${image}</a>`;
 }
 
 
@@ -267,7 +247,7 @@ function normalizeGalleryComponentModel(editorInstance) {
         // one undoable operation and can restore it with Redo.
         if (item && item.find) {
           item.find('img, picture, .pb-gallery-trigger').forEach((visual) => {
-            visual.set && visual.set({ removable: false, draggable: false, copyable: false });
+            visual.set && visual.set({ removable: false, draggable: false, copyable: false, selectable: true, hoverable: true });
           });
         }
       });
@@ -293,21 +273,50 @@ function bindGalleryItemLifecycle(editorInstance) {
     }
   });
 
-  // Treat image, picture and trigger as one gallery item in the editor. Selecting
-  // a visual child immediately promotes the selection to the item wrapper. The
-  // normal GrapesJS delete command then removes one component in one history step.
-  let redirectingSelection = false;
-  editorInstance.on('component:selected', (component) => {
-    if (redirectingSelection || !isGalleryVisualComponent(component)) return;
-    const item = findGalleryItemComponent(component);
-    if (!item || item === component || typeof editorInstance.select !== 'function') return;
-    redirectingSelection = true;
-    try {
-      editorInstance.select(item);
-    } finally {
-      redirectingSelection = false;
-    }
+  // Die Drop-Position ist bereits die bestätigte Einfügeposition. GrapesJS 0.23.2
+  // übergibt bei block:drag:stop je nach Blockquelle nicht zuverlässig die erzeugte
+  // Komponente. Maßgeblich ist deshalb component:add: Der Launcher selbst ist der
+  // kurzlebige Positionsanker und wird nach Optionen + Mehrfachauswahl atomar ersetzt.
+  const launchDroppedFrameworkGallery = (component) => {
+    if (!component || component.__oluntirGalleryLauncherHandled) return false;
+    const attrs = component.getAttributes ? component.getAttributes() : {};
+    if (!Object.prototype.hasOwnProperty.call(attrs || {}, 'data-oluntir-gallery-launcher')) return false;
+    component.__oluntirGalleryLauncherHandled = true;
+    if (component.set) component.set({ selectable: false, hoverable: false, removable: false, copyable: false });
+    window.setTimeout(() => {
+      // Der Anker kann durch Undo, Seitenwechsel oder einen Abbruch bereits entfernt sein.
+      if (!component || typeof component.parent !== 'function' || !component.parent()) return;
+      if (typeof window.startFrameworkGalleryWorkflow !== 'function') {
+        if (typeof component.remove === 'function') component.remove();
+        alert('Der Galerie-Assistent ist nicht verfügbar.');
+        return;
+      }
+      window.startFrameworkGalleryWorkflow(editorInstance, {
+        source: 'framework-block',
+        framework: String(attrs['data-oluntir-gallery-launcher'] || ''),
+        dropComponent: component
+      }).catch((error) => {
+        if (typeof component.remove === 'function' && typeof component.parent === 'function' && component.parent()) component.remove();
+        console.error('Oluntir: Framework-Galerie konnte nicht gestartet werden.', error);
+        alert('Der Galerie-Assistent konnte nicht gestartet werden: ' + error.message);
+      });
+    }, 0);
+    return true;
+  };
+
+  editorInstance.on('component:add', (component) => {
+    launchDroppedFrameworkGallery(component);
   });
+
+  // Kompatibilitäts-Fallback für Blockquellen, die in GrapesJS tatsächlich die
+  // erzeugte Komponente an block:drag:stop übergeben.
+  editorInstance.on('block:drag:stop', (component) => {
+    launchDroppedFrameworkGallery(component);
+  });
+
+  // Galerie-Visuals bleiben im Bearbeitungsmodus direkt auswählbar. Nur der
+  // Löschbefehl löst anschließend den atomaren Galerie-Wrapper auf. Dadurch kann
+  // der Bildmanager das konkrete IMG bzw. den Galerie-Trigger zuverlässig erkennen.
 
 
   // Galerie-Items werden über die Oluntir-Dokumenttransaktion entfernt. Die
@@ -354,10 +363,10 @@ function buildGalleryItemsHtml(entries, viewerOptions) {
       const trigger = galleryTrigger(e, index, image, viewerOptions, 'd-block');
       return `<div class="col-12 col-sm-6 col-lg-4">
         <article class="card border-0 shadow-sm pb-bs5-gallery-card h-100">
-          <div class="position-relative pb-gallery-item" data-pb-gallery-item>${trigger}
+          <div class="position-relative pb-gallery-item" data-pb-gallery-item data-oluntir-gallery-item>${trigger}
             <div class="pb-gallery-actions" role="group" aria-label="Bildaktionen">
-              ${viewerOptions.mode === 'none' ? '' : `<button class="pb-gallery-action pb-gallery-open-button" type="button" data-pb-gallery-open-index="${index}" title="Bild vergrößern" aria-label="Bild vergrößern">${galleryActionIcon('zoom')}</button>`}
-              <a class="pb-gallery-action portfolio-download" href="${e.downloadUrl}" data-stable-download-path="${e.downloadPath}" download="${e.originalName}" title="Originalbild herunterladen" aria-label="Originalbild herunterladen">${galleryActionIcon('download')}</a>
+              ${`<button class="pb-gallery-action pb-gallery-open-button" type="button" data-pb-gallery-open-index="${index}" title="Bild vergrößern" aria-label="Bild vergrößern">${galleryActionIcon('zoom')}</button>`}
+              ${viewerOptions.download === false ? '' : `<a class="pb-gallery-action portfolio-download" data-oluntir-gallery-download href="${e.downloadUrl}" data-stable-download-path="${e.downloadPath}" download="${e.originalName}" title="Originalbild herunterladen" aria-label="Originalbild herunterladen">${galleryActionIcon('download')}</a>`}
             </div>
           </div>
         </article>
@@ -371,10 +380,10 @@ function buildGalleryItemsHtml(entries, viewerOptions) {
       <img class="img-fluid w-100" src="${e.desktopUrl}" data-stable-path="${e.desktopPath}" alt="${e.originalName || `Galeriebild ${index + 1}`}" loading="lazy">
     </picture>`;
     const trigger = galleryTrigger(e, index, image, viewerOptions, 'd-block');
-    return `<div class="col-md-4 col-sm-6 mb-4"><div class="portfolio-item"><div class="position-relative pb-gallery-item" data-pb-gallery-item>${trigger}
+    return `<div class="col-md-4 col-sm-6 mb-4"><div class="portfolio-item"><div class="position-relative pb-gallery-item" data-pb-gallery-item data-oluntir-gallery-item>${trigger}
       <div class="pb-gallery-actions" role="group" aria-label="Bildaktionen">
-        ${viewerOptions.mode === 'none' ? '' : `<button class="pb-gallery-action pb-gallery-open-button" type="button" data-pb-gallery-open-index="${index}" title="Bild vergrößern" aria-label="Bild vergrößern">${galleryActionIcon('zoom')}</button>`}
-        <a class="pb-gallery-action portfolio-download" href="${e.downloadUrl}" data-stable-download-path="${e.downloadPath}" download="${e.originalName}" title="Originalbild herunterladen" aria-label="Originalbild herunterladen">${galleryActionIcon('download')}</a>
+        ${`<button class="pb-gallery-action pb-gallery-open-button" type="button" data-pb-gallery-open-index="${index}" title="Bild vergrößern" aria-label="Bild vergrößern">${galleryActionIcon('zoom')}</button>`}
+        ${viewerOptions.download === false ? '' : `<a class="pb-gallery-action portfolio-download" data-oluntir-gallery-download href="${e.downloadUrl}" data-stable-download-path="${e.downloadPath}" download="${e.originalName}" title="Originalbild herunterladen" aria-label="Originalbild herunterladen">${galleryActionIcon('download')}</a>`}
       </div></div></div></div>`;
   }).join('');
 }
@@ -391,19 +400,14 @@ function buildGalleryHtml(entries, viewerOptions, structureMode) {
   });
 }
 
-async function insertGalleryFromFiles(editor, fileList) {
+async function insertGalleryFromFiles(editor, fileList, preparedOptions) {
   const files = Array.from(fileList || []).filter((f) => f.type && f.type.startsWith('image/'));
   if (!files.length) { alert('Keine Bilddateien gefunden.'); return; }
-  const insertionTarget = await chooseGalleryInsertionTarget(editor);
-  if (!insertionTarget) return;
-  let structureMode;
-  if (insertionTarget.slotKind === 'new-gallery-area') {
-    structureMode = await chooseGalleryStructureMode({ newAreaOnly: true });
-    if (!structureMode) return;
-  } else {
-    structureMode = Object.freeze({ mode: 'existing-layout', width: null });
-  }
-  const viewerOptions = await chooseGalleryViewerOptions();
+  const prepared = preparedOptions || {};
+  const dropComponent = prepared.dropComponent || null;
+  if (!dropComponent) throw new Error('FRAMEWORK_GALLERY_DROP_COMPONENT_MISSING');
+  const structureMode = prepared.structureMode || Object.freeze({ mode: 'new-area', width: 'container-fluid' });
+  const viewerOptions = prepared.viewerOptions || await chooseGalleryViewerOptions();
   if (!viewerOptions) return;
   if (files.length > 60 && !confirm(`${files.length} Bilder gefunden. Das kann etwas dauern. Trotzdem fortfahren?`)) return;
   const totalMB = files.reduce((s, f) => s + f.size, 0) / (1024 * 1024);
@@ -426,20 +430,50 @@ async function insertGalleryFromFiles(editor, fileList) {
     alert('Die Oluntir-Dokument-API ist nicht verfügbar.');
     return;
   }
-  if (typeof window.OluntirDocumentApi.validateTarget !== 'function' || !window.OluntirDocumentApi.validateTarget(insertionTarget)) {
-    hideProgress();
-    alert('Die bestätigte Einfügeposition ist nicht mehr verfügbar. Bitte starte das Einfügen erneut.');
-    return;
-  }
   try {
-    inserted = window.OluntirDocumentApi.insertHtml(insertionTarget, html, { label: 'gallery.insert' });
+    const anchor = dropComponent;
+    const parent = anchor && typeof anchor.parent === 'function' ? anchor.parent() : null;
+    if (!parent || typeof anchor.replaceWith !== 'function') throw new Error('GALLERY_DROP_POSITION_UNAVAILABLE');
+    const replacement = anchor.replaceWith(html);
+    inserted = Array.isArray(replacement) ? replacement[0] : replacement;
   } catch (error) {
     hideProgress();
     alert('Die Galerie konnte an der gewählten Position nicht eingefügt werden: ' + error.message);
-    return;
+    return false;
   }
   if (inserted && editor.select) editor.select(inserted);
   editor.trigger('oluntir:history:changed');
   hideProgress();
   toast(`Galerie mit ${files.length} Bild${files.length === 1 ? '' : 'ern'} eingefügt.`);
+  return true;
 }
+
+async function startFrameworkGalleryWorkflow(editor, options) {
+  const cfg = options || {};
+  if (!editor) throw new Error('GALLERY_EDITOR_MISSING');
+  if (cfg.source !== 'framework-block' || !cfg.dropComponent) {
+    throw new Error('FRAMEWORK_GALLERY_DROP_REQUIRED');
+  }
+
+  const removeDropAnchor = () => {
+    const anchor = cfg.dropComponent;
+    if (anchor && typeof anchor.remove === 'function' && typeof anchor.parent === 'function' && anchor.parent()) anchor.remove();
+  };
+
+  const viewerOptions = await chooseGalleryViewerOptions();
+  if (!viewerOptions) { removeDropAnchor(); return false; }
+
+  const input = document.getElementById('input-gallery-files');
+  const files = await chooseGalleryFiles(input);
+  if (!files || !files.length) { removeDropAnchor(); return false; }
+
+  const inserted = await insertGalleryFromFiles(editor, files, {
+    dropComponent: cfg.dropComponent,
+    structureMode: Object.freeze({ mode: 'new-area', width: 'container-fluid' }),
+    viewerOptions
+  });
+  if (!inserted) removeDropAnchor();
+  return Boolean(inserted);
+}
+window.startFrameworkGalleryWorkflow = startFrameworkGalleryWorkflow;
+

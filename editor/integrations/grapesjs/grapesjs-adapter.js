@@ -674,7 +674,52 @@
     editor.Commands.add('oluntir-open-image-manager', {
       run() {
         if (!selector) throw new Error('Oluntir Image-Select ist nicht registriert.');
-        selector.open({ source: 'toolbar' }); return selector;
+        const selected = editor.getSelected && editor.getSelected();
+        const imageApi = window.OluntirImageLightboxApi;
+        const image = imageApi && imageApi.resolveImageComponent ? imageApi.resolveImageComponent(selected) : null;
+        let link = selected;
+        while (link && String(link.get && link.get('tagName') || '').toLowerCase() !== 'a') link = link.parent ? link.parent() : null;
+        if (!link) {
+          let item = selected;
+          while (item) {
+            const itemAttrs = item.getAttributes ? item.getAttributes() : {};
+            const itemClasses = String(itemAttrs && itemAttrs.class || '').split(/\s+/);
+            const isGalleryItem = itemClasses.includes('pb-gallery-item') ||
+              Object.prototype.hasOwnProperty.call(itemAttrs || {}, 'data-pb-gallery-item') ||
+              Object.prototype.hasOwnProperty.call(itemAttrs || {}, 'data-oluntir-gallery-item');
+            if (isGalleryItem && typeof item.find === 'function') {
+              const selectors = ['a[data-oluntir-gallery-image]', 'a.pb-gallery-trigger', 'a.pb-bs5-gallery-open', 'a.portfolio-img'];
+              for (const selector of selectors) {
+                const matches = item.find(selector) || [];
+                if (matches[0]) { link = matches[0]; break; }
+              }
+              break;
+            }
+            item = item.parent ? item.parent() : null;
+          }
+        }
+        const attrs = link && link.getAttributes ? link.getAttributes() : {};
+        const classes = String(attrs && attrs.class || '');
+        const galleryLink = link && (classes.split(/\s+/).some((name) => ['portfolio-img','pb-gallery-trigger','pb-bs5-gallery-open'].includes(name)) || Object.prototype.hasOwnProperty.call(attrs || {}, 'data-oluntir-gallery-image'));
+        if (galleryLink && typeof window.OluntirOpenGalleryAssetManager === 'function') {
+          window.OluntirOpenGalleryAssetManager(editor, link); return selector;
+        }
+        if (!image) { selector.open({ source: 'toolbar' }); return selector; }
+        editor.select(image);
+        selector.open({
+          source: 'selected-image',
+          types: ['image'],
+          select(asset) {
+            const src = asset && (typeof asset.getSrc === 'function' ? asset.getSrc() : asset.get && asset.get('src')) || '';
+            if (!src) return;
+            const next = Object.assign({}, image.getAttributes ? image.getAttributes() : {}, { src: src, 'data-stable-path': src });
+            if (window.OluntirDocumentApi && typeof window.OluntirDocumentApi.updateAttributes === 'function') {
+              window.OluntirDocumentApi.updateAttributes(image, next, { label: 'image.replace', merge: false });
+            } else if (image.addAttributes) image.addAttributes(next);
+            editor.trigger('component:update', image);
+          }
+        });
+        return selector;
       },
       stop() { if (selector && selector.isOpen()) selector.close(); }
     });

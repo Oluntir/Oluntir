@@ -136,3 +136,9 @@ node tests/test-1.3.1-export-presentation-readonly.js
 node tests/test-1.3.1-presentation-attribute-atomicity.js
 
 node tests/test-empty-project-gallery-insertion.js
+node tests/test-empty-project-gallery-insertion.js
+node tests/test-empty-project-gallery-context-regression.js
+node tests/test-bs5-gallery-image-manager-regression.js
+node tests/test-framework-gallery-editor-contract.js
+
+node tests/test-framework-gallery-wizard.js
