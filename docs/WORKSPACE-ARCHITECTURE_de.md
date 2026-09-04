@@ -1,6 +1,6 @@
 # Oluntir-Workspace-Architektur
 
-Oluntir 1.2.0 verwendet den `OluntirWorkspaceManager` für umfangreiche anwendungseigene Werkzeuge. GrapesJS bleibt die visuelle Editor-Engine; Oluntir besitzt die sichtbare Bildmanager- und Mehrmonitor-Oberfläche.
+Oluntir 2.0.1-alpha verwendet den `OluntirWorkspaceManager` für umfangreiche anwendungseigene Werkzeuge. GrapesJS bleibt die visuelle Editor-Engine; Oluntir besitzt die sichtbare Bildmanager- und Mehrmonitor-Oberfläche. Der aktuelle Branch koordiniert zusätzlich lokale Source-Package- und Bootstrap-Profil-Dienste, ohne den Editor neu zu erzeugen.
 
 ## Zuständigkeiten
 

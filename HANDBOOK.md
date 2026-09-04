@@ -1,8 +1,14 @@
-# Oluntir 1.3.1 – Technical handbook
+# Oluntir 2.0.1-alpha – Technical handbook
+
+This handbook describes the current Bootstrap-focused alpha branch. Oluntir
+1.3.1 remains the stable compatibility baseline.
 
 ## 1. Runtime
 
-Oluntir starts from `index.html`. GrapesJS remains unchanged under `vendor/grapesjs/`. Oluntir-specific integration is contained under `editor/integrations/grapesjs/`.
+Oluntir starts from `index.html`. GrapesJS remains unchanged under
+`vendor/grapesjs/`. Oluntir-specific integration is contained under
+`editor/integrations/grapesjs/`. The optional local Analyzer API uses the
+portable runtime under `runtime/node/` and never requires a global PATH runtime.
 
 ## 2. Project model
 
@@ -18,6 +24,24 @@ Pages and components are stored in the GrapesJS project model. `layout-identitie
 - `project-dependency-graph.js`: nodes, edges and dirty propagation.
 - `semantic-action-engine.js`: isolated action orchestration.
 - `semantic-validator.js`: semantic checks.
+- Source analysis adds static HTML/CSS/JavaScript evidence, source profiles,
+  capability manifests and a read-only knowledge compiler under `analyzer/`.
+- Translation and behavior modules create immutable plans and resolutions;
+  they do not execute imported code or mutate documents.
+
+## 3a. Bootstrap support boundary
+
+`frameworks/bootstrap4/` and `frameworks/bootstrap5/` are the only concrete
+framework distributions. Bootstrap 5 is primary and Bootstrap 4 is legacy.
+Unknown source packages can remain in the generic analysis pipeline, but the
+support policy classifies them as `analysis-only`.
+
+## 3b. Source Packages and Frontend Bridge
+
+The local API imports folders, archives, browser files and URLs into isolated
+package directories. Each package receives a manifest, inventory, source hash,
+recovery JSON and analysis outputs. The GrapesJS adapter exposes recognized
+structures as user-selectable blocks. Source JavaScript is not executed.
 
 ## 4. Shared content
 
@@ -25,7 +49,9 @@ Pages and components are stored in the GrapesJS project model. `layout-identitie
 
 ## 5. Repeat Foundation
 
-`repeat-engine-v2.js` contains the technical model for repeatable structures. Complete visible repeat management is not part of 1.3.1.
+`repeat-engine-v2.js` contains the technical model for repeatable structures.
+The resolver, dependency graph, action-contract and targeted-sync gates are
+audited explicitly. Productive synchronization remains disabled in this alpha.
 
 ## 6. Logging
 
@@ -42,6 +68,10 @@ Pages and components are stored in the GrapesJS project model. `layout-identitie
 ## 9. Tests
 
 `tests/run-tests.sh` runs syntax, architecture, resolver, logging, action, shared-content, gallery and structure tests. Focused tests can also be executed directly with Node.
+
+Analyzer tests cover source inventory, static analyzers, profiles, behavior
+resolution, package recovery, the GrapesJS bridge, Bootstrap support and the
+portable runtime.
 
 ## 10. Architecture rules
 

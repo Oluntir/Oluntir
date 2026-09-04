@@ -1,5 +1,5 @@
-> **Language:** English · [Deutsch](049_STRUCTURE_RESOLVER_de.md)  
-> **Development state:** Oluntir 1.3.1
+> **Language:** English · [Deutsch](049_STRUCTURE_RESOLVER_de.md)
+> **Development state:** Oluntir 1.3.1 baseline · current branch 2.0.1-alpha
 
 # Structure Resolver
 
@@ -90,7 +90,10 @@ All returned snapshots, nodes, child lists, capabilities and summaries are prote
 
 ## Integration status
 
-Version 1.3.1 provides shared structure resolution as an independent core API. Repeat Engine, Shared Content, Export and Semantic Validator are not migrated to this API in this development state. This keeps the introduction small, testable and low-risk.
+Version 1.3.1 provides shared structure resolution as an independent core API.
+The 2.0.1-alpha branch retains this contract and adds the read-only Source,
+translation and behavior pipelines around it; it does not turn this resolver
+into a document-mutation service.
 
 ## Tests
 

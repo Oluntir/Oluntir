@@ -23,7 +23,7 @@ must(service.includes('HIER PLATZIEREN') || css.includes('oluntir-row-insert-lin
 must(service.includes('Bootstrap-Layoutbereiche mit ihren direkten ROWs'), 'ROW-slot guidance missing');
 must(css.includes('.oluntir-row-slot-group'), 'ROW-slot group styling missing');
 must(css.includes('.oluntir-row-insert-line'), 'Insertion-line styling missing');
-must(gallery.includes('OluntirStructureInsertionTarget.choose'), 'Gallery does not use reusable target service');
+must(gallery.includes("cfg.source !== 'framework-block'"), 'Framework gallery is not restricted to the drop workflow');
 must(!gallery.includes('Am Seitenende einfügen'), 'Legacy fixed page-end option still present');
 must(index.indexOf('structure-insertion-target.js') < index.indexOf('gallery.js'), 'Insertion target service must load before gallery');
 console.log('STRUCTURE-INSERTION-TARGET-TEST ERFOLGREICH');

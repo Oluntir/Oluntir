@@ -1,4 +1,7 @@
-# Features – Oluntir 1.3.1
+# Features – Oluntir 2.0.1-alpha
+
+This alpha branch uses Oluntir 1.3.1 as its compatibility baseline and
+consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.
 
 ## Editor and projects
 
@@ -25,6 +28,10 @@
 - HTML, Apache SSI and PHP include export
 - Folder, ZIP and TAR output
 - Removal of editor-only metadata from final exports
+- Local Source-Package import through the local API: folders, ZIP, TAR,
+  TAR.GZ/TGZ, browser files and URLs
+- Source-bound recovery JSON, source hashes and package manifests
+- Non-Bootstrap packages are analysis-only and are not activated in the editor
 
 ## Technical foundation
 
@@ -32,6 +39,11 @@
 - Read-only resolvers and dependency graph
 - Action and validation contracts
 - Inactive Repeat Foundation for preparation only; no visible or productive synchronization
+- Static HTML, CSS and JavaScript evidence analysis
+- OIR project model, capability manifest and read-only knowledge compiler
+- Translation matrix and JavaScript behavior resolver
+- Controlled GrapesJS Source-Package Bridge
+- Portable Windows x64 Node.js runtime for the local Analyzer API
 
 ## Known limitation
 

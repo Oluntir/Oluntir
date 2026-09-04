@@ -1,0 +1,31 @@
+@import url("base/reset.css") screen;
+
+:root {
+  --brand-space: 1.5rem;
+  --hero-image: url('../images/hero.webp');
+}
+
+.card, .feature-card {
+  padding: var(--brand-space);
+  background-image: url("../images/pattern.svg");
+  color: #222 !important;
+}
+
+@media (min-width: 768px) {
+  .card { display: grid; }
+}
+
+@container content (width > 40rem) {
+  .feature-card { grid-template-columns: 1fr 1fr; }
+}
+
+@font-face {
+  font-family: "Studio Sans";
+  src: url('../fonts/studio.woff2') format('woff2');
+  font-weight: 100 900;
+}
+
+@keyframes reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

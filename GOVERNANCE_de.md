@@ -2,6 +2,11 @@
 
 # Projektverwaltung
 
+**Version:** 2.0.1-alpha
+**Status:** Alpha
+**Stabile Baseline:** Oluntir 1.3.1
+**Stand:** 04.09.2026
+
 Oluntir wird derzeit durch einen Maintainer verwaltet.
 
 Der Maintainer verantwortet:

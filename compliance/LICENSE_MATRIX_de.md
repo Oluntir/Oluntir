@@ -28,6 +28,13 @@ Audit date: 2026-07-27
 | jQuery CountTo | `github.com/mhuggins/jquery-countTo` | MIT | `plugins/site/js/counter/` | cleared |
 | downCount | `github.com/sonnyt/downCount` | MIT | `plugins/site/js/countdown/` | cleared |
 
+## Frameworkumfang dieses Branches
+
+Dieser Branch bündelt nur Bootstrap 4.6.2 und Bootstrap 5.3.8 als konkrete
+Frameworkprofile. Andere Source Packages bleiben technisch analysierbar,
+werden aber nicht als Frameworkdistribution gebündelt und dürfen nicht
+produktiv im Editor aktiviert werden.
+
 ## Result
 
 All distributed dependencies use permissive licenses compatible with an MIT

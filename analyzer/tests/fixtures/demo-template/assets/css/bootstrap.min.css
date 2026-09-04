@@ -1,0 +1,1 @@
+:root{--bs-primary:#0d6efd}.navbar{display:flex}.gallery{display:grid}@media(min-width:768px){.gallery{grid-template-columns:repeat(3,1fr)}}

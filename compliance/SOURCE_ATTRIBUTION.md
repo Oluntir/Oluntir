@@ -2,11 +2,11 @@
 
 # Source Attribution
 
-**Version:** 1.2.0  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.2.0  
-**Last updated:** 2026-07-30
+**Version:** 2.0.1-alpha
+**Language:** English
+**Status:** Alpha
+**Stable baseline:** Oluntir 1.3.1
+**Last updated:** 2026-09-04
 
 ## Purpose
 
@@ -15,3 +15,9 @@ Records upstream project names, source locations, versions, authorship notices, 
 ## Release requirement
 
 The file must be reviewed together with `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`, and the license texts under `LICENSES/`. Missing or unclear entries block release publication until resolved.
+
+## Framework scope
+
+The standalone `2.0.1-alpha` branch contains concrete Bootstrap 4.6.2 and
+Bootstrap 5.3.8 profiles. No alternative framework distribution is bundled in
+this branch.

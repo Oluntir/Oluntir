@@ -1,0 +1,17 @@
+{
+  "kind": "oluntir-source-package-grapesjs-adapter-contract",
+  "schemaVersion": 1,
+  "purpose": "Kontrollierter Anschluss eines source-gebundenen Frameworkprofils an den persistenten GrapesJS-Editor.",
+  "requiredFields": ["packageId", "sourceHash", "sourceProfileId", "mutationPerformed", "executionEnabled", "policy"],
+  "policy": {
+    "sourceOfTruth": "source-package",
+    "insertion": "user-insert-only",
+    "documentMutation": false,
+    "repeatSynchronization": false,
+    "sourceScriptExecution": false,
+    "unitIdAssignment": false
+  },
+  "profileBinding": { "required": ["sourcePackageId", "sourceHash", "profileId"], "crossPackageReuse": false, "crossHashReuse": false },
+  "compatibility": { "grapesJsRole": "editor-engine", "existingBlocksPreserved": true },
+  "gate": { "mutationPerformed": false, "executionEnabled": false, "automaticSynchronization": false }
+}

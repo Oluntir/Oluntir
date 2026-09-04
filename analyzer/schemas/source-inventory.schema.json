@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oluntir.com/schemas/analyzer/source-inventory.schema.json",
+  "title": "Oluntir Analyzer Source Inventory",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "kind",
+    "policies",
+    "documents",
+    "nodes",
+    "attributes",
+    "references",
+    "assets",
+    "stylesheets",
+    "cssRules",
+    "declarations",
+    "diagnostics"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "kind": {
+      "const": "oluntir-source-inventory"
+    },
+    "policies": {
+      "type": "object",
+      "required": [
+        "readOnly",
+        "semanticInterpretation",
+        "frameworkDetection",
+        "sourceMutation"
+      ],
+      "properties": {
+        "readOnly": {
+          "const": true
+        },
+        "semanticInterpretation": {
+          "const": false
+        },
+        "frameworkDetection": {
+          "const": false
+        },
+        "sourceMutation": {
+          "const": false
+        }
+      }
+    },
+    "documents": {
+      "type": "array"
+    },
+    "nodes": {
+      "type": "array"
+    },
+    "attributes": {
+      "type": "array"
+    },
+    "references": {
+      "type": "array"
+    },
+    "assets": {
+      "type": "array"
+    },
+    "diagnostics": {
+      "type": "array"
+    },
+    "stylesheets": {
+      "type": "array"
+    },
+    "cssRules": {
+      "type": "array"
+    },
+    "declarations": {
+      "type": "array"
+    }
+  },
+  "additionalProperties": true
+}

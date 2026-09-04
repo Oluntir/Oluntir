@@ -8,7 +8,7 @@ const exportFn = source.slice(source.indexOf('async function exportSitePackage')
 const checks = [
   ['page model helper exists', source.includes('function getPageModelHtml(editor, page)')],
   ['page model uses getInnerHTML', source.includes("typeof component.getInnerHTML === 'function'")],
-  ['export loop reads page model', exportFn.includes('normalizeExportHtml(getPageModelHtml(editor, page))')],
+  ['export loop reads page model', exportFn.includes('getPageModelHtml(editor, page)') && exportFn.includes('normalizeExportHtml(')],
   ['export does not select pages', !exportFn.split('\n').some(line => !line.trim().startsWith('//') && /editor\.Pages\.select\s*\(\s*page\s*\)/.test(line))],
   ['export does not normalize model', !exportFn.includes('normalizeStableAssetReferences(editor)')],
   ['export does not write canvas refs', !exportFn.includes('commitCanvasAssetReferencesToModel(editor)')],

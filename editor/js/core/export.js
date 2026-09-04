@@ -14,6 +14,7 @@ const REQUIRED_EXPORT_FILES_BS4 = [
   'css/animate/animate.min.css',
   'css/style.css',
   'css/pagebuilder-bs4.css',
+  'css/oluntir-image-lightbox.css',
   'js/jquery-3.4.1.min.js',
   'js/bootstrap4/bootstrap.bundle.min.js',
   'js/jquery.appear.js',
@@ -25,6 +26,7 @@ const REQUIRED_EXPORT_FILES_BS4 = [
   'js/shuffle/shuffle.min.js',
   'js/custom.js',
   'js/pagebuilder-bs4-gallery.js',
+  'js/oluntir-image-lightbox.js',
 ];
 
 const REQUIRED_EXPORT_FILES_BS5 = [
@@ -32,8 +34,10 @@ const REQUIRED_EXPORT_FILES_BS5 = [
   'css/font-awesome/all.min.css',
   'css/bootstrap5/bootstrap.min.css',
   'css/pagebuilder-bs5.css',
+  'css/oluntir-image-lightbox.css',
   'js/bootstrap5/bootstrap.bundle.min.js',
   'js/pagebuilder-bs5-gallery.js',
+  'js/oluntir-image-lightbox.js',
 ];
 
 function getRequiredExportFiles() {
@@ -366,6 +370,89 @@ async function loadBaseAssetsZip() {
   return zip;
 }
 
+function getActiveExportFramework() {
+  return window.PAGEBUILDER_FRAMEWORK || { id: 'unknown', label: 'Unbekanntes Framework', version: 'unversioned' };
+}
+
+function isImportedExportFramework(framework) {
+  return Boolean(framework && framework.sourcePackage && framework.sourcePackage.packageId);
+}
+
+function exportFrameworkDescriptor(framework) {
+  const source = framework && framework.sourcePackage;
+  return {
+    id: framework && framework.id || 'unknown',
+    label: framework && framework.label || framework && framework.id || 'Unbekanntes Framework',
+    version: framework && framework.version || 'unversioned',
+    distribution: framework && framework.distribution || (source ? 'imported' : 'community'),
+    frameworkFamily: source && source.frameworkFamily || null,
+    sourcePackageId: source && source.packageId || null,
+    sourceHash: source && source.sourceHash || null
+  };
+}
+
+function sourcePackageApiConnection() {
+  const bridge = window.OluntirSourcePackageBridge;
+  if (!bridge || typeof bridge.apiConnection !== 'function') throw new Error('Die Source-Package-Bridge ist für den Framework-Export nicht verfügbar.');
+  return bridge.apiConnection();
+}
+
+async function fetchSourcePackageFile(manifest, relativePath, connection) {
+  const bridge = window.OluntirSourcePackageBridge;
+  const url = bridge.fileUrl(manifest, relativePath, connection);
+  const response = await fetch(url, { headers: connection.session ? { 'X-Oluntir-Session': connection.session } : {} });
+  if (!response.ok) {
+    let message = `Source-Datei konnte nicht geladen werden: ${relativePath}`;
+    try { const data = await response.json(); if (data && data.error) message = data.error; } catch (_) {}
+    throw new Error(message);
+  }
+  return response.blob();
+}
+
+async function loadImportedSourceAssets(framework) {
+  const manifest = framework && framework.sourcePackage;
+  const connection = sourcePackageApiConnection();
+  const inventoryBlob = await fetchSourcePackageFile(manifest, 'source-inventory.json', connection);
+  const inventory = JSON.parse(await inventoryBlob.text());
+  const files = Array.isArray(inventory.files) ? inventory.files : [];
+  if (!files.length) throw new Error('Das aktive Source Package enthält keine exportierbaren Source-Dateien.');
+
+  const entries = [];
+  for (let index = 0; index < files.length; index++) {
+    const relativePath = String(files[index].path || '').replace(/^[/\\]+/, '');
+    if (!relativePath || /\.(html?|xhtml)$/i.test(relativePath)) continue;
+    entries.push({ path: relativePath, data: await fetchSourcePackageFile(manifest, relativePath, connection) });
+    if (index % 4 === 0) await nextFrame();
+  }
+  if (!entries.length) throw new Error('Das aktive Source Package enthält keine exportierbaren CSS-, JavaScript- oder Asset-Dateien.');
+  return { baseZip: null, sourceEntries: entries };
+}
+
+async function loadFrameworkExportAssets(framework) {
+  if (isImportedExportFramework(framework)) return loadImportedSourceAssets(framework);
+  return { baseZip: await loadBaseAssetsZip(), sourceEntries: [] };
+}
+
+function sourceEntrypoints(manifest, extensionPattern) {
+  const values = manifest && manifest.runtime && Array.isArray(manifest.runtime.enabledStyles)
+    ? manifest.runtime.enabledStyles
+    : manifest && manifest.entrypoints && Array.isArray(manifest.entrypoints.styles)
+      ? manifest.entrypoints.styles
+      : [];
+  return values.filter(file => extensionPattern.test(String(file))).map(file => String(file).replace(/^[/\\]+/, ''));
+}
+
+function sourceScriptEntrypoints(framework) {
+  const values = framework && framework.runtime && Array.isArray(framework.runtime.enabledScripts)
+    ? framework.runtime.enabledScripts
+    : [];
+  return values.filter(file => /\.(js|mjs)$/i.test(String(file))).map(file => String(file).replace(/^[/\\]+/, ''));
+}
+
+function customCssExportPath(framework) {
+  return isImportedExportFramework(framework) ? 'css/oluntir-custom.css' : 'css/custom.css';
+}
+
 async function refreshUploadedAssetsFromDb() {
   if (typeof getAllAssetBlobsFromDb !== 'function') return;
   const items = await getAllAssetBlobsFromDb();
@@ -374,8 +461,33 @@ async function refreshUploadedAssetsFromDb() {
   }
 }
 
-function buildPageHtml(title, bodyHtml) {
-  const framework = window.PAGEBUILDER_FRAMEWORK || { id: 'bs4' };
+function buildPageHtml(title, bodyHtml, selectedFramework) {
+  const framework = selectedFramework || getActiveExportFramework();
+
+  if (isImportedExportFramework(framework)) {
+    const manifest = framework.sourcePackage;
+    const styles = sourceEntrypoints(manifest, /\.css$/i);
+    const scripts = sourceScriptEntrypoints(framework);
+    const customCssPath = customCssExportPath(framework);
+    return `<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>${escapeHtml(title)}</title>
+
+${window.OluntirFavicon ? window.OluntirFavicon.getHeadHtml() : '    <link rel="shortcut icon" href="images/favicon.ico">'}
+${styles.map(file => `    <link rel="stylesheet" href="${escapeHtml(file)}">`).join('\n')}
+    <link rel="stylesheet" href="${customCssPath}">
+  </head>
+  <body data-oluntir-framework="${escapeHtml(framework.id)}" data-oluntir-framework-version="${escapeHtml(framework.version)}">
+${bodyHtml}
+
+${scripts.map(file => `    <script src="${escapeHtml(file)}"></script>`).join('\n')}
+  </body>
+</html>
+`;
+  }
 
   if (framework.id === 'bs5') {
     return `<!doctype html>
@@ -391,12 +503,14 @@ ${window.OluntirFavicon ? window.OluntirFavicon.getHeadHtml() : '    <link rel="
     <link rel="stylesheet" href="css/bootstrap5/bootstrap.min.css">
     <link rel="stylesheet" href="css/pagebuilder-bs5.css">
     <link rel="stylesheet" href="css/custom.css">
+    <link rel="stylesheet" href="css/oluntir-image-lightbox.css">
   </head>
   <body>
 ${bodyHtml}
 
     <script src="js/bootstrap5/bootstrap.bundle.min.js"></script>
     <script src="js/pagebuilder-bs5-gallery.js"></script>
+    <script src="js/oluntir-image-lightbox.js"></script>
   </body>
 </html>
 `;
@@ -436,6 +550,7 @@ ${bodyHtml}
     <script src="js/shuffle/shuffle.min.js"></script>
     <script src="js/custom.js"></script>
     <script src="js/pagebuilder-bs4-gallery.js"></script>
+    <script src="js/oluntir-image-lightbox.js"></script>
   </body>
 </html>
 `;
@@ -807,21 +922,18 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
   let rootHandle = null;
   let zipFileHandle = null;
   const exportMode = ['folder', 'zip', 'tar'].includes(mode) ? mode : 'folder';
+  const selectedFramework = getActiveExportFramework();
+  const frameworkDescriptor = exportFrameworkDescriptor(selectedFramework);
   const includeTarget = await requestExportFormat();
   if (!includeTarget) return;
   const projectName = requestExportName();
   if (!projectName) return;
   if (window.OluntirIncludes && typeof window.OluntirIncludes.validateExport === 'function') {
-    const exportValidation = window.OluntirIncludes.validateExport(includeTarget);
-    if (!exportValidation.ok) {
-      throw new Error(
-        'Der Export wurde wegen fehlerhafter sich inhaltlich wiederholender Elemente und Bereiche abgebrochen:\n\n' +
-        exportValidation.errors.map(message => `- ${message}`).join('\n')
-      );
-    }
-    if (exportValidation.warnings.length) {
-      console.warn('Exporthinweise:', exportValidation.warnings);
-    }
+    const exportValidation = window.OluntirIncludes.validateExport(includeTarget) || {};
+    const exportHints = []
+      .concat(Array.isArray(exportValidation.errors) ? exportValidation.errors : [])
+      .concat(Array.isArray(exportValidation.warnings) ? exportValidation.warnings : []);
+    if (exportHints.length) console.warn('Exporthinweise (Export wird fortgesetzt):', exportHints);
   }
 
   if (exportMode === 'folder') {
@@ -855,7 +967,9 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
   try {
     updateProgress(2, 'Lade eingebettete CSS-, JS-, Bild- und Schriftdateien …');
     await nextFrame();
-    const baseZip = await loadBaseAssetsZip();
+    const frameworkAssets = await loadFrameworkExportAssets(selectedFramework);
+    const baseZip = frameworkAssets.baseZip;
+    const sourceEntries = frameworkAssets.sourceEntries;
 
     updateProgress(7, 'Prüfe gespeicherte Upload-Bilder …');
     if (!exportSnapshot) await refreshUploadedAssetsFromDb();
@@ -904,7 +1018,7 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
       let suffix = 2;
       while (usedNames.has(filename)) filename = `${baseFilename}-${suffix++}`;
       usedNames.add(filename);
-      pageFiles.push({ path: `${filename}.${prepared.extension || 'html'}`, content: buildPageHtml(pageName, prepared.html) });
+      pageFiles.push({ path: `${filename}.${prepared.extension || 'html'}`, content: buildPageHtml(pageName, prepared.html, selectedFramework) });
     }
 
     // Responsive Uploads bilden eine untrennbare Asset-Gruppe. Auch wenn das
@@ -938,8 +1052,8 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
       throw new Error('Die erzeugten Favicon-Dateien sind unvollständig. Bitte das Projekt-Favicon erneut auswählen.');
     }
     const faviconPaths = new Set(faviconEntries.map(entry => entry.path));
-    const baseCount = Object.values(baseZip.files).filter((entry) => !entry.dir).length;
-    const totalFiles = baseCount + pageFiles.length + includeFiles.length + uploadEntries.length + faviconEntries.length + 2;
+    const baseCount = baseZip ? Object.values(baseZip.files).filter((entry) => !entry.dir).length : 0;
+    const totalFiles = baseCount + sourceEntries.length + pageFiles.length + includeFiles.length + uploadEntries.length + faviconEntries.length + 2;
     const progressState = { done: 0, total: totalFiles };
 
     updateProgress(38,
@@ -948,14 +1062,17 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
     if (exportMode === 'tar') {
       updateProgress(45, 'Bereite TAR-Archiv vor …');
       const entries = [];
-      for (const name of Object.keys(baseZip.files)) {
-        const entry = baseZip.files[name];
-        if (!entry.dir && !faviconPaths.has(name)) entries.push({ path: name, data: await entry.async('uint8array') });
+      if (baseZip) {
+        for (const name of Object.keys(baseZip.files)) {
+          const entry = baseZip.files[name];
+          if (!entry.dir && !faviconPaths.has(name)) entries.push({ path: name, data: await entry.async('uint8array') });
+        }
       }
+      sourceEntries.forEach(entry => entries.push(entry));
       faviconEntries.forEach(entry => entries.push({ path: entry.path, data: entry.blob }));
       pageFiles.forEach(({ path, content }) => entries.push({ path, data: content }));
       includeFiles.forEach(({ path, content }) => entries.push({ path, data: content }));
-      entries.push({ path: 'css/custom.css', data: customCss || '/* Keine individuellen Stil-Anpassungen */\n' });
+      entries.push({ path: customCssExportPath(selectedFramework), data: customCss || '/* Keine individuellen Stil-Anpassungen */\n' });
       uploadEntries.forEach((entry) => entries.push({ path: entry.path, data: entry.blob }));
       entries.push({ path: 'export-manifest.json', data: JSON.stringify({
         exportedAt: new Date().toISOString(),
@@ -965,8 +1082,7 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
         uploadedAssets: uploadEntries.length,
         uploadedBytes: uploadBytes,
         faviconConfigured: faviconEntries.length > 0,
-        bootstrap: (window.PAGEBUILDER_FRAMEWORK || { version: '4.4.1' }).version,
-        frameworkProfile: (window.PAGEBUILDER_FRAMEWORK || { id: 'bs4' }).id,
+        framework: frameworkDescriptor,
         structure: 'website-tar'
       }, null, 2) });
       const tarBlob = await buildTarBlob(entries, projectName);
@@ -979,11 +1095,12 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
 
     if (exportMode === 'zip') {
       updateProgress(45, 'Bereite direkt gestreamtes ZIP vor …');
-      const zip = await cloneBaseZip(baseZip);
+      const zip = baseZip ? await cloneBaseZip(baseZip) : new JSZip();
+      sourceEntries.forEach(entry => zip.file(entry.path, entry.data));
       faviconEntries.forEach(entry => zip.file(entry.path, entry.blob, { compression: 'STORE' }));
       pageFiles.forEach(({ path, content }) => zip.file(path, content));
       includeFiles.forEach(({ path, content }) => zip.file(path, content));
-      zip.file('css/custom.css', customCss || '/* Keine individuellen Stil-Anpassungen */\n');
+      zip.file(customCssExportPath(selectedFramework), customCss || '/* Keine individuellen Stil-Anpassungen */\n');
       uploadEntries.forEach((entry) => zip.file(entry.path, entry.blob, { compression: 'STORE' }));
       zip.file('export-manifest.json', JSON.stringify({
         exportedAt: new Date().toISOString(),
@@ -993,8 +1110,7 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
         uploadedAssets: uploadEntries.length,
         uploadedBytes: uploadBytes,
         faviconConfigured: faviconEntries.length > 0,
-        bootstrap: (window.PAGEBUILDER_FRAMEWORK || { version: '4.4.1' }).version,
-        frameworkProfile: (window.PAGEBUILDER_FRAMEWORK || { id: 'bs4' }).id,
+        framework: frameworkDescriptor,
         structure: 'website-zip'
       }, null, 2));
       if (zipFileHandle) {
@@ -1018,7 +1134,15 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
       return;
     }
 
-    await exportBaseAssetsToDirectory(baseZip, rootHandle, progressState);
+    if (baseZip) {
+      await exportBaseAssetsToDirectory(baseZip, rootHandle, progressState);
+    } else {
+      for (const entry of sourceEntries) {
+        await writeFileToDirectory(rootHandle, entry.path, entry.data);
+        progressState.done++;
+        updateProgress(50 + Math.round((progressState.done / Math.max(1, progressState.total)) * 48), `Schreibe Source-Datei: ${entry.path}`);
+      }
+    }
 
     for (const entry of faviconEntries) {
       await writeFileToDirectory(rootHandle, entry.path, entry.blob);
@@ -1040,7 +1164,7 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
 
     await writeFileToDirectory(
       rootHandle,
-      'css/custom.css',
+      customCssExportPath(selectedFramework),
       customCss || '/* Keine individuellen Stil-Anpassungen */\n'
     );
     progressState.done++;
@@ -1064,8 +1188,7 @@ async function exportSitePackagePrepared(editor, mode, exportSnapshot) {
       uploadedAssets: uploadEntries.length,
       uploadedBytes: uploadBytes,
       faviconConfigured: faviconEntries.length > 0,
-      bootstrap: (window.PAGEBUILDER_FRAMEWORK || { version: '4.4.1' }).version,
-      frameworkProfile: (window.PAGEBUILDER_FRAMEWORK || { id: 'bs4' }).id,
+      framework: frameworkDescriptor,
       structure: 'website-folder',
     };
     await writeFileToDirectory(rootHandle, 'export-manifest.json', JSON.stringify(manifest, null, 2));

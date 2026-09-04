@@ -2,11 +2,11 @@
 
 # Release License Checklist
 
-**Version:** 1.2.0  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.2.0  
-**Last updated:** 2026-07-30
+**Version:** 2.0.1-alpha
+**Language:** English
+**Status:** Alpha
+**Stable baseline:** Oluntir 1.3.1
+**Last updated:** 2026-09-04
 
 ## Purpose
 
@@ -14,7 +14,7 @@ Before release, verify dependency versions, license texts, notices, source attri
 
 ## Scope
 
-This document describes the behavior included in Oluntir 1.2.0.
+This document describes the behavior included in Oluntir 2.0.1-alpha.
 
 ## Verification
 

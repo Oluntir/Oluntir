@@ -1,5 +1,5 @@
-> **Sprache:** Deutsch · [English](PROJECT-PRINCIPLES.md)  
-> **Version:** 1.2.0
+> **Sprache:** Deutsch · [English](PROJECT-PRINCIPLES.md)
+> **Version:** 2.0.1-alpha · **Stabile Baseline:** 1.3.1
 
 # Projektgrundsätze
 

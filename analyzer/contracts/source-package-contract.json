@@ -1,0 +1,32 @@
+{
+  "kind": "oluntir-source-package-contract",
+  "schemaVersion": 1,
+  "identity": ["packageId", "frameworkId", "sourceHash"],
+  "importSources": ["directory", "zip", "tar", "tar.gz", "tgz", "url", "browser-files", "recovery-json"],
+  "storage": {
+    "sourceDirectory": "frameworks/<frameworkId>/sources/<packageId>/source",
+    "manifest": "source-package.json",
+    "inventory": "source-inventory.json",
+    "capabilityManifest": "capability-manifest.json",
+    "componentCatalog": "component-catalog.json",
+    "behaviorManifest": "behavior-manifest.json",
+    "behaviorMatrix": "javascript-behavior-plan.json",
+    "behaviorResolver": "javascript-behavior-resolution.json",
+    "sourceProfile": "source-framework-profile.json",
+    "recovery": "source-recovery.json"
+  },
+  "policies": {
+    "urlDownloadsUseLocalApi": true,
+    "analysisDoesNotExecuteSource": true,
+    "sourcePackageIsImmutable": true,
+    "existingPackagesAreNotOverwritten": true,
+    "documentMutation": false,
+    "repeatSynchronization": false,
+    "unitIdIsUntouched": true
+  },
+  "recovery": {
+    "encoding": "gzip+base64",
+    "containsCompleteFileContents": true,
+    "verifiesPerFileSha256": true
+  }
+}

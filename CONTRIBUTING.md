@@ -2,7 +2,7 @@
 
 # Contributing to Oluntir
 
-**Applies to:** Oluntir 1.2.x
+**Applies to:** Oluntir 2.0.1-alpha and the 1.3.1 stable baseline
 
 Contributions should be focused, reproducible, offline-compatible, and preserve existing project data wherever possible.
 

@@ -2,11 +2,11 @@
 
 # Project Structure
 
-**Version:** 1.2.0  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.2.0  
-**Last updated:** 2026-07-30
+**Version:** 2.0.1-alpha
+**Language:** English
+**Status:** Alpha
+**Stable baseline:** Oluntir 1.3.1
+**Last updated:** 2026-09-04
 
 ## Purpose
 
@@ -14,7 +14,7 @@ Documents the application repository directories and the generated project layou
 
 ## Scope
 
-This document describes the behavior included in Oluntir 1.2.0.
+This document describes the behavior included in Oluntir 2.0.1-alpha.
 
 ## Verification
 

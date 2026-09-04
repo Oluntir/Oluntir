@@ -1,6 +1,27 @@
-# Release Notes – Oluntir 1.3.1
+# Release Notes – Oluntir 2.0.1-alpha
 
-Oluntir 1.3.1 is a stabilization and consolidation release for Bootstrap 4 and Bootstrap 5.
+Oluntir 2.0.1-alpha is an experimental continuation of the stable 1.3.1 line.
+It consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.
+
+## Alpha changes since 1.3.1
+
+- portable Windows x64 Node.js 24.18.0 runtime and local Analyzer API;
+- universal Source-Package import for folders, ZIP, TAR, TAR.GZ/TGZ, browser
+  files and URLs through the local API;
+- per-package source directories, manifests, SHA-256 inventories and recovery
+  JSON;
+- static HTML, CSS and JavaScript analysis with OIR, evidence and capability
+  manifests;
+- source-bound Bootstrap profiles, translation matrix and JavaScript behavior
+  resolver;
+- controlled GrapesJS bridge for user-selectable source structures;
+- Bootstrap support gate: Bootstrap 4/5 are concrete profiles, unknown sources
+  are analysis-only;
+- framework-owned gallery structures, image lightbox, preview improvements and
+  export regression fixes.
+
+Automatic document mutation, imported-source JavaScript execution and
+productive repeat synchronization remain disabled.
 
 ## Main changes
 

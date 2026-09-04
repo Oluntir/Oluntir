@@ -1,5 +1,5 @@
-> **Language:** English · [Deutsch](ARCHITECTURE_de.md)  
-> **Version:** 1.3.1
+> **Language:** English · [Deutsch](ARCHITECTURE_de.md)
+> **Version:** 2.0.1-alpha · **Stable baseline:** 1.3.1
 
 # Architecture overview
 
@@ -16,6 +16,19 @@ UI und Editorbefehle
 → Semantic Action Engine
 → Validator / Shared Content / Repeat Engine / Export
 → Logger und Diagnostics Center
+
+Source Packages follow a separate read-only path:
+
+```text
+local folder/archive/URL
+→ local API
+→ isolated Source Package
+→ inventory and evidence
+→ OIR and Knowledge Compiler
+→ Bootstrap support policy
+→ source profile / translation / behavior plans
+→ controlled GrapesJS bridge
+```
 ```
 
 ## Separation of responsibilities
@@ -28,6 +41,10 @@ UI und Editorbefehle
 - Shared Content führt gezielte Regionsupdates aus.
 - Export arbeitet auf dem Projektmodell und einer Exportkopie.
 - Logging ist optional, lokal und berechtigungsgebunden.
+- Concrete editor profiles are limited to Bootstrap 4.6.2 and 5.3.8.
+- Unknown Source Packages remain analysis-only.
+- Imported source JavaScript, automatic document mutation and productive Repeat
+  synchronization are disabled.
 
 ## Performance
 

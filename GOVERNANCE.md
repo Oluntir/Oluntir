@@ -2,11 +2,11 @@
 
 # Governance
 
-**Version:** 1.3.1  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.3.1  
-**Last updated:** 2026-07-30
+**Version:** 2.0.1-alpha
+**Language:** English
+**Status:** Alpha
+**Stable baseline:** Oluntir 1.3.1
+**Last updated:** 2026-09-04
 
 Oluntir is currently maintained by a single project maintainer.
 

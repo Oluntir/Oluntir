@@ -1,10 +1,12 @@
 # First start
 
-1. Extract Oluntir 1.2.0 into its own folder.
+1. Extract Oluntir 2.0.1-alpha into its own folder.
 2. Open `index.html` in a current desktop browser.
 3. Choose **Single monitor**, **Two monitors**, or keep the startup question enabled.
 4. Create a project or restore a portable `.oluntir` backup.
 5. Before major work, verify project saving and create an external backup.
+6. For Source-Package imports, use the toolbar import actions; URLs are
+   processed through the local API and unknown frameworks remain analysis-only.
 
 ## Browser permissions
 

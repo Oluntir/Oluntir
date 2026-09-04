@@ -2,6 +2,11 @@
 
 # Lizenzierung
 
+**Version:** 2.0.1-alpha
+**Status:** Alpha
+**Stabile Baseline:** Oluntir 1.3.1
+**Stand:** 04.09.2026
+
 Der originale Oluntir-Quellcode und projektspezifische Demonstrations-Assets stehen unter der MIT-Lizenz.
 
 Eingebundene Drittkomponenten behalten ihre jeweiligen Upstream-Lizenzen. Die Zuordnung ist dokumentiert in:
@@ -11,5 +16,9 @@ Eingebundene Drittkomponenten behalten ihre jeweiligen Upstream-Lizenzen. Die Zu
 - `LICENSES/`.
 
 Die Schrift Inter wird unter der SIL Open Font License 1.1 verteilt.
+
+Dieser Branch bündelt nur Bootstrap 4.6.2 und Bootstrap 5.3.8 als konkrete
+Frameworkdistributionen. Die portable Node.js-Runtime ist separat lizenziert;
+ihre Upstream-Lizenz liegt unter `LICENSES/runtime/` bei.
 
 Nicht ausreichend belegte Stockbilder, Template-Grafiken, Flaticon-Ressourcen, nicht zuordenbare Schriftdateien und ehemaliger Template-Code sind nicht Bestandteil der freigegebenen Basis. Nachweise befinden sich unter `compliance/`.

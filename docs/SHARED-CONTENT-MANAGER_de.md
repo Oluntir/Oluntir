@@ -2,9 +2,10 @@
 
 # Shared Content Manager
 
-**Version:** 1.2.0  
-**Status:** Aktuell  
-**Letzte Aktualisierung:** 2026-07-28
+**Version:** 2.0.1-alpha
+**Status:** Alpha
+**Stabile Baseline:** Oluntir 1.3.1
+**Letzte Aktualisierung:** 2026-09-04
 
 Der Shared Content Manager synchronisiert die Layoutbereiche eines Projekts mit sich inhaltlich wiederholenden Elementen und Bereichen über alle Seiten hinweg.
 

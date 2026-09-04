@@ -1,0 +1,22 @@
+{
+  "kind": "oluntir-javascript-behavior-contract",
+  "schemaVersion": 1,
+  "sourceOfTruth": "original-source-and-analyzer-evidence",
+  "requiredFields": ["behaviorId", "behaviorType", "category", "evidence", "runtime", "dependencies", "activation"],
+  "policies": {
+    "readOnlyAnalysis": true,
+    "sourceExecutionDuringAnalysis": false,
+    "automaticActivation": false,
+    "explicitScriptSelection": true,
+    "documentMutation": false,
+    "repeatSynchronization": false,
+    "unitIdUntouched": true,
+    "styleDependencyResolutionDeferred": true
+  },
+  "runtime": {
+    "defaultEnabledScripts": [],
+    "activationMode": "explicit-selection-only",
+    "behaviorMatrixRequired": true,
+    "resolverRequired": true
+  }
+}

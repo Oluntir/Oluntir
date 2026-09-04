@@ -1,9 +1,9 @@
 // GrapesJS-Setup für die neutrale Bootstrap Community Edition.
 // Läuft komplett lokal im Browser (file://), kein Backend nötig.
 
-const ACTIVE_FRAMEWORK = window.PAGEBUILDER_FRAMEWORK || window.PAGEBUILDER_FRAMEWORKS.bs4;
-const SITE_CSS = ACTIVE_FRAMEWORK.canvasStyles;
-const SITE_JS = ACTIVE_FRAMEWORK.canvasScripts;
+let ACTIVE_FRAMEWORK = window.PAGEBUILDER_FRAMEWORK || window.PAGEBUILDER_FRAMEWORKS.bs4;
+let SITE_CSS = ACTIVE_FRAMEWORK.canvasStyles;
+let SITE_JS = ACTIVE_FRAMEWORK.canvasScripts;
 const oluntirT = (key, vars) => window.OluntirI18N ? window.OluntirI18N.t(key, vars) : key;
 const oluntirTr = (text) => window.OluntirI18N ? window.OluntirI18N.translateText(text) : text;
 
@@ -32,6 +32,12 @@ assetHydration.then(() => {
 (async function initPageBuilder() {
   if (window.OluntirStartup && window.OluntirStartup.ready) {
     await window.OluntirStartup.ready;
+  }
+  if (window.OluntirFrameworkReady) {
+    await window.OluntirFrameworkReady;
+    ACTIVE_FRAMEWORK = window.PAGEBUILDER_FRAMEWORK || ACTIVE_FRAMEWORK;
+    SITE_CSS = ACTIVE_FRAMEWORK.canvasStyles || [];
+    SITE_JS = ACTIVE_FRAMEWORK.canvasScripts || [];
   }
   editor = grapesjs.init({
     container: '#gjs',
@@ -163,6 +169,88 @@ assetHydration.then(() => {
   window.bindOluntirUndoRedo = bindOluntirUndoRedo;
   bindOluntirUndoRedo(editor);
 
+  function bindOluntirPreviewUx(editorInstance) {
+    if (!editorInstance || editorInstance.__oluntirPreviewUxBound) return;
+    editorInstance.__oluntirPreviewUxBound = true;
+
+    const PREVIEW_COMMAND = 'preview';
+    let hintTimer = null;
+    let previewWasActive = false;
+
+    function previewIsActive() {
+      try {
+        return !!(editorInstance.Commands && editorInstance.Commands.isActive && editorInstance.Commands.isActive(PREVIEW_COMMAND));
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function ensureHint() {
+      let hint = document.getElementById('oluntir-preview-hint');
+      if (hint) return hint;
+      hint = document.createElement('div');
+      hint.id = 'oluntir-preview-hint';
+      hint.className = 'oluntir-preview-hint';
+      hint.setAttribute('role', 'status');
+      hint.setAttribute('aria-live', 'polite');
+      hint.setAttribute('aria-atomic', 'true');
+      hint.innerHTML = '<span class="fa fa-eye" aria-hidden="true"></span><span><strong>Vorschau aktiv</strong><small>ESC zum Beenden</small></span>';
+      document.body.appendChild(hint);
+      return hint;
+    }
+
+    function hideHint() {
+      if (hintTimer) {
+        window.clearTimeout(hintTimer);
+        hintTimer = null;
+      }
+      const hint = document.getElementById('oluntir-preview-hint');
+      if (hint) hint.classList.remove('is-visible');
+    }
+
+    function showHint() {
+      const hint = ensureHint();
+      hideHint();
+      // Zwei Frames stellen sicher, dass die Preview-Umschaltung und ihre
+      // Sichtbarkeitsregeln bereits abgeschlossen sind.
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          hint.classList.add('is-visible');
+          hintTimer = window.setTimeout(() => {
+            hint.classList.remove('is-visible');
+            hintTimer = null;
+          }, 3200);
+        });
+      });
+    }
+
+    function syncPreviewState() {
+      const active = previewIsActive();
+      if (active && !previewWasActive) showHint();
+      if (!active && previewWasActive) hideHint();
+      previewWasActive = active;
+    }
+
+    // GrapesJS-Ereignisse dienen nur als schnelle Benachrichtigung. Der
+    // Statusabgleich bleibt bewusst Oluntir-eigen und funktioniert auch dann,
+    // wenn sich Ereignisnamen oder deren Reihenfolge ändern.
+    editorInstance.on('run:preview', () => window.setTimeout(syncPreviewState, 0));
+    editorInstance.on('stop:preview', () => window.setTimeout(syncPreviewState, 0));
+    window.setInterval(syncPreviewState, 150);
+    syncPreviewState();
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !previewIsActive()) return;
+      const lightbox = document.querySelector('.oluntir-lightbox[aria-hidden="false"], .oluntir-lightbox.is-open');
+      if (lightbox) return;
+      event.preventDefault();
+      event.stopPropagation();
+      editorInstance.stopCommand(PREVIEW_COMMAND);
+      window.setTimeout(syncPreviewState, 0);
+    }, true);
+  }
+  bindOluntirPreviewUx(editor);
+
   if (typeof window.registerTextMediaEditing === 'function') {
     window.registerTextMediaEditing(editor);
   }
@@ -171,22 +259,36 @@ assetHydration.then(() => {
     window.registerSmartLinkEditing(editor);
   }
 
-  if (typeof window.registerBootstrapBlocks === 'function') {
+  const isBuiltInBootstrapFramework = !ACTIVE_FRAMEWORK.sourcePackage && ['bs4', 'bs5'].includes(ACTIVE_FRAMEWORK.id);
+  if (isBuiltInBootstrapFramework && typeof window.registerBootstrapBlocks === 'function') {
     window.registerBootstrapBlocks(editor, ACTIVE_FRAMEWORK.id);
-  } else if (ACTIVE_FRAMEWORK.id === 'bs5' && typeof window.registerBootstrap5Blocks === 'function') {
+  } else if (isBuiltInBootstrapFramework && ACTIVE_FRAMEWORK.id === 'bs5' && typeof window.registerBootstrap5Blocks === 'function') {
     window.registerBootstrap5Blocks(editor);
   }
 
-  if (typeof window.registerPageBuilderVariants === 'function') {
+  if (isBuiltInBootstrapFramework && typeof window.registerPageBuilderVariants === 'function') {
     window.registerPageBuilderVariants(editor, ACTIVE_FRAMEWORK.id);
   }
 
-  if (typeof window.registerQuickSetup === 'function') {
+  if (ACTIVE_FRAMEWORK.sourcePackage && window.OluntirSourcePackageGrapesJsAdapter) {
+    window.OluntirSourcePackageGrapesJsAdapter.connect(editor, ACTIVE_FRAMEWORK.sourcePackage)
+      .then(result => {
+        if (result.connected) console.info('Oluntir Universal-Source-Bridge verbunden:', result.blocks.added);
+        else console.warn('Oluntir Universal-Source-Bridge blockiert:', result.issues);
+      })
+      .catch(error => console.warn('Universal-Source-Bridge konnte nicht verbunden werden:', error));
+  }
+
+  if (isBuiltInBootstrapFramework && typeof window.registerQuickSetup === 'function') {
     window.registerQuickSetup(editor, ACTIVE_FRAMEWORK.id);
   }
 
   if (typeof window.registerQuickEditing === 'function') {
     window.registerQuickEditing(editor);
+  }
+
+  if (window.OluntirImageLightboxApi && typeof window.OluntirImageLightboxApi.bindEditorPreview === 'function') {
+    window.OluntirImageLightboxApi.bindEditorPreview(editor);
   }
 
 
@@ -293,12 +395,13 @@ assetHydration.then(() => {
   // Eigene Toolbar: Seitenverwaltung, Speichern, Backup, Export
   // ---------------------------------------------------------------------------
 
-  window.toast = (msg) => {
+  window.toast = (msg, options) => {
     const el = document.getElementById('toast');
     el.textContent = msg;
     el.classList.add('visible');
     clearTimeout(window.toast._t);
-    window.toast._t = setTimeout(() => el.classList.remove('visible'), 2800);
+    const duration = options && Number(options.duration) > 0 ? Number(options.duration) : 2800;
+    window.toast._t = setTimeout(() => el.classList.remove('visible'), duration);
   };
   const toast = window.toast;
 
@@ -338,6 +441,25 @@ assetHydration.then(() => {
         icon: 'fa fa-folder-open',
         titleKey: 'tool.backupLoad',
         action: () => document.getElementById('input-restore').click(),
+      },
+      {
+        id: 'pb-ui-toolbar-export-tar',
+        icon: 'fa fa-file-archive-o',
+        titleKey: 'tool.exportTar',
+        separator: true,
+        action: () => document.getElementById('btn-export-tar').click(),
+      },
+      {
+        id: 'pb-ui-toolbar-export-zip',
+        icon: 'fa fa-file-archive-o',
+        titleKey: 'tool.exportZip',
+        action: () => document.getElementById('btn-export-zip').click(),
+      },
+      {
+        id: 'pb-ui-toolbar-export-folder',
+        icon: 'fa fa-download',
+        titleKey: 'tool.exportFolder',
+        action: () => document.getElementById('btn-export-folder').click(),
       },
       {
         id: 'pb-ui-toolbar-monitor-toggle',
@@ -384,17 +506,92 @@ assetHydration.then(() => {
 
   const frameworkSelect = document.getElementById('framework-select');
   if (frameworkSelect) {
+    Object.keys(window.PAGEBUILDER_FRAMEWORKS || {}).forEach((id) => {
+      if (Array.from(frameworkSelect.options).some(option => option.value === id)) return;
+      const profile = window.PAGEBUILDER_FRAMEWORKS[id];
+      const option = document.createElement('option'); option.value = id; option.textContent = profile.label || id;
+      frameworkSelect.appendChild(option);
+    });
     frameworkSelect.value = ACTIVE_FRAMEWORK.id;
-    frameworkSelect.addEventListener('change', () => {
+    frameworkSelect.addEventListener('change', async () => {
       const next = frameworkSelect.value;
       if (next === ACTIVE_FRAMEWORK.id) return;
-      const label = window.PAGEBUILDER_FRAMEWORKS[next].label;
-      if (!confirm(oluntirT('framework.switchConfirm', { label }))) {
+      const target = window.PAGEBUILDER_FRAMEWORKS[next];
+      const label = target && target.label ? target.label : next;
+      const warning = `Ein Oluntir-Projekt ist immer fest an genau ein Framework und genau eine Version gebunden.\n\n` +
+        `Der aktuelle Stand von „${ACTIVE_FRAMEWORK.label || ACTIVE_FRAMEWORK.id}“ wird jetzt gespeichert.\n` +
+        `Danach wird „${label}“ als separates Framework-Projekt geöffnet. Eine Vermischung der Projektstände findet nicht statt.\n\n` +
+        `Framework wechseln und vorher speichern?`;
+      if (!target || !confirm(warning)) {
         frameworkSelect.value = ACTIVE_FRAMEWORK.id;
         return;
       }
-      window.setPageBuilderFramework(next);
-      location.reload();
+      try {
+        if (typeof window.OluntirPersistProjectNow !== 'function') throw new Error('Der aktuelle Projektstand kann momentan nicht gespeichert werden.');
+        await window.OluntirPersistProjectNow();
+        window.setPageBuilderFramework(next);
+        location.reload();
+      } catch (error) {
+        frameworkSelect.value = ACTIVE_FRAMEWORK.id;
+        toast(`Frameworkwechsel abgebrochen: ${error.message || error}`);
+      }
+    });
+
+    function activateImportedPackage(manifest) {
+      const bridge = window.OluntirSourcePackageBridge;
+      if (!bridge || !manifest) return;
+      if (typeof bridge.isEditorSupported === 'function' && !bridge.isEditorSupported(manifest)) {
+        toast(`Source Package analysiert: ${manifest.displayName || manifest.packageId}. Das erkannte Framework ist derzeit nur für Analyse freigegeben; es wurde nicht als Editorprofil aktiviert.`);
+        return;
+      }
+      const profile = bridge.toFrameworkProfile(manifest);
+      window.PAGEBUILDER_FRAMEWORKS[profile.id] = profile;
+      let option = Array.from(frameworkSelect.options).find(item => item.value === profile.id);
+      if (!option) { option = document.createElement('option'); option.value = profile.id; option.textContent = profile.label; frameworkSelect.appendChild(option); }
+      bridge.bind(manifest);
+      if (confirm(`Source Package „${manifest.displayName || manifest.packageId}“ wurde importiert. Jetzt als Frontend-Framework aktivieren?`)) {
+        window.setPageBuilderFramework(profile.id); location.reload();
+      }
+    }
+
+    async function importWithPrompt(importer, argument, defaultName) {
+      const bridge = window.OluntirSourcePackageBridge;
+      if (!bridge) return;
+      const frameworkId = prompt('Framework-ID (z. B. bootstrap5 oder bootstrap4; andere werden nur analysiert):', 'unclassified');
+      if (!frameworkId) return;
+      const displayName = prompt('Anzeigename des Source Packages:', defaultName || frameworkId);
+      if (!displayName) return;
+      try {
+        const manifest = await importer(argument, { frameworkId, displayName });
+        activateImportedPackage(manifest);
+      } catch (error) { toast(`Source-Import fehlgeschlagen: ${error.message}`, { duration: 12000 }); }
+    }
+
+    const urlButton = document.getElementById('btn-import-source-url');
+    if (urlButton) urlButton.addEventListener('click', () => {
+      const url = prompt('Download-URL des Framework- oder Template-Archivs:');
+      if (url) importWithPrompt((value, options) => window.OluntirSourcePackageBridge.importUrl(value, options), url, url.split('/').pop());
+    });
+    const folderInput = document.getElementById('input-source-folder');
+    if (folderInput) folderInput.addEventListener('change', () => {
+      const files = Array.from(folderInput.files || []); const first = files[0];
+      if (files.length) importWithPrompt((_, options) => window.OluntirSourcePackageBridge.importBrowserFiles(files, options), null, first.webkitRelativePath ? first.webkitRelativePath.split('/')[0] : first.name);
+      folderInput.value = '';
+    });
+    const archiveInput = document.getElementById('input-source-archive');
+    if (archiveInput) archiveInput.addEventListener('change', () => {
+      const file = archiveInput.files && archiveInput.files[0];
+      if (file) importWithPrompt((_, options) => window.OluntirSourcePackageBridge.importBrowserArchive(file, options), null, file.name.replace(/\.(tar\.gz|tgz|zip|tar)$/i, ''));
+      archiveInput.value = '';
+    });
+    const recoveryInput = document.getElementById('input-source-recovery');
+    if (recoveryInput) recoveryInput.addEventListener('change', async () => {
+      const file = recoveryInput.files && recoveryInput.files[0]; recoveryInput.value = '';
+      if (!file || !window.OluntirSourcePackageBridge) return;
+      try {
+        const manifest = await window.OluntirSourcePackageBridge.restoreBrowserRecovery(file);
+        activateImportedPackage(manifest);
+      } catch (error) { toast(`Source-Recovery fehlgeschlagen: ${error.message}`, { duration: 12000 }); }
     });
   }
 
@@ -986,7 +1183,9 @@ assetHydration.then(() => {
       window.OluntirStartup.setMeta({
         projectType: window.OluntirIncludes && window.OluntirIncludes.getState().enabled
           ? 'reusable-regions'
-          : 'classic'
+          : 'classic',
+        frameworkId: ACTIVE_FRAMEWORK.id,
+        frameworkVersion: ACTIVE_FRAMEWORK.version || 'unversioned'
       });
     }
     return projectData;
@@ -1475,16 +1674,6 @@ assetHydration.then(() => {
       window.removeEventListener('oluntir:languagechange', applyNoticeLanguage);
     }, { once: true });
   })();
-
-  document.getElementById('input-gallery-files').addEventListener('change', (ev) => {
-    insertGalleryFromFiles(editor, ev.target.files);
-    ev.target.value = '';
-  });
-
-  document.getElementById('input-gallery-folder').addEventListener('change', (ev) => {
-    insertGalleryFromFiles(editor, ev.target.files);
-    ev.target.value = '';
-  });
 
   // "+ Bild hochladen": fügt (ein oder mehrere) Bilder dem Asset-Manager hinzu, ohne
   // Base64 – Auswahl über den Asset-Manager (Doppelklick auf ein Bild-Element) möglich.

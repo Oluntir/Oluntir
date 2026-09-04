@@ -6,7 +6,7 @@
   <title>Oluntir 1.3.1</title>
   <link rel="stylesheet" href="vendor/grapesjs/0.23.2/grapes.min.css">
   <link rel="stylesheet" href="plugins/editor/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="editor/css/editor.css?v=1.3.1">
+  <link rel="stylesheet" href="editor/css/editor.css?v=2.0.1-alpha-dev030">
 </head>
 <body>
   
@@ -87,13 +87,27 @@
         <option value="bs4">Bootstrap 4.6.2 – Community Edition</option>
       </select>
     </div>
-
-    <div class="toolbar-group">
+    <div class="toolbar-group toolbar-page-actions">
       <label for="page-select" class="toolbar-label" data-i18n="toolbar.page">Seite:</label>
       <select id="page-select"></select>
       <button id="btn-new-page" data-i18n-title="toolbar.newPageTitle" title="Neue Seite anlegen" data-i18n="toolbar.newPage">+ Neue Seite</button>
       <button id="btn-rename-page" data-i18n-title="toolbar.renameTitle" title="Seite umbenennen" data-i18n="toolbar.rename">Umbenennen</button>
       <button id="btn-delete-page" data-i18n-title="toolbar.deleteTitle" title="Seite löschen" data-i18n="toolbar.delete">Löschen</button>
+    </div>
+  </div>
+
+  <div id="toolbar-secondary" aria-label="Weitere Oluntir-Funktionen">
+    <div class="toolbar-group toolbar-source-package" role="group" aria-label="Framework-Source importieren">
+      <button id="btn-import-source-url" type="button" title="Framework oder Template über die lokale API importieren">+ Source-URL</button>
+      <label class="toolbar-file-label" title="Framework oder Template aus einem lokalen Ordner importieren">
+        <span>+ Source-Ordner</span><input id="input-source-folder" type="file" webkitdirectory directory multiple hidden>
+      </label>
+      <label class="toolbar-file-label" title="Framework oder Template als ZIP oder TAR importieren">
+        <span>+ Source-Archiv</span><input id="input-source-archive" type="file" accept=".zip,.tar,.gz,.tgz,.tar.gz,application/zip,application/gzip" hidden>
+      </label>
+      <label class="toolbar-file-label" title="Source Package aus einer Recovery-JSON wiederherstellen">
+        <span>+ Recovery-JSON</span><input id="input-source-recovery" type="file" accept="application/json,.json" hidden>
+      </label>
     </div>
 
     <div class="toolbar-group toolbar-media-actions">
@@ -376,11 +390,20 @@
   <script src="editor/js/features/ui-settings.js"></script>
   <script src="editor/js/features/block-search.js"></script>
   <script src="editor/js/core/edition.js"></script>
-  <script src="editor/js/core/framework.js?v=1.3.0"></script>
+  <script src="editor/js/core/source-package-bridge.js?v=2.0.1-alpha-dev030"></script>
+  <script src="editor/js/core/source-package-grapesjs-adapter.js?v=2.0.1-alpha-dev030"></script>
+  <script src="editor/js/core/framework.js?v=2.0.1-alpha-dev030"></script>
+  <script src="editor/js/core/translation-matrix.js?v=2.0.0-dev016"></script>
+  <script src="editor/js/core/translation-matrix-profiles.js?v=2.0.0-dev017"></script>
+  <script src="editor/js/core/translation-analyzer.js?v=2.0.0-dev018"></script>
+  <script src="editor/js/core/translation-resolver.js?v=2.0.0-dev019"></script>
+  <script src="editor/js/core/translation-matrix-validation.js?v=2.0.0-dev020"></script>
+  <script src="editor/js/core/translation-materialization-plan.js?v=2.0.1-alpha-dev030"></script>
   <script src="editor/js/core/site-images.js"></script>
   <script src="editor/js/features/bootstrap-blocks.js"></script>
   <script src="editor/js/features/variant-blocks.js"></script>
   <script src="editor/js/features/quick-setup.js"></script>
+  <script src="editor/js/core/image-lightbox-api.js"></script>
   <script src="editor/js/features/quick-edit.js"></script>
   <script src="editor/js/features/blocks-bs5.js"></script>
   <script src="editor/js/core/progress.js"></script>
@@ -463,6 +486,6 @@
   <script src="editor/js/features/text-media-editor.js"></script>
   <script src="editor/js/features/link-editor.js"></script>
   <script src="editor/js/core/oluntir-code-view.js"></script>
-  <script src="editor/js/core/editor.js?v=1.3.1"></script>
+  <script src="editor/js/core/editor.js?v=2.0.1-alpha-dev030"></script>
 </body>
 </html>

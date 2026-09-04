@@ -137,3 +137,57 @@ node tests/test-1.3.1-export-presentation-translation.js
 node tests/test-1.3.1-export-presentation-readonly.js
 
 node tests/test-1.3.1-presentation-attribute-atomicity.js
+
+node tests/test-empty-project-gallery-insertion.js
+node tests/test-empty-project-gallery-insertion.js
+node tests/test-empty-project-gallery-context-regression.js
+node tests/test-bs5-gallery-image-manager-regression.js
+node tests/test-framework-gallery-editor-contract.js
+
+node tests/test-framework-gallery-wizard.js
+node tests/test-source-package-bridge.js
+node tests/test-dev030-bootstrap-consolidation.js
+
+# Oluntir Framework Knowledge Compiler core
+node --check analyzer/core/capability-catalog.js
+node --check analyzer/core/evidence-store.js
+node --check analyzer/core/oir-project.js
+node --check analyzer/core/knowledge-compiler.js
+node analyzer/tests/test-framework-support-policy.js
+node analyzer/examples/compile-framework-knowledge.js >/dev/null
+
+# Oluntir Framework Knowledge Compiler DEV_002: Source Inventory and static HTML analysis
+node --check analyzer/core/source-inventory.js
+node --check analyzer/core/static-html-analyzer.js
+node analyzer/tests/test-source-inventory-html-analyzer.js
+
+# Oluntir Framework Knowledge Compiler DEV_003: Static CSS source analysis
+node --check analyzer/core/static-css-analyzer.js
+node analyzer/tests/test-source-inventory-css-analyzer.js
+
+# Oluntir API Analyzer: first visible report function
+node --check analyzer/core/static-script-analyzer.js
+node --check analyzer/core/framework-evidence-analyzer.js
+node --check analyzer/core/capability-evidence-analyzer.js
+node --check analyzer/core/project-analyzer.js
+node --check analyzer/app/server.js
+node --check analyzer/core/source-profile-builder.js
+node analyzer/tests/test-static-script-analyzer.js
+node analyzer/tests/test-project-analyzer.js
+node analyzer/tests/test-analyzer-server.js
+node analyzer/tests/test-editor-route.js
+node analyzer/tests/test-portable-runtime-contract.js
+node analyzer/tests/test-windows-runtime-builder-contract.js
+node analyzer/tests/test-source-package.js
+node analyzer/tests/test-source-package-zip.js
+node analyzer/tests/test-source-runtime-selection.js
+node analyzer/tests/test-source-package-server.js
+node analyzer/tests/test-bootstrap-framework-import.js
+node analyzer/tests/test-javascript-behavior.js
+node analyzer/tests/test-source-framework-profile.js
+node tests/test-source-package-grapesjs-adapter.js
+node tests/test-universal-framework-export.js
+node tests/test-framework-switch-guard.js
+node tests/test-portable-windows-runtime.js
+node tests/test-universal-ui-availability.js
+node tests/test-block-search-availability.js

@@ -1,0 +1,23 @@
+{
+  "kind": "oluntir-source-framework-profile-contract",
+  "schemaVersion": 1,
+  "requiredFields": ["profileId", "sourcePackageId", "sourceHash", "framework", "rules", "unknownFeatures", "metadata", "policy"],
+  "profileScope": {
+    "sourceBound": true,
+    "reusable": false,
+    "identity": ["sourcePackageId", "sourceHash", "profileId"]
+  },
+  "policies": {
+    "readOnly": true,
+    "sourceExecution": false,
+    "documentMutation": false,
+    "repeatSynchronization": false,
+    "crossPackageReuse": false,
+    "unitIdUntouched": true
+  },
+  "updateHandling": {
+    "newSourceHashCreatesNewProfile": true,
+    "oldProfileIsComparisonOnly": true,
+    "automaticCrossVersionReuse": false
+  }
+}

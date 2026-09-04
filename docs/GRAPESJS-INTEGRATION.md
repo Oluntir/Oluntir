@@ -1,6 +1,11 @@
-# GrapesJS integration in Oluntir 1.2.0
+# GrapesJS integration in Oluntir 2.0.1-alpha
 
 GrapesJS 0.23.2 is stored unchanged below `vendor/grapesjs/0.23.2/`. Oluntir-specific behavior is isolated in `editor/integrations/grapesjs/`.
+
+The Source-Package GrapesJS adapter exposes recognized structures as
+user-selectable blocks. It does not execute imported scripts and does not create
+a parallel Oluntir component architecture. Concrete framework activation is
+limited to Bootstrap 4.6.2 and 5.3.8.
 
 ## Boundary
 

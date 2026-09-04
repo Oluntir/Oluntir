@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contractId": "oluntir.analyzer.source-inventory",
+  "contractVersion": "1.1.0",
+  "status": "foundation",
+  "purpose": "Lossless, read-only inventory of source documents before semantic or framework interpretation.",
+  "boundaries": {
+    "readOnly": true,
+    "semanticInterpretation": false,
+    "frameworkDetection": false,
+    "sourceMutation": false,
+    "htmlGeneration": false,
+    "grapesJsAccess": false
+  },
+  "requiredCollections": [
+    "documents",
+    "nodes",
+    "attributes",
+    "references",
+    "assets",
+    "stylesheets",
+    "cssRules",
+    "declarations",
+    "diagnostics"
+  ],
+  "supportedReferenceKinds": [
+    "stylesheet",
+    "script",
+    "image",
+    "media",
+    "font-preload",
+    "favicon",
+    "download",
+    "hyperlink",
+    "inline-style",
+    "srcset-candidate",
+    "css-import",
+    "css-url"
+  ],
+  "identityPolicy": {
+    "stableWithinInventory": true,
+    "sourcePositionBased": true,
+    "contentAddressingPrepared": true
+  }
+}

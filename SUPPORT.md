@@ -2,15 +2,18 @@
 
 # Support
 
-**Version:** 1.3.1  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.3.1  
-**Last updated:** 2026-07-30
+**Version:** 2.0.1-alpha
+**Language:** English
+**Status:** Alpha
+**Stable baseline:** Oluntir 1.3.1
+**Last updated:** 2026-09-04
 
 ## Supported requests
 
-Support covers installation, browser behavior, project creation, project restore, Oluntir recurring content elements and regions, code view, and HTML, SSI, or PHP export.
+Support covers installation, browser behavior, project creation, project restore,
+Bootstrap 4/5 selection, Source-Package analysis and recovery, Oluntir
+recurring content elements and regions, code view, and HTML, SSI, or PHP export.
+Imported non-Bootstrap packages are analysis-only in this branch.
 
 ## Information to include
 

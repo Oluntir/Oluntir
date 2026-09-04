@@ -11,3 +11,9 @@ These project-owned assets are distributed under the repository's MIT license.
 ## Third-party components
 
 Attribution and license texts for third-party software and fonts are documented in `THIRD_PARTY_NOTICES.md`, `LICENSING.md`, and `LICENSES/`.
+
+## Frameworkumfang
+
+Der eigenständige Branch `2.0.1-alpha` enthält konkrete Profile für Bootstrap
+4.6.2 und Bootstrap 5.3.8. Eine alternative Frameworkdistribution ist in
+diesem Branch nicht gebündelt.

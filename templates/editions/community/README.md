@@ -2,10 +2,10 @@
 
 # Community Edition Template
 
-**Version:** 1.2.0  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.2.0  
-**Last updated:** 2026-07-30
+**Version:** 2.0.1-alpha
+**Language:** English
+**Status:** Alpha
+**Stable baseline:** Oluntir 1.3.1
+**Last updated:** 2026-09-04
 
 This directory contains the community edition template. Files placed here define the initial edition-specific project content and must remain compatible with the common project schema and offline runtime.

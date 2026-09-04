@@ -2,7 +2,7 @@
 
 # Security policy
 
-**Supported version:** 1.3.1
+**Supported line:** 2.0.1-alpha (experimental) · 1.3.1 (stable baseline)
 
 ## Reporting
 
@@ -16,7 +16,7 @@ Relevant reports include unsafe handling of imported project data, script inject
 
 ## Response
 
-Receipt, severity, remediation, release coordination, and disclosure timing are handled case by case. Only the current stable release line is actively evaluated for security fixes.
+Receipt, severity, remediation, release coordination, and disclosure timing are handled case by case. The 1.3.1 stable line and the 2.0.1-alpha branch are evaluated according to their respective release status. Alpha-only Analyzer and import paths require additional scrutiny because they process local files and archives.
 
 ## User responsibility
 
