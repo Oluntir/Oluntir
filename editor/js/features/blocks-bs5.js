@@ -7,17 +7,17 @@
     const items = images.map((name, index) => `
       <div class="col-12 col-sm-6 col-lg-4">
         <article class="card border-0 shadow-sm pb-bs5-gallery-card h-100">
-          <div class="position-relative pb-gallery-item" data-pb-gallery-item data-oluntir-gallery-item>
+          <div class="position-relative">
             <picture>
               <source media="(max-width: 767.98px)" srcset="assets/images/logo.svg">
               <source media="(max-width: 1199.98px)" srcset="assets/images/logo.svg">
               <img class="card-img-top img-fluid" src="assets/images/logo.svg" alt="Galeriebild ${index + 1}" loading="lazy">
             </picture>
             <div class="pb-bs5-gallery-overlay">
-              <a class="btn btn-light pb-bs5-gallery-open pb-gallery-trigger" data-oluntir-gallery-image href="assets/images/logo.svg" data-pb-gallery-mobile="assets/images/logo.svg" data-pb-gallery-tablet="assets/images/logo.svg" data-pb-gallery-desktop="assets/images/logo.svg" data-bs-toggle="modal" data-bs-target="#${modalId}" data-download="assets/images/logo.svg" data-filename="${name}" data-alt="Galeriebild ${index + 1}" aria-label="Bild vergrößern">
+              <a class="btn btn-light pb-bs5-gallery-open" href="assets/images/logo.svg" data-pb-gallery-mobile="assets/images/logo.svg" data-pb-gallery-tablet="assets/images/logo.svg" data-pb-gallery-desktop="assets/images/logo.svg" data-bs-toggle="modal" data-bs-target="#${modalId}" data-download="assets/images/logo.svg" data-filename="${name}" data-alt="Galeriebild ${index + 1}" aria-label="Bild vergrößern">
                 <span aria-hidden="true">⛶</span>
               </a>
-              <a class="btn btn-light portfolio-download" data-oluntir-gallery-download href="assets/images/logo.svg" download="${name}" aria-label="Bild herunterladen">
+              <a class="btn btn-light" href="assets/images/logo.svg" download="${name}" aria-label="Bild herunterladen">
                 <span aria-hidden="true">⇩</span>
               </a>
             </div>
@@ -94,6 +94,6 @@
     add('bs5-stacks', 'Stacks', 'BS5 · Helpers', '<div class="vstack gap-3"><div class="p-3 bg-body-tertiary border rounded">Element 1</div><div class="p-3 bg-body-tertiary border rounded">Element 2</div><div class="hstack gap-3"><button class="btn btn-primary">Speichern</button><div class="vr"></div><button class="btn btn-outline-danger">Löschen</button></div></div>');
     add('bs5-utilities-flex', 'Flex-Utilities', 'BS5 · Utilities', '<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 p-4 border rounded"><div><h3 class="h5 mb-1">Flex-Inhalt</h3><p class="mb-0 text-body-secondary">Responsive ausgerichtet.</p></div><a class="btn btn-primary flex-shrink-0" href="#">Aktion</a></div>');
     add('bs5-utilities-spacing', 'Spacing & Farben', 'BS5 · Utilities', '<div class="p-3 p-md-5 bg-primary-subtle text-primary-emphasis border border-primary-subtle rounded-4 shadow-sm"><h3>Utility-Beispiel</h3><p class="mb-0">Abstände, Farben, Rahmen, Radius und Schatten über Bootstrap 5.3.</p></div>');
-    add('bs5-gallery-classic', 'Bildergalerie BS5', 'BS5 · Galerie', '<div data-oluntir-gallery-launcher="bs5" aria-label="BS5-Gallery konfigurieren"></div>');
+    add('bs5-gallery-classic', 'Bildergalerie BS5', 'BS5 · Galerie', window.buildBootstrap5ClassicGalleryHtml());
   };
 })();

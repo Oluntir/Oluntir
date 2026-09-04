@@ -1,12 +1,6 @@
 # Changelog
-- Corrected preview UX so only the dynamically displayed exit control is enlarged; the normal preview activation icon remains unchanged.
-
-- Klickvergrößerte Bilder bleiben im Bearbeitungsmodus direkt auswählbar; die Lightbox öffnet sich im Editor nur noch im Vorschaumodus.
 
 ## 1.3.1 — 2026-08-02
-- Added optional project-wide click-to-enlarge support for images, configurable in the image manager and quick editor, persisted across cards, grids, text areas and arbitrary image components, and included in HTML, SSI and PHP exports.
-- Exportierte Bild-Lightbox: Download-Symbol als fest eingebettetes, frameworkunabhängiges SVG vereinheitlicht; kein abweichendes Unicode-Fallback-Icon mehr.
-- Improved preview-mode discoverability with a larger 24 px exit icon, an automatic “ESC or eye” hint and ESC-key exit support.
 
 ### Stability and persistence
 - Stabilized shared header, navigation and footer content.
@@ -19,10 +13,8 @@
 - New gallery areas can be inserted before, between and after complete page areas.
 - Added orange preview and scroll markers for new page areas.
 - Removed empty and duplicate insertion positions.
-- Completely empty new projects and blank HTML pages now expose a valid position for inserting the first gallery; the page root is addressed through the stable page ID.
 
 ### Export and frameworks
-- Export remains available with an empty header, navigation, footer or otherwise incomplete reusable regions; these states are now logged as non-blocking diagnostics only.
 - Stabilized export snapshots and responsive image variants.
 - Verified Bootstrap 4.6.2 and Bootstrap 5.3.8.
 - Consolidated framework and icon sources.

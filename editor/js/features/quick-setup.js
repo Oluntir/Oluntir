@@ -298,75 +298,9 @@
       document.dispatchEvent(new CustomEvent('pb:quick-setup-open'));
     }
 
-    function commitOverlayDocuments() {
-      const documents = [];
-      const add = (candidate) => {
-        if (candidate && candidate.documentElement && !documents.includes(candidate)) documents.push(candidate);
-      };
-      add(document);
-      add(panel && panel.ownerDocument);
-      try { add(window.top && window.top.document); } catch (_) {}
-      try {
-        const toolWindow = window.OluntirMultiMonitorManager && window.OluntirMultiMonitorManager.getToolWindow
-          ? window.OluntirMultiMonitorManager.getToolWindow()
-          : null;
-        add(toolWindow && toolWindow.document);
-      } catch (_) {}
-      return documents;
-    }
-
-    function ensureCommitOverlay(targetDocument) {
-      if (!targetDocument) return null;
-      const host = targetDocument.body || targetDocument.documentElement;
-      if (!host) return null;
-      let overlay = targetDocument.getElementById('oluntir-quick-setup-commit-overlay');
-      if (overlay) return overlay;
-      overlay = targetDocument.createElement('div');
-      overlay.id = 'oluntir-quick-setup-commit-overlay';
-      overlay.setAttribute('role', 'dialog');
-      overlay.setAttribute('aria-modal', 'true');
-      overlay.setAttribute('aria-busy', 'true');
-      overlay.style.cssText = 'position:fixed!important;inset:0!important;z-index:2147483647!important;display:none!important;align-items:center!important;justify-content:center!important;padding:24px!important;background:rgba(8,10,14,.72)!important;backdrop-filter:blur(3px)!important;-webkit-backdrop-filter:blur(3px)!important;pointer-events:all!important;cursor:progress!important;box-sizing:border-box!important';
-      overlay.innerHTML = '<div style="width:min(440px,calc(100vw - 48px));box-sizing:border-box;padding:28px 30px;border:1px solid rgba(255,255,255,.24);border-radius:12px;background:#292c33;color:#f7f7f7;font-family:Arial,sans-serif;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.68)"><span aria-hidden="true" style="display:inline-block;width:28px;height:28px;border:3px solid rgba(255,255,255,.28);border-top-color:#fff;border-radius:50%;animation:oluntirQuickSetupSpin .8s linear infinite"></span><strong style="display:block;margin-top:14px;font:700 18px/1.3 Arial,sans-serif;color:#fff">Änderungen werden übernommen…</strong><small style="display:block;margin-top:7px;font:400 14px/1.4 Arial,sans-serif;color:#d4d8df">Bitte einen Moment warten.</small><p style="margin:14px 0 0;font:400 12px/1.5 Arial,sans-serif;color:#aeb4bf">Navigation, Footer und weitere gemeinsame Inhalte werden aktualisiert.</p></div>';
-      if (!targetDocument.getElementById('oluntir-quick-setup-commit-keyframes')) {
-        const style = targetDocument.createElement('style');
-        style.id = 'oluntir-quick-setup-commit-keyframes';
-        style.textContent = '@keyframes oluntirQuickSetupSpin{to{transform:rotate(360deg)}}';
-        (targetDocument.head || host).appendChild(style);
-      }
-      host.appendChild(overlay);
-      return overlay;
-    }
-
-    function setCommitBusy(isBusy) {
-      commitOverlayDocuments().forEach((targetDocument) => {
-        const overlay = ensureCommitOverlay(targetDocument);
-        if (!overlay) return;
-        overlay.style.setProperty('display', isBusy ? 'flex' : 'none', 'important');
-        overlay.style.setProperty('visibility', isBusy ? 'visible' : 'hidden', 'important');
-        overlay.style.setProperty('opacity', isBusy ? '1' : '0', 'important');
-        if (isBusy) void overlay.offsetWidth;
-      });
-      const button = panel.querySelector('[data-pbq-apply]');
-      if (button) button.disabled = Boolean(isBusy);
-    }
-
-    function waitForRenderTurn() {
-      return new Promise((resolve) => {
-        const schedule = window.requestAnimationFrame || ((callback) => window.setTimeout(callback, 0));
-        schedule(() => schedule(resolve));
-      });
-    }
-
-    async function apply(useDefaults) {
-      if (!current || panel.dataset.commitBusy === 'true') return;
-      panel.dataset.commitBusy = 'true';
-      const startedAt = Date.now();
-      setCommitBusy(true);
-      await waitForRenderTurn();
-      await new Promise((resolve) => window.setTimeout(resolve, 80));
-      try {
-        const type = attr(current, 'data-pb-quick', '');
+    function apply(useDefaults) {
+      if (!current) return;
+      const type = attr(current, 'data-pb-quick', '');
       const def = definitions[type];
       if (!def) return;
       let saved = {};
@@ -398,19 +332,8 @@
         if (typeof editor.store === 'function') Promise.resolve().then(() => editor.store()).catch(() => {});
       }
 
-        if (typeof editor.store === 'function') {
-          try { await Promise.resolve(editor.store()); }
-          catch (storeError) { console.warn('Projektstatus konnte nach der Schnellbearbeitung nicht sofort gespeichert werden:', storeError); }
-        }
-        const remaining = 1200 - (Date.now() - startedAt);
-        if (remaining > 0) await new Promise((resolve) => window.setTimeout(resolve, remaining));
-        open(current);
-      } catch (error) {
-        console.warn('Schnellbearbeitung konnte nicht vollständig übernommen werden:', error);
-      } finally {
-        setCommitBusy(false);
-        delete panel.dataset.commitBusy;
-      }
+      if (window.toast) window.toast('Element aktualisiert');
+      open(current);
     }
 
     panel.addEventListener('click', (event) => {

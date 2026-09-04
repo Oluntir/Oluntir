@@ -115,15 +115,6 @@
       if (!root) return;
       const item = selected();
       root.querySelector('[data-role="details"]').innerHTML = window.OluntirImageSelectUi.details(item, groupFor(item), sizeMap, currentMode);
-      const lightboxOption = root.querySelector('[data-role="lightbox-option"]');
-      if (lightboxOption && window.OluntirImageLightboxApi) {
-        const selectedComponent = editor.getSelected && editor.getSelected();
-        lightboxOption.checked = window.OluntirImageLightboxApi.isEnabled(selectedComponent);
-        const downloadOption = root.querySelector('[data-role="lightbox-download-option"]');
-        const captionOption = root.querySelector('[data-role="lightbox-caption-option"]');
-        if (downloadOption) downloadOption.checked = window.OluntirImageLightboxApi.isDownloadEnabled(selectedComponent);
-        if (captionOption) captionOption.checked = window.OluntirImageLightboxApi.isCaptionEnabled(selectedComponent);
-      }
       root.querySelector('[data-action="use"]')?.addEventListener('click', () => choose(item));
       root.querySelector('[data-action="replace"]')?.addEventListener('click', () => replaceSelected(item));
     }
@@ -190,15 +181,8 @@
     }
     function choose(item) {
       if (!item || currentMode !== 'assign') return;
-      const lightboxEnabled = !!(root && root.querySelector('[data-role="lightbox-option"]') && root.querySelector('[data-role="lightbox-option"]').checked);
-      const lightboxDownload = !!(root && root.querySelector('[data-role="lightbox-download-option"]') && root.querySelector('[data-role="lightbox-download-option"]').checked);
-      const lightboxCaption = !!(root && root.querySelector('[data-role="lightbox-caption-option"]') && root.querySelector('[data-role="lightbox-caption-option"]').checked);
       if (typeof currentOptions.select === 'function') currentOptions.select(item.asset, false);
       editor.trigger('asset:select', item.asset, false);
-      if (window.OluntirImageLightboxApi) {
-        const selected = editor.getSelected && editor.getSelected();
-        window.OluntirImageLightboxApi.apply(selected, lightboxEnabled, { download: lightboxDownload, caption: lightboxCaption });
-      }
       workspace.close();
     }
     async function deleteItems(items, label) {

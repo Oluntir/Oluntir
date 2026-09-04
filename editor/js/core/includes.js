@@ -223,28 +223,24 @@
   }
   function validateExport(target) {
     const selected = ['html', 'ssi', 'php'].includes(target) ? target : state.exportTarget;
+    const errors = [];
     const warnings = [];
-
-    // Export is deliberately non-blocking. Empty or incomplete reusable regions
-    // are valid intermediate project states and must still be exportable. The
-    // diagnostics remain available as warnings, but never prevent folder, ZIP
-    // or TAR export.
-    if (!state.decided) warnings.push('Die Projektstruktur wurde noch nicht festgelegt.');
+    if (!state.decided) errors.push('Die Projektstruktur wurde noch nicht festgelegt.');
     if (state.enabled) {
       ['header', 'navigation', 'footer'].forEach(name => {
-        if (!String(state.regions[name] || '').trim()) warnings.push(`${name.charAt(0).toUpperCase() + name.slice(1)} ist leer.`);
+        if (!String(state.regions[name] || '').trim()) errors.push(`${name.charAt(0).toUpperCase() + name.slice(1)} ist leer.`);
       });
       const paths = allIncludes().map(item => normalizeIncludePath(item.path));
       const duplicates = paths.filter((path, index) => paths.indexOf(path) !== index);
-      if (duplicates.length) warnings.push(`Doppelte Include-Pfade: ${[...new Set(duplicates)].join(', ')}`);
+      if (duplicates.length) errors.push(`Doppelte Include-Pfade: ${[...new Set(duplicates)].join(', ')}`);
       allIncludes().forEach(item => {
         parseIncludeReferences(item.content).forEach(path => {
-          if (!findByPath(path)) warnings.push(`Fehlender sich inhaltlich wiederholender Bereich in ${item.path}: ${path}`);
+          if (!findByPath(path)) errors.push(`Fehlender sich inhaltlich wiederholender Bereich in ${item.path}: ${path}`);
         });
       });
       state.sections.filter(section => !section.pages.length).forEach(section => warnings.push(`„${section.name}“ wird auf keiner Seite verwendet.`));
     }
-    return { ok: true, target: selected, errors: [], warnings };
+    return { ok: errors.length === 0, target: selected, errors, warnings };
   }
   function projectManifest() {
     return {

@@ -155,65 +155,16 @@
     };
   }
 
-  function stableImageSource(component) {
-    const a = attrs(component);
-    return a['data-stable-path'] || a.src || '';
-  }
-
-  function isPersistentImagePath(value) {
-    const path = String(value || '').replace(/\\/g, '/');
-    return path.indexOf('assets/user_upload/') === 0 || path.indexOf('images/') === 0;
-  }
-
-  function galleryTriggerForImage(component) {
-    let current = component;
-    while (current) {
-      const a = attrs(current);
-      const c = classes(current);
-      const isItem = c.indexOf('pb-gallery-item') !== -1 ||
-        Object.prototype.hasOwnProperty.call(a || {}, 'data-pb-gallery-item') ||
-        Object.prototype.hasOwnProperty.call(a || {}, 'data-oluntir-gallery-item');
-      if (isItem && typeof current.find === 'function') {
-        const selectors = ['a[data-oluntir-gallery-image]','a.pb-gallery-trigger','a.pb-bs5-gallery-open','a.portfolio-img'];
-        for (const selector of selectors) {
-          const found = current.find(selector) || [];
-          if (found[0]) return found[0];
-        }
-      }
-      current = current.parent ? current.parent() : null;
-    }
-    return null;
-  }
-
-  function syncGalleryLabel(component, alt, title) {
-    const trigger = galleryTriggerForImage(component);
-    if (!trigger) return;
-    const label = String(alt || title || '').trim();
-    const next = Object.assign({}, attrs(trigger));
-    next['data-alt'] = label;
-    next['data-caption'] = label;
-    next['aria-label'] = label ? label + ' vergrößern' : 'Bild vergrößern';
-    if (window.OluntirDocumentApi && typeof window.OluntirDocumentApi.updateAttributes === 'function') {
-      window.OluntirDocumentApi.updateAttributes(trigger, next, { label: 'gallery.image.label', merge: false });
-    } else if (trigger.set) {
-      trigger.set('attributes', next);
-    }
-  }
-
   function imageForm(component) {
     const a=attrs(component);
-    const stableSource = stableImageSource(component);
     return {
       title:'Bild · Schnellbearbeitung', hint:'Bildquelle, Beschreibung und sichtbare Form',
       html:[
-        '<section><h3>Bild</h3>',field('src','Bildquelle','text',stableSource),field('alt','Alternativtext','text',a.alt || ''),field('title','Titel','text',a.title || ''),'</section>',
-        '<section><h3>Darstellung</h3>',field('width','Breite','text',style(component,'width','100%'),null,'Zum Beispiel 100%, 480px oder 30rem'),field('height','Höhe','text',style(component,'height','auto')),field('fit','Bildanpassung','select',style(component,'object-fit','cover'),[['cover','Ausfüllen'],['contain','Einpassen'],['fill','Strecken'],['none','Original']]),field('radius','Eckenradius','text',style(component,'border-radius',''),null,'Zum Beispiel 0.5rem, 12px oder 50%'),field('shadow','Schatten','checkbox',hasClass(component,'shadow')||hasClass(component,'shadow-sm')),'</section>',
-        '<section><h3>Interaktion</h3>',field('lightbox','Klickvergrößerung','checkbox',window.OluntirImageLightboxApi&&window.OluntirImageLightboxApi.isEnabled(component)),field('lightboxDownload','Download-Button anzeigen','checkbox',window.OluntirImageLightboxApi&&window.OluntirImageLightboxApi.isDownloadEnabled(component)),field('lightboxCaption','Bildbezeichnung anzeigen','checkbox',window.OluntirImageLightboxApi&&window.OluntirImageLightboxApi.isCaptionEnabled(component)), '<p class="pbe-hint">Bildbezeichnung und Download bleiben standardmäßig ausgeblendet. Die Bildbezeichnung stammt aus dem Alternativtext, ersatzweise aus dem Titel. Ein vorhandener Bildlink wird bei aktivierter Klickvergrößerung nicht ausgeführt.</p></section>'
+        '<section><h3>Bild</h3>',field('src','Bildquelle','text',a.src || ''),field('alt','Alternativtext','text',a.alt || ''),field('title','Titel','text',a.title || ''),'</section>',
+        '<section><h3>Darstellung</h3>',field('width','Breite','text',style(component,'width','100%'),null,'Zum Beispiel 100%, 480px oder 30rem'),field('height','Höhe','text',style(component,'height','auto')),field('fit','Bildanpassung','select',style(component,'object-fit','cover'),[['cover','Ausfüllen'],['contain','Einpassen'],['fill','Strecken'],['none','Original']]),field('radius','Eckenradius','text',style(component,'border-radius',''),null,'Zum Beispiel 0.5rem, 12px oder 50%'),field('shadow','Schatten','checkbox',hasClass(component,'shadow')||hasClass(component,'shadow-sm')),'</section>'
       ].join(''),
       apply(panel){
-        const requestedSource = formValue(panel,'src') || stableSource;
-        const imageAttributes={src:requestedSource,alt:formValue(panel,'alt'),title:formValue(panel,'title')};
-        if (isPersistentImagePath(requestedSource)) imageAttributes['data-stable-path'] = requestedSource;
+        const imageAttributes={src:formValue(panel,'src'),alt:formValue(panel,'alt'),title:formValue(panel,'title')};
         if(window.OluntirDocumentApi&&typeof window.OluntirDocumentApi.updateAttributes==='function'){
           window.OluntirDocumentApi.updateAttributes(component,imageAttributes,{label:'image.attributes',merge:true});
         }else{
@@ -221,10 +172,6 @@
         }
         component.addStyle({'width':formValue(panel,'width')||'','height':formValue(panel,'height')||'','object-fit':formValue(panel,'fit')||'','border-radius':formValue(panel,'radius')||''});
         replaceClassGroup(component,c=>c==='shadow'||c==='shadow-sm',formValue(panel,'shadow')?'shadow-sm':'');
-        syncGalleryLabel(component, imageAttributes.alt, imageAttributes.title);
-        if(window.OluntirImageLightboxApi){
-          window.OluntirImageLightboxApi.apply(component,!!formValue(panel,'lightbox'),{download:!!formValue(panel,'lightboxDownload'),caption:!!formValue(panel,'lightboxCaption')});
-        }
       }
     };
   }
@@ -268,142 +215,17 @@
       panel.hidden = false;
       document.dispatchEvent(new CustomEvent('pb:quick-edit-open'));
     }
-    function ensureCommitOverlay(targetDocument) {
-      if (!targetDocument) return null;
-      const host = targetDocument.body || targetDocument.documentElement;
-      if (!host) return null;
-
-      let overlay = targetDocument.getElementById('oluntir-quick-edit-commit-overlay');
-      if (overlay) return overlay;
-
-      overlay = targetDocument.createElement('div');
-      overlay.id = 'oluntir-quick-edit-commit-overlay';
-      overlay.setAttribute('role', 'dialog');
-      overlay.setAttribute('aria-live', 'assertive');
-      overlay.setAttribute('aria-busy', 'true');
-      overlay.setAttribute('aria-modal', 'true');
-      overlay.style.cssText = [
-        'all:initial',
-        'position:fixed!important',
-        'inset:0!important',
-        'width:100vw!important',
-        'height:100vh!important',
-        'z-index:2147483647!important',
-        'display:none!important',
-        'align-items:center!important',
-        'justify-content:center!important',
-        'box-sizing:border-box!important',
-        'padding:24px!important',
-        'background:rgba(8,10,14,.72)!important',
-        'backdrop-filter:blur(3px)!important',
-        '-webkit-backdrop-filter:blur(3px)!important',
-        'pointer-events:all!important',
-        'cursor:progress!important'
-      ].join(';');
-
-      const card = targetDocument.createElement('div');
-      card.className = 'oluntir-quick-edit-commit-card';
-      card.style.cssText = [
-        'all:initial',
-        'display:block!important',
-        'width:min(440px,calc(100vw - 48px))!important',
-        'box-sizing:border-box!important',
-        'padding:28px 30px!important',
-        'border:1px solid rgba(255,255,255,.24)!important',
-        'border-radius:12px!important',
-        'background:#292c33!important',
-        'color:#f7f7f7!important',
-        'font-family:Arial,sans-serif!important',
-        'text-align:center!important',
-        'box-shadow:0 24px 80px rgba(0,0,0,.68)!important',
-        'pointer-events:none!important'
-      ].join(';');
-      card.innerHTML = '<span aria-hidden="true" style="display:inline-block;width:28px;height:28px;border:3px solid rgba(255,255,255,.28);border-top-color:#fff;border-radius:50%;animation:oluntirQuickEditSpin .8s linear infinite"></span><strong style="display:block;margin-top:14px;font:700 18px/1.3 Arial,sans-serif;color:#fff">Änderungen werden übernommen…</strong><small style="display:block;margin-top:7px;font:400 14px/1.4 Arial,sans-serif;color:#d4d8df">Bitte einen Moment warten.</small><p style="display:block;margin:14px 0 0;font:400 12px/1.5 Arial,sans-serif;color:#aeb4bf">Navigation, Footer und weitere gemeinsame Inhalte werden aktualisiert.</p>';
-      overlay.appendChild(card);
-
-      if (!targetDocument.getElementById('oluntir-quick-edit-commit-keyframes')) {
-        const style = targetDocument.createElement('style');
-        style.id = 'oluntir-quick-edit-commit-keyframes';
-        style.textContent = '@keyframes oluntirQuickEditSpin{to{transform:rotate(360deg)}}';
-        (targetDocument.head || host).appendChild(style);
+    function apply() {
+      if (!current || !definition) return;
+      definition.apply(panel);
+      editor.select(current);
+      const shared = window.OluntirSharedContentManager;
+      const selectedPage = editor.Pages && editor.Pages.getSelected ? editor.Pages.getSelected() : null;
+      if (shared && selectedPage && typeof shared.commitSharedComponentChange === 'function') {
+        shared.commitSharedComponentChange(current, selectedPage, { propagate: true });
       }
-
-      host.appendChild(overlay);
-      return overlay;
-    }
-    function commitOverlayDocuments() {
-      const documents = [];
-      const add = (candidate) => {
-        if (candidate && candidate.documentElement && !documents.includes(candidate)) documents.push(candidate);
-      };
-      add(document);
-      add(panel && panel.ownerDocument);
-      try { add(window.top && window.top.document); } catch (_) {}
-      try {
-        const toolWindow = window.OluntirMultiMonitorManager && window.OluntirMultiMonitorManager.getToolWindow
-          ? window.OluntirMultiMonitorManager.getToolWindow()
-          : null;
-        add(toolWindow && toolWindow.document);
-      } catch (_) {}
-      return documents;
-    }
-    function setCommitBusy(isBusy) {
-      commitOverlayDocuments().forEach((targetDocument) => {
-        const overlay = ensureCommitOverlay(targetDocument);
-        if (!overlay) return;
-        if (isBusy) {
-          overlay.removeAttribute('hidden');
-          overlay.style.setProperty('display', 'flex', 'important');
-          overlay.style.setProperty('visibility', 'visible', 'important');
-          overlay.style.setProperty('opacity', '1', 'important');
-          void overlay.offsetWidth;
-        } else {
-          overlay.style.setProperty('display', 'none', 'important');
-          overlay.style.setProperty('visibility', 'hidden', 'important');
-          overlay.style.setProperty('opacity', '0', 'important');
-        }
-      });
-      const applyButton = panel.querySelector('[data-pbe-apply]');
-      if (applyButton) applyButton.disabled = Boolean(isBusy);
-    }
-    function waitForRenderTurn() {
-      return new Promise((resolve) => {
-        const schedule = window.requestAnimationFrame || ((callback) => window.setTimeout(callback, 0));
-        schedule(() => schedule(resolve));
-      });
-    }
-    async function apply() {
-      if (!current || !definition || panel.dataset.commitBusy === 'true') return;
-      panel.dataset.commitBusy = 'true';
-      const startedAt = Date.now();
-      setCommitBusy(true);
-      try {
-        // Zuerst mindestens einen vollständigen Render-Zyklus abwarten, damit
-        // die Statusanzeige sichtbar ist, bevor die synchrone Modellarbeit beginnt.
-        await waitForRenderTurn();
-        await new Promise((resolve) => window.setTimeout(resolve, 80));
-        definition.apply(panel);
-        editor.select(current);
-        const shared = window.OluntirSharedContentManager;
-        const selectedPage = editor.Pages && editor.Pages.getSelected ? editor.Pages.getSelected() : null;
-        if (shared && selectedPage && typeof shared.commitSharedComponentChange === 'function') {
-          shared.commitSharedComponentChange(current, selectedPage, { propagate: true });
-        }
-        await waitForRenderTurn();
-        if (typeof editor.store === 'function') {
-          try { await Promise.resolve(editor.store()); }
-          catch (storeError) { console.warn('Projektstatus konnte nach der Schnellbearbeitung nicht sofort gespeichert werden:', storeError); }
-        }
-        const minimumVisibleTime = 1200;
-        const remaining = minimumVisibleTime - (Date.now() - startedAt);
-        if (remaining > 0) await new Promise((resolve) => window.setTimeout(resolve, remaining));
-        open(current);
-      } catch (error) {
-        console.warn('Schnellbearbeitung konnte nicht vollständig übernommen werden:', error);
-      } finally {
-        setCommitBusy(false);
-        delete panel.dataset.commitBusy;
-      }
+      if (window.toast) window.toast(tk('quickEdit.applied'));
+      open(current);
     }
     panel.addEventListener('input', event => {
       if (event.target.matches('input[type="color"]')) {

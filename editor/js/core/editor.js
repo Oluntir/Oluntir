@@ -163,88 +163,6 @@ assetHydration.then(() => {
   window.bindOluntirUndoRedo = bindOluntirUndoRedo;
   bindOluntirUndoRedo(editor);
 
-  function bindOluntirPreviewUx(editorInstance) {
-    if (!editorInstance || editorInstance.__oluntirPreviewUxBound) return;
-    editorInstance.__oluntirPreviewUxBound = true;
-
-    const PREVIEW_COMMAND = 'preview';
-    let hintTimer = null;
-    let previewWasActive = false;
-
-    function previewIsActive() {
-      try {
-        return !!(editorInstance.Commands && editorInstance.Commands.isActive && editorInstance.Commands.isActive(PREVIEW_COMMAND));
-      } catch (_) {
-        return false;
-      }
-    }
-
-    function ensureHint() {
-      let hint = document.getElementById('oluntir-preview-hint');
-      if (hint) return hint;
-      hint = document.createElement('div');
-      hint.id = 'oluntir-preview-hint';
-      hint.className = 'oluntir-preview-hint';
-      hint.setAttribute('role', 'status');
-      hint.setAttribute('aria-live', 'polite');
-      hint.setAttribute('aria-atomic', 'true');
-      hint.innerHTML = '<span class="fa fa-eye" aria-hidden="true"></span><span><strong>Vorschau aktiv</strong><small>ESC zum Beenden</small></span>';
-      document.body.appendChild(hint);
-      return hint;
-    }
-
-    function hideHint() {
-      if (hintTimer) {
-        window.clearTimeout(hintTimer);
-        hintTimer = null;
-      }
-      const hint = document.getElementById('oluntir-preview-hint');
-      if (hint) hint.classList.remove('is-visible');
-    }
-
-    function showHint() {
-      const hint = ensureHint();
-      hideHint();
-      // Zwei Frames stellen sicher, dass die Preview-Umschaltung und ihre
-      // Sichtbarkeitsregeln bereits abgeschlossen sind.
-      window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => {
-          hint.classList.add('is-visible');
-          hintTimer = window.setTimeout(() => {
-            hint.classList.remove('is-visible');
-            hintTimer = null;
-          }, 3200);
-        });
-      });
-    }
-
-    function syncPreviewState() {
-      const active = previewIsActive();
-      if (active && !previewWasActive) showHint();
-      if (!active && previewWasActive) hideHint();
-      previewWasActive = active;
-    }
-
-    // GrapesJS-Ereignisse dienen nur als schnelle Benachrichtigung. Der
-    // Statusabgleich bleibt bewusst Oluntir-eigen und funktioniert auch dann,
-    // wenn sich Ereignisnamen oder deren Reihenfolge ändern.
-    editorInstance.on('run:preview', () => window.setTimeout(syncPreviewState, 0));
-    editorInstance.on('stop:preview', () => window.setTimeout(syncPreviewState, 0));
-    window.setInterval(syncPreviewState, 150);
-    syncPreviewState();
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape' || !previewIsActive()) return;
-      const lightbox = document.querySelector('.oluntir-lightbox[aria-hidden="false"], .oluntir-lightbox.is-open');
-      if (lightbox) return;
-      event.preventDefault();
-      event.stopPropagation();
-      editorInstance.stopCommand(PREVIEW_COMMAND);
-      window.setTimeout(syncPreviewState, 0);
-    }, true);
-  }
-  bindOluntirPreviewUx(editor);
-
   if (typeof window.registerTextMediaEditing === 'function') {
     window.registerTextMediaEditing(editor);
   }
@@ -269,10 +187,6 @@ assetHydration.then(() => {
 
   if (typeof window.registerQuickEditing === 'function') {
     window.registerQuickEditing(editor);
-  }
-
-  if (window.OluntirImageLightboxApi && typeof window.OluntirImageLightboxApi.bindEditorPreview === 'function') {
-    window.OluntirImageLightboxApi.bindEditorPreview(editor);
   }
 
 
@@ -782,13 +696,37 @@ assetHydration.then(() => {
       return true;
     }
 
+    // First make the complete current page authoritative. Shared Content handles
+    // only header/navigation/footer; individual main content and Repeat metadata
+    // must be secured before the target page is selected.
+    try {
+      commitCurrentCanvasStateToModel();
+    } catch (error) {
+      console.error('Aktuelle Seite konnte vor dem Wechsel nicht ins Modell übernommen werden:', error);
+      refreshPageList();
+      toast(`Seitenwechsel abgebrochen: ${error.message || error}`);
+      return false;
+    }
+
     // Complete a delayed shared-content transaction while its source page is
     // still active. The manager keeps the original source page, so a debounce
     // can never run against the page selected a few milliseconds later.
-    if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.commitSelectedCanvasToShared === 'function') {
-      window.OluntirSharedContentManager.commitSelectedCanvasToShared(previousPage, { targetPage: page });
-    } else if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushPending === 'function') {
-      window.OluntirSharedContentManager.flushPending();
+    try {
+      if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.commitSelectedCanvasToShared === 'function') {
+        window.OluntirSharedContentManager.commitSelectedCanvasToShared(previousPage, { targetPage: page });
+      } else if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushPending === 'function') {
+        window.OluntirSharedContentManager.flushPending();
+      }
+      // This is the last synchronous write before Pages.select(). It contains
+      // both pages and the current repeatEngine metadata. If a delayed raw
+      // editor.store() is already queued, the persistence barrier below writes
+      // the decorated snapshot once more after that store has completed.
+      writeCurrentProjectSnapshotSynchronously();
+    } catch (error) {
+      console.error('Aktuelle Seite konnte vor dem Wechsel nicht gespeichert werden:', error);
+      refreshPageList();
+      toast(`Seitenwechsel abgebrochen: ${error.message || error}`);
+      return false;
     }
 
     // A page switch must only select the existing GrapesJS page/frame. Rebuilding
@@ -799,6 +737,7 @@ assetHydration.then(() => {
     editor.Pages.select(page);
     refreshPageList();
     refreshSelectedPageVisuals();
+    persistCurrentProjectStateSoon(0);
     return true;
   }
 
@@ -967,6 +906,17 @@ assetHydration.then(() => {
   });
   editor.on('storage:store', () => {
     saveErrorAlreadyShown = false;
+    // Während der aktiven Rich-Text-Bearbeitung darf der Metadaten-Snapshot
+    // keinen erneuten Modell-/Canvas-Commit auslösen. GrapesJS verwendet in
+    // dieser Phase ein contenteditable-Element; ein Modell-Refresh würde den
+    // Textcursor (Caret) und den Eingabefokus verlieren.
+    if (typeof window.OluntirIsRichTextEditing === 'function' && window.OluntirIsRichTextEditing()) return;
+    // GrapesJS kennt den externen Repeat-Zustand nicht. Nach jedem normalen
+    // Autosave wird deshalb derselbe Projektdatensatz nochmals mit allen
+    // Oluntir-Metadaten geschrieben. Dadurch kann ein verzögerter GrapesJS-Store
+    // keinen zuvor gesicherten repeatEngine-Zustand mehr verlieren.
+    try { writeCurrentProjectSnapshotSynchronously(); }
+    catch (error) { console.error('Oluntir-Metadaten konnten nach dem Autosave nicht ergänzt werden:', error); }
   });
 
   // Bildänderungen entstehen teilweise zuerst im Canvas-DOM (RichText/Asset-Manager)
@@ -1525,6 +1475,16 @@ assetHydration.then(() => {
       window.removeEventListener('oluntir:languagechange', applyNoticeLanguage);
     }, { once: true });
   })();
+
+  document.getElementById('input-gallery-files').addEventListener('change', (ev) => {
+    insertGalleryFromFiles(editor, ev.target.files);
+    ev.target.value = '';
+  });
+
+  document.getElementById('input-gallery-folder').addEventListener('change', (ev) => {
+    insertGalleryFromFiles(editor, ev.target.files);
+    ev.target.value = '';
+  });
 
   // "+ Bild hochladen": fügt (ein oder mehrere) Bilder dem Asset-Manager hinzu, ohne
   // Base64 – Auswahl über den Asset-Manager (Doppelklick auf ein Bild-Element) möglich.

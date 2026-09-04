@@ -93,7 +93,7 @@
       'util-vertical-align': section('<span class="align-baseline">baseline</span> <span class="align-top">top</span> <span class="align-middle">middle</span>'),
       'util-visibility': section('<div class="visible">Sichtbar</div><div class="invisible">Unsichtbar</div>'),
       'util-zindex': section(bs5?'<div class="position-relative" style="height:110px"><div class="position-absolute z-1 p-3 bg-primary text-white">z-1</div><div class="position-absolute z-2 p-3 bg-warning" style="left:70px;top:35px">z-2</div></div>':'<p class="alert alert-info">Benannte z-index Utilities sind in Bootstrap 5 verfügbar.</p>'),
-      'gallery': bs5 ? '<div data-oluntir-gallery-launcher="bs5" aria-label="BS5-Gallery konfigurieren"></div>' : section('<div class="row"><div class="col-md-4 mb-3"><img class="img-fluid" src="assets/images/logo.svg" alt="Galeriebild"></div><div class="col-md-4 mb-3"><img class="img-fluid" src="assets/images/logo.svg" alt="Galeriebild"></div><div class="col-md-4 mb-3"><img class="img-fluid" src="assets/images/logo.svg" alt="Galeriebild"></div></div>')
+      'gallery': typeof window.buildBootstrap5ClassicGalleryHtml === 'function' && bs5 ? window.buildBootstrap5ClassicGalleryHtml() : section('<div class="row"><div class="col-md-4 mb-3"><img class="img-fluid" src="assets/images/logo.svg" alt="Galeriebild"></div><div class="col-md-4 mb-3"><img class="img-fluid" src="assets/images/logo.svg" alt="Galeriebild"></div><div class="col-md-4 mb-3"><img class="img-fluid" src="assets/images/logo.svg" alt="Galeriebild"></div></div>')
     };
     return m[id];
   }

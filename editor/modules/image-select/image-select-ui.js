@@ -62,7 +62,7 @@
       const size = sizes.get(entry.path) || { width: 0, height: 0 };
       return `<tr><td>${escapeHtml(entry.variant.label)}</td><td>${size.width ? `${size.width} × ${size.height} px` : 'unbekannt'}</td><td>${formatBytes(entry.bytes)}</td><td><code>${escapeHtml(entry.path)}</code></td></tr>`;
     }).join('');
-    const useAction = mode === 'assign' ? '<div class="oluntir-is-lightbox-options"><label class="oluntir-is-lightbox-option"><input type="checkbox" data-role="lightbox-option"> Klickvergrößerung aktivieren</label><label class="oluntir-is-lightbox-option"><input type="checkbox" data-role="lightbox-download-option"> Download-Button anzeigen</label><label class="oluntir-is-lightbox-option"><input type="checkbox" data-role="lightbox-caption-option"> Bildname anzeigen</label></div><button type="button" data-action="use">Bild verwenden</button>' : '';
+    const useAction = mode === 'assign' ? '<button type="button" data-action="use">Bild verwenden</button>' : '';
     const modeNote = mode === 'manage'
       ? '<div class="oluntir-is-detail-note"><span class="fa fa-info-circle" aria-hidden="true"></span><span>Eine direkte Zuweisung ist im Verwaltungsmodus nicht möglich. Schließe den Bildmanager, wähle das gewünschte Bildelement im Editor und öffne anschließend dessen Bildauswahl.</span></div>'
       : '';

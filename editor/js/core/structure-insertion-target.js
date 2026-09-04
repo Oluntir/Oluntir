@@ -286,51 +286,6 @@
             || Array.from(model.areaSlots || []).find(item => item.slotId === slotId)
             || null;
         };
-        const slotForModel = (sourceModel) => {
-          const slotId = button.getAttribute('data-slot-id');
-          return Array.from(sourceModel.slots || []).find(item => item.slotId === slotId)
-            || Array.from(sourceModel.areaSlots || []).find(item => item.slotId === slotId)
-            || null;
-        };
-        const refreshSlot = (staleSlot) => {
-          const freshModel = buildModel(editor);
-          const candidates = Array.from(freshModel.slots || []).concat(Array.from(freshModel.areaSlots || []));
-          const exact = slotForModel(freshModel);
-          const ranked = [];
-          const add = (item) => {
-            if (item && !ranked.includes(item)) ranked.push(item);
-          };
-
-          // A slot id is only a display-time identifier. Component
-          // normalization (for example after inserting a framework gallery)
-          // may keep that id while its runtime identities are no longer the
-          // productive insertion boundary. Never stop at an invalid exact hit.
-          add(exact);
-          if (staleSlot) {
-            candidates.filter(item =>
-              item.slotKind === staleSlot.slotKind &&
-              item.mode === staleSlot.mode &&
-              item.visualIndex === staleSlot.visualIndex &&
-              item.positionIndex === staleSlot.positionIndex
-            ).forEach(add);
-            candidates.filter(item =>
-              item.slotKind === staleSlot.slotKind &&
-              item.mode === staleSlot.mode &&
-              item.visualIndex === staleSlot.visualIndex
-            ).forEach(add);
-            candidates.filter(item =>
-              item.slotKind === staleSlot.slotKind &&
-              item.mode === staleSlot.mode &&
-              item.parentIdentity === staleSlot.parentIdentity &&
-              item.anchorIdentity === staleSlot.anchorIdentity
-            ).forEach(add);
-          }
-
-          // Return the first candidate that the productive GrapesJS adapter
-          // can resolve *now*. This keeps the visible position stable while
-          // avoiding stale component references from the rendered chooser.
-          return ranked.find(item => validateSlot(item)) || null;
-        };
         const enter = () => {
           const slot = slotFor();
           const preview = previewApi();
@@ -346,8 +301,7 @@
         button.addEventListener('mouseleave', leave);
         button.addEventListener('focusout', leave);
         button.addEventListener('click', async () => {
-          const staleSlot = slotFor();
-          const slot = refreshSlot(staleSlot);
+          const slot = slotFor();
           if (!slot || !validateSlot(slot)) {
             alert('Die gewählte Template-Position ist nicht mehr verfügbar. Bitte öffne die Auswahl erneut.');
             return;

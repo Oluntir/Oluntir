@@ -40,6 +40,9 @@ node tests/test-foundation-consent-installation.js
 node tests/test-runtime-actions.js
 node tests/test-semantic-action-engine.js
 node tests/test-repeat-engine-v2-contracts.js
+node tests/test-repeat-persistence-bridge.js
+node tests/test-rte-persistence-guard.js
+node tests/test-link-rte-focus.js
 node tests/test-repeat-contract-resolver.js
 node tests/test-repeat-dependency-graph.js
 node tests/test-targeted-synchronization-service.js
@@ -134,11 +137,3 @@ node tests/test-1.3.1-export-presentation-translation.js
 node tests/test-1.3.1-export-presentation-readonly.js
 
 node tests/test-1.3.1-presentation-attribute-atomicity.js
-
-node tests/test-empty-project-gallery-insertion.js
-node tests/test-empty-project-gallery-insertion.js
-node tests/test-empty-project-gallery-context-regression.js
-node tests/test-bs5-gallery-image-manager-regression.js
-node tests/test-framework-gallery-editor-contract.js
-
-node tests/test-framework-gallery-wizard.js

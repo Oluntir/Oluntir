@@ -2,10 +2,10 @@
   const identities = root && root.OluntirLayoutIdentities
     ? root.OluntirLayoutIdentities
     : (typeof module === 'object' && module.exports ? require('./layout-identities.js') : null);
-  const api = factory(identities);
+  const api = factory(root, identities);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.OluntirRepeatEngineV2 = api;
-})(typeof window !== 'undefined' ? window : globalThis, function (identities) {
+})(typeof window !== 'undefined' ? window : globalThis, function (root, identities) {
   'use strict';
 
   const SCHEMA_VERSION = 3;
@@ -51,6 +51,19 @@
   function text(value) { return value === null || value === undefined ? '' : String(value).trim(); }
   function unique(values) { return Array.from(new Set((values || []).map(text).filter(Boolean))); }
   function nowRevision() { return state.revision + 1; }
+
+  // Repeat-Definitionen und -Instanzen liegen außerhalb des GrapesJS-Modells.
+  // Jede Zustandsänderung muss deshalb den gemeinsamen Oluntir-Projektsnapshot
+  // anfordern, sonst kann der nächste normale GrapesJS-Autosave den Repeat-Zustand
+  // ohne oluntir.repeatEngine überschreiben.
+  function requestProjectPersistence() {
+    if (root && typeof root.OluntirPersistProjectSoon === 'function') {
+      root.OluntirPersistProjectSoon(0);
+    }
+    if (editor && typeof editor.trigger === 'function') {
+      editor.trigger('oluntir:repeat:changed', { snapshot: snapshot() });
+    }
+  }
 
   function normalizeSource(source) {
     const input = source || {};
@@ -174,6 +187,7 @@
       instances: clone(nextState.instances || []),
       references: clone(nextState.references || [])
     };
+    requestProjectPersistence();
     return snapshot();
   }
 

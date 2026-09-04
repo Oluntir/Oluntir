@@ -19,6 +19,11 @@ const selectBody = source.slice(selectStart, selectEnd);
 
 assert(selectBody.includes('editor.Pages.select(page);'), 'Die Zielseite wird nicht über Pages.select() gewählt.');
 assert(!selectBody.includes('applySharedRegionsToPage(page);'), 'Der Ziel-Komponentenbaum darf beim Seitenwechsel nicht ersetzt werden.');
+const selectPersistenceIndex = selectBody.indexOf('writeCurrentProjectSnapshotSynchronously();');
+const selectPageIndex = selectBody.indexOf('editor.Pages.select(page);');
+assert(selectBody.includes('commitCurrentCanvasStateToModel();'), 'Der aktuelle Canvas-Zustand wird vor dem Seitenwechsel nicht ins Modell übernommen.');
+assert(selectPersistenceIndex >= 0 && selectPersistenceIndex < selectPageIndex, 'Der Projektsnapshot muss vor Pages.select() geschrieben werden.');
+assert(selectBody.includes('persistCurrentProjectStateSoon(0);'), 'Nach dem Seitenwechsel fehlt die abschließende Persistierung.');
 
 const newPageStart = source.indexOf("document.getElementById('btn-new-page')");
 const renameStart = source.indexOf("document.getElementById('btn-rename-page')", newPageStart);
