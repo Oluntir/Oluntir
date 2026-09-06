@@ -294,6 +294,17 @@
     return metadata.repeatType === 'shared-layout' || Boolean(metadata.regionRole);
   }
 
+  function logInfo(message, data) {
+    if (root && root.OluntirLogger && typeof root.OluntirLogger.info === 'function') {
+      root.OluntirLogger.info('repeat', message, data || {});
+    }
+  }
+
+  function repeatStateFromProjectData(projectData) {
+    const data = projectData && typeof projectData === 'object' ? projectData : null;
+    return data && data.oluntir && data.oluntir[PROJECT_STATE_KEY] ? data.oluntir[PROJECT_STATE_KEY] : null;
+  }
+
   function shouldUpgradeImportedAutomatic(rawDefinition, normalizedDefinition) {
     if (!normalizedDefinition || isSharedLayoutDefinition(normalizedDefinition)) return false;
     const raw = rawDefinition || {};
@@ -349,6 +360,32 @@
     return component.get(name);
   }
 
+  function ensureComponentAttribute(component, name, value) {
+    if (!component || !name || !text(value) || typeof component.addAttributes !== 'function') return false;
+    const attributes = componentAttributes(component);
+    if (text(attributes[name]) === text(value)) return false;
+    component.addAttributes({ [name]: text(value) });
+    return true;
+  }
+
+  function stampSourceComponent(component, definition) {
+    const repeatAttribute = identities && identities.ATTR && identities.ATTR.repeat;
+    return Boolean(repeatAttribute && definition && ensureComponentAttribute(component, repeatAttribute, definition.repeatKey));
+  }
+
+  function stampInstanceComponent(component, instance, definition) {
+    if (!component || !instance || !definition) return false;
+    let changed = false;
+    changed = ensureComponentAttribute(component, 'data-oluntir-repeat-instance-id', instance.instanceId) || changed;
+    const repeatAttribute = identities && identities.ATTR && identities.ATTR.repeat;
+    if (repeatAttribute) changed = ensureComponentAttribute(component, repeatAttribute, definition.repeatKey) || changed;
+    if (typeof component.set === 'function' && text(componentModelValue(component, SOURCE_MAPPING_PROPERTY)) !== text(definition.source && definition.source.rootIdentity)) {
+      component.set(SOURCE_MAPPING_PROPERTY, text(definition.source && definition.source.rootIdentity), { silent: true });
+      changed = true;
+    }
+    return changed;
+  }
+
   function componentIdentity(component, page) {
     if (!component || !identities) return '';
     if (typeof identities.describe === 'function') {
@@ -394,7 +431,7 @@
   }
 
   function reconcileImportedBindings(imported) {
-    const report = { sourceBindingsRepaired: 0, instanceBindingsRepaired: 0, instancesRecovered: 0, unresolvedDefinitions: [], unresolvedInstances: [] };
+    const report = { sourceBindingsRepaired: 0, instanceBindingsRepaired: 0, instancesRecovered: 0, markersStamped: 0, unresolvedDefinitions: [], unresolvedInstances: [] };
     if (!imported || !editor || !identities || !editor.Pages) return report;
     if (typeof identities.ensureAll === 'function') identities.ensureAll(editor);
     const repeatAttribute = identities.ATTR && identities.ATTR.repeat;
@@ -407,11 +444,12 @@
         report.unresolvedDefinitions.push({ definitionId: definition.definitionId, reason: 'source-page-missing' });
         return;
       }
-      const existingSource = identities.findById && identities.findById(sourcePage, definition.source.rootIdentity);
-      if (!existingSource && repeatAttribute) {
+      let sourceComponent = identities.findById && identities.findById(sourcePage, definition.source.rootIdentity);
+      if (!sourceComponent && repeatAttribute) {
         const candidate = uniqueBindingCandidate(sourcePage, pageComponents(sourcePage, component => text(componentAttributes(component)[repeatAttribute]) === text(definition.repeatKey)));
         if (candidate) {
           definition.source.rootIdentity = candidate.identity;
+          sourceComponent = candidate.component;
           definition.metadata = Object.assign({}, definition.metadata || {}, {
             bindingCompatibilityRepaired: true,
             bindingCompatibilityRepairReason: 'source-repeat-marker'
@@ -421,6 +459,7 @@
           report.unresolvedDefinitions.push({ definitionId: definition.definitionId, reason: 'source-root-missing' });
         }
       }
+      if (sourceComponent && stampSourceComponent(sourceComponent, definition)) report.markersStamped += 1;
     });
 
     const occupied = new Set((imported.instances || []).map(instance => `${text(instance.pageId)}:${text(instance.rootIdentity)}`));
@@ -428,7 +467,11 @@
       const definition = definitionsById.get(instance.definitionId);
       const page = pageByIdentity(instance.pageId);
       if (!definition || !page || isSharedLayoutDefinition(definition)) return;
-      if (identities.findById && identities.findById(page, instance.rootIdentity)) return;
+      const existingInstanceRoot = identities.findById && identities.findById(page, instance.rootIdentity);
+      if (existingInstanceRoot) {
+        if (stampInstanceComponent(existingInstanceRoot, instance, definition)) report.markersStamped += 1;
+        return;
+      }
       const candidates = pageComponents(page, component => {
         const attributes = componentAttributes(component);
         if (text(attributes['data-oluntir-repeat-instance-id']) === text(instance.instanceId)) return true;
@@ -448,6 +491,7 @@
       });
       occupied.add(`${text(instance.pageId)}:${candidate.identity}`);
       report.instanceBindingsRepaired += 1;
+      if (stampInstanceComponent(candidate.component, instance, definition)) report.markersStamped += 1;
     });
 
     // Schema-2 imports did not yet have explicit instance records. Recover them
@@ -488,6 +532,7 @@
           represented.add(identity);
           occupied.add(key);
           report.instancesRecovered += 1;
+          if (stampInstanceComponent(component, recovered, definition)) report.markersStamped += 1;
         });
       });
     });
@@ -575,21 +620,75 @@
       state = previous;
       assertValid(validation.errors);
     }
+    if ((compatibility.sourceBindingsRepaired || compatibility.instanceBindingsRepaired || compatibility.instancesRecovered || compatibility.markersStamped)
+      && root && typeof root.OluntirPersistProjectSoon === 'function') {
+      root.OluntirPersistProjectSoon(0);
+    }
     const upgradedDefinitions = state.definitions.filter(item => item.metadata && item.metadata.automaticSynchronizationUpgraded);
-    if ((upgradedDefinitions.length || compatibility.sourceBindingsRepaired || compatibility.instanceBindingsRepaired || compatibility.instancesRecovered || compatibility.unresolvedDefinitions.length || compatibility.unresolvedInstances.length)
-      && root && root.OluntirLogger && typeof root.OluntirLogger.info === 'function') {
-      root.OluntirLogger.info('repeat', 'repeat.import-compatibility-upgraded', {
+    if (upgradedDefinitions.length || compatibility.sourceBindingsRepaired || compatibility.instanceBindingsRepaired || compatibility.instancesRecovered || compatibility.markersStamped || compatibility.unresolvedDefinitions.length || compatibility.unresolvedInstances.length) {
+      logInfo('repeat.import-compatibility-upgraded', {
         upgradedDefinitions: upgradedDefinitions.length,
         definitionIds: upgradedDefinitions.map(item => item.definitionId),
         instanceCount: state.instances.length,
         sourceBindingsRepaired: compatibility.sourceBindingsRepaired,
         instanceBindingsRepaired: compatibility.instanceBindingsRepaired,
         instancesRecovered: compatibility.instancesRecovered,
+        markersStamped: compatibility.markersStamped,
         unresolvedDefinitions: compatibility.unresolvedDefinitions,
         unresolvedInstances: compatibility.unresolvedInstances
       });
     }
-    return snapshot();
+    const result = snapshot();
+    if (editor && typeof editor.trigger === 'function') {
+      editor.trigger('oluntir:repeat:changed', { snapshot: result, imported: true });
+    }
+    return result;
+  }
+
+  function hydrateFromProjectData(projectData, options) {
+    const repeatState = repeatStateFromProjectData(projectData);
+    if (!repeatState) return freezeClone({ hydrated: false, reason: 'repeat-state-missing', snapshot: snapshot() });
+    const hydrated = importState(repeatState);
+    const source = text(options && options.source) || 'project-data';
+    logInfo('repeat.project-state-hydrated', {
+      source,
+      schemaVersion: hydrated.schemaVersion,
+      revision: hydrated.revision,
+      definitionCount: hydrated.counts && hydrated.counts.definitions || 0,
+      instanceCount: hydrated.counts && hydrated.counts.instances || 0,
+      referenceCount: hydrated.counts && hydrated.counts.references || 0
+    });
+    return freezeClone({ hydrated: true, source, snapshot: hydrated });
+  }
+
+  function reconcileCurrentProjectBindings(options) {
+    if (!editor || !identities || !state.definitions.length) return freezeClone({ reconciled: false, reason: 'no-repeat-state' });
+    const working = clone(state);
+    const report = reconcileImportedBindings(working);
+    const changed = Boolean(report.sourceBindingsRepaired || report.instanceBindingsRepaired || report.instancesRecovered || report.markersStamped);
+    const previous = state;
+    state = working;
+    const validation = validateProject();
+    if (!validation.valid) {
+      state = previous;
+      assertValid(validation.errors);
+    }
+    if (changed && root && typeof root.OluntirPersistProjectSoon === 'function') root.OluntirPersistProjectSoon(0);
+    const source = text(options && options.source) || 'current-project-model';
+    logInfo('repeat.project-bindings-reconciled', {
+      source,
+      changed,
+      definitionCount: state.definitions.length,
+      instanceCount: state.instances.length,
+      sourceBindingsRepaired: report.sourceBindingsRepaired,
+      instanceBindingsRepaired: report.instanceBindingsRepaired,
+      instancesRecovered: report.instancesRecovered,
+      markersStamped: report.markersStamped,
+      unresolvedDefinitions: report.unresolvedDefinitions,
+      unresolvedInstances: report.unresolvedInstances
+    });
+    if (editor && typeof editor.trigger === 'function') editor.trigger('oluntir:repeat:changed', { snapshot: snapshot(), reconciled: true });
+    return freezeClone({ reconciled: true, changed, report, snapshot: snapshot() });
   }
 
   function snapshot() {
@@ -612,13 +711,44 @@
     return data;
   }
 
-  function bind(nextEditor) {
-    if (!nextEditor || editor === nextEditor) return;
+  function bind(nextEditor, options) {
+    if (!nextEditor) return false;
+    if (editor && editor !== nextEditor) editor = null;
+    if (editor === nextEditor) return false;
     editor = nextEditor;
-    if (editor.on) editor.on('load', function () {
-      const data = editor.getProjectData ? editor.getProjectData() : null;
-      if (data && data.oluntir && data.oluntir[PROJECT_STATE_KEY]) importState(data.oluntir[PROJECT_STATE_KEY]);
-    });
+
+    // Der initiale Snapshot wird in editor.js vor grapesjs.init() aus dem lokalen
+    // Projektspeicher gelesen. Das ist absichtlich die erste Hydrierungsquelle:
+    // Repeat-Metadaten sind Oluntir-eigene Top-Level-Daten und können nach dem
+    // GrapesJS-Autoload in editor.getProjectData() bereits fehlen.
+    const initialProjectData = options && options.initialProjectData;
+    if (initialProjectData) {
+      hydrateFromProjectData(initialProjectData, { source: text(options && options.hydrationSource) || 'bind-initial-project-data' });
+    }
+
+    if (editor.on) {
+      editor.on('load', function () {
+        const data = editor.getProjectData ? editor.getProjectData() : null;
+        if (repeatStateFromProjectData(data)) hydrateFromProjectData(data, { source: 'editor-load-project-data' });
+        // Selbst wenn GrapesJS die Oluntir-Top-Level-Metadaten bereits verworfen
+        // hat, liegt der Repeat-Zustand aus dem vor Init gesicherten Snapshot im
+        // Speicher. Jetzt sind die Seiten/Komponenten sicher geladen und können
+        // gegen stabile Oluntir-Marker neu gebunden werden.
+        reconcileCurrentProjectBindings({ source: 'editor-load-current-model' });
+      });
+      editor.on('storage:load', function (data) {
+        if (repeatStateFromProjectData(data)) hydrateFromProjectData(data, { source: 'storage-load' });
+      });
+    }
+
+    // Für Editoren ohne Autoload bzw. für einen bereits vollständig geladenen
+    // Editor bleibt getProjectData() ein zusätzlicher Fallback. Ein fehlendes
+    // oluntir.repeatEngine darf den zuvor hydrierten Zustand niemals leeren.
+    if (!initialProjectData && editor.getProjectData) {
+      const current = editor.getProjectData();
+      if (repeatStateFromProjectData(current)) hydrateFromProjectData(current, { source: 'bind-current-project-data' });
+    }
+    return true;
   }
 
   /* Compatibility bridge for 1.3.0 callers. It creates only a definition and never a target mutation. */
@@ -692,6 +822,8 @@
     snapshot: snapshot,
     exportState: exportState,
     importState: importState,
+    hydrateFromProjectData: hydrateFromProjectData,
+    reconcileCurrentProjectBindings: reconcileCurrentProjectBindings,
     decorateProjectData: decorateProjectData,
     createStableId: createStableId,
     reset: reset

@@ -77,6 +77,9 @@ assert.strictEqual(imported.instances[0].rootIdentity, 'ol_section_target_curren
 assert.strictEqual(imported.definitions[0].synchronizationPolicy, 'automatic');
 assert.strictEqual(imported.definitions[0].metadata.bindingCompatibilityRepaired, true);
 assert.strictEqual(imported.instances[0].metadata.bindingCompatibilityRepaired, true);
+assert.strictEqual(sourceSection.getAttributes()['data-oluntir-repeat-id'], 'repeat-existing', 'Die Quellkomponente muss nach dem Import weiterhin einen persistenten Repeat-Marker tragen.');
+assert.strictEqual(targetSection.getAttributes()['data-oluntir-repeat-instance-id'], 'inst-existing', 'Eine bestehende Instanz muss beim Hydrieren mit ihrer stabilen Instance-ID markiert werden.');
+assert.strictEqual(targetSection.getAttributes()['data-oluntir-repeat-id'], 'repeat-existing', 'Eine bestehende Instanz muss den projektweiten Repeat-Key als persistenten Familienmarker tragen.');
 
 repeat.reset();
 const recoveredLegacy = repeat.importState({

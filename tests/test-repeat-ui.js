@@ -157,4 +157,12 @@ assert.ok(monitor.includes('moveRepeatPanelToPopup();'));
 assert.ok(monitor.includes("['oluntir-repeat-panel', 'oluntir-repeat-library-panel']"), 'Beide Repeat-Fenster müssen in den Werkzeugmonitor verschoben werden.');
 assert.ok(monitor.includes('getToolDocument: () => toolWindow &&'));
 
+assert.ok(ui.includes('ids().ensureAll(editor);\n    refreshDefinitions();'), 'Die Listenfunktion muss beim UI-Bind sofort aus dem hydrierten Projektzustand aufgebaut werden und darf nicht auf ein bereits verpasstes load-Event warten.');
+assert.ok(ui.includes('function repeatBindingForComponent(component)'), 'Die Mouseover-Kennzeichnung muss dieselbe Repeat-Familienerkennung für Quelle und Instanzen verwenden.');
+assert.ok(ui.includes('data-oluntir-repeat-hover-badge'), 'Repeat-Bereiche benötigen eine nicht persistierte Mouseover-Kennzeichnung im Canvas.');
+assert.ok(ui.includes("background: '#f39c12'"), 'Die Repeat-Kennzeichnung muss orange dargestellt werden.');
+assert.ok(ui.includes('rect.left + rect.width / 2'), 'Die Kennzeichnung muss horizontal mittig am Repeat-Bereich positioniert werden.');
+assert.ok(ui.includes('if (!component || sharedRegionAncestor(component)'), 'Header, Navigation und Footer dürfen niemals als Repeat-Bereich gekennzeichnet werden.');
+assert.ok(ui.includes("'data-oluntir-repeat-instance-id': instance.instanceId"), 'Neu eingesetzte Instanzen müssen eine persistente Instance-ID als Korrelationsmarker erhalten.');
+
 console.log('REPEAT-UI-CONTRACT-TEST ERFOLGREICH');

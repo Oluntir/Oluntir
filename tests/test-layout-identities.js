@@ -59,6 +59,6 @@ assert.equal(ids.SEMANTIC_DICTIONARY,require('../editor/js/core/semantic-diction
 assert.equal(ids.IDENTITY_RESOLVER,require('../editor/js/core/identity-resolver.js'));
 assert.equal(ids.CONTEXT_RESOLVER,require('../editor/js/core/context-resolver.js'));
 
-const exported=ids.stripInternalAttributes('<section data-oluntir-section-id="x"><div data-oluntir-component-id="y">OK</div></section>');
+const exported=ids.stripInternalAttributes('<section data-oluntir-section-id="x" data-oluntir-repeat-instance-id="inst-x"><div data-oluntir-component-id="y">OK</div></section>');
 assert.equal(exported,'<section><div>OK</div></section>');
 console.log('LAYOUT-IDENTITIES-TEST ERFOLGREICH');

@@ -39,6 +39,21 @@ assetHydration.then(() => {
     SITE_CSS = ACTIVE_FRAMEWORK.canvasStyles || [];
     SITE_JS = ACTIVE_FRAMEWORK.canvasScripts || [];
   }
+
+  // Repeat-Definitionen/Instanzen sind Oluntir-Projektmetadaten und kein nativer
+  // GrapesJS-Modellbestandteil. GrapesJS kann unbekannte Top-Level-Felder beim
+  // Autoload bereits verwerfen, bevor der Repeat-Engine-Load-Handler gebunden ist.
+  // Deshalb wird der rohe persistierte Projektsnapshot VOR grapesjs.init() gesichert.
+  // So bleibt die Repeat-Familie auch nach Schließen/erneutem Öffnen des Projekts
+  // verfügbar und kann danach wieder mit dem aktuellen GrapesJS-Baum hydriert werden.
+  let initialPersistedProjectData = null;
+  try {
+    const raw = localStorage.getItem(ACTIVE_FRAMEWORK.storageKey);
+    if (raw) initialPersistedProjectData = JSON.parse(raw);
+  } catch (error) {
+    console.warn('Persistierte Oluntir-Projektmetadaten konnten vor dem Editorstart nicht gelesen werden:', error);
+  }
+
   editor = grapesjs.init({
     container: '#gjs',
     height: '100%',
@@ -332,7 +347,12 @@ assetHydration.then(() => {
     window.OluntirSharedContentManager.bind(editor);
   }
   if (window.OluntirLayoutIdentities) window.OluntirLayoutIdentities.bind(editor);
-  if (window.OluntirRepeatEngineV2) window.OluntirRepeatEngineV2.bind(editor);
+  if (window.OluntirRepeatEngineV2) {
+    window.OluntirRepeatEngineV2.bind(editor, {
+      initialProjectData: initialPersistedProjectData,
+      hydrationSource: 'pre-grapesjs-local-storage'
+    });
+  }
   if (window.OluntirRepeatAutoSynchronization && typeof window.OluntirRepeatAutoSynchronization.bind === 'function') window.OluntirRepeatAutoSynchronization.bind(editor);
   if (window.OluntirFavicon) window.OluntirFavicon.bind(editor);
   window.dispatchEvent(new CustomEvent('oluntir:editorready'));

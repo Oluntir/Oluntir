@@ -1,6 +1,6 @@
 (function (root) {
   'use strict';
-  const state = { editor: null, workflow: 'source', selectedRoot: null, selectedDescription: null, selectedDefinitionId: '', targetPageId: '', targetRoot: null, targetDescription: null, targetSlot: null, targetSelectionMode: false, targetLocked: false, targetPreviewRestore: null, targetCanvasDocument: null, targetCanvasMouseMove: null, targetCanvasClick: null, undo: [] };
+  const state = { editor: null, workflow: 'source', selectedRoot: null, selectedDescription: null, selectedDefinitionId: '', targetPageId: '', targetRoot: null, targetDescription: null, targetSlot: null, targetSelectionMode: false, targetLocked: false, targetPreviewRestore: null, targetCanvasDocument: null, targetCanvasMouseMove: null, targetCanvasClick: null, repeatHoverDocument: null, repeatHoverBadge: null, repeatHoverRoot: null, repeatHoverBinding: null, repeatHoverWindowHandler: null, undo: [] };
   const toolDocument = () => { try { return root.OluntirMultiMonitor && typeof root.OluntirMultiMonitor.getToolDocument === 'function' ? root.OluntirMultiMonitor.getToolDocument() : null; } catch (_) { return null; } };
   const $ = id => document.getElementById(id) || (toolDocument() && toolDocument().getElementById(id));
   const ownerDocument = node => node && node.ownerDocument ? node.ownerDocument : document;
@@ -37,6 +37,100 @@
   function resetTargetState(workflow) { clearTargetPreview(); state.targetPageId = ''; state.targetRoot = null; state.targetDescription = null; state.targetSlot = null; state.targetSelectionMode = false; state.targetLocked = false; detachCanvasTargetListeners(); const page = targetControl('page', workflow); if (page) page.value = ''; setPositionValue('inside', workflow); refreshTargetSelection(null); }
   function explicitDefinitions() { return uniqueDefinitions(engine() ? engine().getDefinitions() : []).filter(item => !(item.metadata && (item.metadata.repeatType === 'shared-layout' || item.metadata.regionRole))); }
   function definitionLabel(definition) { return text(definition && definition.metadata && definition.metadata.displayName) || 'Unbenannte Repeat-Quelle'; }
+  function componentWithin(component, rootComponent) { let current = component; const visited = new Set(); while (current && !visited.has(current)) { if (current === rootComponent) return true; visited.add(current); current = parent(current); } return false; }
+  function repeatBindingForComponent(component) {
+    if (!component || sharedRegionAncestor(component) || !engine() || !ids()) return null;
+    const page = selectedPage();
+    const currentPageId = pageId(page);
+    if (!page || !currentPageId) return null;
+    const definitions = explicitDefinitions();
+    for (const definition of definitions) {
+      if (!definition || !definition.source || text(definition.source.pageId) !== currentPageId) continue;
+      const rootComponent = ids().findById ? ids().findById(page, definition.source.rootIdentity) : null;
+      if (rootComponent && componentWithin(component, rootComponent)) return { definition, rootComponent, kind: 'source', instance: null };
+    }
+    const byId = new Map(definitions.map(definition => [definition.definitionId, definition]));
+    const instances = engine().getInstances ? engine().getInstances() : [];
+    for (const instance of instances) {
+      if (!instance || instance.state === 'detached' || text(instance.pageId) !== currentPageId) continue;
+      const definition = byId.get(instance.definitionId);
+      if (!definition) continue;
+      const rootComponent = ids().findById ? ids().findById(page, instance.rootIdentity) : null;
+      if (rootComponent && !sharedRegionAncestor(rootComponent) && componentWithin(component, rootComponent)) return { definition, rootComponent, kind: 'instance', instance };
+    }
+    return null;
+  }
+  function hideRepeatHoverBadge() {
+    if (state.repeatHoverBadge) state.repeatHoverBadge.hidden = true;
+    state.repeatHoverRoot = null;
+    state.repeatHoverBinding = null;
+  }
+  function ensureRepeatHoverBadge() {
+    if (!state.editor || !state.editor.Canvas || typeof state.editor.Canvas.getDocument !== 'function') return null;
+    const doc = state.editor.Canvas.getDocument();
+    if (!doc || !doc.body) return null;
+    if (state.repeatHoverDocument !== doc) {
+      if (state.repeatHoverBadge && state.repeatHoverBadge.remove) state.repeatHoverBadge.remove();
+      if (state.repeatHoverDocument && state.repeatHoverDocument.defaultView && state.repeatHoverWindowHandler) {
+        try { state.repeatHoverDocument.defaultView.removeEventListener('scroll', state.repeatHoverWindowHandler, true); state.repeatHoverDocument.defaultView.removeEventListener('resize', state.repeatHoverWindowHandler, true); } catch (_) {}
+      }
+      const badge = doc.createElement('div');
+      badge.setAttribute('data-oluntir-repeat-hover-badge', 'true');
+      badge.hidden = true;
+      Object.assign(badge.style, {
+        position: 'fixed',
+        zIndex: '2147483000',
+        pointerEvents: 'none',
+        background: '#f39c12',
+        color: '#ffffff',
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '12px',
+        fontWeight: '600',
+        lineHeight: '20px',
+        minHeight: '20px',
+        padding: '0 8px',
+        borderRadius: '2px 2px 0 0',
+        boxShadow: '0 1px 2px rgba(0,0,0,.18)',
+        whiteSpace: 'nowrap',
+        transform: 'translate(-50%, -100%)'
+      });
+      doc.body.appendChild(badge);
+      state.repeatHoverDocument = doc;
+      state.repeatHoverBadge = badge;
+      state.repeatHoverWindowHandler = () => positionRepeatHoverBadge();
+      if (doc.defaultView) {
+        doc.defaultView.addEventListener('scroll', state.repeatHoverWindowHandler, true);
+        doc.defaultView.addEventListener('resize', state.repeatHoverWindowHandler, true);
+      }
+    }
+    return state.repeatHoverBadge;
+  }
+  function positionRepeatHoverBadge() {
+    const badge = state.repeatHoverBadge;
+    const rootComponent = state.repeatHoverRoot;
+    if (!badge || badge.hidden || !rootComponent || typeof rootComponent.getEl !== 'function') return;
+    const element = rootComponent.getEl();
+    if (!element || typeof element.getBoundingClientRect !== 'function') return hideRepeatHoverBadge();
+    const rect = element.getBoundingClientRect();
+    if (!Number.isFinite(rect.left) || !Number.isFinite(rect.top) || rect.width <= 0 || rect.height <= 0) return hideRepeatHoverBadge();
+    badge.style.left = `${Math.max(rect.left, Math.min(rect.right, rect.left + rect.width / 2))}px`;
+    if (rect.top >= 22) { badge.style.top = `${rect.top}px`; badge.style.transform = 'translate(-50%, -100%)'; badge.style.borderRadius = '2px 2px 0 0'; }
+    else { badge.style.top = `${Math.max(0, rect.top)}px`; badge.style.transform = 'translate(-50%, 0)'; badge.style.borderRadius = '0 0 2px 2px'; }
+  }
+  function showRepeatHoverBadge(component) {
+    if (state.targetSelectionMode) return hideRepeatHoverBadge();
+    const binding = repeatBindingForComponent(component);
+    if (!binding) return hideRepeatHoverBadge();
+    const badge = ensureRepeatHoverBadge();
+    if (!badge) return;
+    state.repeatHoverRoot = binding.rootComponent;
+    state.repeatHoverBinding = binding;
+    const label = definitionLabel(binding.definition);
+    badge.textContent = `↻ ${label}`;
+    badge.title = `Wiederholbarer Bereich: ${label}`;
+    badge.hidden = false;
+    positionRepeatHoverBadge();
+  }
   function scopeLabel(scope) { const value = text(scope); if (value === 'section') return 'Bereich'; if (value === 'row') return 'Zeile'; if (value === 'slot') return 'Spalte'; if (value === 'page') return 'Seite'; return value || 'Bereich'; }
   function sourcePageLabel(definition) { const sourcePageId = text(definition && definition.source && definition.source.pageId); const page = pages().find(item => pageId(item) === sourcePageId); return page ? pageName(page) : 'unbekannte Seite'; }
   function definitionForSelection() { if (!state.selectedDescription) return null; return explicitDefinitions().find(item => item.source && item.source.pageId === state.selectedDescription.pageId && item.source.rootIdentity === state.selectedDescription.identity) || null; }
@@ -64,7 +158,7 @@
   function defineSelected() { try { if (!state.selectedRoot) throw new Error('Bitte zuerst einen Div-, Main- oder Bereich auswählen.'); if (sharedRegionAncestor(state.selectedRoot)) throw new Error('Header, Navigation und Footer werden ausschließlich über Shared Content verwaltet.'); const displayName = text($('oluntir-repeat-name') && $('oluntir-repeat-name').value); if (!displayName) throw new Error('Bitte einen verständlichen Namen für die Repeat-Quelle vergeben.'); ids().ensureAll(state.editor); const description = ids().describe(state.selectedRoot, { page: selectedPage() }); const type = $('oluntir-repeat-type').value || 'explicit-repeat'; const definitions = explicitDefinitions(); const existing = definitions.find(item => item.source && item.source.pageId === description.pageId && item.source.rootIdentity === description.identity); const duplicateName = definitions.find(item => (!existing || item.definitionId !== existing.definitionId) && definitionLabel(item).toLocaleLowerCase() === displayName.toLocaleLowerCase()); if (duplicateName) throw new Error(`Der Quellenname „${displayName}“ wird bereits verwendet. Bitte einen eindeutigen Namen wählen.`); const definition = existing || engine().define(state.selectedRoot, { mode: 'selected', repeatType: type, propagationPolicy: 'selected-pages', regionRole: null, synchronizationPolicy: engine().SYNC_POLICY.AUTOMATIC }); engine().updateDefinition(definition.definitionId, { synchronizationPolicy: engine().SYNC_POLICY.AUTOMATIC, metadata: Object.assign({}, definition.metadata, { repeatType: type, propagationPolicy: 'selected-pages', regionRole: null, displayName }) }); state.selectedDefinitionId = definition.definitionId; if (!existing) state.undo.push(() => engine().removeDefinition(definition.definitionId)); if (typeof root.OluntirPersistProjectSoon === 'function') root.OluntirPersistProjectSoon(); refreshDefinitions(); renderCurrentSource(engine().getDefinition(definition.definitionId)); setStatus(existing ? `Repeat-Quelle „${displayName}“ wurde aktualisiert.` : `Repeat-Quelle „${displayName}“ wurde gespeichert.`); log(existing ? 'definition-reused' : 'definition-created', { definitionId: definition.definitionId, displayName, source: definition.source }); } catch (error) { setStatus(error.message || String(error), true); } updateButtons(); }
 
   function resetWorkflowAfterInsert() { if (state.editor && state.editor.select) state.editor.select(null); const workflow = state.workflow; resetTargetState(workflow); state.selectedDefinitionId = ''; if (workflow === 'library') { const definition = $('oluntir-repeat-definition-select'); if (definition) definition.value = ''; renderLibrarySource(null); } else { state.selectedRoot = null; state.selectedDescription = null; const name = $('oluntir-repeat-name'); if (name) name.value = ''; refreshSelection(null); renderCurrentSource(null); } updateButtons(); }
-  function insertSelected() { try { const definition = engine().getDefinition(state.selectedDefinitionId); const target = pages().find(page => pageId(page) === state.targetPageId); if (!definition || !target || !state.targetSlot) throw new Error('Quelle, Zielseite und Zielposition müssen ausgewählt werden.'); if (pageId(target) === definition.source.pageId) throw new Error('Die Quellseite kann nicht Ziel ihrer eigenen Wiederholung sein.'); const label = definitionLabel(definition); const created = appendToTarget(target, state.targetSlot, definition); const correlationId = definition.correlationId || definition.definitionId; const instance = engine().createInstance(definition.definitionId, { pageId: pageId(target), rootIdentity: created.identity, correlationId, metadata: { insertedBy: 'repeat-ui', correlationId, sourceIdentity: definition.source.rootIdentity, targetSlotId: state.targetSlot.slotId, targetParentIdentity: created.resolved.parent && ids().describe(created.resolved.parent, { page: target }).identity || null, insertionMode: state.targetSlot.mode, insertionIndex: created.resolved.at, mappingProperty: SOURCE_MAPPING } }); state.undo.push(() => { engine().removeInstance(instance.instanceId); if (created.component.remove) created.component.remove(); }); if (typeof root.OluntirPersistProjectSoon === 'function') root.OluntirPersistProjectSoon(); log('instance-created', { instanceId: instance.instanceId, definitionId: definition.definitionId, displayName: label, targetPageId: pageId(target), targetSlotId: state.targetSlot.slotId }); resetWorkflowAfterInsert(); setStatus(`„${label}“ wurde auf „${pageName(target)}“ an der bestätigten Strukturposition eingesetzt.`); } catch (error) { setStatus(error.message || String(error), true); } updateButtons(); }
+  function insertSelected() { try { const definition = engine().getDefinition(state.selectedDefinitionId); const target = pages().find(page => pageId(page) === state.targetPageId); if (!definition || !target || !state.targetSlot) throw new Error('Quelle, Zielseite und Zielposition müssen ausgewählt werden.'); if (pageId(target) === definition.source.pageId) throw new Error('Die Quellseite kann nicht Ziel ihrer eigenen Wiederholung sein.'); const label = definitionLabel(definition); const created = appendToTarget(target, state.targetSlot, definition); const correlationId = definition.correlationId || definition.definitionId; const instance = engine().createInstance(definition.definitionId, { pageId: pageId(target), rootIdentity: created.identity, correlationId, metadata: { insertedBy: 'repeat-ui', correlationId, sourceIdentity: definition.source.rootIdentity, targetSlotId: state.targetSlot.slotId, targetParentIdentity: created.resolved.parent && ids().describe(created.resolved.parent, { page: target }).identity || null, insertionMode: state.targetSlot.mode, insertionIndex: created.resolved.at, mappingProperty: SOURCE_MAPPING } }); if (created.component && typeof created.component.addAttributes === 'function') { const markerAttributes = { 'data-oluntir-repeat-instance-id': instance.instanceId }; if (ids().ATTR && ids().ATTR.repeat) markerAttributes[ids().ATTR.repeat] = definition.repeatKey; created.component.addAttributes(markerAttributes); } state.undo.push(() => { engine().removeInstance(instance.instanceId); if (created.component.remove) created.component.remove(); }); if (typeof root.OluntirPersistProjectSoon === 'function') root.OluntirPersistProjectSoon(); log('instance-created', { instanceId: instance.instanceId, definitionId: definition.definitionId, displayName: label, targetPageId: pageId(target), targetSlotId: state.targetSlot.slotId }); resetWorkflowAfterInsert(); setStatus(`„${label}“ wurde auf „${pageName(target)}“ an der bestätigten Strukturposition eingesetzt.`); } catch (error) { setStatus(error.message || String(error), true); } updateButtons(); }
   function clearTargetSelection(workflow) { const mode = workflow || state.workflow; if (mode !== state.workflow) return; resetTargetState(mode); setStatus('Zielauswahl gelöscht.', false, mode); }
   function clearSelection() { if (state.workflow === 'source') resetTargetState('source'); if (state.editor && state.editor.select) state.editor.select(null); state.selectedRoot = null; state.selectedDescription = null; state.selectedDefinitionId = ''; state.undo = []; const name = $('oluntir-repeat-name'); if (name) name.value = ''; refreshSelection(null); renderCurrentSource(null); setStatus('Aktuelle Quellenauswahl und Zielauswahl gelöscht. Projektweit gespeicherte Repeat-Quellen bleiben erhalten.'); }
   function selectTargetPage(workflow) { state.workflow = workflow || state.workflow; const select = targetControl('page'); const nextPageId = text(select && select.value); clearTargetPreview(); state.targetPageId = nextPageId; state.targetRoot = null; state.targetDescription = null; state.targetSlot = null; state.targetLocked = false; state.targetSelectionMode = Boolean(nextPageId && state.selectedDefinitionId); detachCanvasTargetListeners(); if (!state.selectedDefinitionId) { state.targetSelectionMode = false; refreshTargetSelection(null); setStatus(state.workflow === 'library' ? 'Wähle zuerst ein Element aus der Liste.' : 'Speichere zuerst die aktuelle Repeat-Quelle.', true); return; } if (!nextPageId) { refreshTargetSelection(null); setStatus('Wähle zuerst eine Zielseite aus.'); return; } const definition = engine() && engine().getDefinition ? engine().getDefinition(state.selectedDefinitionId) : null; if (definition && nextPageId === definition.source.pageId) { state.targetSelectionMode = false; refreshTargetSelection(null); setStatus('Die Quellseite kann nicht Ziel ihrer eigenen Wiederholung sein.', true); return; } const navigate = root.OluntirSelectPageById; const selected = typeof navigate === 'function' ? navigate(nextPageId) : false; if (!selected && pageId(selectedPage()) !== nextPageId) { state.targetSelectionMode = false; setStatus('Die Zielseite konnte nicht geöffnet werden.', true); return; } if (state.editor && state.editor.select) state.editor.select(null); refreshTargetSelection(null); attachCanvasTargetListeners(); setStatus(`Zielseite „${pageName(pages().find(page => pageId(page) === nextPageId))}“ geöffnet. Bewege den Mauszeiger an die gewünschte Strukturgrenze und bestätige sie per Klick.`); }
@@ -89,11 +183,15 @@
     // to a different structural parent and would otherwise erase/jump the line.
     editor.on('component:hover', component => {
       if (state.workflow === 'source' && !state.targetSelectionMode) refreshSelection(component);
+      showRepeatHoverBadge(component);
     });
     editor.on('component:deselected', () => { if (state.workflow === 'source' && !state.targetSelectionMode) refreshSelection(null); });
-    editor.on('page', () => { fillPages(); clearTargetPreview(); state.targetLocked = false; if (state.targetSelectionMode) { refreshTargetSelection(null); setTimeout(attachCanvasTargetListeners, 0); } else if (state.workflow === 'source') refreshSelection(editor.getSelected && editor.getSelected()); });
-    editor.on('oluntir:repeat:changed', refreshDefinitions);
-    editor.on('load', () => { ids().ensureAll(editor); refreshDefinitions(); });
+    editor.on('page', () => { hideRepeatHoverBadge(); fillPages(); clearTargetPreview(); state.targetLocked = false; if (state.targetSelectionMode) { refreshTargetSelection(null); setTimeout(attachCanvasTargetListeners, 0); } else if (state.workflow === 'source') refreshSelection(editor.getSelected && editor.getSelected()); });
+    editor.on('canvas:frame:load', hideRepeatHoverBadge);
+    editor.on('oluntir:repeat:changed', () => { refreshDefinitions(); hideRepeatHoverBadge(); });
+    editor.on('load', () => { ids().ensureAll(editor); refreshDefinitions(); hideRepeatHoverBadge(); });
+    ids().ensureAll(editor);
+    refreshDefinitions();
   }
   let initialized = false;
   function bindTargetWorkflow(workflow) { const controls = targetControls(workflow); const clearButton = $(controls.clear); if (clearButton) clearButton.addEventListener('click', () => { state.workflow = workflow; clearTargetSelection(workflow); }); const insertButton = $(controls.insert); if (insertButton) insertButton.addEventListener('click', () => { state.workflow = workflow; insertSelected(); }); const helpButton = $(controls.help); if (helpButton) helpButton.addEventListener('click', () => toggleHelp(workflow)); const targetPage = $(controls.page); if (targetPage) targetPage.addEventListener('change', () => selectTargetPage(workflow)); const targetPosition = $(controls.position); if (targetPosition) targetPosition.addEventListener('change', () => { state.workflow = workflow; state.targetLocked = false; if (state.targetRoot) refreshTargetSelection(state.targetRoot, { lock: false }); else updateButtons(); }); }

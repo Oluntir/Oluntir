@@ -42,6 +42,7 @@ node tests/test-semantic-action-engine.js
 node tests/test-repeat-engine-v2-contracts.js
 node tests/test-repeat-existing-project-auto-upgrade.js
 node tests/test-repeat-existing-project-binding-repair.js
+node tests/test-repeat-session-hydration.js
 node tests/test-repeat-persistence-bridge.js
 node tests/test-repeat-ui.js
 node tests/test-repeat-target-selection-runtime.js

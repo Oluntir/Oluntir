@@ -199,7 +199,7 @@
   function stripInternalAttributes(html) {
     const source = String(html || '');
     if (typeof document === 'undefined') {
-      return source.replace(/\sdata-oluntir-(?:page|section|row|slot|component|repeat)-id=(?:"[^"]*"|'[^']*')/gi, '');
+      return source.replace(/\sdata-oluntir-(?:page|section|row|slot|component|repeat|repeat-instance)-id=(?:"[^"]*"|'[^']*')/gi, '');
     }
     const template = document.createElement('template'); template.innerHTML = source;
     Object.values(ATTR).concat(['data-oluntir-repeat-instance-id', 'data-oluntir-repeat-name', 'data-oluntir-repeat-role']).forEach(attr => template.content.querySelectorAll('[' + attr + ']').forEach(el => el.removeAttribute(attr)));

@@ -1,4 +1,4 @@
-# Oluntir 2.0.1-alpha – Bootstrap-Teststand
+# Oluntir 2.1.0 BETA – Bootstrap-Teststand
 
 Dieser eigenständige Teststand basiert auf dem DEV030-Konsolidierungspaket.
 Als konkrete Frameworkprofile sind ausschließlich Bootstrap 4.6.2 und

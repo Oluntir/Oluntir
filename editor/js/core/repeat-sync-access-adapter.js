@@ -10,7 +10,8 @@
   const SOURCE_IDENTITY_PROPERTY = 'oluntirRepeatSourceIdentity';
   const INTERNAL_ATTRIBUTES = new Set([
     'data-oluntir-page-id', 'data-oluntir-section-id', 'data-oluntir-row-id',
-    'data-oluntir-slot-id', 'data-oluntir-component-id', 'data-oluntir-repeat-id'
+    'data-oluntir-slot-id', 'data-oluntir-component-id', 'data-oluntir-repeat-id',
+    'data-oluntir-repeat-instance-id'
   ]);
 
   function clone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }

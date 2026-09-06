@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0 BETA — 2026-09-06
+
+- Raised the release status and visible UI version from `2.0.1 Alpha` to **2.1.0 BETA**.
+- Split Repeat UX into two workflows: create/edit the current source and insert a named project-wide source from the library.
+- Both Repeat workflows use target page → insertion mode → Canvas confirmation → insert through the same productive synchronization core.
+- Existing Alpha projects are hydrated only through existing stable Oluntir correlation markers.
+- Shared Content for header, navigation and footer remains bidirectional.
+- Performance: redundant Shared Content component events with an unchanged central snapshot exit before target mutation and extra `editor.store()`; normal update/style events outside shared regions are no longer processed as Shared Content.
+- Updated documentation, handbook, feature lists, release notes, test notes and active metadata to the Beta state.
+
 ## 2.0.1-alpha v16 — 2026-09-05
 
 - Shared Content changes in navigation and footer now use the current GrapesJS

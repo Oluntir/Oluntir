@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0 BETA — 06.09.2026
+
+- Versionsstatus und sichtbare UI-Kennzeichnung von `2.0.1 Alpha` auf **2.1.0 BETA** angehoben.
+- Repeat-Bedienung in zwei getrennte Workflows aufgeteilt: aktuelle Quelle erstellen/bearbeiten und benannte projektweite Quelle aus Liste einsetzen.
+- Beide Repeat-Workflows führen Zielseite → Einfügeposition → Canvas-Bestätigung → Einsetzen über denselben produktiven Synchronisationskern aus.
+- Bestehende Alpha-Projekte werden nur anhand vorhandener stabiler Oluntir-Korrelationsmarker nachhydriert.
+- Shared Content für Header, Navigation und Footer bleibt bidirektional.
+- Performance: redundante Shared-Komponentenereignisse mit unverändertem zentralem Snapshot werden vor Zielmutation und zusätzlichem `editor.store()` beendet; normale Update-/Style-Ereignisse außerhalb gemeinsamer Bereiche werden nicht mehr als Shared Content verarbeitet.
+- Dokumentation, Handbuch, Feature-Übersichten, Release Notes, Testhinweise und aktive Metadaten auf den Beta-Stand aktualisiert.
+
 ## 2.0.1-alpha v16 — 05.09.2026
 
 - Shared-Content-Änderungen in Navigation und Footer werden beim Rückweg von
