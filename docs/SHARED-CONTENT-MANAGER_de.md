@@ -2,10 +2,10 @@
 
 # Shared Content Manager
 
-**Version:** 2.0.1-alpha
-**Status:** Alpha
+**Version:** 2.1.0 BETA
+**Status:** BETA
 **Stabile Baseline:** Oluntir 1.3.1
-**Letzte Aktualisierung:** 2026-09-04
+**Letzte Aktualisierung:** 2026-09-06
 
 Der Shared Content Manager synchronisiert die Layoutbereiche eines Projekts mit sich inhaltlich wiederholenden Elementen und Bereichen über alle Seiten hinweg.
 
@@ -25,7 +25,7 @@ Jeder Bereich besitzt genau eine zentrale Repräsentation im Oluntir-Projektzust
 4. Alle anderen Seiten werden aus dem zentralen Zustand aktualisiert.
 5. Vor Seitenwechsel, Löschen, Speichern oder Neuerstellung wird die ausgewählte Seite erneut übernommen.
 
-Eigene Aktualisierungsereignisse werden während der Übertragung unterdrückt, damit keine Ereignisschleife entsteht.
+Eigene Aktualisierungsereignisse werden während der Übertragung unterdrückt. Zusätzlich beendet 2.1.0 BETA einen Komponenten-Commit sofort, wenn sich der zentrale Shared-Content-Fingerprint nicht geändert hat. Dadurch entstehen bei redundanten GrapesJS-Events weder Zielmutationen noch zusätzliche `editor.store()`-Aufrufe.
 
 ## Neue Seiten
 

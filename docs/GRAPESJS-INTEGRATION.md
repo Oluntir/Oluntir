@@ -1,4 +1,4 @@
-# GrapesJS integration in Oluntir 2.0.1-alpha
+# GrapesJS integration in Oluntir 2.1.0 BETA
 
 GrapesJS 0.23.2 is stored unchanged below `vendor/grapesjs/0.23.2/`. Oluntir-specific behavior is isolated in `editor/integrations/grapesjs/`.
 

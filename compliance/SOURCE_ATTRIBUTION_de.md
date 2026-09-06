@@ -14,6 +14,6 @@ Attribution and license texts for third-party software and fonts are documented 
 
 ## Frameworkumfang
 
-Der eigenständige Branch `2.0.1-alpha` enthält konkrete Profile für Bootstrap
+Der eigenständige Branch `2.1.0-beta` enthält konkrete Profile für Bootstrap
 4.6.2 und Bootstrap 5.3.8. Eine alternative Frameworkdistribution ist in
 diesem Branch nicht gebündelt.

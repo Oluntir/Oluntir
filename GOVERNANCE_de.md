@@ -2,8 +2,8 @@
 
 # Projektverwaltung
 
-**Version:** 2.0.1-alpha
-**Status:** Alpha
+**Version:** 2.1.0 BETA
+**Status:** BETA
 **Stabile Baseline:** Oluntir 1.3.1
 **Stand:** 04.09.2026
 

@@ -1,6 +1,6 @@
-# Features – Oluntir 2.0.1-alpha
+# Features – Oluntir 2.1.0 BETA
 
-This alpha branch uses Oluntir 1.3.1 as its compatibility baseline and
+This BETA branch uses Oluntir 1.3.1 as its compatibility baseline and
 consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.
 
 ## Editor and projects

@@ -1,20 +1,29 @@
 > **Language:** English · [Deutsch](README_de.md)
 
-# Oluntir 2.0.1-alpha
+# Oluntir 2.1.0 BETA
 
 Oluntir is a local browser-based website editor built on GrapesJS 0.23.2. It manages multi-page projects, local assets, shared page regions and exports without a server-side application runtime.
 
-**Branch:** `Oluntir-2.0.1-alpha`
+**Branch:** `Oluntir-2.1.0-beta`
 **Baseline:** Oluntir 1.3.1
-**Date:** September 4, 2026
-**Status:** Alpha / Bootstrap-focused
+**Date:** September 6, 2026
+**Status:** BETA / Bootstrap-focused
 
-Oluntir 1.3.1 remains the stable compatibility baseline. This branch is an
-experimental continuation and is not a replacement for the stable release.
+Oluntir 1.3.1 remains the stable compatibility baseline. 2.1.0 BETA marks
+the first Beta state of the Bootstrap-focused 2.x line.
 
-## 2.0 Alpha – Development status
+## 2.1.0 BETA – current state
 
-The 2.0 Alpha branch develops the Oluntir API translation matrix and the
+- Header, navigation and footer are synchronized bidirectionally as Shared Content across project pages.
+- Repeatable areas support source → instance, instance → source and instance → sibling instances.
+- **Repeatable areas** creates/edits one source and inserts it directly through target page, insertion mode and confirmed Canvas target.
+- **Insert repeatable areas from list** is a separate project library workflow: named source → target page → insertion mode → insert.
+- Existing Alpha projects are hydrated only through existing stable Oluntir correlations; ambiguous bindings are not guessed.
+- Shared Content has a no-op fast path: unchanged central content does not mutate target pages or trigger an extra store; normal update/style events outside header/nav/footer no longer enter the Shared Content path.
+
+## Historical development foundation from 2.0 Alpha
+
+The preceding 2.0 Alpha branch developed the Oluntir API translation matrix and the
 source-analysis pipeline. DEV_016 through DEV_021 provide canonical vocabulary,
 Bootstrap profiles, a read-only analyzer, resolver, validation and abstract
 materialization plans. DEV_022 adds a universal local Source-Package importer
@@ -37,7 +46,7 @@ for other packages. New versions receive a new analysis and profile identity.
 Resource activation and deliberate user insertion for a selected Source Package
 are available. Imported JavaScript files remain disabled. Explicitly defined
 repeatable regions are productively and transactionally synchronized in
-2.0.1-alpha.
+2.1.0 BETA.
 
 DEV028 connects source-bound profiles to the persistent GrapesJS editor through
 a controlled adapter. Source components can be inserted by the user; Repeat
@@ -45,7 +54,7 @@ synchronization is enabled for explicitly defined instances and protected by
 the resolver, dependency graph, action contracts and targeted synchronization
 service. Source JavaScript is still not executed automatically.
 
-### Repeat synchronization in 2.0.1-alpha
+### Repeat synchronization in 2.1.0 BETA
 
 A repeat definition separates source, instance and component identity through
 stable Oluntir IDs. Source changes propagate only to linked instances. The
@@ -54,7 +63,7 @@ the targets, and on failure rolls back targets already changed. Export then
 reads the consistent project model. Navigation, header and footer remain
 separate Shared Content concerns.
 
-The independent `2.0.1-alpha` branch consolidates the productive framework
+The independent `2.1.0-beta` branch consolidates the productive framework
 context on Bootstrap 4 and Bootstrap 5. Generic import, analysis and recovery
 foundations remain available; concrete foreign-framework profiles and fixtures
 are not part of this branch. Bootstrap 5 is primary and Bootstrap 4 is retained
@@ -70,6 +79,13 @@ as the legacy profile. Unknown packages can be analyzed, but are classified as
 
 ## Main capabilities
 
+### Repeatable areas
+
+**Create/edit:** select source area → set source name → save source → choose target page → choose insertion mode → confirm Canvas target → insert.
+
+**Insert from list:** select a named stored source → choose target page → choose insertion mode → confirm Canvas target → insert. Internal Repeat IDs remain technical correlation keys and are not exposed as user-facing names.
+
+
 - visual editing with GrapesJS;
 - multi-page projects and portable `.oluntir` project files;
 - shared header, navigation and footer content;
@@ -80,8 +96,9 @@ as the legacy profile. Unknown packages can be analyzed, but are classified as
 - project favicon, lightbox and download links;
 - single- and dual-monitor workspace;
 - stable internal layout identities;
-- productive Repeat synchronization for explicitly defined areas through stable
+- productive bidirectional Repeat synchronization for explicitly defined areas through stable
   page, component and target-position identities;
+- separate Repeat source and Repeat library tools;
 - optional local logging after explicit consent.
 
 ## Start
@@ -101,11 +118,11 @@ An explicitly selected footer text color may look different in the editor from t
 - [Technical handbook](HANDBOOK.md)
 - [Features](FEATURES.md)
 - [Release notes](RELEASE_NOTES.md)
-- [Technical changes from 1.3.1](docs/CHANGELOG_1.3.1_TO_2.0.1_ALPHA.md)
-- [2.0.1-alpha cleanup list](docs/REMOVAL_LIST_2.0.1_ALPHA.md)
+- [Technical changes from 1.3.1](docs/CHANGELOG_1.3.1_TO_2.1.0_BETA.md)
+- [2.1.0 BETA cleanup list](docs/REMOVAL_LIST_2.1.0_BETA.md)
 - [Security](SECURITY.md)
 - [Privacy](PRIVACY.md)
-- [Release audit](audit/OLUNTIR_1.3.1_AUDIT.md)
+- [BETA release audit](audit/OLUNTIR_2.1.0_BETA_AUDIT.md)
 
 ## License
 

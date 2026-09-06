@@ -1,6 +1,6 @@
-# Funktionen – Oluntir 2.0.1-alpha
+# Funktionen – Oluntir 2.1.0 BETA
 
-Dieser Alpha-Branch nutzt Oluntir 1.3.1 als Kompatibilitätsbaseline und
+Dieser BETA-Branch nutzt Oluntir 1.3.1 als Kompatibilitätsbaseline und
 konsolidiert die produktive Frameworkunterstützung auf Bootstrap 4.6.2 und 5.3.8.
 
 ## Editor und Projekte
@@ -17,6 +17,7 @@ konsolidiert die produktive Frameworkunterstützung auf Bootstrap 4.6.2 und 5.3.
 - Responsive Bilder für Desktop, Tablet und Mobil
 - Shared Content für Header, Navigation und Footer
 - Schnellbearbeitung gemeinsamer Inhalte
+- Bidirektionale Shared-Content-Übernahme für Header, Navigation und Footer
 - Galerie-Einschübe in vorhandenen Containern
 - Neue Galerie-Bereiche zwischen vollständigen Seitenbereichen
 - Undo und Redo für Text- und Bildänderungen
@@ -38,7 +39,11 @@ konsolidiert die produktive Frameworkunterstützung auf Bootstrap 4.6.2 und 5.3.
 - stabile Layout-Identitäten
 - read-only Resolver und Dependency Graph
 - Action- und Validierungsverträge
-- produktive Repeat-Synchronisation für ausdrücklich definierte Bereiche mit stabilen Identitäten
+- produktive bidirektionale Repeat-Synchronisation für ausdrücklich definierte Bereiche mit stabilen Identitäten
+- separates Erstellen/Bearbeiten von Repeat-Quellen mit Name, Zielseite und Einfügeposition
+- projektweite Repeat-Bibliothek zum Einsetzen gespeicherter Quellen nach Name
+- Hydrierung älterer Repeat-Bindungen nur über vorhandene Oluntir-Korrelationsmarker
+- Shared-Content-No-op-Fast-Path zur Reduzierung redundanter Zielmutationen und Speichervorgänge
 - Statische Evidenzanalyse für HTML, CSS und JavaScript
 - OIR-Projektmodell, Capability-Manifest und read-only Knowledge Compiler
 - Übersetzungsmatrix und JavaScript-Behavior-Resolver

@@ -2,7 +2,7 @@
 
 # Sicherheitsrichtlinie
 
-**Unterstützte Linien:** 2.0.1-alpha (experimentell) · 1.3.1 (stabile Baseline)
+**Unterstützte Linien:** 2.1.0 BETA (experimentell) · 1.3.1 (stabile Baseline)
 
 ## Meldung
 
@@ -16,7 +16,7 @@ Relevant sind insbesondere unsichere Verarbeitung importierter Projektdaten, Scr
 
 ## Reaktion
 
-Eingangsbestätigung, Schweregrad, Behebung, Release-Koordination und Offenlegungszeitpunkt werden fallbezogen behandelt. Die stabile Linie 1.3.1 und der Branch 2.0.1-alpha werden entsprechend ihrem jeweiligen Release-Status geprüft. Die Alpha-Funktionen für Analyzer und Import erfordern besondere Aufmerksamkeit, weil lokale Dateien und Archive verarbeitet werden.
+Eingangsbestätigung, Schweregrad, Behebung, Release-Koordination und Offenlegungszeitpunkt werden fallbezogen behandelt. Die stabile Linie 1.3.1 und der Branch 2.1.0 BETA werden entsprechend ihrem jeweiligen Release-Status geprüft. Die BETA-Funktionen für Analyzer und Import erfordern besondere Aufmerksamkeit, weil lokale Dateien und Archive verarbeitet werden.
 
 ## Verantwortung der Anwender
 

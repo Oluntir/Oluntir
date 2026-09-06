@@ -1,15 +1,15 @@
-# Documentation – Oluntir 2.0.1-alpha
+# Documentation – Oluntir 2.1.0 BETA
 
 Oluntir 1.3.1 is the stable compatibility baseline. This documentation index
-describes the current Bootstrap-focused alpha branch.
+describes the current Bootstrap-focused BETA branch.
 
 ## Start
 - [README](../README.md)
 - [Erster Start](FIRST_START.md)
 - [Technisches Handbuch](../HANDBOOK.md)
 - [Release Notes](../RELEASE_NOTES.md)
-- [Technical changes since 1.3.1](CHANGELOG_1.3.1_TO_2.0.1_ALPHA.md)
-- [2.0.1-alpha cleanup list](REMOVAL_LIST_2.0.1_ALPHA.md)
+- [Technical changes since 1.3.1](CHANGELOG_1.3.1_TO_2.1.0_BETA.md)
+- [2.1.0 BETA cleanup list](REMOVAL_LIST_2.1.0_BETA.md)
 
 ## Architecture
 - [Architekturübersicht](ARCHITECTURE.md)
@@ -27,7 +27,7 @@ describes the current Bootstrap-focused alpha branch.
 - [Datenschutz](../PRIVACY.md)
 - [Sicherheit](../SECURITY.md)
 - [Lizenzierung](../LICENSING.md)
-- [Current alpha release audit](../audit/OLUNTIR_2.0.1_ALPHA_AUDIT.md)
+- [Current BETA release audit](../audit/OLUNTIR_2.1.0_BETA_AUDIT.md)
 - [Historical 1.3.1 release audit](../audit/OLUNTIR_1.3.1_AUDIT.md)
 
 ## Project knowledge

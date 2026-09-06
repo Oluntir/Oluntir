@@ -1,16 +1,16 @@
-# Roadmap – Oluntir 2.0.1-alpha
+# Roadmap – Oluntir 2.1.0 BETA
 
 Version 1.3.1 ist als stabile Referenzversion abgeschlossen. Der aktuelle
-Branch ist die Bootstrap-fokussierte Weiterentwicklung 2.0.1-alpha.
+Branch ist die Bootstrap-fokussierte Weiterentwicklung 2.1.0 BETA.
 
-## Aktueller Alpha-Fokus
+## Aktueller BETA-Fokus
 
 - lokalen Source-Package-Import und Recovery stabilisieren;
 - quellengebundene Bootstrap-Profile für neue Versionen verbessern;
 - Erkennung von Component Boundaries und Unterdrückung von Duplikaten verbessern;
 - Source-Darstellung sowie bestehende Projekt- und Exportformate erhalten;
-- Ausführung importierter Sources, automatische Dokumentmutation und Repeat-
-  Synchronisation hinter den Architektur-Gates halten;
+- Ausführung importierter Sources und automatische Source-Package-Dokumentmutation hinter den Architektur-Gates halten;
+- produktive benutzerdefinierte Repeat-Synchronisation und die getrennten Quellen-/Listen-Workflows weiter stabilisieren;
 - Release-Dokumentation und portable Paketprüfung abschließen.
 
 Weitere Änderungen in der stabilen Release-Linie 1.3.1 beschränken sich auf:

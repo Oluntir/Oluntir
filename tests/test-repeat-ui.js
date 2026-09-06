@@ -26,7 +26,7 @@ assert.ok(index.includes('id="oluntir-repeat-current-source"'));
 assert.ok(index.includes('Quellenname'));
 assert.ok(index.includes('aria-label="Wiederholbarer Bereich"'));
 assert.ok(index.includes('aria-label="Arbeitsbereich für wiederholbare Inhalte"'));
-assert.ok(index.includes('2.0.1 Alpha'));
+assert.ok(index.includes('2.1.0 BETA'));
 assert.ok(!index.includes('Oluntir<span class="toolbar-version">1.3.1'));
 assert.ok(index.includes('id="oluntir-repeat-clear-selection"'));
 assert.ok(index.includes('id="oluntir-repeat-undo"'));

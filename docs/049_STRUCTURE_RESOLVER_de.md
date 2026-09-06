@@ -1,5 +1,5 @@
 > **Sprache:** Deutsch · [English](049_STRUCTURE_RESOLVER.md)
-> **Entwicklungsstand:** Baseline Oluntir 1.3.1 · aktueller Branch 2.0.1-alpha
+> **Entwicklungsstand:** Baseline Oluntir 1.3.1 · aktueller Branch 2.1.0 BETA
 
 # Structure Resolver
 
@@ -91,7 +91,7 @@ Alle zurückgegebenen Snapshots, Knoten, Kindlisten, Capabilities und Zusammenfa
 ## Integrationsstatus
 
 Version 1.3.1 stellt die gemeinsame Strukturauflösung als eigenständige
-Kern-API bereit. Der Branch 2.0.1-alpha erhält diesen Vertrag und ergänzt
+Kern-API bereit. Der Branch 2.1.0 BETA erhält diesen Vertrag und ergänzt
 darum die read-only Source-, Übersetzungs- und Behavior-Pipelines; der Resolver
 wird dadurch nicht zu einem Dokumentmutationsdienst.
 

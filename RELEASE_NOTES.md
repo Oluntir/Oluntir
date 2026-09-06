@@ -1,9 +1,18 @@
-# Release Notes – Oluntir 2.0.1-alpha
+# Release Notes – Oluntir 2.1.0 BETA
 
-Oluntir 2.0.1-alpha is an experimental continuation of the stable 1.3.1 line.
+Oluntir 2.1.0 BETA is an experimental continuation of the stable 1.3.1 line.
 It consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.
 
-## Alpha changes since 1.3.1
+## 2.1.0 BETA – key changes
+
+- Two separate Repeat workflows: create/edit the current source and insert a named source from the project-wide library.
+- Bidirectional Repeat synchronization source ↔ instances and instance → sibling instances using stable Oluntir identities.
+- Compatibility hydration for existing Alpha projects when unambiguous Oluntir correlations are present.
+- Bidirectional Shared Content for header, navigation and footer.
+- Shared Content performance fix: redundant GrapesJS events with unchanged central content exit before target mutation and `editor.store()`; update/style events outside shared regions are filtered early.
+- Visible version labels in the main UI and tool monitor changed to **2.1.0 BETA**.
+
+## Historical Alpha changes since 1.3.1
 
 - portable Windows x64 Node.js 24.18.0 runtime and local Analyzer API;
 - universal Source-Package import for folders, ZIP, TAR, TAR.GZ/TGZ, browser

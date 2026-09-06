@@ -10,7 +10,7 @@ Die Präferenz wird in IndexedDB gespeichert. Der tatsächlich aktive Modus ist 
 
 ## Werkzeugfenster
 
-Im Hauptfenster bleibt der GrapesJS-Canvas. Das Werkzeugfenster enthält die vollständige rechte GrapesJS-Spalte und beide Oluntir-Schnellbearbeitungsbereiche. Schaltflächen lagern die Spalte aus, öffnen oder fokussieren das Werkzeugfenster erneut und holen alle Werkzeuge zurück.
+Im Hauptfenster bleibt der GrapesJS-Canvas. Das Werkzeugfenster enthält die vollständige rechte GrapesJS-Spalte, die Oluntir-Schnellbearbeitung sowie beide getrennten Repeat-Werkzeuge für Quelle und Bibliothek. Schaltflächen lagern die Spalte aus, öffnen oder fokussieren das Werkzeugfenster erneut und holen alle Werkzeuge zurück.
 
 ## Sicherheitsverhalten
 

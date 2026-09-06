@@ -1,5 +1,27 @@
-# Repeat Engine V2
+# Repeat Engine V2 – Oluntir 2.1.0 BETA
 
-`editor/js/core/repeat-engine-v2.js` speichert Wiederholungsdefinitionen anhand stabiler Identitäten statt DOM-Positionen. Eine Definition enthält Quellseite, Quellkomponente, Wiederholungseinheit, Zielseiten, Zielpfad, Modus und Schema-Version.
+`editor/js/core/repeat-engine-v2.js` speichert Repeat-Definitionen über stabile Oluntir-Identitäten. DOM-Positionen, CSS-Selektoren und eine Änderung der `unitId` dienen nicht als Identität.
 
-Die Modi heißen `selected` und `context`. Zielseiten und Komponenten werden ausschließlich über das GrapesJS-Seiten- und Komponentenmodell aufgelöst. Vorhandene passende Strukturen werden zusammengeführt, fehlende ergänzt. Die Engine steht als `window.OluntirRepeatEngineV2` bereit. Version 1.2.1 ergänzt bewusst keine neue Benutzeroberfläche.
+## Synchronisation
+
+Unterstützt werden:
+
+- Quelle → Instanzen;
+- Instanz → Quelle;
+- Instanz → weitere verknüpfte Instanzen.
+
+Resolver, Dependency Graph, Action Contracts und der gemeinsame gezielte Synchronisationsdienst validieren jeden produktiven Plan. Änderungen werden aus dem GrapesJS-Projektmodell gelesen und idempotent geschrieben.
+
+## Benutzerabläufe
+
+### Wiederholbare Bereiche
+
+Quellbereich auswählen → Quellenname setzen → Quelle speichern → Zielseite auswählen → Einfügeposition wählen → Ziel im Canvas bestätigen → Bereich einsetzen. Dieses Fenster zeigt nur die aktuelle Quelle, keine projektweite Quellenliste.
+
+### Wiederholbare Bereiche aus Liste einfügen
+
+Gespeicherte Quelle nach Namen auswählen → Zielseite auswählen → Einfügeposition wählen → Ziel im Canvas bestätigen → Bereich einsetzen. Interne Definition- und Repeat-IDs bleiben technische Korrelation und sind keine Benutzerbezeichnung.
+
+## Bestehende Projekte
+
+Ältere Alpha-Projekte werden beim Laden nur dann nachhydriert, wenn vorhandene Oluntir-Korrelationsmarker Quelle oder Instanz eindeutig bestimmen. Bei Mehrdeutigkeit wird keine Bindung geraten.

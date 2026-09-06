@@ -1,5 +1,5 @@
 > **Language:** English · [Deutsch](ARCHITECTURE_de.md)
-> **Version:** 2.0.1-alpha · **Stable baseline:** 1.3.1
+> **Version:** 2.1.0 BETA · **Stable baseline:** 1.3.1
 
 # Architecture overview
 

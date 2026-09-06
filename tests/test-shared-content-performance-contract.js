@@ -31,3 +31,18 @@ assert(switchBody.includes('commitSelectedCanvasToShared(previousPage, { targetP
 assert(!switchBody.includes('forceTarget: true'), 'Seitenwechsel erzwingt weiterhin unnötige Zielseiten-Vollarbeit.');
 
 console.log('SHARED-CONTENT-PERFORMANCE-CONTRACT-TEST ERFOLGREICH');
+
+const centralFingerprintIndex = sharedBody.indexOf('const centralChanged = beforeCentral !== afterCentral;');
+const targetLoopIndex = sharedBody.indexOf('editor.Pages.getAll().forEach((targetPage) => {');
+const noChangeExitIndex = sharedBody.indexOf('if (!centralChanged) {');
+assert(centralFingerprintIndex >= 0 && noChangeExitIndex > centralFingerprintIndex, 'Shared Content muss vor Zielmutationen feststellen, ob sich der zentrale Inhalt wirklich geändert hat.');
+assert(targetLoopIndex > noChangeExitIndex, 'Zielseiten dürfen erst nach dem centralChanged-Fast-Exit bearbeitet werden.');
+assert(sharedBody.includes('skippedUnchanged: true'), 'Diagnose für übersprungene redundante Shared-Commits fehlt.');
+assert(sharedBody.includes('}, 180);'), 'Shared-Content-Speichern muss kurz entprellt werden, statt jeden redundanten Event sofort zu speichern.');
+
+
+const bindStart = source.indexOf('function bind(nextEditor)');
+const bindBody = source.slice(bindStart);
+assert(bindBody.includes("['component:update', 'component:styleUpdate']"), 'Shared Content muss normale Update-/Style-Events separat filtern.');
+assert(bindBody.includes('if (!component || !sharedRegionInfo(component)) return;'), 'Nicht-Shared-Komponenten dürfen keinen Shared-Content-Flush auslösen.');
+assert(bindBody.includes("['component:add', 'component:remove']"), 'Add/Remove muss als struktureller Sicherheitsfall beobachtet bleiben.');

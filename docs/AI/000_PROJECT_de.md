@@ -1,7 +1,7 @@
 # Projektkontext
 
 Oluntir ist ein lokaler, browserbasierter Editor für mehrseitige Websites.
-Version 1.3.1 ist die stabile Kompatibilitätsbaseline; `2.0.1-alpha` ist der
+Version 1.3.1 ist die stabile Kompatibilitätsbaseline; `2.1.0-beta` ist der
 aktuelle Bootstrap-fokussierte Entwicklungsbranch.
 
 ## Verbindliches Verhalten

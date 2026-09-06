@@ -4,6 +4,11 @@ Der Analyzer ist ein eigenständiger, read-only arbeitender Kernbereich zur Ersc
 
 ## Aktueller Stand
 
+## 2.1.0 BETA – Produktgrenze
+
+Der Analyzer bleibt read-only gegenüber automatisch erkannten Source-Packages. Die produktive Repeat-Synchronisation von 2.1.0 BETA gehört zum Editor und betrifft ausschließlich vom Benutzer ausdrücklich definierte Wiederholbare Bereiche. Importierte Source-JavaScript-Dateien werden weiterhin nicht automatisch ausgeführt.
+
+
 ### DEV_027
 
 - universeller quellengebundener Profile-Builder;

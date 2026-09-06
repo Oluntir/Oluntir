@@ -1,6 +1,6 @@
-# Oluntir 2.0.1-alpha – Technical handbook
+# Oluntir 2.1.0 BETA – Technical handbook
 
-This handbook describes the current Bootstrap-focused alpha branch. Oluntir
+This handbook describes the current Bootstrap-focused BETA branch. Oluntir
 1.3.1 remains the stable compatibility baseline.
 
 ## 1. Runtime
@@ -45,13 +45,13 @@ structures as user-selectable blocks. Source JavaScript is not executed.
 
 ## 4. Shared content
 
-`shared-content-manager.js` manages header, navigation and footer. Changes are stored centrally. Only the required target page is updated during page selection. Fingerprints skip unchanged writes, and component references are cached per page.
+`shared-content-manager.js` manages header, navigation and footer. The GrapesJS project model is authoritative and component objects are resolved fresh for writes rather than cached long-term. Fingerprints and a `centralChanged` fast exit skip redundant target mutations and stores.
 
 ## 5. Repeat Foundation
 
 `repeat-engine-v2.js` contains the technical model for repeatable structures.
 The resolver, dependency graph, action-contract and targeted-sync gates are
-audited explicitly. Productive synchronization remains disabled in this alpha.
+audited explicitly. Productive synchronization is enabled for explicitly defined Repeat sources. The source tool creates/edits the current named source and inserts it directly; the separate library tool inserts a named stored source through target page, insertion mode and confirmed Canvas target. Synchronization is bidirectional across source and instances.
 
 ## 6. Logging
 

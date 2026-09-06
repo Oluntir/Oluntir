@@ -1,6 +1,6 @@
-# Oluntir 2.0.1-alpha – Technisches Handbuch
+# Oluntir 2.1.0 BETA – Technisches Handbuch
 
-Dieses Handbuch beschreibt den aktuellen Bootstrap-fokussierten Alpha-Branch.
+Dieses Handbuch beschreibt Oluntir 2.1.0 BETA im Bootstrap-fokussierten Branch.
 Oluntir 1.3.1 bleibt die stabile Kompatibilitätsbaseline.
 
 ## 1. Laufzeit
@@ -47,7 +47,7 @@ Benutzer auswählbare Blöcke bereit. Source-JavaScript wird nicht ausgeführt.
 
 ## 4. Shared Content
 
-`shared-content-manager.js` verwaltet Header, Navigation und Footer. Änderungen werden zentral gespeichert und nach einem erfolgreichen Commit über alle Projektseiten propagiert. Beim Seitenwechsel wird der sichtbare Canvas zuerst ins Modell übernommen. Fingerprints verhindern unveränderte Schreibvorgänge. Komponentenreferenzen werden pro Seite gecacht.
+`shared-content-manager.js` verwaltet Header, Navigation und Footer. Änderungen werden zentral gespeichert und nach einem erfolgreichen Commit auf die betroffenen Projektseiten propagiert. Das GrapesJS-Projektmodell ist die Autorität; langlebige Komponentenreferenzen werden nicht gecacht. Fingerprints und ein `centralChanged`-Fast-Exit verhindern redundante Zielmutationen und Speichervorgänge.
 
 ## 5. Repeat Foundation
 
@@ -55,7 +55,9 @@ Benutzer auswählbare Blöcke bereit. Source-JavaScript wird nicht ausgeführt.
 Strukturen. Resolver-, Dependency-Graph-, Action-Vertrags- und gezielter
 Synchronisationsdienst-Gates werden ausdrücklich geprüft. Eine ausdrücklich
 definierte Quelle wird über stabile Seiten-, Komponenten- und Zielpositions-IDs
-als Instanz eingesetzt und synchronisiert.
+als Instanz eingesetzt und bidirektional synchronisiert. Das Quellenwerkzeug bearbeitet
+die aktuelle Quelle und setzt sie direkt ein. Das getrennte Listenwerkzeug wählt eine
+benannte projektweite Quelle und führt Zielseite → Position → Einsetzen aus.
 
 ## 6. Logging
 
