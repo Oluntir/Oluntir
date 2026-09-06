@@ -21,8 +21,8 @@ productive framework scope is Bootstrap 4.6.2 and Bootstrap 5.3.8.
 - portable Windows x64 Node.js runtime and local API launchers are present;
 - source recovery, package identity and source-hash documentation is present;
 - GrapesJS remains vendored and versioned at 0.23.2;
-- Repeat Foundation contracts remain present and productive synchronization is
-  disabled;
+- Repeat Foundation contracts and productive synchronization for explicitly
+  defined instances remain present;
 - current README, handbook, feature, release, architecture and compliance
   documentation identifies 2.0.1-alpha and the 1.3.1 baseline;
 - historical 1.3.0/1.3.1 audit records remain separately identifiable.

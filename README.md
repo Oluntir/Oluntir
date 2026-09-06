@@ -35,13 +35,24 @@ from its own Bootstrap source, binds it to the source hash and never reuses it
 for other packages. New versions receive a new analysis and profile identity.
 
 Resource activation and deliberate user insertion for a selected Source Package
-are available. Automatic document mutation, copy logic and repeat
-synchronization remain disabled until a separate gate approval.
+are available. Imported JavaScript files remain disabled. Explicitly defined
+repeatable regions are productively and transactionally synchronized in
+2.0.1-alpha.
 
 DEV028 connects source-bound profiles to the persistent GrapesJS editor through
-a controlled adapter. Source components can be inserted by the user; automatic
-document mutation, repeat synchronization, and source JavaScript execution
-remain gated.
+a controlled adapter. Source components can be inserted by the user; Repeat
+synchronization is enabled for explicitly defined instances and protected by
+the resolver, dependency graph, action contracts and targeted synchronization
+service. Source JavaScript is still not executed automatically.
+
+### Repeat synchronization in 2.0.1-alpha
+
+A repeat definition separates source, instance and component identity through
+stable Oluntir IDs. Source changes propagate only to linked instances. The
+targeted service is transactional: after plan and write validation it updates
+the targets, and on failure rolls back targets already changed. Export then
+reads the consistent project model. Navigation, header and footer remain
+separate Shared Content concerns.
 
 The independent `2.0.1-alpha` branch consolidates the productive framework
 context on Bootstrap 4 and Bootstrap 5. Generic import, analysis and recovery
@@ -69,7 +80,8 @@ as the legacy profile. Unknown packages can be analyzed, but are classified as
 - project favicon, lightbox and download links;
 - single- and dual-monitor workspace;
 - stable internal layout identities;
-- an inactive Repeat Foundation with no visible or productive synchronization;
+- productive Repeat synchronization for explicitly defined areas through stable
+  page, component and target-position identities;
 - optional local logging after explicit consent.
 
 ## Start

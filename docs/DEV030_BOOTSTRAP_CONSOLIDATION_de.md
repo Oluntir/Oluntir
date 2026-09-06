@@ -21,8 +21,9 @@ Verhaltensregeln. Es gibt keinen stillen Bootstrap-Fallback für unbekannte
 Sources.
 
 Die interne Oluntir-„Repeat Foundation“ ist davon unabhängig. Sie bleibt als
-interne Architektur und Consent-Bezeichnung erhalten und ist weiterhin nicht
-für automatische Synchronisation freigeschaltet.
+interne Architektur- und Consent-Bezeichnung erhalten. In 2.0.1-alpha ist die
+produktive Synchronisation für ausdrücklich definierte Repeat-Instanzen nach
+erfolgreicher Vertrags-, Plan- und Schreibprüfung freigeschaltet.
 
 ## Bewusst nicht Bestandteil von DEV030
 
@@ -30,11 +31,13 @@ Die bekannte Schwäche der generischen Source-Komponentenerkennung — etwa
 schlechte Labels oder verschachtelte Demo-Strukturen — wird in DEV030 nicht
 umgebaut. Ein Component Boundary Resolver folgt als eigener Entwicklungsschritt.
 
-Die Repeat-Foundation bleibt unverändert gesperrt:
+Die automatische Ausführung importierter Source-JavaScript-Dateien bleibt
+gesperrt. Das ist von der Repeat-Synchronisation des Oluntir-Projektmodells
+getrennt:
 
 ```text
-productiveSynchronizationEnabled = false
-automaticSynchronizationEnabled = false
+productiveSynchronizationEnabled = true
+automaticSynchronizationEnabled = true
 mutationPerformed = false
 ```
 

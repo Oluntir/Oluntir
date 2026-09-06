@@ -14,6 +14,7 @@
   const dirty = new Map();
   const timers = new Map();
   const runs = new Map();
+  const deferredWhileEditing = new Map();
 
   function dep(name) { return root && root[name]; }
   function text(value) { return value == null ? '' : String(value).trim(); }
@@ -28,6 +29,15 @@
     const values = attrs(component);
     for (const name of names) if (text(values[name])) return text(values[name]);
     return '';
+  }
+
+  function pageForId(pageId) {
+    if (!editor || !editor.Pages || typeof editor.Pages.getAll !== 'function') return null;
+    const identities = dep('OluntirLayoutIdentities');
+    return editor.Pages.getAll().find(page => {
+      const value = identities && identities.pageId ? identities.pageId(page) : page && page.id;
+      return text(value) === text(pageId);
+    }) || null;
   }
 
   function parentOf(component) {
@@ -62,6 +72,8 @@
     const page = editor.Pages.getSelected ? editor.Pages.getSelected() : null;
     return (repeat.getDefinitions ? repeat.getDefinitions() : []).filter(definition => {
       if (!definition || definition.synchronizationPolicy !== repeat.SYNC_POLICY.AUTOMATIC) return false;
+      // Navigation, header and footer are owned exclusively by Shared Content.
+      if (definition.metadata && (definition.metadata.repeatType === 'shared-layout' || definition.metadata.regionRole)) return false;
       if (!definition.source || text(definition.source.pageId) !== pageId) return false;
       const rootIdentity = text(definition.source.rootIdentity);
       if (!rootIdentity) return false;
@@ -70,9 +82,43 @@
     });
   }
 
+  function instanceFor(component) {
+    const repeat = dep('OluntirRepeatEngineV2');
+    const identities = dep('OluntirLayoutIdentities');
+    if (!repeat || !identities || !editor || !editor.Pages) return null;
+    const page = editor.Pages.getSelected ? editor.Pages.getSelected() : null;
+    const currentPageId = selectedPageId();
+    const instances = repeat.getInstances ? repeat.getInstances() : [];
+    for (const instance of instances) {
+      if (!instance || text(instance.pageId) !== currentPageId || instance.state === 'detached') continue;
+      const rootComponent = identities.findById ? identities.findById(page, instance.rootIdentity) : null;
+      if (rootComponent && isWithin(component, rootComponent, instance.rootIdentity)) return instance;
+    }
+    return null;
+  }
+
+  function changeBindingsFor(component) {
+    const repeat = dep('OluntirRepeatEngineV2');
+    if (!repeat) return [];
+    const instance = instanceFor(component);
+    if (instance) {
+      const definition = repeat.getDefinition ? repeat.getDefinition(instance.definitionId) : null;
+      if (definition && definition.synchronizationPolicy === repeat.SYNC_POLICY.AUTOMATIC
+        && !(definition.metadata && (definition.metadata.repeatType === 'shared-layout' || definition.metadata.regionRole))) {
+        return [{ definition, direction: 'instance-to-linked', sourceInstanceId: instance.instanceId }];
+      }
+      return [];
+    }
+    return sourceDefinitionsFor(component).map(definition => ({ definition, direction: 'source-to-instances', sourceInstanceId: null }));
+  }
+
   function runtimeBusy() {
     const runtime = dep('OluntirRepeatSynchronizationRuntime');
     return !!(runtime && typeof runtime.isBusy === 'function' && runtime.isBusy());
+  }
+
+  function richTextEditing() {
+    return typeof root.OluntirIsRichTextEditing === 'function' && root.OluntirIsRichTextEditing();
   }
 
   function logger(level, message, data) {
@@ -108,7 +154,7 @@
     return engine.dispatch(contracts.createAction(type, payload || {}, { origin: 'repeat-auto-sync' }));
   }
 
-  function error(code, message) { const value = new Error(message); value.code = code; return value; }
+  function error(code, message, details) { const value = new Error(message); value.code = code; value.details = clone(details || null); return value; }
 
   async function process(definitionId) {
     if (runs.has(definitionId)) return runs.get(definitionId);
@@ -119,41 +165,70 @@
       if (!ensureHandlers() || !contracts) throw error('REPEAT_AUTO_CONTRACTS_MISSING', 'Repeat Action Contracts sind nicht verfügbar.');
       entry.status = STATUS.PLANNING;
       entry.startedAt = now();
-      await dispatch(contracts.ACTION_TYPE.MARK_DIRTY, { definitionId, reference: definitionId, reason: Array.from(entry.reasons).join(',') || 'source-change' });
-      const planResult = await dispatch(contracts.ACTION_TYPE.PLAN, { definitionId, reference: definitionId });
+      const direction = entry.direction || 'source-to-instances';
+      const sourceInstanceId = entry.sourceInstanceId || null;
+      const actionPayload = { definitionId, reference: definitionId, direction, sourceInstanceId };
+      await dispatch(contracts.ACTION_TYPE.MARK_DIRTY, Object.assign({}, actionPayload, { reason: Array.from(entry.reasons).join(',') || 'source-change' }));
+      const planResult = await dispatch(contracts.ACTION_TYPE.PLAN, actionPayload);
       const plan = actionValue(planResult, 'repeat-targeted-sync-plan');
-      if (!plan || plan.blocked || !plan.valid) throw error('REPEAT_AUTO_PLAN_BLOCKED', 'Automatischer Repeat-Synchronisationsplan ist blockiert.');
+      if (!plan || plan.blocked || !plan.valid) {
+        const planIssues = plan && Array.isArray(plan.issues) ? clone(plan.issues) : [];
+        if (!plan) planIssues.push({ code: 'REPEAT_AUTO_PLAN_MISSING', message: 'Die Plan-Aktion hat keinen Repeat-Synchronisationsplan geliefert.' });
+        else if (!planIssues.length) planIssues.push({ code: 'REPEAT_AUTO_PLAN_INVALID_WITHOUT_ISSUES', message: 'Der Plan ist ungültig oder blockiert, enthält aber keinen Vertragsfehler.', details: { valid: Boolean(plan.valid), blocked: Boolean(plan.blocked) } });
+        const issueCodes = planIssues.map(issue => text(issue && issue.code)).filter(Boolean);
+        const details = {
+          definitionId,
+          direction,
+          sourceInstanceId,
+          valid: Boolean(plan && plan.valid),
+          blocked: Boolean(plan && plan.blocked),
+          operationCount: plan && Array.isArray(plan.operations) ? plan.operations.length : 0,
+          issueCodes,
+          issues: planIssues
+        };
+        logger('error', 'repeat.auto-plan-blocked', details);
+        throw error('REPEAT_AUTO_PLAN_BLOCKED', 'Automatischer Repeat-Synchronisationsplan ist blockiert: ' + issueCodes.join(', '), details);
+      }
       const prepareResult = await dispatch(contracts.ACTION_TYPE.PREPARE_SYNC, { plan });
       const prepared = actionValue(prepareResult);
-      if (!prepared || prepared.ready !== true) throw error('REPEAT_AUTO_PREPARE_BLOCKED', 'Automatische Repeat-Synchronisation ist nicht bereit.');
+      if (!prepared || prepared.ready !== true) {
+        const prepareIssues = prepared && Array.isArray(prepared.issues) ? clone(prepared.issues) : [{ code: 'REPEAT_AUTO_PREPARE_RESULT_MISSING', message: 'Die Prepare-Aktion hat kein ausführbares Ergebnis geliefert.' }];
+        if (!prepareIssues.length) prepareIssues.push({ code: 'REPEAT_AUTO_PREPARE_NOT_READY', message: 'Die Prepare-Aktion meldet ready=false ohne Vertragsfehler.' });
+        const details = { definitionId, direction, sourceInstanceId, issues: prepareIssues };
+        logger('error', 'repeat.auto-prepare-blocked', details);
+        throw error('REPEAT_AUTO_PREPARE_BLOCKED', 'Automatische Repeat-Synchronisation ist nicht bereit: ' + prepareIssues.map(issue => text(issue && issue.code)).filter(Boolean).join(', '), details);
+      }
       entry.status = STATUS.SYNCHRONIZING;
-      const syncResult = await dispatch(contracts.ACTION_TYPE.SYNC, { definitionId, reference: definitionId, plan });
+      const syncResult = await dispatch(contracts.ACTION_TYPE.SYNC, { definitionId, reference: definitionId, direction, sourceInstanceId, plan });
       entry.status = STATUS.SETTLING;
       entry.lastResult = actionValue(syncResult) || syncResult;
       entry.completedAt = now();
       await new Promise(resolve => setTimeout(resolve, 0));
       dirty.delete(definitionId);
-      logger('info', 'repeat.auto-sync.completed', { definitionId, reasons: Array.from(entry.reasons), eventCount: entry.eventCount });
+      logger('info', 'repeat.auto-sync.completed', { definitionId, direction, sourceInstanceId, reasons: Array.from(entry.reasons), eventCount: entry.eventCount });
       return entry.lastResult;
     })().catch(cause => {
       entry.status = STATUS.FAILED;
-      entry.error = { code: cause && cause.code || 'REPEAT_AUTO_SYNC_FAILED', message: cause && cause.message || String(cause) };
+      entry.error = { code: cause && cause.code || 'REPEAT_AUTO_SYNC_FAILED', message: cause && cause.message || String(cause), details: clone(cause && cause.details || null) };
       entry.completedAt = now();
-      logger('error', 'repeat.auto-sync.failed', { definitionId, error: entry.error });
+      logger('error', 'repeat.auto-sync.failed', { definitionId, direction: entry.direction || null, sourceInstanceId: entry.sourceInstanceId || null, error: entry.error });
       return null;
     }).finally(() => runs.delete(definitionId));
     runs.set(definitionId, promise);
     return promise;
   }
 
-  function schedule(definition, reason) {
+  function schedule(binding, reason) {
+    const definition = binding && binding.definition ? binding.definition : binding;
     const definitionId = text(definition && definition.definitionId);
     if (!definitionId) return;
     let entry = dirty.get(definitionId);
     if (!entry) {
-      entry = { definitionId, status: STATUS.COLLECTING, reasons: new Set(), eventCount: 0, firstChangedAt: now(), lastChangedAt: null, startedAt: null, completedAt: null, lastResult: null, error: null };
+      entry = { definitionId, direction: binding && binding.direction || 'source-to-instances', sourceInstanceId: binding && binding.sourceInstanceId || null, status: STATUS.COLLECTING, reasons: new Set(), eventCount: 0, firstChangedAt: now(), lastChangedAt: null, startedAt: null, completedAt: null, lastResult: null, error: null };
       dirty.set(definitionId, entry);
     }
+    entry.direction = binding && binding.direction || entry.direction || 'source-to-instances';
+    entry.sourceInstanceId = binding && binding.sourceInstanceId || entry.sourceInstanceId || null;
     entry.status = STATUS.COLLECTING;
     entry.reasons.add(text(reason) || 'component-updated');
     entry.eventCount += 1;
@@ -168,7 +243,29 @@
   function onChange(reason) {
     return component => {
       if (!component || runtimeBusy()) return;
-      sourceDefinitionsFor(component).forEach(definition => schedule(definition, reason));
+      changeBindingsFor(component).forEach(binding => {
+        if (richTextEditing()) {
+          const definitionId = text(binding.definition && binding.definition.definitionId);
+          const key = `${definitionId}:${binding.direction || 'source-to-instances'}:${binding.sourceInstanceId || ''}`;
+          deferredWhileEditing.set(key, { binding, reason });
+          logger('info', 'repeat.change-deferred', {
+            definitionId,
+            direction: binding.direction,
+            sourceInstanceId: binding.sourceInstanceId || null,
+            reason
+          });
+          return;
+        }
+        logger('info', 'repeat.change-detected', {
+          definitionId: binding.definition && binding.definition.definitionId,
+          direction: binding.direction,
+          sourceInstanceId: binding.sourceInstanceId || null,
+          pageId: selectedPageId(),
+          componentIdentity: identityOf(component),
+          reason
+        });
+        schedule(binding, reason);
+      });
     };
   }
 
@@ -179,6 +276,11 @@
     ['component:update', 'component:styleUpdate'].forEach(name => editor.on(name, onChange(name)));
     editor.on('component:add', onChange('component:add'));
     editor.on('component:remove', onChange('component:remove'));
+    editor.on('rte:disable', () => {
+      const pending = Array.from(deferredWhileEditing.values());
+      deferredWhileEditing.clear();
+      pending.forEach(entry => schedule(entry.binding, `${entry.reason || 'component-updated'}:rte-complete`));
+    });
     bound = true;
     ensureHandlers();
     return true;
@@ -199,8 +301,11 @@
       delayMs,
       dirtyCount: dirty.size,
       runningCount: runs.size,
+      deferredCount: deferredWhileEditing.size,
       definitions: Array.from(dirty.values()).map(entry => ({
         definitionId: entry.definitionId,
+        direction: entry.direction,
+        sourceInstanceId: entry.sourceInstanceId,
         status: entry.status,
         reasons: Array.from(entry.reasons),
         eventCount: entry.eventCount,
@@ -215,7 +320,7 @@
 
   function reset() {
     for (const timer of timers.values()) clearTimeout(timer);
-    timers.clear(); dirty.clear(); runs.clear(); handlersRegistered = false;
+    timers.clear(); dirty.clear(); runs.clear(); deferredWhileEditing.clear(); handlersRegistered = false;
   }
 
   return Object.freeze({ STATUS, bind, flush, getDiagnostics, reset, _sourceDefinitionsFor: sourceDefinitionsFor, _schedule: schedule });

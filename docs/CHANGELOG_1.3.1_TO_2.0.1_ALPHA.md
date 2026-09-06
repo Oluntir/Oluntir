@@ -125,21 +125,24 @@ technical overview.
 - Added or strengthened export, asset, gallery, block-search and framework
   switch regression coverage.
 
-## 10. Repeat Foundation and safety gates
+## 10. Repeat Foundation and productive synchronization
 
 - Extended Repeat Foundation readiness with explicit checks for the resolver,
   dependency graph, action contracts and targeted synchronization service.
-- The following states remain enforced:
+- The four contracts are fully connected in 2.0.1-alpha. For explicitly
+  defined repeat instances:
 
   ```text
-  productiveSynchronizationEnabled = false
-  automaticSynchronizationEnabled = false
-  executionEnabled = false
+  productiveSynchronizationEnabled = true
+  automaticSynchronizationEnabled = true
+  executionEnabled = true
   mutationPerformed = false
   ```
 
-- Repeatable-element architecture is retained, but productive synchronization
-  is not enabled by this branch.
+- Mutation occurs only after resolver, graph, action and write validation. The
+  targeted synchronization service is atomic and rolls back targets already
+  changed when an error occurs. Imported source JavaScript remains disabled
+  separately.
 
 ## 11. Tests and compliance
 

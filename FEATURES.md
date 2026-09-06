@@ -38,7 +38,7 @@ consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.
 - Stable layout identities
 - Read-only resolvers and dependency graph
 - Action and validation contracts
-- Inactive Repeat Foundation for preparation only; no visible or productive synchronization
+- Productive Repeat synchronization for explicitly defined areas with stable identities
 - Static HTML, CSS and JavaScript evidence analysis
 - OIR project model, capability manifest and read-only knowledge compiler
 - Translation matrix and JavaScript behavior resolver

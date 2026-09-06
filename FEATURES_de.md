@@ -38,7 +38,7 @@ konsolidiert die produktive Frameworkunterstützung auf Bootstrap 4.6.2 und 5.3.
 - stabile Layout-Identitäten
 - read-only Resolver und Dependency Graph
 - Action- und Validierungsverträge
-- inaktive Repeat Foundation als Vorbereitung; keine sichtbare oder produktive Synchronisation
+- produktive Repeat-Synchronisation für ausdrücklich definierte Bereiche mit stabilen Identitäten
 - Statische Evidenzanalyse für HTML, CSS und JavaScript
 - OIR-Projektmodell, Capability-Manifest und read-only Knowledge Compiler
 - Übersetzungsmatrix und JavaScript-Behavior-Resolver

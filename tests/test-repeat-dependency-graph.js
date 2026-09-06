@@ -38,5 +38,5 @@ const cyclic = graphApi.buildProject(editor).snapshot();
 assert.strictEqual(cyclic.valid, false);
 assert.strictEqual(cyclic.cycleCount, 1);
 assert.ok(cyclic.issues.some(item => item.code === 'REPEAT_DEPENDENCY_CYCLE'));
-assert.throws(() => repeat.apply(), error => error && error.code === 'REPEAT_SYNC_NOT_AVAILABLE_IN_1_3_1');
+assert.throws(() => repeat.apply(), error => error && error.code === 'REPEAT_SYNC_RUNTIME_MISSING');
 console.log('Repeat Dependency Graph DEV_003: OK');

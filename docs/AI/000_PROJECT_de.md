@@ -13,5 +13,6 @@ aktuelle Bootstrap-fokussierte Entwicklungsbranch.
 - Konkrete Editorunterstützung auf Bootstrap 4.6.2 und 5.3.8 begrenzen.
 - Generische Analyzer-/Compiler-Architektur für spätere versionsgebundene
   Analysen erhalten; unbekannte Frameworks als `analysis-only` einstufen.
-- Ausführung importierter Sources, automatische Dokumentmutation und produktive
-  Repeat-Synchronisation bis zu einer ausdrücklichen Vertragsfreigabe deaktiviert halten.
+- Ausführung importierter Sources deaktiviert halten. Produktive
+  Repeat-Synchronisation ausschließlich über den implementierten Resolver,
+  Dependency Graph, Action Contracts und gezielten Synchronisationsdienst ausführen.

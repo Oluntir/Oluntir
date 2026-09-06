@@ -16,5 +16,6 @@ Source Package manifest.
 
 The manifest describes evidence and risk, not permission for runtime execution.
 The later behavior matrix must resolve trigger, target, state, version,
-dependencies and compatible implementation before activation. Automatic
-document mutation and repeat synchronization remain disabled.
+dependencies and compatible implementation before activation. Imported
+JavaScript execution remains disabled; Repeat synchronization of the Oluntir
+project model is a separate, explicitly defined service path.

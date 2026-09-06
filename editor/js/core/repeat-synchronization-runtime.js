@@ -23,7 +23,7 @@
     if (!editor || !actions) { const error = new Error('Repeat synchronization dependencies are missing.'); error.code = 'REPEAT_SYNC_DEPENDENCY_MISSING'; throw error; }
     return applyPlan(editor, actions.createPlan(editor, { reference: reference }));
   }
-  function getState() { return Object.assign({}, service ? service.getState() : { transactionCount: 0, activeLockCount: 0, executionEnabled: false }, { status: status }); }
+  function getState() { return Object.assign({}, service ? service.getState() : { transactionCount: 0, activeLockCount: 0, executionEnabled: true }, { status: status }); }
   function isBusy() { return status === 'synchronizing' || status === 'settling'; }
   return Object.freeze({ apply, applyPlan, getState, isBusy });
 });

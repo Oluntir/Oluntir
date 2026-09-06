@@ -1,5 +1,83 @@
 # Changelog
 
+## 2.0.1-alpha v16 — 05.09.2026
+
+- Shared-Content-Änderungen in Navigation und Footer werden beim Rückweg von
+  Unterseiten direkt aus dem aktuellen GrapesJS-Komponentenmodell übernommen.
+  Ein veralteter Canvas-HTML-Stand kann die zentrale Quelle dadurch nicht mehr
+  überschreiben.
+- Die Zielauswahl wird nach einem Canvas-Klick nicht mehr durch das zusätzliche
+  `component:selected`-Ereignis auf einen übergeordneten Bereich verschoben.
+- Blockierte Repeat-Pläne schreiben nun ihre konkreten Validierungsprobleme in
+  das Diagnose-Log.
+- Cache-Buster auf `repeat-v16` aktualisiert.
+
+## 2.0.1-alpha v15 — 05.09.2026
+
+- Der Persistenzlauf nach einem Seitenwechsel schreibt den frisch synchronisierten
+  Shared-Content-Stand nicht mehr aus dem noch nicht aktualisierten Ziel-Canvas
+  zurück. Damit bleibt insbesondere die Richtung neue Seite → Index für Header,
+  Navigation und Footer erhalten.
+- Repeat-Änderungen während einer aktiven Rich-Text-Bearbeitung werden gesammelt
+  und erst nach `rte:disable` synchronisiert. Dadurch bleiben Textcursor und
+  Eingabefluss stabil.
+- Die Repeat-Zielauswahl trennt Hover-Vorschau und bestätigten Mausklick. Die
+  orange Markierung bleibt bis zum Einsetzen oder Löschen bestehen; echte
+  Grenzen zwischen direkten `main`-Bereichen können ausgewählt werden.
+- Cache-Buster auf `repeat-v15` aktualisiert.
+
+## 2.0.1-alpha v14 — 05.09.2026
+
+- Zielauswahl zeigt wieder beim Überfahren eines Canvas-Bereichs die orange
+  Einfügeposition; die Auswahl und das produktive Einsetzen verwenden weiterhin
+  denselben Document-API-Resolver.
+- Ein aktiver RTE wird vor dem Seitenwechsel abgeschlossen, damit Änderungen
+  der neuen Seite in das GrapesJS-Projektmodell und den Projektsnapshot gelangen.
+- Seitenwechsel protokollieren die erkannte Quell- und Zielseite für die weitere
+  Laufzeitdiagnose.
+- Cache-Buster auf `repeat-v14` aktualisiert.
+
+## 2.0.1-alpha v13 — 05.09.2026
+
+- RTE-/Textcursor-Bearbeitung wird im Shared-Content-Pfad nicht mehr durch
+  einen verzögerten Re-Render unterbrochen.
+- Nav, Header und Footer übernehmen vor dem Seitenwechsel wieder den aktuellen
+  sichtbaren Zustand der Quellseite; die Rückrichtung neue Seite → Index bleibt
+  dabei im zentralen Shared-Content-Manager.
+- Repeat-Änderungen werden über stabile Quell-IDs auch aus einer eingesetzten
+  Instanz erkannt und als gezielter Transaktionsplan zur Quelle und zu allen
+  übrigen Instanzen zurückgeschrieben.
+- Shared Layouts werden nicht zusätzlich durch die Repeat-Automatik verwaltet.
+- Neue Reverse-Synchronisations-, Identity-Mapping- und RTE-Regressionstests;
+  Cache-Buster auf `repeat-v13` aktualisiert.
+
+## 2.0.1-alpha v12 — 05.09.2026
+
+- Repeat-Ziele verwenden jetzt den bestehenden GrapesJS-/Dokument-Resolver mit
+  stabilen Seiten-, Parent- und Anchor-IDs; das feste DOM-Hover-Overlay wurde entfernt.
+- „Im Bereich“, „davor“ und „danach“ zeigen die echte Strukturgrenze auch bei
+  null, einem oder mehreren sichtbaren Seitenbereichen.
+- Repeat-Markierungen erscheinen orange erst nach einer gültigen Auswahl und
+  werden beim Löschen, Abschluss oder erneuten Öffnen zuverlässig entfernt.
+- Shared Content schreibt den zentralen Snapshot und propagiert Änderungen aus
+  Header, Navigation und Footer über den Shared Content Manager auf alle Seiten;
+  Diagnoseereignisse protokollieren Quelle, Region, Pfad und Zieländerungen.
+- Cache-Buster auf `repeat-v12` aktualisiert; Vertragstests und Hashes erneuert.
+
+## 2.0.1-alpha v11 — 05.09.2026
+
+- Shared Content propagiert Änderungen aus Header, Navigation und Footer jetzt
+  über den betroffenen Komponentenpfad auf alle Projektseiten, auch beim
+  Rückweg von einer neu angelegten Seite zum Index.
+- Der Repeat-Dialog setzt Quelle, Definition, Zielseite und Zielknoten nach
+  erfolgreichem Einsetzen zurück, ohne die Projektdefinitionen zu löschen.
+- Die Zielseite bleibt beim Wechsel der Repeat-Definition erhalten; nur der
+  konkrete Zielknoten wird neu markiert.
+- Hover-Ziele lösen keine globale `<main>`-Einfügelinie mehr aus. Einfügeposition
+  und Zielknoten werden eindeutig am gewählten GrapesJS-Baustein berechnet.
+- Cache-Buster auf `repeat-v11` aktualisiert; SHA256SUMS und Vertragstests
+  erneuert.
+
 ## 2.0.1-alpha — 04.09.2026
 
 - Portable Windows-x64-Node.js-Runtime und lokale Analyzer-API-Starter ergänzt.
@@ -15,7 +93,8 @@
   unbekannte Sources bleiben `analysis-only`.
 - Frameworkeigene Galeriebehandlung, Lightbox, Vorschaukorrekturen und
   Export-Regressionstests ergänzt.
-- Repeat-Foundation-Ausführung und produktive Synchronisation bleiben deaktiviert.
+- Repeat-Foundation-Ausführung und produktive Synchronisation sind für
+  ausdrücklich definierte Wiederholungsinstanzen aktiviert.
 
 ## 1.3.1 — 02.08.2026
 - Globale optionale Klickvergrößerung für Bilder ergänzt: Aktivierung direkt im Bildmanager oder nachträglich über die Schnellbearbeitung; persistent in Cards, Grids, Textbereichen und beliebigen Bildkomponenten sowie vollständig in HTML-, SSI- und PHP-Exporten verfügbar.

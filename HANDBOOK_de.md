@@ -47,14 +47,15 @@ Benutzer auswählbare Blöcke bereit. Source-JavaScript wird nicht ausgeführt.
 
 ## 4. Shared Content
 
-`shared-content-manager.js` verwaltet Header, Navigation und Footer. Änderungen werden zentral gespeichert. Beim Seitenwechsel wird nur die benötigte Zielseite aktualisiert. Fingerprints verhindern unveränderte Schreibvorgänge. Komponentenreferenzen werden pro Seite gecacht.
+`shared-content-manager.js` verwaltet Header, Navigation und Footer. Änderungen werden zentral gespeichert und nach einem erfolgreichen Commit über alle Projektseiten propagiert. Beim Seitenwechsel wird der sichtbare Canvas zuerst ins Modell übernommen. Fingerprints verhindern unveränderte Schreibvorgänge. Komponentenreferenzen werden pro Seite gecacht.
 
 ## 5. Repeat Foundation
 
 `repeat-engine-v2.js` enthält das technische Datenmodell für wiederholbare
 Strukturen. Resolver-, Dependency-Graph-, Action-Vertrags- und gezielter
-Synchronisationsdienst-Gates werden ausdrücklich geprüft. Die produktive
-Synchronisation bleibt in diesem Alpha deaktiviert.
+Synchronisationsdienst-Gates werden ausdrücklich geprüft. Eine ausdrücklich
+definierte Quelle wird über stabile Seiten-, Komponenten- und Zielpositions-IDs
+als Instanz eingesetzt und synchronisiert.
 
 ## 6. Logging
 

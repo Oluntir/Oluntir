@@ -16,8 +16,9 @@ or change an existing document.
 After an imported framework profile is selected, the Frontend Bridge loads the
 catalog through the local API and registers the entries as normal GrapesJS
 blocks. Local `src`, `href` and `poster` references are mapped to the API file
-route for the associated Source Package. Automatic document mutation and
-repeat synchronization remain disabled.
+route for the associated Source Package. Automatic document mutation from an
+imported source remains disabled; Repeat synchronization starts only after the
+user explicitly defines a repeatable region.
 
 The catalog is regenerated from restored source data after every import or
 JSON recovery, so it remains derived data rather than an independent source of

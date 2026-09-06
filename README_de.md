@@ -38,14 +38,26 @@ gebunden und nicht für andere Packages wiederverwendet. Neue Versionen werden
 als eigene Analyse mit eigener Profilidentität aufgenommen.
 
 Die Ressourcenaktivierung und die bewusste Benutzer-Einfügung eines
-ausgewählten Source Packages sind möglich. Automatische Dokumentmutation,
-Kopierlogik und Wiederholungs-Synchronisation bleiben bis zur separaten
-Gate-Freigabe deaktiviert.
+ausgewählten Source Packages sind möglich. Die Ausführung importierter
+JavaScript-Dateien bleibt deaktiviert. Explizit definierte Wiederholbare
+Bereiche werden dagegen in 2.0.1-alpha produktiv und transaktional synchronisiert.
 
 DEV028 verbindet die quellengebundenen Profile über eine kontrollierte
 Adapter-Schicht mit dem persistenten GrapesJS-Editor. Source-Komponenten
-können als Benutzer-Blöcke eingefügt werden; automatische Dokumentmutation,
-Repeat-Synchronisation und Source-JavaScript-Ausführung bleiben gesperrt.
+können als Benutzer-Blöcke eingefügt werden; die Repeat-Synchronisation ist
+für ausdrücklich definierte Instanzen freigegeben und durch Resolver,
+Dependency Graph, Action Contracts und den gezielten Synchronisationsdienst
+abgesichert. Source-JavaScript wird weiterhin nicht automatisch ausgeführt.
+
+### Repeat-Synchronisation in 2.0.1-alpha
+
+Eine Repeat-Definition trennt Quelle, Instanz und Komponentenidentität über
+stabile Oluntir-IDs. Änderungen an der Quelle werden nur an ihre verknüpften
+Instanzen propagiert. Der Synchronisationsdienst arbeitet atomar: Nach
+erfolgreichem Plan und Schreibprüfung wird aktualisiert; bei einem Fehler
+werden bereits geänderte Ziele zurückgesetzt. Der Export liest danach das
+konsistente Projektmodell. Nav, Header und Footer bleiben als Shared Content
+separat behandelt.
 
 Der eigenständige Branch `2.0.1-alpha` konsolidiert den produktiven
 Frameworkkontext auf Bootstrap 4 und Bootstrap 5. Generische Import-,
@@ -74,7 +86,8 @@ und nicht stillschweigend Bootstrap zugeordnet.
 - Projekt-Favicon, Lightbox und Download-Links;
 - Ein- und Zwei-Monitor-Arbeitsbereich;
 - stabile interne Layout-Identitäten;
-- vorbereitete, inaktive Repeat Foundation ohne sichtbare oder produktive Synchronisation;
+- produktive Repeat-Synchronisation für ausdrücklich definierte Bereiche über
+  stabile Seiten-, Komponenten- und Zielpositions-IDs;
 - optionales lokales Logging nach ausdrücklicher Zustimmung.
 
 ## Start

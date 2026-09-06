@@ -123,22 +123,25 @@ ersetzen diese aktuelle technische Gesamtübersicht nicht.
 - Regressionstests für Export, Assets, Galerie, Bausteinsuche und
   Frameworkwechsel ergänzt bzw. erweitert.
 
-## 10. Repeat Foundation und Sicherheits-Gates
+## 10. Repeat Foundation und produktive Synchronisation
 
 - Repeat-Foundation-Readiness um explizite Prüfungen für Resolver,
   Dependency Graph, Action-Verträge und gezielten Synchronisationsdienst
   erweitert.
-- Folgende Zustände bleiben erzwungen:
+- Die vier Verträge sind in 2.0.1-alpha vollständig verbunden. Für explizit
+  definierte Repeat-Instanzen gelten:
 
   ```text
-  productiveSynchronizationEnabled = false
-  automaticSynchronizationEnabled = false
-  executionEnabled = false
+  productiveSynchronizationEnabled = true
+  automaticSynchronizationEnabled = true
+  executionEnabled = true
   mutationPerformed = false
   ```
 
-- Die Architektur für wiederholbare Elemente bleibt erhalten, die produktive
-  Synchronisation ist in diesem Branch jedoch nicht aktiviert.
+- Die Mutation erfolgt nur nach erfolgreicher Resolver-, Graph-, Action- und
+  Schreibprüfung. Der gezielte Synchronisationsdienst arbeitet atomar und
+  setzt bereits geänderte Ziele bei einem Fehler zurück. Importiertes
+  Source-JavaScript bleibt davon getrennt deaktiviert.
 
 ## 11. Tests und Compliance
 

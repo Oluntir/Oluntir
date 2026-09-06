@@ -1,5 +1,16 @@
 'use strict';
 const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+
+const autoSource = fs.readFileSync(path.join(__dirname, '../editor/js/core/repeat-auto-synchronization.js'), 'utf8');
+assert.ok(autoSource.includes('function richTextEditing()'), 'Repeat-Automatik besitzt keinen RTE-Schutz.');
+assert.ok(autoSource.includes('repeat.change-deferred'), 'RTE-Änderungen werden nicht bis zum Ende der Texteingabe zurückgestellt.');
+assert.ok(autoSource.includes("editor.on('rte:disable'"), 'Die zurückgestellten Repeat-Änderungen werden nicht nach RTE-Ende freigegeben.');
+assert.ok(autoSource.includes('REPEAT_AUTO_PLAN_MISSING'), 'Ein fehlender Plan muss als konkrete Ursache protokolliert werden.');
+assert.ok(autoSource.includes('REPEAT_AUTO_PLAN_INVALID_WITHOUT_ISSUES'), 'Ein vertragswidrig ursachenlos blockierter Plan muss selbst als Fehler ausgewiesen werden.');
+assert.ok(autoSource.includes('issueCodes'), 'Blockierte Auto-Pläne müssen konkrete Issue-Codes in Diagnose und Fehlermeldung tragen.');
+assert.ok(autoSource.includes('details: clone(cause && cause.details || null)'), 'Die Abschlussdiagnose darf konkrete Plan-/Prepare-Ursachen nicht verlieren.');
 
 function component(identity, parent) {
   return {

@@ -43,8 +43,10 @@ local folder/archive/URL
 - Logging ist optional, lokal und berechtigungsgebunden.
 - Concrete editor profiles are limited to Bootstrap 4.6.2 and 5.3.8.
 - Unknown Source Packages remain analysis-only.
-- Imported source JavaScript, automatic document mutation and productive Repeat
-  synchronization are disabled.
+- Imported source JavaScript is not executed.
+- User-defined Repeat definitions are productively and atomically synchronized
+  through the resolver, dependency graph, action contracts and targeted
+  synchronization service.
 
 ## Performance
 

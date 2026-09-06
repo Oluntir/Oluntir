@@ -526,7 +526,7 @@
           else top = parentRect.top;
         } else if (target.mode === 'after') top = referenceRect.bottom;
         else if (target.mode === 'inside-start') top = referenceRect.top + 8;
-        else if (target.mode === 'inside-end') top = referenceRect.bottom - 8;
+        else if (target.mode === 'inside-end') top = beforeRect ? beforeRect.bottom : parentRect.top;
 
         const doc = reference.ownerDocument;
         const viewportWidth = Math.max(
@@ -574,9 +574,11 @@
 
         const doc = geometry.document;
         const isAreaInsert = target.slotKind === 'new-gallery-area';
+        const isRepeatInsert = target.targetType === 'repeat-component-boundary';
         const accent = isAreaInsert ? '#ff5a00' : '#1687ff';
-        const textColor = isAreaInsert ? '#a83b00' : '#0b5fad';
-        const labelText = isAreaInsert ? 'NEUER GALERIE-BEREICH' : 'HIER PLATZIEREN';
+        const markerAccent = isRepeatInsert ? '#ff8a00' : accent;
+        const textColor = isAreaInsert || isRepeatInsert ? '#8a4300' : '#0b5fad';
+        const labelText = isAreaInsert ? 'NEUER GALERIE-BEREICH' : isRepeatInsert ? 'WIEDERHOLBAREN INHALT HIER EINSETZEN' : 'HIER PLATZIEREN';
         const marker = doc.createElement('div');
         marker.setAttribute('data-oluntir-insertion-marker', 'true');
         marker.setAttribute('data-oluntir-insertion-marker-kind', isAreaInsert ? 'gallery-area' : 'row');
@@ -613,7 +615,7 @@
           marker.style.left = `${Math.max(4, geometry.left)}px`;
           marker.style.width = `${geometry.width}px`;
           marker.style.height = '0';
-          marker.style.borderTop = `4px solid ${accent}`;
+          marker.style.borderTop = `4px solid ${markerAccent}`;
         }
 
         const label = doc.createElement('span');
@@ -622,7 +624,7 @@
         label.style.padding = isAreaInsert ? '4px 12px' : '2px 8px';
         label.style.borderRadius = '999px';
         label.style.background = '#fff';
-        label.style.border = `1px solid ${accent}`;
+        label.style.border = `1px solid ${markerAccent}`;
         if (!isAreaInsert) {
           label.style.position = 'relative';
           label.style.top = '-9px';

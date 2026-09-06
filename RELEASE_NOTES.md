@@ -20,8 +20,9 @@ It consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.
 - framework-owned gallery structures, image lightbox, preview improvements and
   export regression fixes.
 
-Automatic document mutation, imported-source JavaScript execution and
-productive repeat synchronization remain disabled.
+Imported-source JavaScript execution remains disabled. Explicitly defined
+Repeat areas are inserted and synchronized productively through stable
+identities; header, navigation and footer use only the Shared Content Manager.
 
 ## Main changes
 
@@ -32,7 +33,8 @@ productive repeat synchronization remain disabled.
 - new gallery insertion points between complete page areas;
 - more reliable export snapshots and responsive image output;
 - consolidated framework and icon sources for Bootstrap 4 and 5;
-- an inactive Repeat Foundation with no productive behavior.
+- productive Repeat areas with target selection, clear/reset workflow,
+  structural insertion positions and persistent instance linkage.
 
 ## Compatibility
 

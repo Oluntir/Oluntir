@@ -654,6 +654,35 @@ html, body {
   padding-left: 10px;
   padding-right: 10px;
 }
+
+/* Das Listen-Werkzeug sitzt in der GrapesJS-views-Leiste. Der Selektor muss
+   deshalb sowohl views als auch options abdecken. Die kleine orange Liste macht
+   das zweite Repeat-Symbol auch ohne Tooltip eindeutig unterscheidbar. */
+.gjs-pn-options .gjs-pn-btn[data-oluntir-repeat-library-tool="true"],
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-library-tool="true"] { position: relative; overflow: visible !important; }
+.gjs-pn-options .gjs-pn-btn[data-oluntir-repeat-library-tool="true"]::after,
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-library-tool="true"]::after {
+  content:"";
+  position:absolute;
+  right:0;
+  bottom:0;
+  width:16px;
+  height:16px;
+  border:1px solid rgba(30,34,40,.85);
+  border-radius:3px;
+  background:
+    linear-gradient(#ffffff,#ffffff) 5px 3px / 8px 2px no-repeat,
+    linear-gradient(#ffffff,#ffffff) 5px 7px / 8px 2px no-repeat,
+    linear-gradient(#ffffff,#ffffff) 5px 11px / 8px 2px no-repeat,
+    radial-gradient(circle at 2.5px 4px,#ffffff 0 1px,transparent 1.5px),
+    radial-gradient(circle at 2.5px 8px,#ffffff 0 1px,transparent 1.5px),
+    radial-gradient(circle at 2.5px 12px,#ffffff 0 1px,transparent 1.5px),
+    #f39c12;
+  box-shadow:0 0 0 1px rgba(255,255,255,.18);
+  z-index:5;
+  pointer-events:none;
+}
+.oluntir-repeat-current-source { padding:8px; background:#1d2025; border-left:3px solid #2878d4; color:#e6e9ed; font-size:12px; line-height:1.45; }
 .gjs-pn-options .gjs-pn-btn[data-pb-toolbar-separator="true"] {
   margin-left: 8px;
   border-left: 1px solid rgba(255,255,255,.18);
@@ -701,6 +730,20 @@ html, body, button, input, select, textarea,
   font-family: gjs-fonts !important;
 }
 body { background: var(--oluntir-bg); }
+.oluntir-repeat-panel { position: fixed; z-index: 12000; top: 104px; right: 0; bottom: 0; width: 350px; overflow:auto; padding: 12px; background:#24262a; color:#f2f2f2; border-left:1px solid #4a4d54; box-shadow:-4px 0 14px rgba(0,0,0,.35); }
+.oluntir-repeat-panel[hidden] { display:none; }
+body.oluntir-tool-window .oluntir-repeat-panel { position:absolute; inset:50px 0 0; width:auto; max-width:none; box-sizing:border-box; border:0; border-top:1px solid #4a4d54; box-shadow:none; }
+.oluntir-repeat-panel-head { display:flex; justify-content:space-between; gap:8px; align-items:flex-start; border-bottom:1px solid #4a4d54; padding-bottom:9px; margin-bottom:10px; }
+.oluntir-repeat-head-actions { display:flex; gap:4px; align-items:center; }
+.oluntir-repeat-panel h2 { margin:0; font-size:16px; }.oluntir-repeat-panel h3 { margin:0 0 8px; font-size:13px; }.oluntir-repeat-panel p { margin:4px 0; color:#b5b7bc; font-size:11px; line-height:1.35; }
+.oluntir-repeat-section-title { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.oluntir-repeat-help { width:26px; height:26px; margin:0; padding:0 !important; border-radius:50%; }
+.oluntir-repeat-help-popover { margin:0 0 10px; padding:9px 10px; background:#1d2025; border:1px solid #59616c; border-left:3px solid #6bc786; color:#e9edf2; font-size:11px; line-height:1.4; }
+.oluntir-repeat-help-popover ol { margin:6px 0 0 18px; padding:0; }
+.oluntir-repeat-target-info { margin:8px 0; padding:8px; background:#1d2025; border-left:3px solid #6bc786; color:#d8dbe0; font-size:11px; line-height:1.4; }
+.oluntir-repeat-panel section { padding:10px 0; border-bottom:1px solid #4a4d54; }.oluntir-repeat-panel label { display:block; margin:7px 0; color:#d8dbe0; font-size:12px; }.oluntir-repeat-panel input,.oluntir-repeat-panel select { display:block; width:100%; box-sizing:border-box; margin-top:4px; padding:7px; background:#31343a; color:#fff; border:1px solid #55585f; }
+.oluntir-repeat-panel button { margin:4px 4px 0 0; padding:7px 9px; color:#fff; background:#31343a; border:1px solid #55585f; cursor:pointer; }.oluntir-repeat-panel button:hover { background:#3b414a; }.oluntir-repeat-panel button:disabled { opacity:.45; cursor:not-allowed; }.oluntir-repeat-panel .btn-primary { background:#2878d4; border-color:#2878d4; }.oluntir-repeat-actions { display:flex; gap:4px; }.oluntir-repeat-list { display:grid; gap:5px; }.oluntir-repeat-item { padding:7px; background:#31343a; border-left:3px solid #2878d4; font-size:12px; }.oluntir-repeat-muted { color:#b5b7bc; }.oluntir-repeat-status { min-height:28px; padding:7px; background:#1d2025; }.oluntir-repeat-status[data-level="error"] { color:#ffaaa0; border-left:3px solid #d9534f; }.oluntir-repeat-status[data-level="info"] { border-left:3px solid #2878d4; }
+.oluntir-repeat-target-info[data-position="before"], .oluntir-repeat-target-info[data-position="after"] { border-left-color:#f39c12; }
 #toolbar {
   height: 56px;
   padding: 0 12px;
@@ -1984,6 +2027,7 @@ body {
   min-width: 0;
   min-height: 0;
   height: auto !important;
+  box-sizing: border-box;
 }
 #gjs .gjs-editor,
 #gjs .gjs-editor-cont,
@@ -1991,3 +2035,60 @@ body {
   min-height: 0;
 }
 #gjs .gjs-cv-canvas { height: 100%; }
+#gjs .gjs-cv-canvas {
+  height: 100%;
+  box-sizing: border-box;
+  border: 3px solid #6bc786;
+  z-index: 2;
+}
+
+/* Der grüne Rahmen markiert die tatsächlich bearbeitbare Seite, nicht die
+   darüberliegenden Optionsleisten oder das separate GrapesJS-Werkzeugpanel. */
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-tool="true"],
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-library-tool="true"] {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 46px;
+  min-width: 46px;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid transparent;
+}
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-tool="true"]:hover,
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-tool="true"]:focus-visible,
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-library-tool="true"]:hover,
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-library-tool="true"]:focus-visible {
+  color: #ffffff !important;
+  background: rgba(101,163,255,.18) !important;
+  border-bottom-color: var(--oluntir-accent) !important;
+}
+
+/* Der Werkzeug-/Featurebereich selbst erhält keinen Arbeitsbereichsrahmen. */
+#oluntir-tool-window-layout { border: 0; }
+
+/* Oberkante: dauerhaft an der Unterkante der GrapesJS-Optionsleiste. */
+#gjs .gjs-pn-commands,
+#gjs .gjs-pn-options {
+  border-bottom: 3px solid #6bc786 !important;
+  box-sizing: border-box;
+  z-index: 5;
+}
+
+/* Linke, rechte und untere Kante des eigentlichen HTML-Arbeitsbereichs.
+   Die Kante liegt am festen Canvas-Viewport und scrollt nicht mit dem Inhalt. */
+#gjs .gjs-cv-canvas {
+  border: 0 !important;
+}
+#gjs .gjs-cv-canvas::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-left: 3px solid #6bc786;
+  border-right: 3px solid #6bc786;
+  border-bottom: 3px solid #6bc786;
+  box-sizing: border-box;
+  z-index: 2147483000;
+}

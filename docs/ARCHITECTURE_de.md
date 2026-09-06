@@ -43,8 +43,10 @@ lokaler Ordner/Archiv/URL
 - Logging ist optional, lokal und berechtigungsgebunden.
 - Konkrete Editorprofile sind auf Bootstrap 4.6.2 und 5.3.8 begrenzt.
 - Unbekannte Source Packages bleiben `analysis-only`.
-- Importiertes Source-JavaScript, automatische Dokumentmutation und produktive
-  Repeat-Synchronisation sind deaktiviert.
+- Importiertes Source-JavaScript wird nicht ausgeführt.
+- Benutzerdefinierte Repeat-Definitionen werden über den Resolver, Dependency
+  Graph, Action Contracts und den gezielten Synchronisationsdienst produktiv
+  und atomar synchronisiert.
 
 ## Performance
 

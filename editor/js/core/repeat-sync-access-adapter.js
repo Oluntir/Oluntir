@@ -51,15 +51,26 @@
     return output;
   }
   function sourceIdentity(value) {
+    // Inserted Repeat instances keep the canonical source identity as model
+    // metadata. It must win over the fresh structural identity generated for
+    // the target page, otherwise reverse synchronization cannot address the
+    // original source component.
+    const mapped = text(value && value[SOURCE_IDENTITY_PROPERTY]);
+    if (mapped) return mapped;
     const attributes = value && value.attributes ? value.attributes : {};
     for (const name of INTERNAL_ATTRIBUTES) {
       if (text(attributes[name])) return text(attributes[name]);
     }
-    return text(value && value[SOURCE_IDENTITY_PROPERTY]);
+    return '';
   }
   function setSourceMapping(component, sourceId) {
     if (!component || typeof component.set !== 'function' || !text(sourceId)) return;
     component.set(SOURCE_IDENTITY_PROPERTY, text(sourceId), { silent: true });
+  }
+  function clearSourceMapping(component) {
+    if (!component) return;
+    if (typeof component.unset === 'function') component.unset(SOURCE_IDENTITY_PROPERTY, { silent: true });
+    else if (typeof component.set === 'function') component.set(SOURCE_IDENTITY_PROPERTY, null, { silent: true });
   }
   function setAttributesPreservingIdentity(component, sourceAttributes) {
     const current = attrs(component);
@@ -81,6 +92,7 @@
       if (Object.prototype.hasOwnProperty.call(source, key) && typeof component.set === 'function') component.set(key, clone(source[key]));
     });
     if (Object.prototype.hasOwnProperty.call(source, SOURCE_IDENTITY_PROPERTY)) setSourceMapping(component, source[SOURCE_IDENTITY_PROPERTY]);
+    else if (exactAttributes) clearSourceMapping(component);
   }
   function tagCompatible(source, target) {
     if (!source || !target) return false;
@@ -199,11 +211,20 @@
       } else unmapped.push(child);
     });
 
+    // A source page has no Repeat mapping metadata on its original tree. For
+    // reverse synchronization, match canonical source identities directly so
+    // the source children are updated instead of being duplicated.
+    const structural = new Map();
+    targetChildren.forEach(child => {
+      const identity = sourceIdentity(snapshot(child));
+      if (identity && !structural.has(identity)) structural.set(identity, child);
+    });
+
     const used = new Set();
     const ordered = [];
     sourceChildren.forEach((sourceChild, index) => {
       const identity = sourceIdentity(sourceChild);
-      let targetChild = mapped.get(identity) || null;
+      let targetChild = mapped.get(identity) || structural.get(identity) || null;
       if (targetChild && !tagCompatible(sourceChild, snapshot(targetChild))) throw error('REPEAT_SYNC_MAPPED_TAG_MISMATCH', 'Eine bestehende Identity-Zuordnung besitzt einen inkompatiblen Komponententyp.', { identity });
       if (!targetChild) {
         const candidates = unmapped.filter(item => !used.has(item));

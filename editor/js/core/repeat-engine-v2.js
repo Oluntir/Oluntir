@@ -70,7 +70,9 @@
     return {
       pageId: text(input.pageId),
       rootIdentity: text(input.rootIdentity),
-      relativeIdentityPath: unique(input.relativeIdentityPath)
+      relativeIdentityPath: unique(input.relativeIdentityPath),
+      structuralKind: text(input.structuralKind) || null,
+      tagName: text(input.tagName) || null
     };
   }
 
@@ -81,6 +83,7 @@
     const repeatKey = text(value.repeatKey || previous.repeatKey) || definitionId;
     return {
       definitionId: definitionId,
+      correlationId: text(value.correlationId || previous.correlationId) || definitionId,
       repeatKey: repeatKey,
       source: normalizeSource(value.source || previous.source),
       scope: text(value.scope || previous.scope) || 'structure',
@@ -98,6 +101,7 @@
     return {
       instanceId: text(value.instanceId || previous.instanceId) || createStableId('instance'),
       definitionId: text(value.definitionId || previous.definitionId),
+      correlationId: text(value.correlationId || previous.correlationId) || text(value.definitionId || previous.definitionId),
       pageId: text(value.pageId || previous.pageId),
       rootIdentity: text(value.rootIdentity || previous.rootIdentity),
       parentInstanceId: text(value.parentInstanceId || previous.parentInstanceId) || null,
@@ -285,6 +289,26 @@
     return freezeClone({ valid: errors.length === 0, errors: errors, schemaVersion: SCHEMA_VERSION, revision: state.revision });
   }
 
+  function isSharedLayoutDefinition(definition) {
+    const metadata = definition && definition.metadata || {};
+    return metadata.repeatType === 'shared-layout' || Boolean(metadata.regionRole);
+  }
+
+  function shouldUpgradeImportedAutomatic(rawDefinition, normalizedDefinition) {
+    if (!normalizedDefinition || isSharedLayoutDefinition(normalizedDefinition)) return false;
+    const raw = rawDefinition || {};
+    const metadata = raw.metadata || {};
+    const rawPolicy = text(raw.synchronizationPolicy);
+    if (!rawPolicy) return true;
+    if (rawPolicy !== SYNC_POLICY.MANUAL) return false;
+    return Boolean(
+      metadata.migratedFromSchemaVersion
+      || metadata.unitIdRetainedAsSourceOnly
+      || (Array.isArray(metadata.legacyTargetPageIds) && metadata.legacyTargetPageIds.length)
+      || metadata.legacyMode
+    );
+  }
+
   function migrateLegacyState(input) {
     const definitions = Array.isArray(input && input.definitions) ? input.definitions : [];
     const migrated = emptyState();
@@ -299,17 +323,188 @@
           relativeIdentityPath: []
         },
         scope: legacy.unitKind || 'structure',
+        synchronizationPolicy: SYNC_POLICY.AUTOMATIC,
         metadata: {
           migratedFromSchemaVersion: Number(input.schemaVersion || LEGACY_SCHEMA_VERSION),
           legacySourceComponentId: text(legacy.sourceComponentId) || null,
           legacyMode: text(legacy.mode) || null,
           legacyTargetPageIds: unique(legacy.targetPageIds),
           legacyTargetPath: unique(legacy.targetPath),
-          unitIdRetainedAsSourceOnly: true
+          unitIdRetainedAsSourceOnly: true,
+          automaticSynchronizationUpgraded: true
         }
       }));
     });
     return migrated;
+  }
+
+  const SOURCE_MAPPING_PROPERTY = 'oluntirRepeatSourceIdentity';
+
+  function componentAttributes(component) {
+    return component && typeof component.getAttributes === 'function' ? (component.getAttributes() || {}) : {};
+  }
+
+  function componentModelValue(component, name) {
+    if (!component || typeof component.get !== 'function') return null;
+    return component.get(name);
+  }
+
+  function componentIdentity(component, page) {
+    if (!component || !identities) return '';
+    if (typeof identities.describe === 'function') {
+      const description = identities.describe(component, { page: page });
+      if (description && text(description.identity)) return text(description.identity);
+    }
+    const attributes = componentAttributes(component);
+    const names = identities.ATTR ? Object.values(identities.ATTR) : [];
+    for (const name of names) {
+      if (name === (identities.ATTR && identities.ATTR.repeat)) continue;
+      if (text(attributes[name])) return text(attributes[name]);
+    }
+    return '';
+  }
+
+  function editorPages() {
+    return editor && editor.Pages && typeof editor.Pages.getAll === 'function' ? editor.Pages.getAll() : [];
+  }
+
+  function pageByIdentity(pageIdentity) {
+    const target = text(pageIdentity);
+    if (!target || !identities || typeof identities.pageId !== 'function') return null;
+    return editorPages().find(page => text(identities.pageId(page)) === target) || null;
+  }
+
+  function pageComponents(page, predicate) {
+    if (!page || !identities || typeof identities.walk !== 'function') return [];
+    const rootComponent = page.getMainComponent && page.getMainComponent();
+    const result = [];
+    identities.walk(rootComponent, component => {
+      if (!predicate || predicate(component)) result.push(component);
+    }, true);
+    return result;
+  }
+
+  function uniqueBindingCandidate(page, candidates) {
+    const byIdentity = new Map();
+    (candidates || []).forEach(component => {
+      const identity = componentIdentity(component, page);
+      if (identity && !byIdentity.has(identity)) byIdentity.set(identity, component);
+    });
+    return byIdentity.size === 1 ? { identity: Array.from(byIdentity.keys())[0], component: Array.from(byIdentity.values())[0] } : null;
+  }
+
+  function reconcileImportedBindings(imported) {
+    const report = { sourceBindingsRepaired: 0, instanceBindingsRepaired: 0, instancesRecovered: 0, unresolvedDefinitions: [], unresolvedInstances: [] };
+    if (!imported || !editor || !identities || !editor.Pages) return report;
+    if (typeof identities.ensureAll === 'function') identities.ensureAll(editor);
+    const repeatAttribute = identities.ATTR && identities.ATTR.repeat;
+    const definitionsById = new Map((imported.definitions || []).map(definition => [definition.definitionId, definition]));
+
+    (imported.definitions || []).forEach(definition => {
+      if (!definition || isSharedLayoutDefinition(definition)) return;
+      const sourcePage = pageByIdentity(definition.source && definition.source.pageId);
+      if (!sourcePage) {
+        report.unresolvedDefinitions.push({ definitionId: definition.definitionId, reason: 'source-page-missing' });
+        return;
+      }
+      const existingSource = identities.findById && identities.findById(sourcePage, definition.source.rootIdentity);
+      if (!existingSource && repeatAttribute) {
+        const candidate = uniqueBindingCandidate(sourcePage, pageComponents(sourcePage, component => text(componentAttributes(component)[repeatAttribute]) === text(definition.repeatKey)));
+        if (candidate) {
+          definition.source.rootIdentity = candidate.identity;
+          definition.metadata = Object.assign({}, definition.metadata || {}, {
+            bindingCompatibilityRepaired: true,
+            bindingCompatibilityRepairReason: 'source-repeat-marker'
+          });
+          report.sourceBindingsRepaired += 1;
+        } else {
+          report.unresolvedDefinitions.push({ definitionId: definition.definitionId, reason: 'source-root-missing' });
+        }
+      }
+    });
+
+    const occupied = new Set((imported.instances || []).map(instance => `${text(instance.pageId)}:${text(instance.rootIdentity)}`));
+    (imported.instances || []).forEach(instance => {
+      const definition = definitionsById.get(instance.definitionId);
+      const page = pageByIdentity(instance.pageId);
+      if (!definition || !page || isSharedLayoutDefinition(definition)) return;
+      if (identities.findById && identities.findById(page, instance.rootIdentity)) return;
+      const candidates = pageComponents(page, component => {
+        const attributes = componentAttributes(component);
+        if (text(attributes['data-oluntir-repeat-instance-id']) === text(instance.instanceId)) return true;
+        if (text(componentModelValue(component, SOURCE_MAPPING_PROPERTY)) === text(definition.source.rootIdentity)) return true;
+        return Boolean(repeatAttribute && text(attributes[repeatAttribute]) === text(definition.repeatKey));
+      });
+      const candidate = uniqueBindingCandidate(page, candidates);
+      if (!candidate) {
+        report.unresolvedInstances.push({ instanceId: instance.instanceId, definitionId: instance.definitionId, reason: 'instance-root-missing' });
+        return;
+      }
+      occupied.delete(`${text(instance.pageId)}:${text(instance.rootIdentity)}`);
+      instance.rootIdentity = candidate.identity;
+      instance.metadata = Object.assign({}, instance.metadata || {}, {
+        bindingCompatibilityRepaired: true,
+        bindingCompatibilityRepairReason: 'explicit-correlation-marker'
+      });
+      occupied.add(`${text(instance.pageId)}:${candidate.identity}`);
+      report.instanceBindingsRepaired += 1;
+    });
+
+    // Schema-2 imports did not yet have explicit instance records. Recover them
+    // only when the old project itself still carries an unambiguous Oluntir
+    // repeat/source marker on a declared legacy target page.
+    (imported.definitions || []).forEach(definition => {
+      if (!definition || isSharedLayoutDefinition(definition)) return;
+      const metadata = definition.metadata || {};
+      const targetPageIds = Array.isArray(metadata.legacyTargetPageIds) ? metadata.legacyTargetPageIds.map(text).filter(Boolean) : [];
+      if (!targetPageIds.length) return;
+      targetPageIds.forEach(targetPageId => {
+        const page = pageByIdentity(targetPageId);
+        if (!page || targetPageId === text(definition.source && definition.source.pageId)) return;
+        const existingForPage = (imported.instances || []).filter(instance => instance.definitionId === definition.definitionId && text(instance.pageId) === targetPageId);
+        const represented = new Set(existingForPage.map(instance => text(instance.rootIdentity)));
+        const candidates = pageComponents(page, component => {
+          const attributes = componentAttributes(component);
+          if (text(componentModelValue(component, SOURCE_MAPPING_PROPERTY)) === text(definition.source.rootIdentity)) return true;
+          return Boolean(repeatAttribute && text(attributes[repeatAttribute]) === text(definition.repeatKey));
+        });
+        candidates.forEach(component => {
+          const identity = componentIdentity(component, page);
+          const key = `${targetPageId}:${identity}`;
+          if (!identity || represented.has(identity) || occupied.has(key)) return;
+          const recovered = normalizeInstance({
+            definitionId: definition.definitionId,
+            correlationId: definition.correlationId || definition.definitionId,
+            pageId: targetPageId,
+            rootIdentity: identity,
+            state: STATUS.ACTIVE,
+            metadata: {
+              recoveredFromLegacyMarker: true,
+              sourceIdentity: definition.source.rootIdentity,
+              mappingProperty: SOURCE_MAPPING_PROPERTY
+            }
+          });
+          imported.instances.push(recovered);
+          represented.add(identity);
+          occupied.add(key);
+          report.instancesRecovered += 1;
+        });
+      });
+    });
+
+    // Re-evaluate automatic policy after any recovered instances were added.
+    const linkedDefinitions = new Set((imported.instances || []).filter(item => item.state !== STATUS.DETACHED).map(item => item.definitionId));
+    (imported.definitions || []).forEach(definition => {
+      const metadata = definition.metadata || {};
+      if (definition.synchronizationPolicy !== SYNC_POLICY.MANUAL || isSharedLayoutDefinition(definition)) return;
+      if (metadata.manualSynchronizationExplicit === true || !linkedDefinitions.has(definition.definitionId)) return;
+      definition.synchronizationPolicy = SYNC_POLICY.AUTOMATIC;
+      definition.metadata = Object.assign({}, metadata, {
+        automaticSynchronizationUpgraded: true,
+        automaticSynchronizationUpgradeReason: metadata.automaticSynchronizationUpgradeReason || 'recovered-linked-instance'
+      });
+    });
+    return report;
   }
 
   function normalizeImportedState(input) {
@@ -317,8 +512,53 @@
     if (Number(input.schemaVersion || 0) < SCHEMA_VERSION) return migrateLegacyState(input);
     const imported = emptyState();
     imported.revision = Number(input.revision || 0);
-    imported.definitions = (input.definitions || []).map(item => normalizeDefinition(item));
-    imported.instances = (input.instances || []).map(item => normalizeInstance(item));
+    const canonicalBySource = new Map();
+    const aliases = new Map();
+    imported.definitions = (input.definitions || []).map(item => {
+      const normalized = normalizeDefinition(item);
+      if (shouldUpgradeImportedAutomatic(item, normalized)) {
+        normalized.synchronizationPolicy = SYNC_POLICY.AUTOMATIC;
+        normalized.metadata = Object.assign({}, normalized.metadata || {}, {
+          automaticSynchronizationUpgraded: true,
+          automaticSynchronizationUpgradeReason: text(item && item.synchronizationPolicy) ? 'legacy-manual-policy' : 'missing-policy'
+        });
+      }
+      return normalized;
+    }).filter(definition => {
+      const source = definition.source || {};
+      const key = `${source.pageId}:${source.rootIdentity}`;
+      if (!source.pageId || !source.rootIdentity || !canonicalBySource.has(key)) {
+        if (source.pageId && source.rootIdentity) canonicalBySource.set(key, definition.definitionId);
+        return true;
+      }
+      aliases.set(definition.definitionId, canonicalBySource.get(key));
+      return false;
+    });
+    imported.instances = (input.instances || []).map(item => {
+      const normalized = normalizeInstance(item);
+      if (aliases.has(normalized.definitionId)) normalized.definitionId = aliases.get(normalized.definitionId);
+      return normalized;
+    });
+
+    // Older alpha projects could persist a user-created repeat definition with
+    // policy=manual even though the product UI already treated linked instances
+    // as bidirectional automatic repeats. If active instances still belong to
+    // such a definition, upgrade only that imported user-facing contract. An
+    // explicit developer opt-out remains possible through metadata.
+    const definitionsWithInstances = new Set(imported.instances.filter(item => item.state !== STATUS.DETACHED).map(item => item.definitionId));
+    imported.definitions.forEach(definition => {
+      const metadata = definition.metadata || {};
+      if (definition.synchronizationPolicy !== SYNC_POLICY.MANUAL) return;
+      if (isSharedLayoutDefinition(definition)) return;
+      if (metadata.manualSynchronizationExplicit === true) return;
+      if (!definitionsWithInstances.has(definition.definitionId)) return;
+      definition.synchronizationPolicy = SYNC_POLICY.AUTOMATIC;
+      definition.metadata = Object.assign({}, metadata, {
+        automaticSynchronizationUpgraded: true,
+        automaticSynchronizationUpgradeReason: metadata.automaticSynchronizationUpgradeReason || 'linked-instance-import'
+      });
+    });
+
     imported.references = (input.references || []).map(item => normalizeReference(item));
     return imported;
   }
@@ -327,12 +567,27 @@
 
   function importState(input) {
     const imported = normalizeImportedState(input);
+    const compatibility = reconcileImportedBindings(imported);
     const previous = state;
     state = imported;
     const validation = validateProject();
     if (!validation.valid) {
       state = previous;
       assertValid(validation.errors);
+    }
+    const upgradedDefinitions = state.definitions.filter(item => item.metadata && item.metadata.automaticSynchronizationUpgraded);
+    if ((upgradedDefinitions.length || compatibility.sourceBindingsRepaired || compatibility.instanceBindingsRepaired || compatibility.instancesRecovered || compatibility.unresolvedDefinitions.length || compatibility.unresolvedInstances.length)
+      && root && root.OluntirLogger && typeof root.OluntirLogger.info === 'function') {
+      root.OluntirLogger.info('repeat', 'repeat.import-compatibility-upgraded', {
+        upgradedDefinitions: upgradedDefinitions.length,
+        definitionIds: upgradedDefinitions.map(item => item.definitionId),
+        instanceCount: state.instances.length,
+        sourceBindingsRepaired: compatibility.sourceBindingsRepaired,
+        instanceBindingsRepaired: compatibility.instanceBindingsRepaired,
+        instancesRecovered: compatibility.instancesRecovered,
+        unresolvedDefinitions: compatibility.unresolvedDefinitions,
+        unresolvedInstances: compatibility.unresolvedInstances
+      });
     }
     return snapshot();
   }
@@ -372,23 +627,41 @@
     identities.ensureAll(editor);
     const sourcePage = editor.Pages.getSelected();
     const description = identities.describe(component, { page: sourcePage });
+    const sourcePageId = identities.pageId(sourcePage);
+    const existing = state.definitions.find(item => item.source && item.source.pageId === sourcePageId && item.source.rootIdentity === description.identity);
+    if (existing) {
+      if (component.addAttributes) component.addAttributes({ [identities.ATTR.repeat]: existing.repeatKey });
+      return getDefinition(existing.definitionId);
+    }
     const attrs = component.getAttributes ? (component.getAttributes() || {}) : {};
     const repeatKey = text(options && options.repeatId) || text(attrs[identities.ATTR.repeat]) || createStableId('definition');
     if (component.addAttributes) component.addAttributes({ [identities.ATTR.repeat]: repeatKey });
     return createDefinition({
       definitionId: repeatKey,
+      correlationId: repeatKey,
       repeatKey: repeatKey,
-      source: { pageId: identities.pageId(sourcePage), rootIdentity: description.identity, relativeIdentityPath: [] },
+      source: { pageId: sourcePageId, rootIdentity: description.identity, relativeIdentityPath: [], structuralKind: description.structuralKind, tagName: description.tagName },
       scope: description.structuralKind || 'component',
-      metadata: { compatibilityBridge: true, legacyMode: text(options && options.mode) || 'selected' }
+      synchronizationPolicy: text(options && options.synchronizationPolicy) || SYNC_POLICY.AUTOMATIC,
+      metadata: {
+        compatibilityBridge: true,
+        legacyMode: text(options && options.mode) || 'selected',
+        repeatType: text(options && options.repeatType) || 'explicit-repeat',
+        propagationPolicy: text(options && options.propagationPolicy) || 'selected-pages',
+        regionRole: text(options && options.regionRole) || null
+      }
     });
   }
 
   function apply(reference) {
-    const error = new Error('Produktive Repeat-Synchronisation ist in Oluntir 1.3.1 bewusst deaktiviert.');
-    error.code = 'REPEAT_SYNC_NOT_AVAILABLE_IN_1_3_1';
-    error.reference = text(reference) || null;
-    throw error;
+    const runtime = root && root.OluntirRepeatSynchronizationRuntime;
+    if (!editor || !runtime || typeof runtime.apply !== 'function') {
+      const error = new Error('Repeat Synchronization Runtime ist nicht verfügbar.');
+      error.code = 'REPEAT_SYNC_RUNTIME_MISSING';
+      error.reference = text(reference) || null;
+      throw error;
+    }
+    return runtime.apply(editor, reference);
   }
 
   function reset() { state = emptyState(); return snapshot(); }

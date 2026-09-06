@@ -20,8 +20,10 @@ und 5.3.8 konsolidiert.
 - frameworkeigene Galeriestrukturen, Bild-Lightbox, Vorschauverbesserungen und
   Export-Regression-Fixes.
 
-Automatische Dokumentmutation, Ausführung importierter JavaScript-Quellen und
-produktive Repeat-Synchronisation bleiben deaktiviert.
+Die Ausführung importierter JavaScript-Quellen bleibt deaktiviert. Explizit
+definierte Repeat-Bereiche werden produktiv über stabile Identitäten eingesetzt
+und synchronisiert; Header, Navigation und Footer laufen ausschließlich über
+den Shared Content Manager.
 
 ## 2.0 Alpha – DEV_022/DEV_023
 
@@ -46,7 +48,8 @@ freigegeben.
 - neue Galerie-Einschübe zwischen vollständigen Seitenbereichen;
 - zuverlässigere Export-Snapshots und responsive Bildausgabe;
 - konsolidierte Framework- und Iconquellen für Bootstrap 4 und 5;
-- vorbereitete Repeat Foundation ohne produktive Wirkung.
+- produktive Repeat-Bereiche mit Zielauswahl, Clear-/Rücksetzablauf,
+  strukturellen Einfügepositionen und persistenter Instanzverknüpfung.
 
 ## Kompatibilität
 

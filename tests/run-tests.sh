@@ -40,7 +40,11 @@ node tests/test-foundation-consent-installation.js
 node tests/test-runtime-actions.js
 node tests/test-semantic-action-engine.js
 node tests/test-repeat-engine-v2-contracts.js
+node tests/test-repeat-existing-project-auto-upgrade.js
+node tests/test-repeat-existing-project-binding-repair.js
 node tests/test-repeat-persistence-bridge.js
+node tests/test-repeat-ui.js
+node tests/test-repeat-target-selection-runtime.js
 node tests/test-rte-persistence-guard.js
 node tests/test-link-rte-focus.js
 node tests/test-repeat-contract-resolver.js
@@ -48,6 +52,9 @@ node tests/test-repeat-dependency-graph.js
 node tests/test-targeted-synchronization-service.js
 node tests/test-repeat-sync-access-adapter.js
 node tests/test-repeat-sync-identity-mapping.js
+node tests/test-repeat-reverse-sync-contract.js
+node tests/test-repeat-synchronization-runtime.js
+node tests/test-repeat-auto-synchronization.js
 node tests/test-repeat-structural-rollback.js
 node tests/test-repeat-action-contracts.js
 node tests/test-1.3.1-repeat-foundation-readiness.js
@@ -73,6 +80,8 @@ node tests/test-shared-content-page-transaction.js
 node tests/test-shared-content-canvas-commit.js
 node tests/test-shared-content-targeted-regions.js
 node tests/test-shared-content-lazy-scaling.js
+node tests/test-shared-content-live-target-refresh.js
+node tests/test-shared-content-performance-contract.js
 python3 tools/validate-structure.py
 node tests/test-gallery-icons-idle-visible.js
 node tests/test-gallery-icon-assets.js

@@ -17,13 +17,12 @@ global.OluntirRepeatSyncAccessAdapter = {
   }; }
 };
 const runtime = require('../editor/js/core/repeat-synchronization-runtime.js');
-assert.strictEqual(runtime.getState().executionEnabled, false);
+assert.strictEqual(runtime.getState().executionEnabled, true);
 const result = runtime.apply({}, 'd1');
-assert.strictEqual(result.status, syncApi.STATUS.BLOCKED);
-assert.strictEqual(result.valid, false);
-assert.strictEqual(result.mutationPerformed, false);
-assert.strictEqual(result.executionEnabled, false);
-assert.deepStrictEqual(target, { title: 'Alt' });
-assert(result.issues.some(issue => issue.code === 'TARGETED_SYNC_EXECUTION_DISABLED_1_3_1'));
-assert.strictEqual(runtime.getState().executionEnabled, false);
-console.log('Repeat Synchronization Runtime Foundation Lock: OK');
+assert.strictEqual(result.status, syncApi.STATUS.EXECUTED);
+assert.strictEqual(result.valid, true);
+assert.strictEqual(result.mutationPerformed, true);
+assert.strictEqual(result.executionEnabled, true);
+assert.deepStrictEqual(target, { title: 'Neu' });
+assert.strictEqual(runtime.getState().executionEnabled, true);
+console.log('Repeat Synchronization Runtime productive execution: OK');

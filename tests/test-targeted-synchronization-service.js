@@ -49,7 +49,7 @@ assert.strictEqual(result.status, api.STATUS.DRY_RUN_COMPLETED);
 assert.strictEqual(result.operationCounts.changed, 1);
 assert.strictEqual(result.operationCounts.unchanged, 1);
 assert.strictEqual(result.mutationPerformed, false);
-assert.strictEqual(result.executionEnabled, false);
+assert.strictEqual(result.executionEnabled, true);
 assert.ok(Object.isFrozen(result));
 assert.ok(result.operations[0].rollbackToken);
 assert.strictEqual(service.getState().activeLockCount, 0);
@@ -63,11 +63,10 @@ const writeAdapter = Object.assign({}, adapter, {
   restoreTarget(operation, rollback) { writeTargets[operation.operationId] = JSON.parse(JSON.stringify(rollback.previous)); }
 });
 const executed = service.execute(plan, writeAdapter);
-assert.strictEqual(executed.status, api.STATUS.BLOCKED);
-assert.strictEqual(executed.executionEnabled, false);
-assert.strictEqual(executed.mutationPerformed, false);
-assert.ok(executed.issues.some(item => item.code === 'TARGETED_SYNC_EXECUTION_DISABLED_1_3_1'));
-assert.deepStrictEqual(writeTargets, targets);
+assert.strictEqual(executed.status, api.STATUS.EXECUTED);
+assert.strictEqual(executed.executionEnabled, true);
+assert.strictEqual(executed.mutationPerformed, true);
+assert.deepStrictEqual(writeTargets, { 'repeat-sync:instance-a': { title: 'A' }, 'repeat-sync:instance-b': { title: 'A' } });
 
 const blocker = api.create();
 const prepared = blocker.prepare(plan, adapter);

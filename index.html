@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Oluntir 1.3.1</title>
+  <title>Oluntir 2.0.1 Alpha</title>
   <link rel="stylesheet" href="vendor/grapesjs/0.23.2/grapes.min.css">
   <link rel="stylesheet" href="plugins/editor/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="editor/css/editor.css?v=2.0.1-alpha-dev030">
+  <link rel="stylesheet" href="editor/css/editor.css?v=2.0.1-alpha-repeat-v21">
 </head>
 <body>
   
@@ -72,7 +72,7 @@
 
 
   <div id="toolbar">
-    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">1.3.1</span></div>
+    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">2.0.1 Alpha</span></div>
 
     <div class="toolbar-language" role="group" data-i18n-aria="language.group" aria-label="Sprache">
       <button type="button" data-lang="de" class="active" data-i18n-title="language.de" title="Deutsch">DE</button>
@@ -370,6 +370,21 @@
   </div>
 
   <div id="gjs"></div>
+  <aside id="oluntir-repeat-panel" class="oluntir-repeat-panel" hidden tabindex="-1" role="region" aria-label="Arbeitsbereich für wiederholbare Inhalte" aria-labelledby="oluntir-repeat-title">
+    <div class="oluntir-repeat-panel-head"><div><h2 id="oluntir-repeat-title">Wiederholbare Bereiche</h2><p>Aktuellen Bereich als Repeat-Quelle definieren und direkt auf einer Zielseite einsetzen.</p></div><div class="oluntir-repeat-head-actions"><button id="oluntir-repeat-reset" type="button" title="Aktuelle Repeat-Auswahl zurücksetzen" aria-label="Aktuelle Repeat-Auswahl zurücksetzen"><i class="fa fa-eraser" aria-hidden="true"></i></button><button id="oluntir-repeat-close" type="button" aria-label="Schließen">×</button></div></div>
+    <section><h3>1. Quelle auswählen</h3><div id="oluntir-repeat-selection-info" class="oluntir-repeat-info">Kein geeigneter Bereich ausgewählt.</div><div class="oluntir-repeat-actions"><button id="oluntir-repeat-clear-selection" type="button">Auswahl löschen</button><button id="oluntir-repeat-undo" type="button" disabled>Rückgängig</button></div></section>
+    <section><h3>2. Quelle definieren</h3><label>Quellenname<input id="oluntir-repeat-name" type="text" required placeholder="z. B. Produktkarte"></label><label>Typ<select id="oluntir-repeat-type"><option value="explicit-repeat">Ausgewählter Bereich</option></select></label><button id="oluntir-repeat-define" class="btn-primary" type="button" disabled>Quelle speichern</button></section>
+    <section><h3>Aktuelle Repeat-Quelle</h3><div id="oluntir-repeat-current-source" class="oluntir-repeat-current-source"><p class="oluntir-repeat-muted">Noch keine Repeat-Quelle ausgewählt oder definiert.</p></div></section>
+    <section><h3 class="oluntir-repeat-section-title">3. Auf Zielseite einsetzen <button id="oluntir-repeat-source-help" class="oluntir-repeat-help" type="button" title="Anleitung zur Zielbereichsauswahl" aria-label="Anleitung zur Zielbereichsauswahl"><i class="fa fa-info-circle" aria-hidden="true"></i></button></h3><div id="oluntir-repeat-source-help-popover" class="oluntir-repeat-help-popover" role="note" hidden><strong>So setzt du die aktuelle Quelle ein</strong><ol><li>Wähle im Canvas den Quellbereich aus und speichere ihn mit einem Namen.</li><li>Wähle die Zielseite aus. Sie wird im Canvas geöffnet.</li><li>Wähle die Einfügeposition „im Bereich“, „davor“ oder „danach“.</li><li>Bewege den Mauszeiger an die gewünschte Strukturgrenze und bestätige sie per Klick.</li><li>Bestätige mit „Bereich einsetzen“.</li></ol></div><label>Zielseite<select id="oluntir-repeat-source-target-page"><option value="">Zielseite auswählen</option></select></label><label>Einfügeposition<select id="oluntir-repeat-source-target-position"><option value="inside">Im markierten Bereich</option><option value="before">Davor – orange Einfügelinie</option><option value="after">Danach – orange Einfügelinie</option></select></label><div id="oluntir-repeat-source-target-selection-info" class="oluntir-repeat-target-info" aria-live="polite">Noch keine gültige Zielposition markiert. Speichere zuerst die Quelle, wähle dann eine Zielseite und klicke im Canvas den gewünschten Bereich an.</div><div class="oluntir-repeat-actions"><button id="oluntir-repeat-source-target-clear" type="button">Zielauswahl löschen</button><button id="oluntir-repeat-source-insert" class="btn-primary" type="button" disabled>Bereich einsetzen</button></div></section>
+    <p id="oluntir-repeat-status" class="oluntir-repeat-status" aria-live="polite"></p>
+  </aside>
+
+  <aside id="oluntir-repeat-library-panel" class="oluntir-repeat-panel" hidden tabindex="-1" role="region" aria-label="Wiederholbare Bereiche aus Liste einfügen" aria-labelledby="oluntir-repeat-library-title">
+    <div class="oluntir-repeat-panel-head"><div><h2 id="oluntir-repeat-library-title">Wiederholbare Bereiche aus Liste einfügen</h2><p>Eine vorhandene Repeat-Quelle aus der Projektliste auswählen und an einer Zielposition einsetzen.</p></div><div class="oluntir-repeat-head-actions"><button id="oluntir-repeat-library-close" type="button" aria-label="Schließen">×</button></div></div>
+    <section><h3>1. Element auswählen</h3><label>Gespeicherte Quelle<select id="oluntir-repeat-definition-select" aria-label="Wiederholbarer Bereich"><option value="">Quelle auswählen</option></select></label><div id="oluntir-repeat-library-source-info" class="oluntir-repeat-info">Noch keine Quelle ausgewählt.</div></section>
+    <section><h3 class="oluntir-repeat-section-title">2. Zielseite und Einfügeposition <button id="oluntir-repeat-library-help" class="oluntir-repeat-help" type="button" title="Anleitung zur Zielbereichsauswahl" aria-label="Anleitung zur Zielbereichsauswahl"><i class="fa fa-info-circle" aria-hidden="true"></i></button></h3><div id="oluntir-repeat-library-help-popover" class="oluntir-repeat-help-popover" role="note" hidden><strong>So setzt du einen Bereich aus der Liste ein</strong><ol><li>Wähle eine gespeicherte Quelle aus.</li><li>Wähle die Zielseite aus. Sie wird im Canvas geöffnet.</li><li>Wähle die Einfügeposition „im Bereich“, „davor“ oder „danach“.</li><li>Bewege den Mauszeiger an die gewünschte Strukturgrenze und bestätige sie per Klick.</li><li>Bestätige mit „Bereich einsetzen“.</li></ol></div><label>Zielseite<select id="oluntir-repeat-library-target-page"><option value="">Zielseite auswählen</option></select></label><label>Einfügeposition<select id="oluntir-repeat-library-target-position"><option value="inside">Im markierten Bereich</option><option value="before">Davor – orange Einfügelinie</option><option value="after">Danach – orange Einfügelinie</option></select></label><div id="oluntir-repeat-library-target-selection-info" class="oluntir-repeat-target-info" aria-live="polite">Noch keine gültige Zielposition markiert. Wähle zuerst ein Element und eine Zielseite und klicke anschließend im Canvas den gewünschten Bereich an.</div><div class="oluntir-repeat-actions"><button id="oluntir-repeat-library-target-clear" type="button">Zielauswahl löschen</button><button id="oluntir-repeat-library-insert" class="btn-primary" type="button" disabled>Bereich einsetzen</button></div></section>
+    <p id="oluntir-repeat-library-status" class="oluntir-repeat-status" aria-live="polite"></p>
+  </aside>
 
   <div id="toast"></div>
 
@@ -390,15 +405,15 @@
   <script src="editor/js/features/ui-settings.js"></script>
   <script src="editor/js/features/block-search.js"></script>
   <script src="editor/js/core/edition.js"></script>
-  <script src="editor/js/core/source-package-bridge.js?v=2.0.1-alpha-dev030"></script>
-  <script src="editor/js/core/source-package-grapesjs-adapter.js?v=2.0.1-alpha-dev030"></script>
-  <script src="editor/js/core/framework.js?v=2.0.1-alpha-dev030"></script>
+  <script src="editor/js/core/source-package-bridge.js?v=2.0.1-alpha-repeat-v16"></script>
+  <script src="editor/js/core/source-package-grapesjs-adapter.js?v=2.0.1-alpha-repeat-v16"></script>
+  <script src="editor/js/core/framework.js?v=2.0.1-alpha-repeat-v16"></script>
   <script src="editor/js/core/translation-matrix.js?v=2.0.0-dev016"></script>
   <script src="editor/js/core/translation-matrix-profiles.js?v=2.0.0-dev017"></script>
   <script src="editor/js/core/translation-analyzer.js?v=2.0.0-dev018"></script>
   <script src="editor/js/core/translation-resolver.js?v=2.0.0-dev019"></script>
   <script src="editor/js/core/translation-matrix-validation.js?v=2.0.0-dev020"></script>
-  <script src="editor/js/core/translation-materialization-plan.js?v=2.0.1-alpha-dev030"></script>
+  <script src="editor/js/core/translation-materialization-plan.js?v=2.0.1-alpha-repeat-v16"></script>
   <script src="editor/js/core/site-images.js"></script>
   <script src="editor/js/features/bootstrap-blocks.js"></script>
   <script src="editor/js/features/variant-blocks.js"></script>
@@ -457,7 +472,7 @@
         <section><h3>Runtime</h3><pre id="oluntir-diagnostics-runtime"></pre></section>
         <section><h3>Action Engine</h3><pre id="oluntir-diagnostics-actions"></pre></section>
         <section><h3>Shared Content / Fingerprints</h3><pre id="oluntir-diagnostics-shared"></pre></section>
-        <section class="oluntir-diagnostics-wide"><h3>Repeat Engine</h3><div class="oluntir-repeat-diagnostics-tools"><select id="oluntir-diagnostics-repeat-definition" aria-label="Repeat-Definition"></select><button id="oluntir-diagnostics-repeat-plan" type="button">Plan anzeigen</button><button id="oluntir-diagnostics-repeat-dry-run" type="button">Dry Run</button></div><div class="oluntir-repeat-diagnostics-grid"><pre id="oluntir-diagnostics-repeat"></pre><pre id="oluntir-diagnostics-repeat-result">Noch keine Entwickleraktion ausgeführt.</pre></div></section>
+        <section class="oluntir-diagnostics-wide"><h3>Wiederholungs-Engine</h3><div class="oluntir-repeat-diagnostics-tools"><select id="oluntir-diagnostics-repeat-definition" aria-label="Wiederholbarer Bereich"></select><button id="oluntir-diagnostics-repeat-plan" type="button">Plan anzeigen</button><button id="oluntir-diagnostics-repeat-dry-run" type="button">Dry Run</button></div><div class="oluntir-repeat-diagnostics-grid"><pre id="oluntir-diagnostics-repeat"></pre><pre id="oluntir-diagnostics-repeat-result">Noch keine Entwickleraktion ausgeführt.</pre></div></section>
         <section><h3>Dependency Graph</h3><pre id="oluntir-diagnostics-dependency"></pre></section>
         <section class="oluntir-diagnostics-wide"><h3>Letzte Logeinträge</h3><div id="oluntir-diagnostics-logs" class="oluntir-diagnostics-log"></div></section>
       </div>
@@ -477,6 +492,8 @@
   <script src="editor/js/core/targeted-synchronization-service.js"></script>
   <script src="editor/js/core/repeat-action-contracts.js"></script>
   <script src="editor/js/core/repeat-sync-access-adapter.js"></script>
+  <script src="editor/js/core/repeat-synchronization-runtime.js"></script>
+  <script src="editor/js/core/repeat-auto-synchronization.js"></script>
   <script src="editor/js/core/repeat-foundation-readiness.js"></script>
   <script src="editor/js/core/startup.js"></script>
   <script src="editor/js/core/export-snapshot.js"></script>
@@ -486,6 +503,7 @@
   <script src="editor/js/features/text-media-editor.js"></script>
   <script src="editor/js/features/link-editor.js"></script>
   <script src="editor/js/core/oluntir-code-view.js"></script>
-  <script src="editor/js/core/editor.js?v=2.0.1-alpha-dev030"></script>
+  <script src="editor/js/core/editor.js?v=2.0.1-alpha-repeat-v16"></script>
+  <script src="editor/js/core/repeat-ui.js?v=2.0.1-alpha-repeat-v21"></script>
 </body>
 </html>

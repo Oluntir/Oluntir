@@ -84,9 +84,55 @@
     const snapshot = graph.snapshot();
     const impact = graph.resolveImpact(reference);
     const resolved = resolver.resolveProject(editor);
+    const direction = text(payload && payload.direction) || 'source-to-instances';
+    const sourceInstanceId = text(payload && payload.sourceInstanceId);
+    const reverseRequested = direction === 'instance-to-linked';
+    const reverseInstance = sourceInstanceId && repeat && typeof repeat.getInstance === 'function'
+      ? repeat.getInstance(sourceInstanceId)
+      : null;
+    const reverseIssues = [];
+    if (reverseRequested && !sourceInstanceId) {
+      reverseIssues.push({ code: 'REPEAT_ACTION_SOURCE_INSTANCE_REQUIRED', message: 'Für die Synchronisation Instanz → Quelle/Instanzen ist eine sourceInstanceId erforderlich.' });
+    } else if (reverseRequested && !reverseInstance) {
+      reverseIssues.push({ code: 'REPEAT_ACTION_SOURCE_INSTANCE_UNRESOLVED', message: 'Die auslösende Repeat-Instanz konnte nicht aufgelöst werden.', details: { sourceInstanceId: sourceInstanceId } });
+    } else if (reverseRequested && text(payload && payload.definitionId) && text(reverseInstance && reverseInstance.definitionId) !== text(payload && payload.definitionId)) {
+      reverseIssues.push({ code: 'REPEAT_ACTION_SOURCE_INSTANCE_DEFINITION_MISMATCH', message: 'Die auslösende Repeat-Instanz gehört nicht zur angeforderten Definition.', details: { sourceInstanceId: sourceInstanceId, expectedDefinitionId: text(payload && payload.definitionId), actualDefinitionId: text(reverseInstance && reverseInstance.definitionId) } });
+    }
     const instanceIds = new Set(impact.affectedInstances || []);
     const operations = [];
     (resolved.definitions || []).forEach(item => {
+      const definition = item.definition || {};
+      const instances = (item.instances || []).map(entry => entry.instance).filter(Boolean);
+      if (reverseRequested) {
+        if (reverseIssues.length || !reverseInstance || definition.definitionId !== reverseInstance.definitionId) return;
+        const linkedTargets = [{
+          targetPageId: item.source && item.source.pageId || null,
+          targetIdentity: item.source && item.source.rootIdentity || null,
+          targetInstanceId: 'source:' + definition.definitionId,
+          targetRole: 'definition-source'
+        }].concat(instances.filter(instance => instance.instanceId !== sourceInstanceId).map(instance => ({
+          targetPageId: instance.pageId,
+          targetIdentity: instance.rootIdentity,
+          targetInstanceId: instance.instanceId,
+          targetRole: 'instance'
+        })));
+        linkedTargets.forEach(target => {
+          operations.push({
+            operationId: 'repeat-sync:' + sourceInstanceId + ':' + target.targetInstanceId,
+            definitionId: definition.definitionId,
+            instanceId: target.targetInstanceId,
+            sourceInstanceId: sourceInstanceId,
+            sourcePageId: reverseInstance.pageId,
+            sourceIdentity: reverseInstance.rootIdentity,
+            targetPageId: target.targetPageId,
+            targetIdentity: target.targetIdentity,
+            targetRole: target.targetRole,
+            direction: direction,
+            status: 'planned'
+          });
+        });
+        return;
+      }
       (item.instances || []).forEach(entry => {
         const instance = entry.instance;
         if (!instanceIds.has(instance.instanceId)) return;
@@ -98,6 +144,7 @@
           sourceIdentity: item.source && item.source.rootIdentity || null,
           targetPageId: instance.pageId,
           targetIdentity: instance.rootIdentity,
+          direction: 'source-to-instances',
           status: 'planned'
         });
       });
@@ -107,14 +154,16 @@
       schemaVersion: PLAN_SCHEMA_VERSION,
       type: 'repeat-targeted-sync-plan',
       reference: reference,
-      valid: !!impact.root && snapshot.valid && resolved.valid,
-      blocked: !impact.root || !snapshot.valid || !resolved.valid,
+      valid: !!impact.root && snapshot.valid && resolved.valid && reverseIssues.length === 0,
+      blocked: !impact.root || !snapshot.valid || !resolved.valid || reverseIssues.length > 0,
       cycleCount: snapshot.cycleCount,
       affectedPages: impact.affectedPages || [],
       affectedDefinitions: impact.affectedDefinitions || [],
       affectedInstances: impact.affectedInstances || [],
+      direction: direction,
+      sourceInstanceId: sourceInstanceId || null,
       operations: operations,
-      issues: [].concat(snapshot.issues || [], resolved.issues || [], impact.root ? [] : [{ code: 'REPEAT_ACTION_REFERENCE_UNRESOLVED', message: 'Repeat-Referenz konnte nicht aufgelöst werden.' }]),
+      issues: [].concat(snapshot.issues || [], resolved.issues || [], impact.root ? [] : [{ code: 'REPEAT_ACTION_REFERENCE_UNRESOLVED', message: 'Repeat-Referenz konnte nicht aufgelöst werden.' }], reverseIssues),
       mutationPerformed: false
     });
   }
@@ -131,8 +180,8 @@
       operations: plan && plan.operations || [],
       issues: issues,
       mutationPerformed: false,
-      applyEnabled: false,
-      executionEnabled: false
+      applyEnabled: true,
+      executionEnabled: true
     });
   }
   function registerReadOnlyHandlers(engine, editorProvider) {
@@ -147,15 +196,14 @@
     add(ACTION_TYPE.MARK_DIRTY, markDirty);
     add(ACTION_TYPE.PLAN, createPlan);
     add(ACTION_TYPE.PREPARE_SYNC, prepareSync);
-    add(ACTION_TYPE.SYNC, (_editor, payload) => frozen({
-      schemaVersion: SCHEMA_VERSION,
-      type: ACTION_TYPE.SYNC,
-      status: 'not-available',
-      code: 'REPEAT_SYNC_NOT_AVAILABLE_IN_1_3_1',
-      reference: referenceFrom(payload) || null,
-      mutationPerformed: false,
-      executionEnabled: false
-    }));
+    add(ACTION_TYPE.SYNC, (editor, payload) => {
+      const runtime = typeof globalThis !== 'undefined' && globalThis.OluntirRepeatSynchronizationRuntime
+        ? globalThis.OluntirRepeatSynchronizationRuntime
+        : null;
+      if (!runtime || typeof runtime.applyPlan !== 'function') throw new Error('Repeat Synchronization Runtime ist nicht verfügbar.');
+      const result = runtime.applyPlan(editor, payload.plan);
+      return Object.assign({}, result, { schemaVersion: SCHEMA_VERSION, type: ACTION_TYPE.SYNC, reference: referenceFrom(payload) || null, executionEnabled: true });
+    });
     return frozen({ schemaVersion: SCHEMA_VERSION, handlerIds: handlers });
   }
   function createAction(type, payload, metadata) {

@@ -23,6 +23,7 @@
   let toolMoveObserver = null;
   let livePanelObserver = null;
   let panelSyncTimer = null;
+  let repeatPanelEntries = [];
   let startupResolved;
   const startupReady = new Promise(resolve => { startupResolved = resolve; });
 
@@ -120,7 +121,7 @@
 
   function writeToolDocument(win) {
     win.document.open();
-    win.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; object-src 'none'"><title>Oluntir 2.0.1 Alpha – Werkzeuge</title><link rel="stylesheet" href="${new URL('vendor/grapesjs/0.23.2/grapes.min.css', location.href)}"><link rel="stylesheet" href="${new URL('plugins/editor/font-awesome/css/font-awesome.min.css', location.href)}"><link rel="stylesheet" href="${new URL('editor/css/editor.css?v=2.0.1-alpha-dev030', location.href)}"></head><body class="oluntir-tool-window"><header class="oluntir-tool-window-head"><div><strong>Oluntir</strong><span>2.0.1 Alpha · Werkzeugmonitor</span></div><button id="oluntir-return-tools" type="button" title="Werkzeuge ins Hauptfenster zurückholen" aria-label="Werkzeuge ins Hauptfenster zurückholen"><i class="fa fa-compress" aria-hidden="true"></i></button></header><main id="oluntir-tool-window-layout" aria-label="Oluntir-Werkzeuge"><section id="oluntir-tool-window-host" aria-label="GrapesJS-Werkzeugspalte"></section><aside id="oluntir-tool-window-quick-edit" aria-label="Schnellbearbeitung"><div class="oluntir-quick-edit-title"><i class="fa fa-magic" aria-hidden="true"></i><span>Schnellbearbeitung</span></div><div id="oluntir-quick-edit-placeholder">Wähle im Hauptfenster ein unterstütztes Element aus. Die Schnellbearbeitung erscheint anschließend hier.</div></aside></main><div id="oluntir-tool-window-status" role="status">Mit dem Hauptfenster verbunden</div></body></html>`);
+    win.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; object-src 'none'"><title>Oluntir 2.0.1 Alpha – Werkzeuge</title><link rel="stylesheet" href="${new URL('vendor/grapesjs/0.23.2/grapes.min.css', location.href)}"><link rel="stylesheet" href="${new URL('plugins/editor/font-awesome/css/font-awesome.min.css', location.href)}"><link rel="stylesheet" href="${new URL('editor/css/editor.css?v=2.0.1-alpha-repeat-v12', location.href)}"></head><body class="oluntir-tool-window"><header class="oluntir-tool-window-head"><div><strong>Oluntir</strong><span>2.0.1 Alpha · Werkzeugmonitor</span></div><button id="oluntir-return-tools" type="button" title="Werkzeuge ins Hauptfenster zurückholen" aria-label="Werkzeuge ins Hauptfenster zurückholen"><i class="fa fa-compress" aria-hidden="true"></i></button></header><main id="oluntir-tool-window-layout" aria-label="Oluntir-Werkzeuge"><section id="oluntir-tool-window-host" aria-label="GrapesJS-Werkzeugspalte"></section><aside id="oluntir-tool-window-quick-edit" aria-label="Schnellbearbeitung"><div class="oluntir-quick-edit-title"><i class="fa fa-magic" aria-hidden="true"></i><span>Schnellbearbeitung</span></div><div id="oluntir-quick-edit-placeholder">Wähle im Hauptfenster ein unterstütztes Element aus. Die Schnellbearbeitung erscheint anschließend hier.</div></aside></main><div id="oluntir-tool-window-status" role="status">Mit dem Hauptfenster verbunden</div></body></html>`);
     win.document.close();
     win.document.getElementById('oluntir-return-tools').addEventListener('click', () => returnToSingle('user'));
   }
@@ -242,6 +243,32 @@
     quickPanelEntries = [];
   }
 
+  function moveRepeatPanelToPopup() {
+    if (!toolWindow || toolWindow.closed) return false;
+    const host = toolWindow.document.getElementById('oluntir-tool-window-quick-edit');
+    if (!host) return false;
+    const panels = ['oluntir-repeat-panel', 'oluntir-repeat-library-panel']
+      .map((id) => document.getElementById(id) || toolWindow.document.getElementById(id))
+      .filter(Boolean);
+    if (!panels.length) return false;
+    panels.forEach((panel) => {
+      if (!repeatPanelEntries.some((entry) => entry.node === panel)) {
+        repeatPanelEntries.push({ node: panel, parent: panel.parentNode, next: panel.nextSibling });
+      }
+      if (panel.ownerDocument !== toolWindow.document) host.appendChild(panel);
+    });
+    return panels.every((panel) => panel.ownerDocument === toolWindow.document);
+  }
+
+  function restoreRepeatPanel() {
+    repeatPanelEntries.slice().reverse().forEach(({ node, parent, next }) => {
+      if (!parent) return;
+      if (next && next.parentNode === parent) parent.insertBefore(node, next);
+      else parent.appendChild(node);
+    });
+    repeatPanelEntries = [];
+  }
+
   function moveToolsToPopup() {
     if (!toolWindow || toolWindow.closed) return false;
     const host = toolWindow.document.getElementById('oluntir-tool-window-host');
@@ -257,6 +284,7 @@
       host.appendChild(node);
     });
     moveQuickEditToPopup();
+    moveRepeatPanelToPopup();
 
     document.body.classList.add('oluntir-dual-monitor');
     activeMode = 'dual';
@@ -269,6 +297,7 @@
   function restoreMovedNodes() {
     stopLivePanelSync();
     restoreQuickEdit();
+    restoreRepeatPanel();
     movedNodes.forEach(({ node, parent, next }) => {
       if (!parent) return;
       if (next && next.parentNode === parent) parent.insertBefore(node, next);
@@ -507,6 +536,8 @@
 
   window.OluntirMultiMonitor = {
     startupReady, prepareStartup, startDual, returnToSingle, toggle, focusOrOpen, getSettings: () => Object.assign({}, settings),
-    getState: () => ({ preferredMode: settings.preferredMode, activeMode, fallbackReason }), monitorApiSupported
+    getState: () => ({ preferredMode: settings.preferredMode, activeMode, fallbackReason }),
+    getToolDocument: () => toolWindow && !toolWindow.closed ? toolWindow.document : null,
+    monitorApiSupported
   };
 })();

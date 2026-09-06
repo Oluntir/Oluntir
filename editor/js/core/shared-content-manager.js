@@ -11,13 +11,21 @@
   let applying = false;
   let flushTimer = 0;
   let pendingFlushPage = null;
+  let pendingSharedComponent = null;
   let exportPreparing = false;
   let exportCommitSequence = 0;
   let completedExportCommitSequence = 0;
   let lastRegionsJson = '';
-  const pageRegionCache = new WeakMap();
   const pageAppliedFingerprints = new WeakMap();
   const modelAuthoritativePages = new WeakSet();
+
+  function diagnostic(event, details) {
+    const payload = Object.assign({ event }, details || {});
+    if (window.OluntirLogger && typeof window.OluntirLogger.info === 'function') {
+      window.OluntirLogger.info('shared-content', event, payload);
+    }
+    return payload;
+  }
 
   function enabled() {
     const includes = window.OluntirIncludes;
@@ -184,34 +192,60 @@
     return changed;
   }
 
-  function applyToPage(page) {
+  function applyToPage(page, options) {
     if (!enabled() || !page) return false;
     const regions = currentRegions();
     if (!regions) return false;
     const root = page.getMainComponent && page.getMainComponent();
     if (!root) return false;
 
-    // Update only the three shared subtrees. Replacing the complete page root
-    // detaches the GrapesJS frame and is especially expensive for the index page.
+    // Fast path: the cache stores only the last shared snapshot fingerprint,
+    // never GrapesJS component objects. All edits in shared regions flow through
+    // this manager, so an equal fingerprint means that no model mutation is
+    // required. Page switches can still request a forced structural check.
     const fingerprint = regionFingerprint(regions);
-    if (pageAppliedFingerprints.get(page) === fingerprint) return false;
+    const force = Boolean(options && options.force === true);
+    if (!force && pageAppliedFingerprints.get(page) === fingerprint) return false;
+
+    // Resolve region roots fresh for every actual write. This preserves the v18
+    // stale-reference fix without serializing and reparsing the complete page or
+    // retrying a full subtree replacement after every small text edit.
     const components = pageRegionComponents(page, root);
+    const missingRegions = [];
 
     applying = true;
     try {
       let changed = false;
       const headerHtml = String(regions.header || '').trim();
+      const navigationHtml = String(regions.navigation || '').trim();
+      const footerHtml = String(regions.footer || '').trim();
       const headerElement = parseRegionElement(headerHtml, 'header');
       const headerOwnsNavigation = Boolean(headerElement && headerElement.querySelector('nav'));
 
-      if (headerHtml) changed = updateRegionComponent(components.header, 'header', headerHtml) || changed;
-      if (!headerOwnsNavigation && String(regions.navigation || '').trim()) {
-        changed = updateRegionComponent(components.navigation, 'nav', regions.navigation) || changed;
+      if (headerHtml) {
+        if (components.header) changed = updateRegionComponent(components.header, 'header', headerHtml) || changed;
+        else missingRegions.push('header');
       }
-      if (String(regions.footer || '').trim()) {
-        changed = updateRegionComponent(components.footer, 'footer', regions.footer) || changed;
+      if (!headerOwnsNavigation && navigationHtml) {
+        if (components.navigation) changed = updateRegionComponent(components.navigation, 'nav', navigationHtml) || changed;
+        else missingRegions.push('navigation');
       }
-      pageAppliedFingerprints.set(page, fingerprint);
+      if (footerHtml) {
+        if (components.footer) changed = updateRegionComponent(components.footer, 'footer', footerHtml) || changed;
+        else missingRegions.push('footer');
+      }
+
+      if (!missingRegions.length) {
+        pageAppliedFingerprints.set(page, fingerprint);
+      } else {
+        pageAppliedFingerprints.delete(page);
+        diagnostic('shared-target-apply-incomplete', {
+          pageId: page && page.getId ? page.getId() : null,
+          force,
+          changed,
+          missingRegions
+        });
+      }
       return changed;
     } finally {
       applying = false;
@@ -241,13 +275,19 @@
     const after = regionFingerprint(currentRegions());
     lastRegionsJson = after;
     const changed = before !== after;
-    if (changed && options && options.propagate === true) applyToAll(page);
+    const propagatedPages = changed && options && options.propagate === true ? applyToAll(page) : 0;
+    diagnostic('page-flushed', {
+      pageId: page && page.getId ? page.getId() : null,
+      changed,
+      propagatedPages,
+      propagate: Boolean(options && options.propagate === true)
+    });
     return changed;
   }
 
   function flushSelected() {
     if (!editor || !editor.Pages) return false;
-    return flushPage(editor.Pages.getSelected());
+    return flushPage(editor.Pages.getSelected(), { propagate: true });
   }
 
   function isRichTextEditing() {
@@ -256,28 +296,49 @@
 
   function flushPending(options) {
     const page = pendingFlushPage;
+    const sharedEdit = pendingSharedComponent;
     if (flushTimer) {
       window.clearTimeout(flushTimer);
       flushTimer = 0;
     }
     pendingFlushPage = null;
+    pendingSharedComponent = null;
     if (!page || isRichTextEditing()) return false;
+    if (sharedEdit && sharedEdit.page === page) {
+      return commitSharedComponentChange(sharedEdit.component, page, {
+        propagate: !options || options.propagate !== false,
+        render: false
+      });
+    }
     return flushPage(page, options);
   }
 
-  function scheduleFlush() {
+  function scheduleFlush(component) {
     // Bind the delayed transaction to the page on which the component event
     // actually occurred. A page switch during the debounce window must never
     // make the timer read shared regions from the newly selected page.
     if (applying || exportPreparing || !enabled() || isRichTextEditing()) return;
     pendingFlushPage = editor && editor.Pages ? editor.Pages.getSelected() : null;
+    pendingSharedComponent = null;
+    if (pendingFlushPage && component && sharedRegionInfo(component)) {
+      pendingSharedComponent = { page: pendingFlushPage, component };
+    }
     window.clearTimeout(flushTimer);
     flushTimer = window.setTimeout(() => {
       flushTimer = 0;
       const page = pendingFlushPage;
+      const sharedEdit = pendingSharedComponent;
       pendingFlushPage = null;
+      pendingSharedComponent = null;
       if (!page || isRichTextEditing()) return;
-      flushPage(page);
+      if (sharedEdit && sharedEdit.page === page) {
+        // The delayed path can be reached while the RTE selection is settling.
+        // Rendering here resets the browser caret and makes editing appear
+        // unresponsive. The component model is already current for this event.
+        commitSharedComponentChange(sharedEdit.component, page, { propagate: true, render: false });
+      } else {
+        flushPage(page, { propagate: true });
+      }
     }, 60);
   }
 
@@ -311,80 +372,43 @@
   }
 
   function pageRegionComponents(page, root) {
-    const cached = pageRegionCache.get(page);
-    if (cached && cached.root === root) return cached;
-    const resolved = {
+    // Never retain GrapesJS component object references across mutations.
+    // GrapesJS may replace nested component models (especially nav/footer
+    // descendants) while getMainComponent() still returns the same root. A
+    // long-lived object cache can therefore point to detached subtrees and make
+    // propagation appear successful although the live target page is untouched.
+    return {
       root,
       header: findComponentByTag(root, 'header'),
       navigation: findComponentByTag(root, 'nav'),
       footer: findComponentByTag(root, 'footer')
     };
-    pageRegionCache.set(page, resolved);
-    return resolved;
   }
 
   function commitSelectedCanvasToShared(page, options) {
     if (!enabled() || !editor || !page || !editor.Pages || editor.Pages.getSelected() !== page) return false;
 
-    // Quick Setup mutates the GrapesJS model directly. During the following
-    // render turn the Canvas DOM can still contain the previous markup. Never
-    // copy that stale DOM back into the already updated model on page switch.
-    if (modelAuthoritativePages.has(page)) {
-      modelAuthoritativePages.delete(page);
-      const changed = flushPage(page, { propagate: true });
-      const targetPage = options && options.targetPage;
-      const targetUpdated = Boolean(targetPage && targetPage !== page && applyToPage(targetPage));
-      return changed || targetUpdated;
-    }
-
-    let canvasDocument = null;
-    try { canvasDocument = editor.Canvas && editor.Canvas.getDocument ? editor.Canvas.getDocument() : null; } catch (_) { /* no canvas */ }
-    if (!canvasDocument) return flushPage(page);
-
-    const root = page.getMainComponent && page.getMainComponent();
-    if (!root) return false;
-
-    const canvasHeader = canvasDocument.querySelector('header');
-    const headerOwnsNavigation = Boolean(canvasHeader && canvasHeader.querySelector('nav'));
-    const targets = [
-      { name: 'header', tagName: 'header', element: canvasHeader },
-      { name: 'navigation', tagName: 'nav', element: headerOwnsNavigation ? null : canvasDocument.querySelector('nav') },
-      { name: 'footer', tagName: 'footer', element: canvasDocument.querySelector('footer') }
-    ];
-
-    let committed = false;
-    applying = true;
-    try {
-      targets.forEach((target) => {
-        if (!target.element) return;
-        const regionComponents = pageRegionComponents(page, root);
-        const component = target.tagName === 'header' ? regionComponents.header
-          : target.tagName === 'nav' ? regionComponents.navigation
-            : regionComponents.footer;
-        if (!component || typeof component.components !== 'function') return;
-        const canvasInnerHtml = String(target.element.innerHTML || '');
-        const modelInnerHtml = typeof component.getInnerHTML === 'function'
-          ? String(component.getInnerHTML() || '')
-          : '';
-        if (canvasInnerHtml !== modelInnerHtml) {
-          component.components(canvasInnerHtml);
-          committed = true;
-        }
-      });
-    } finally {
-      applying = false;
-    }
-
+    // Compatibility API name retained for callers, but the persistent source is
+    // exclusively the GrapesJS project model. Canvas DOM is a render target and
+    // may lag behind the model during RTE shutdown or a page/frame transition;
+    // therefore it must never be copied back into shared components here.
     if (flushTimer) {
       window.clearTimeout(flushTimer);
       flushTimer = 0;
     }
     pendingFlushPage = null;
+    pendingSharedComponent = null;
+    modelAuthoritativePages.delete(page);
 
+    if (!window.OluntirIncludes || typeof window.OluntirIncludes.updateLayoutRegions !== 'function') return false;
     const regions = parseRegions(pageHtml(page));
     const hasAnyRegion = Object.keys(REGION_SELECTORS).some((name) => String(regions[name] || '').trim());
-    if (!hasAnyRegion || !window.OluntirIncludes || typeof window.OluntirIncludes.updateLayoutRegions !== 'function') {
-      return committed;
+    if (!hasAnyRegion) {
+      diagnostic('model-commit-without-shared-regions', {
+        pageId: page.getId ? page.getId() : null,
+        source: 'grapesjs-project-model'
+      });
+      return false;
     }
 
     const before = regionFingerprint(currentRegions());
@@ -392,19 +416,29 @@
     const after = regionFingerprint(currentRegions());
     lastRegionsJson = after;
     const changed = before !== after;
-    if (changed || committed) pageAppliedFingerprints.set(page, after);
+    pageAppliedFingerprints.set(page, after);
 
-    // Synchronize only the page that is about to become visible. Updating every
-    // project page during a page switch rebuilds large component trees and can
-    // block GrapesJS long enough to lose or delay the selection, especially for
-    // the index page. Other pages receive the current central regions when they
-    // are selected; export already consumes the same central shared-content state.
     const targetPage = options && options.targetPage;
-    const targetUpdated = Boolean(targetPage && targetPage !== page && applyToPage(targetPage));
+    const propagatedPages = changed ? applyToAll(page) : 0;
+    // When the central snapshot changed, applyToAll() already handled the target.
+    // Otherwise the fingerprint fast path is sufficient; region component
+    // objects themselves are never cached anymore, so a forced second write is
+    // unnecessary and was a major source of page-switch CPU churn.
+    const targetUpdated = Boolean(
+      !changed && targetPage && targetPage !== page && applyToPage(targetPage)
+    );
+    diagnostic('model-commit', {
+      pageId: page.getId ? page.getId() : null,
+      targetPageId: targetPage && targetPage.getId ? targetPage.getId() : null,
+      source: 'grapesjs-project-model',
+      canvasWriteBack: false,
+      changed,
+      propagatedPages,
+      targetUpdated
+    });
 
-    return changed || committed || targetUpdated;
+    return changed || targetUpdated;
   }
-
 
 
   function componentParent(component) {
@@ -547,21 +581,30 @@
     const info = sharedRegionInfo(component);
     if (!info) return false;
     const path = relativeComponentPath(info.root, component);
-    if (!path) return false;
+    if (!path) {
+      diagnostic('shared-component-path-missing', {
+        pageId: page.getId ? page.getId() : null,
+        region: info.name,
+        componentTag: componentTagName(component)
+      });
+      return flushPage(page, { propagate: !options || options.propagate !== false });
+    }
 
     if (flushTimer) {
       window.clearTimeout(flushTimer);
       flushTimer = 0;
     }
     pendingFlushPage = null;
-    modelAuthoritativePages.add(page);
+    pendingSharedComponent = null;
     // GrapesJS stores component styles in CssComposer. Shared Content persists
     // HTML regions, so mirror the edited component style into its markup before
     // the central snapshot and target-page propagation are created.
     persistEditableStyleInMarkup(component);
-    renderComponent(component);
+    if (!options || options.render !== false) renderComponent(component);
 
     let changed = false;
+    const targetedPages = [];
+    const fallbackPages = [];
     applying = true;
     try {
       if (options && options.propagate === false) return false;
@@ -572,7 +615,12 @@
         const regions = pageRegionComponents(targetPage, root);
         const targetRoot = info.name === 'header' ? regions.header : info.name === 'navigation' ? regions.navigation : regions.footer;
         const target = targetRoot && componentAtPath(targetRoot, path);
-        if (target && copyEditableState(component, target)) {
+        if (!target) {
+          fallbackPages.push(targetPage);
+          return;
+        }
+        targetedPages.push(targetPage);
+        if (copyEditableState(component, target)) {
           const presentationApi = window.OluntirPresentationApi;
           if (presentationApi && typeof presentationApi.hydrate === 'function') presentationApi.hydrate(target, false);
           changed = true;
@@ -582,9 +630,48 @@
       applying = false;
     }
 
-    // Refresh the central shared snapshot once, but do not rebuild every page.
-    const centralChanged = flushPage(page, { propagate: false });
-    pageAppliedFingerprints.set(page, regionFingerprint(currentRegions()));
+    // Refresh the central shared snapshot from the authoritative GrapesJS
+    // model. pageHtml() may still expose the previous Canvas frame while RTE
+    // changes are settling; reading the concrete shared root avoids losing an
+    // edit made on a subpage.
+    const modelRegions = parseRegions(pageHtml(page));
+    const modelRegionHtml = info.root && typeof info.root.toHTML === 'function'
+      ? String(info.root.toHTML() || '').trim()
+      : '';
+    if (modelRegionHtml) {
+      const semantics = window.OluntirTemplateSemantics;
+      modelRegions[info.name] = semantics && typeof semantics.normalizeReferencedIds === 'function'
+        ? semantics.normalizeReferencedIds(modelRegionHtml)
+        : modelRegionHtml;
+    }
+    const beforeCentral = regionFingerprint(currentRegions());
+    window.OluntirIncludes.updateLayoutRegions(modelRegions);
+    const afterCentral = regionFingerprint(currentRegions());
+    lastRegionsJson = afterCentral;
+    const centralChanged = beforeCentral !== afterCentral;
+
+    // Text/RTE changes have already been copied to the exact corresponding
+    // component path above. Do not follow that cheap targeted write with a full
+    // header/nav/footer subtree rebuild on every page. Only malformed or older
+    // targets where the path cannot be resolved use the structural fallback.
+    pageAppliedFingerprints.set(page, afterCentral);
+    targetedPages.forEach((targetPage) => pageAppliedFingerprints.set(targetPage, afterCentral));
+    let propagatedPages = 0;
+    if (!options || options.propagate !== false) {
+      fallbackPages.forEach((targetPage) => {
+        if (applyToPage(targetPage, { force: true })) propagatedPages += 1;
+      });
+    }
+    diagnostic('shared-component-committed', {
+      pageId: page.getId ? page.getId() : null,
+      region: info.name,
+      path,
+      centralChanged,
+      targetPagesChanged: changed,
+      targetedPages: targetedPages.length,
+      fallbackPages: fallbackPages.length,
+      propagatedPages
+    });
     if (typeof editor.store === 'function') {
       window.clearTimeout(commitSharedComponentChange.storeTimer || 0);
       commitSharedComponentChange.storeTimer = window.setTimeout(() => {
@@ -593,7 +680,7 @@
         });
       }, 0);
     }
-    return changed || centralChanged;
+    return changed || centralChanged || propagatedPages > 0;
   }
 
   function commitModelChange(page, options) {
@@ -603,6 +690,7 @@
       flushTimer = 0;
     }
     pendingFlushPage = null;
+    pendingSharedComponent = null;
     modelAuthoritativePages.add(page);
     const changed = flushPage(page, { propagate: !options || options.propagate !== false });
     if (typeof editor.store === 'function') {
@@ -626,6 +714,7 @@
         flushTimer = 0;
       }
       pendingFlushPage = null;
+      pendingSharedComponent = null;
 
       // Export is model-first and read-only with regard to presentation. The
       // quick-edit translation already persists the edited component through
@@ -636,7 +725,10 @@
       // before export. materializeHtml() resolves only explicitly translated
       // presentation metadata when the immutable export snapshot is created.
       const committed = flushPage(page, { propagate: true });
-      applyToAll(page);
+      // flushPage() already propagates when the central snapshot changed. If it
+      // did not change, cached target fingerprints make a second unconditional
+      // full project walk unnecessary.
+      if (!committed) applyToAll(page);
 
       // GrapesJS may emit component events while the model is committed. Keep
       // scheduling suppressed through the next render turn and then discard any
@@ -654,6 +746,7 @@
         flushTimer = 0;
       }
       pendingFlushPage = null;
+      pendingSharedComponent = null;
       completedExportCommitSequence = commitToken;
 
       return Object.freeze({ committed: Boolean(committed), pendingFlush: false, commitToken });

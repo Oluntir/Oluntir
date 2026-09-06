@@ -70,7 +70,8 @@ Analysen erforderlich sind:
 - JavaScript-Behavior-, Matrix- und Resolver-Module;
 - `runtime/` und lokale API-Starter;
 - die Frameworkordner für Bootstrap 4 und 5;
-- Repeat-Foundation-Verträge bei weiterhin gesperrtem produktivem Gate.
+- Repeat-Foundation-Verträge, Resolver, Dependency Graph, Action Contracts und
+  der produktive gezielte Synchronisationsdienst dürfen nicht entfernt werden.
 
 ## Prüfung nach der Bereinigung
 

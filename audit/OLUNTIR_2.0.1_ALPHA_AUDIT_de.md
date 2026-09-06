@@ -22,8 +22,9 @@ begrenzt.
 - Portable Windows-x64-Node.js-Runtime und lokale API-Starter sind vorhanden.
 - Dokumentation für Source-Recovery, Paketidentität und Source-Hash ist vorhanden.
 - GrapesJS bleibt unter Version 0.23.2 eingebunden.
-- Repeat-Foundation-Verträge bleiben vorhanden; produktive Synchronisation ist
-  deaktiviert.
+- Repeat-Foundation-Verträge und produktive Synchronisation für ausdrücklich
+  definierte Instanzen sind vorhanden; Nav, Header und Footer bleiben dem
+  Shared Content Manager vorbehalten.
 - README, Handbuch, Funktionen, Release-, Architektur- und Compliance-
   Dokumentation weisen 2.0.1-alpha und die Baseline 1.3.1 aus.
 - Historische Audit-Dateien zu 1.3.0/1.3.1 bleiben separat erkennbar.
@@ -42,7 +43,7 @@ begrenzt.
 
 ## Durch dieses Audit ausdrücklich nicht freigegeben
 
-- produktive Repeat-Synchronisation;
+- automatische Synchronisation ohne ausdrücklich definierte Repeat-Instanz;
 - automatische Dokumentmutation;
 - Ausführung importierten Source-JavaScripts;
 - unbekannte Frameworks als konkrete Editorprofile behandeln;

@@ -85,18 +85,44 @@ const target = createComponent({
     { tagName: 'article', attributes: { 'data-oluntir-component-id': 'target-b', class: 'card' }, content: 'Alt B' }
   ]
 });
-const editor = { Pages: { getAll() { return [page('page-source', source), page('page-target', target)]; } } };
+const sibling = createComponent({
+  tagName: 'section',
+  attributes: { 'data-oluntir-section-id': 'sibling-root', class: 'repeat-list' },
+  components: [
+    { tagName: 'article', attributes: { 'data-oluntir-component-id': 'sibling-a', class: 'card' }, content: 'Alt A sibling' },
+    { tagName: 'article', attributes: { 'data-oluntir-component-id': 'sibling-b', class: 'card' }, content: 'Alt B sibling' }
+  ]
+});
+const editor = { Pages: { getAll() { return [page('page-source', source), page('page-target', target), page('page-sibling', sibling)]; } } };
 const adapter = api.create(editor);
 const operation = { sourcePageId: 'page-source', sourceIdentity: 'source-root', targetPageId: 'page-target', targetIdentity: 'target-root' };
+const siblingOperation = { sourcePageId: 'page-source', sourceIdentity: 'source-root', targetPageId: 'page-sibling', targetIdentity: 'sibling-root' };
 
 // Initial mapping keeps all existing target identities.
 let sourceSnapshot = adapter.readSource(operation);
 let targetSnapshot = adapter.readTarget(operation);
 adapter.validateWrite(operation, sourceSnapshot, targetSnapshot);
 adapter.writeTarget(operation, sourceSnapshot);
+adapter.writeTarget(siblingOperation, sourceSnapshot);
 assert.deepStrictEqual(target.components().models.map(item => item.getAttributes()['data-oluntir-component-id']), ['target-a', 'target-b']);
 assert.deepStrictEqual(target.components().models.map(item => item.get(api.SOURCE_IDENTITY_PROPERTY)), ['source-a', 'source-b']);
 assert.deepStrictEqual(target.components().models.map(item => item.get('content')), ['A', 'B']);
+
+// A changed instance is a valid reverse source. Its stable source mappings
+// must update the original source without replacing the source identities.
+target.components().models[0].set('content', 'Geändert auf Zielseite');
+const reverseOperation = { sourcePageId: 'page-target', sourceIdentity: 'target-root', targetPageId: 'page-source', targetIdentity: 'source-root', direction: 'instance-to-linked' };
+const reverseSource = adapter.readSource(reverseOperation);
+const reverseTarget = adapter.readTarget(reverseOperation);
+adapter.validateWrite(reverseOperation, reverseSource, reverseTarget);
+adapter.writeTarget(reverseOperation, reverseSource);
+const reverseSiblingOperation = { sourcePageId: 'page-target', sourceIdentity: 'target-root', targetPageId: 'page-sibling', targetIdentity: 'sibling-root', direction: 'instance-to-linked' };
+adapter.validateWrite(reverseSiblingOperation, reverseSource, adapter.readTarget(reverseSiblingOperation));
+adapter.writeTarget(reverseSiblingOperation, reverseSource);
+assert.strictEqual(source.components().models[0].get('content'), 'Geändert auf Zielseite');
+assert.strictEqual(sibling.components().models[0].get('content'), 'Geändert auf Zielseite', 'Instanzänderung muss auch die andere Instanz erreichen.');
+assert.deepStrictEqual(source.components().models.map(item => item.getAttributes()['data-oluntir-component-id']), ['source-a', 'source-b']);
+assert.deepStrictEqual(sibling.components().models.map(item => item.getAttributes()['data-oluntir-component-id']), ['sibling-a', 'sibling-b'], 'Stabile Ziel-IDs der Geschwisterinstanz müssen erhalten bleiben.');
 
 // Add a new source child in the middle. Existing mapped target identities remain stable.
 source.components().add({
@@ -115,13 +141,13 @@ assert.strictEqual(afterInsert[2].getAttributes()['data-oluntir-component-id'], 
 assert.strictEqual(afterInsert[1].get(api.SOURCE_IDENTITY_PROPERTY), 'source-new');
 assert.ok(afterInsert[1].getAttributes()['data-oluntir-component-id']);
 assert.notStrictEqual(afterInsert[1].getAttributes()['data-oluntir-component-id'], 'source-new');
-assert.deepStrictEqual(afterInsert.map(item => item.get('content')), ['A', 'Neu', 'B']);
+assert.deepStrictEqual(afterInsert.map(item => item.get('content')), ['Geändert auf Zielseite', 'Neu', 'B']);
 
 // Rollback restores exact previous topology and target identities.
 adapter.restoreTarget(operation, rollbackBeforeInsert);
 assert.strictEqual(target.components().models.length, 2);
 assert.deepStrictEqual(target.components().models.map(item => item.getAttributes()['data-oluntir-component-id']), beforeInsertIds);
-assert.deepStrictEqual(target.components().models.map(item => item.get('content')), ['A', 'B']);
+assert.deepStrictEqual(target.components().models.map(item => item.get('content')), ['Geändert auf Zielseite', 'B']);
 
 // Reapply insertion and then remove source A. Only its mapped target is removed.
 adapter.writeTarget(operation, adapter.readSource(operation));

@@ -333,6 +333,7 @@ assetHydration.then(() => {
   }
   if (window.OluntirLayoutIdentities) window.OluntirLayoutIdentities.bind(editor);
   if (window.OluntirRepeatEngineV2) window.OluntirRepeatEngineV2.bind(editor);
+  if (window.OluntirRepeatAutoSynchronization && typeof window.OluntirRepeatAutoSynchronization.bind === 'function') window.OluntirRepeatAutoSynchronization.bind(editor);
   if (window.OluntirFavicon) window.OluntirFavicon.bind(editor);
   window.dispatchEvent(new CustomEvent('oluntir:editorready'));
 
@@ -462,6 +463,22 @@ assetHydration.then(() => {
         action: () => document.getElementById('btn-export-folder').click(),
       },
       {
+        id: 'pb-ui-toolbar-repeat-content',
+        panel: 'views',
+        icon: 'fa fa-retweet',
+        titleKey: 'tool.repeatContent',
+        attributes: { 'data-oluntir-repeat-tool': 'true' },
+        action: () => window.OluntirRepeatUi && window.OluntirRepeatUi.open(),
+      },
+      {
+        id: 'pb-ui-toolbar-repeat-library',
+        panel: 'views',
+        icon: 'fa fa-retweet',
+        titleKey: 'tool.repeatLibrary',
+        attributes: { 'data-oluntir-repeat-library-tool': 'true' },
+        action: () => window.OluntirRepeatUi && window.OluntirRepeatUi.openLibrary(),
+      },
+      {
         id: 'pb-ui-toolbar-monitor-toggle',
         icon: 'fa fa-desktop',
         titleKey: 'tool.monitorToggle',
@@ -481,7 +498,7 @@ assetHydration.then(() => {
     commandMap.forEach((tool) => {
       const commandId = tool.id + '-command';
       editor.Commands.add(commandId, { run: tool.action });
-      panels.addButton('options', {
+      panels.addButton(tool.panel || 'options', {
         id: tool.id,
         className: tool.icon,
         command: commandId,
@@ -495,7 +512,7 @@ assetHydration.then(() => {
     });
     window.addEventListener('oluntir:languagechange', () => {
       commandMap.forEach((tool) => {
-        const button = panels.getButton('options', tool.id);
+        const button = panels.getButton(tool.panel || 'options', tool.id);
         if (!button) return;
         const title = window.OluntirI18N.t(tool.titleKey);
         button.set('attributes', Object.assign({}, button.get('attributes'), { title, 'aria-label': title }));
@@ -884,7 +901,7 @@ assetHydration.then(() => {
   }
 
   function selectPageById(pageId) {
-    const page = editor.Pages.getAll().find((item) => item.id === pageId);
+    const page = editor.Pages.getAll().find((item) => item.id === pageId || (window.OluntirLayoutIdentities && window.OluntirLayoutIdentities.pageId && window.OluntirLayoutIdentities.pageId(item) === pageId));
     if (!page) return false;
 
     const previousPage = editor.Pages.getSelected();
@@ -893,11 +910,31 @@ assetHydration.then(() => {
       return true;
     }
 
-    // First make the complete current page authoritative. Shared Content handles
-    // only header/navigation/footer; individual main content and Repeat metadata
-    // must be secured before the target page is selected.
+    // A page switch can be initiated while GrapesJS still owns an active RTE
+    // session. Finish that session before reading the current page; otherwise
+    // the visible content may never reach the component model.
+    if (richTextEditingActive && editor.RichTextEditor && typeof editor.RichTextEditor.disable === 'function') {
+      try { editor.RichTextEditor.disable(); } catch (error) {
+        console.warn('RTE konnte vor dem Seitenwechsel nicht beendet werden:', error);
+      }
+    }
+
+    // Page switching is a model-authoritative transaction. Finish any generic
+    // Canvas-derived asset references first, but do not flush Shared Content yet.
+    // Shared header/navigation/footer are then read only from the GrapesJS model;
+    // a stale frame must never overwrite a newer model edit from the source page.
     try {
-      commitCurrentCanvasStateToModel();
+      commitCurrentCanvasStateToModel({ skipSharedContent: true });
+      if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.commitSelectedCanvasToShared === 'function') {
+        window.OluntirSharedContentManager.commitSelectedCanvasToShared(previousPage, { targetPage: page });
+      }
+      if (window.OluntirLogger && typeof window.OluntirLogger.info === 'function') {
+        window.OluntirLogger.info('page', 'page-switch-source-committed', {
+          sourcePageId: previousPage && previousPage.id || null,
+          targetPageId: page && page.id || null,
+          richTextEditingActive: Boolean(richTextEditingActive)
+        });
+      }
     } catch (error) {
       console.error('Aktuelle Seite konnte vor dem Wechsel nicht ins Modell übernommen werden:', error);
       refreshPageList();
@@ -909,16 +946,14 @@ assetHydration.then(() => {
     // still active. The manager keeps the original source page, so a debounce
     // can never run against the page selected a few milliseconds later.
     try {
-      if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.commitSelectedCanvasToShared === 'function') {
-        window.OluntirSharedContentManager.commitSelectedCanvasToShared(previousPage, { targetPage: page });
-      } else if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushPending === 'function') {
+      if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushPending === 'function') {
         window.OluntirSharedContentManager.flushPending();
       }
       // This is the last synchronous write before Pages.select(). It contains
       // both pages and the current repeatEngine metadata. If a delayed raw
       // editor.store() is already queued, the persistence barrier below writes
       // the decorated snapshot once more after that store has completed.
-      writeCurrentProjectSnapshotSynchronously();
+      writeCurrentProjectSnapshotSynchronously({ skipSharedContent: true });
     } catch (error) {
       console.error('Aktuelle Seite konnte vor dem Wechsel nicht gespeichert werden:', error);
       refreshPageList();
@@ -926,17 +961,23 @@ assetHydration.then(() => {
       return false;
     }
 
-    // A page switch must only select the existing GrapesJS page/frame. Rebuilding
-    // the target component tree here via component.components(...) detaches the
-    // visible Canvas frame from the selected page in GrapesJS 0.23.2. Shared
-    // regions are propagated when they actually change; the switch itself stays
-    // read-only for the target page.
+    // The target page model already contains the authoritative shared regions.
+    // Pages.select() only switches the existing GrapesJS page/frame; no Canvas DOM
+    // is used as a reverse synchronization source during the transition.
     editor.Pages.select(page);
     refreshPageList();
     refreshSelectedPageVisuals();
-    persistCurrentProjectStateSoon(0);
+    // The source page and shared regions were committed before Pages.select().
+    // Do not flush shared content again against the freshly selected page while
+    // its Canvas is still rendering the pre-propagation frame.
+    persistCurrentProjectStateSoon(0, { skipSharedContent: true });
     return true;
   }
+
+  // Repeat-UI und externe Werkzeugfenster verwenden denselben gehärteten
+  // Seitenwechsel wie die sichtbare Seitenauswahl. Dadurch bleibt der aktuelle
+  // Canvas-Stand auch bei der Zielbereichsauswahl persistent.
+  window.OluntirSelectPageById = selectPageById;
 
   pageSelect.addEventListener('change', () => {
     selectPageById(pageSelect.value);
@@ -1101,6 +1142,7 @@ assetHydration.then(() => {
       alert(describeSaveError(err));
     }
   });
+  let skipSharedContentForNextStorageSnapshot = false;
   editor.on('storage:store', () => {
     saveErrorAlreadyShown = false;
     // Während der aktiven Rich-Text-Bearbeitung darf der Metadaten-Snapshot
@@ -1112,7 +1154,9 @@ assetHydration.then(() => {
     // Autosave wird deshalb derselbe Projektdatensatz nochmals mit allen
     // Oluntir-Metadaten geschrieben. Dadurch kann ein verzögerter GrapesJS-Store
     // keinen zuvor gesicherten repeatEngine-Zustand mehr verlieren.
-    try { writeCurrentProjectSnapshotSynchronously(); }
+    const skipSharedContent = skipSharedContentForNextStorageSnapshot;
+    skipSharedContentForNextStorageSnapshot = false;
+    try { writeCurrentProjectSnapshotSynchronously(skipSharedContent ? { skipSharedContent: true } : undefined); }
     catch (error) { console.error('Oluntir-Metadaten konnten nach dem Autosave nicht ergänzt werden:', error); }
   });
 
@@ -1145,7 +1189,7 @@ assetHydration.then(() => {
     persistCurrentProjectStateSoon(80);
   });
 
-  function commitCurrentCanvasStateToModel() {
+  function commitCurrentCanvasStateToModel(options) {
     if (projectCommitRunning) return;
     projectCommitRunning = true;
     try {
@@ -1158,8 +1202,10 @@ assetHydration.then(() => {
     if (typeof normalizeStableAssetReferences === 'function') {
       normalizeStableAssetReferences(editor);
     }
-    if (window.OluntirSharedContentManager) {
-      window.OluntirSharedContentManager.flushSelected();
+    if (!options || options.skipSharedContent !== true) {
+      if (window.OluntirSharedContentManager) {
+        window.OluntirSharedContentManager.flushSelected();
+      }
     }
     } finally {
       projectCommitRunning = false;
@@ -1172,8 +1218,8 @@ assetHydration.then(() => {
   // garantiert genug Zeit. Ohne diesen synchronen letzten Schreibvorgang konnte genau
   // die zuletzt eingefügte Bildgruppe beim nächsten Start fehlen, obwohl Export und
   // Canvas bereits korrekt waren.
-  function writeCurrentProjectSnapshotSynchronously() {
-    commitCurrentCanvasStateToModel();
+  function writeCurrentProjectSnapshotSynchronously(options) {
+    commitCurrentCanvasStateToModel(options);
     let projectData = editor.getProjectData();
     if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
     if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
@@ -1191,24 +1237,25 @@ assetHydration.then(() => {
     return projectData;
   }
 
-  async function persistCurrentProjectState() {
+  async function persistCurrentProjectState(options) {
     if (projectPersistRunning) {
       projectPersistAgain = true;
       return;
     }
     projectPersistRunning = true;
     try {
-      commitCurrentCanvasStateToModel();
+      commitCurrentCanvasStateToModel(options);
       await nextFrame();
+      if (options && options.skipSharedContent === true) skipSharedContentForNextStorageSnapshot = true;
       await editor.store();
       // editor.store() kann intern verzögert oder vom Browser beim Schließen abgebrochen
       // werden. Der synchrone Snapshot ist deshalb die verbindliche Abschlusskopie.
-      writeCurrentProjectSnapshotSynchronously();
+      writeCurrentProjectSnapshotSynchronously(options);
     } finally {
       projectPersistRunning = false;
       if (projectPersistAgain) {
         projectPersistAgain = false;
-        await persistCurrentProjectState();
+        await persistCurrentProjectState(options);
       }
     }
   }
@@ -1244,7 +1291,7 @@ assetHydration.then(() => {
     }, 0);
   }
 
-  function persistCurrentProjectStateSoon(delay) {
+  function persistCurrentProjectStateSoon(delay, options) {
     // Während aktiver Texteingabe niemals das Komponentenmodell neu schreiben.
     // Der Abschluss wird durch rte:disable einmalig und vollständig gespeichert.
     if (richTextEditingActive) return;
@@ -1252,7 +1299,7 @@ assetHydration.then(() => {
     projectPersistTimer = window.setTimeout(() => {
       projectPersistTimer = 0;
       if (richTextEditingActive) return;
-      persistCurrentProjectState().catch((error) => {
+      persistCurrentProjectState(options).catch((error) => {
         console.error('Bildänderung konnte nicht dauerhaft gespeichert werden:', error);
       });
     }, Number.isFinite(delay) ? delay : 80);

@@ -6,7 +6,7 @@
   'use strict';
 
   const SCHEMA_VERSION = 1;
-  const RELEASE = '1.3.1';
+  const RELEASE = '2.0.1-alpha';
 
   function clone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
   function freeze(value) {
@@ -48,12 +48,12 @@
       }),
       contract('action-contracts', actions, ['createAction', 'registerReadOnlyHandlers'], {
         schemaVersion: actions && actions.SCHEMA_VERSION || null,
-        mutationAllowed: false
+        mutationAllowed: true
       }),
       contract('targeted-synchronization-service', sync, ['create', 'validatePlan', 'validateAccessAdapter'], {
         schemaVersion: sync && sync.SCHEMA_VERSION || null,
-        executionEnabled: false,
-        mutationAllowed: false
+        executionEnabled: true,
+        mutationAllowed: true
       })
     ];
     return frozen({
@@ -61,7 +61,7 @@
       required: contracts.map(function (entry) { return entry.name; }),
       contracts: contracts,
       valid: contracts.every(function (entry) { return entry.valid; }),
-      executionEnabled: false,
+      executionEnabled: true,
       mutationPerformed: false
     });
   }
@@ -79,7 +79,7 @@
       item('repeat-resolver', !!resolver, resolver && { schemaVersion: resolver.SCHEMA_VERSION || null }),
       item('dependency-graph', !!graph, graph && { schemaVersion: graph.SCHEMA_VERSION || null }),
       item('action-contracts', !!actions, actions && { schemaVersion: actions.SCHEMA_VERSION, types: actions.ACTION_TYPE }),
-      item('targeted-sync-service', !!sync, sync && { schemaVersion: sync.SCHEMA_VERSION, executionEnabled: false })
+      item('targeted-sync-service', !!sync, sync && { schemaVersion: sync.SCHEMA_VERSION, executionEnabled: true })
     ];
   }
 
@@ -123,10 +123,10 @@
     const readiness = {
       schemaVersion: SCHEMA_VERSION,
       release: RELEASE,
-      mode: 'foundation-only',
-      productiveSynchronizationEnabled: false,
-      visibleRepeatUiEnabled: false,
-      automaticSynchronizationEnabled: false,
+      mode: 'productive-repeat',
+      productiveSynchronizationEnabled: contracts.valid,
+      visibleRepeatUiEnabled: contracts.valid,
+      automaticSynchronizationEnabled: contracts.valid,
       mutationPerformed: false,
       contracts: contracts,
       dependencies: dependencies,
