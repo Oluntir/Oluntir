@@ -56,7 +56,7 @@
     await writeFile(directory, CONSENT_FILE, JSON.stringify({
       schemaVersion: 2,
       authorizedAt: new Date().toISOString(),
-      authorizedBy: 'Oluntir 1.3.0',
+      authorizedBy: 'Oluntir 2.1.0 BETA',
       purpose: 'Local technical diagnostics and performance logging',
       directory: displayPath,
       permissionScope: 'Selected logs directory only',
@@ -92,7 +92,7 @@
       choose.classList.toggle('btn-primary', !active);
       choose.textContent = active
         ? 'Anderen logs-Ordner wählen'
-        : 'Zustimmen, Programmordner öffnen und Unterordner logs wählen';
+        : 'Zustimmen und logs-Ordner wählen';
     }
   }
   function startOluntir() {

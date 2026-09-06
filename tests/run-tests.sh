@@ -34,6 +34,7 @@ node tests/test-template-structure-api.js
 node tests/test-oluntir-logger.js
 node tests/test-oluntir-logger-files.js
 node tests/test-oluntir-logging-consent.js
+node tests/test-logging-consent-responsive-layout.js
 node tests/test-foundation-consent-contract.js
 node tests/test-foundation-consent-version.js
 node tests/test-foundation-consent-installation.js

@@ -434,7 +434,7 @@ ac8e70f03e4bc410209601fecbbdeb93aa9888b174d12c70dcb32e8d200d9e74  ./docs/WORKSPA
 7f0fd3265fef7d10dacaea55ea3b9b2435fbe4c9c83bfe9f2405cf0a794174a0  ./docs/index.md
 66ced71349bc5cde9e29747519b03c1d84a51f73c56fc686993d94a70de529ab  ./docs/index_de.md
 b35245dd68299c85a0e787a1cce39db250c4e089b8d293b4dcf9cd164685f0ea  ./editor/config/editor-dependencies.js
-c163d086be180a52aeda7144611d992a27935aeddc1e259b5e54227ebb4b1ec9  ./editor/css/editor.css
+3f4a450301c5337a0a7cd5d8471463510d72523cff12f6af22968c99df0a493a  ./editor/css/editor.css
 d69a2368cf8eb93c6c662d3de48626466b7e5ba006b915d265e0b553d053afa0  ./editor/css/image-select.css
 b20cab0d4cd48898b72a6dd579276766e5f28ee61a022dc066691fdea618c502  ./editor/integrations/grapesjs/COMPATIBILITY.md
 036da92d4f3cbb3380c7087815d5b2c211695a8a7ef2ff3d2373db210d86806b  ./editor/integrations/grapesjs/grapesjs-adapter.js
@@ -457,7 +457,7 @@ db68e5da9027f6a4f5a2e761dda9b318970ff49d93d22c1a2371fd80c5100369  ./editor/js/co
 1f9448225c20e26cbacb7e189123377c93932e9632fa7739feab4dc6345ba558  ./editor/js/core/oluntir-code-view.js
 02aa74451113b2f8ac4a6149a2c2a8ec790fcd83b6cb4e948c4f5452fbb52fe9  ./editor/js/core/oluntir-document-api.js
 21da00629dcae7e1ef6828f861403a1a182e9f2ca9ad1453140180c9dd379401  ./editor/js/core/oluntir-logger.js
-4b41c31fd42e2a2320b4495eff43b579061eefc8ee705a69961897948dfed09e  ./editor/js/core/oluntir-logging-consent.js
+5c2512cbc7785e4ed07a273c3b19c1325b68a8485941c9bc05622cadf1c8771e  ./editor/js/core/oluntir-logging-consent.js
 84cc5c4d529bd1e32815f2bcf3f648ed818963449ea5f40fc6ccfdade20e78cc  ./editor/js/core/oluntir-preview-api.js
 4e2cf710394513348f791ea487118e84b5b994b9e389ff3baa978462de7d4ecb  ./editor/js/core/oluntir-runtime-actions.js
 d448d4654e274f4cb30c3fa708af1aabf89dd8e52fd5fdd781cad4494e3a10ea  ./editor/js/core/presentation-vocabulary.js
@@ -526,7 +526,7 @@ d85327d99c7a3ee1f9b5d0500d1370acea3ad2db39c163c2f51f232baedbdede  ./frameworks/b
 48144faf6aa0fb3cd2ce748d9730238f888f4ab715f05dabd1c9af2c5671988a  ./frameworks/bootstrap5/css/bootstrap.min.css.map
 e4fd49181388c48ec5040bd3fe66f57c29c8e67fcd8502b3354b96ec7ab47cc7  ./frameworks/bootstrap5/js/bootstrap.bundle.min.js
 c61123e58cc0a4b65d737ba070c485911b3dbec6d7b802bdf6628395abd9c08b  ./frameworks/bootstrap5/js/bootstrap.bundle.min.js.map
-d35dd84ce6f5f4c231fe331ebbe704dc1e19b14b46a94f5d1b2324619fa10823  ./index.html
+8a945366127b76aa4251b0ca885b1bdbbb38f394059f0c8a6b94cd2808073741  ./index.html
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./logs/.gitkeep
 214452d08bbddaf0369b8e8fcce37cfd9de932d8509a3121a7d86c666f4fb0f6  ./logs/README.md
 c68874cbaa2fd1650b7d770b328680ea765fb3376023cc3608427fde4f0d0481  ./plugins/editor/filesaver/FileSaver.min.js
@@ -588,7 +588,7 @@ dfd7890237dd562f8f3646813c83c571c871bda86dcbbb579f8c142d2fd72dc7  ./tests/MANUAL
 29b5a7663f6688e287743af8bf2250218e3fc5572f3997f941d9743b0945e554  ./tests/fixtures/bootstrap5-source.html
 a4f84e967eb4402aaeaade9a3beea6855496624eac8f6286e23c06ef4bd5659e  ./tests/fixtures/layout-repeat-export-contract.json
 d7a50203179f79aba7d6c14371563b2267a4fa43c5ab74172bc2de14b924429e  ./tests/gallery-empty-buttons-visual.html
-63438b9226f37878527e6e60b2caf7be678cec1d4971277fae5f0eedfd067503  ./tests/run-tests.sh
+3c5cda9db0154c7cf453a2e0f3a98ba2f6a29ea8d16c562ef06c429f965d3052  ./tests/run-tests.sh
 eb6fe0f1fe342c142054b5db1a1a93e32ca3ad478907508ea83bad1c19bf0647  ./tests/test-1.3.1-export-presentation-readonly.js
 b7bf4f58ca95096f8b9ffddd4b5fe5d3b8babcbb3db65ca4a90a7b135318dbaa  ./tests/test-1.3.1-export-presentation-translation.js
 1d30e4cd35f3bce35f9072ca9cce540868cc4fbc420250b602648509782915f5  ./tests/test-1.3.1-presentation-attribute-atomicity.js
@@ -641,7 +641,7 @@ b7e0909e1384ca92c2dac5cc3f89531408175b8a98bd6ccbafa449e6116666ec  ./tests/test-e
 9ffedf124caba7b170ac7d9a8a73f1c40907d877e1901ace8431c345c913ca2d  ./tests/test-favicon-feature.js
 04fa6fb26780805829851614caf75773eb233880fc6c6c4d56362db996bdae04  ./tests/test-favicon-state-dialog.js
 40a90a20f1a34be73407faf1169ee0d86e548dd5dd1f9707c0c033709cabfe57  ./tests/test-fix9-regression-recovery.js
-4fd7bf96725bc16837f857674206388e1d9166d00b7ed431997a9d33d8abf2f3  ./tests/test-foundation-consent-contract.js
+6f75b7294df8b2003b67890ea0adde520d275cd65c68257eacbe2b57d26d8feb  ./tests/test-foundation-consent-contract.js
 3bdc26fba88b1f3704bd38402f18e3ea3f47c5f9ccb8af873dd038dd873f240c  ./tests/test-foundation-consent-installation.js
 3cd32017b509bb9af4ef0f2ec933e25b740c3638aab58691f3db364691ebc242  ./tests/test-foundation-consent-version.js
 1de43e825bdf854280c0e091af68e8ef4e38417567ed2c391f67e2054f45b13b  ./tests/test-framework-gallery-editor-contract.js
@@ -665,6 +665,7 @@ b16b9030c0cb5ce951f49c9e3df5805249d98ccc9c5efc1462b0c0065616f663  ./tests/test-i
 35c239f55c0db93396feb4827f543afefa171ef86613200908c39c1c594df4f1  ./tests/test-interactive-preview-navigation.js
 0bc1a55294adcf10e8cf50c2abe55f041620fefbf6ff80eca88e5a8bb7d7724e  ./tests/test-layout-identities.js
 4668fbfeab65c023aa23a11f1a4a43f002ac5d72b66e02900624049ee87891bf  ./tests/test-link-rte-focus.js
+ff67cac34adf34dd280ad1cf5da47f481f1b266be1a4480febdd3635b59dc412  ./tests/test-logging-consent-responsive-layout.js
 d6eab8f67fbca063ff68e8823d9580a3fb30b8fa99624bb9557240391f5366c6  ./tests/test-new-page-placeholder.js
 8e19863826aed1298ad4fc6d5db7dab75ac047cfbd426fbf81f866451bdc84ab  ./tests/test-oluntir-document-api.js
 c2ec8fc85f7a6177f1ae51cc0a5d2895ff645c8031cba37932bd9a0e078cdcf8  ./tests/test-oluntir-history-service.js

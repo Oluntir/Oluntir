@@ -6,7 +6,7 @@
   <title>Oluntir 2.1.0 BETA</title>
   <link rel="stylesheet" href="vendor/grapesjs/0.23.2/grapes.min.css">
   <link rel="stylesheet" href="plugins/editor/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="editor/css/editor.css?v=2.1.0-beta-r1">
+  <link rel="stylesheet" href="editor/css/editor.css?v=2.1.0-beta-r2">
 </head>
 <body>
   
@@ -307,37 +307,27 @@
     <div class="pb-modal oluntir-logging-modal" role="dialog" aria-modal="true" aria-labelledby="oluntir-logging-title">
       <div class="pb-ui-modal-head">
         <div>
-          <h2 id="oluntir-logging-title">Oluntir – Zustimmung und lokale Diagnoseprotokolle</h2>
-          <p>Bitte lesen und bestätigen Sie die grundlegenden Nutzungs-, Datenschutz- und Sicherheitsbedingungen. Technisches Logging bleibt freiwillig.</p>
-          <p>Die Zustimmung gilt ausschließlich für diesen entpackten Oluntir-Programmordner. Wird Oluntir aus einem anderen Ordner gestartet, ist eine neue Zustimmung erforderlich.</p>
+          <h2 id="oluntir-logging-title">Oluntir – Zustimmung &amp; lokale Diagnose</h2>
+          <p>Bitte bestätigen Sie Lizenz, Datenschutz und Sicherheit. Lokales Logging ist freiwillig und bleibt auf Ihrem PC.</p>
+          <p>Die Zustimmung gilt für diesen entpackten Oluntir-Programmordner.</p>
         </div>
         <button id="oluntir-logging-close" class="pb-ui-close" type="button" aria-label="Schließen">×</button>
       </div>
       <div class="oluntir-logging-content">
         <section class="oluntir-consent-documents">
           <h3>Verbindliche Grundbestätigungen</h3>
-          <label class="oluntir-consent-check"><input id="oluntir-consent-license" type="checkbox"> <span>Ich habe die <a href="LICENSING_de.md" target="_blank" rel="noopener">Lizenzbestimmungen</a> gelesen und akzeptiere sie.</span></label>
-          <label class="oluntir-consent-check"><input id="oluntir-consent-privacy" type="checkbox"> <span>Ich habe die <a href="PRIVACY_de.md" target="_blank" rel="noopener">Datenschutzrichtlinie</a> gelesen und akzeptiere die ausschließlich lokale Verarbeitung.</span></label>
-          <label class="oluntir-consent-check"><input id="oluntir-consent-security" type="checkbox"> <span>Ich habe die <a href="SECURITY_de.md" target="_blank" rel="noopener">Sicherheitsrichtlinien</a> gelesen und werde sensible Daten nicht bewusst in Diagnosevorgänge einbringen.</span></label>
+          <label class="oluntir-consent-check"><input id="oluntir-consent-license" type="checkbox"> <span><a href="LICENSING_de.md" target="_blank" rel="noopener">Lizenzbestimmungen</a> gelesen und akzeptiert.</span></label>
+          <label class="oluntir-consent-check"><input id="oluntir-consent-privacy" type="checkbox"> <span><a href="PRIVACY_de.md" target="_blank" rel="noopener">Datenschutzrichtlinie</a> gelesen; Verarbeitung erfolgt lokal.</span></label>
+          <label class="oluntir-consent-check"><input id="oluntir-consent-security" type="checkbox"> <span><a href="SECURITY_de.md" target="_blank" rel="noopener">Sicherheitsrichtlinien</a> gelesen; keine sensiblen Daten bewusst in Diagnosen einbringen.</span></label>
         </section>
         <section class="oluntir-redaction-box">
-          <h3>Automatische Maskierung sensibler Daten</h3>
-          <p>Bei aktiviertem Logging maskiert Oluntir unter anderem:</p>
-          <ul>
-            <li>Passwörter</li><li>Tokens</li><li>Secrets</li><li>API-Schlüssel</li>
-            <li>Authorization-Daten</li><li>Cookies</li><li>Credentials</li><li>private Schlüssel</li>
-            <li>Benutzeranteile von Windows-Pfaden</li><li>Token- und Passwortparameter in URLs</li>
-          </ul>
-          <p><strong>Keine Garantie:</strong> Automatische Maskierung reduziert Risiken, ersetzt aber nicht die Datenminimierung. Seiteninhalte werden nicht absichtlich protokolliert.</p>
+          <h3>Automatische Maskierung</h3>
+          <p>Oluntir maskiert bei aktiviertem Logging u. a. Passwörter, Tokens/Secrets/API-Schlüssel, Auth-/Cookie-/Credential-Daten, private Schlüssel, Benutzerpfade und sensible URL-Parameter.</p>
+          <p><strong>Hinweis:</strong> Maskierung reduziert Risiken, ersetzt aber nicht die Datenminimierung. Seiteninhalte werden nicht absichtlich protokolliert.</p>
         </section>
         <section>
           <h3>Freiwilliges lokales Logging</h3>
-          <ul>
-            <li>Standardmäßig deaktiviert; Aktivierung nur durch ausdrückliche Ordnerfreigabe.</li>
-            <li>Least Privilege: Zugriff ausschließlich auf den gewählten <code>logs</code>-Ordner.</li>
-            <li>Keine automatische Übertragung, kein Cloud-Upload.</li>
-            <li>Jederzeit widerrufbar; Dateien bleiben unter Kontrolle des Benutzers.</li>
-          </ul>
+          <p>Nur nach ausdrücklicher Freigabe des <code>logs</code>-Ordners. Keine automatische Übertragung oder Cloud-Nutzung; die Freigabe ist jederzeit widerrufbar.</p>
         </section>
         <label>Log-Level
           <select id="oluntir-logging-level">
@@ -346,12 +336,11 @@
           </select>
         </label>
         <section class="oluntir-logging-path-box">
-          <strong>Welcher Ordner muss ausgewählt werden?</strong>
-          <p>Öffnen Sie im Ordnerdialog den entpackten <strong>Oluntir-Programmordner</strong> und wählen Sie ausschließlich dessen bereits vorhandenen Unterordner <code>logs</code> aus.</p>
-          <p><strong>Nicht auswählen:</strong> den gesamten Oluntir-Programmordner, einen Projektordner oder einen übergeordneten Ordner.</p>
-          <strong>Speicherort der Berechtigungs- und Logdateien</strong>
+          <strong>logs-Ordner auswählen</strong>
+          <p>Wählen Sie ausschließlich den vorhandenen Unterordner <code>logs</code> im entpackten Oluntir-Programmordner – nicht den Programm-, Projekt- oder einen übergeordneten Ordner.</p>
+          <strong>Aktueller Speicherort</strong>
           <code id="oluntir-logging-path">Noch kein logs-Ordner freigegeben.</code>
-          <p>Nur im gewählten Ordner wird <code>.oluntir-logging.json</code> angelegt. Darin stehen Freigabeumfang, Zustimmungsversion, Log-Level, Maskierungsklassen und Rotationsgrenzen.</p>
+          <p>Dort werden die lokale Freigabe <code>.oluntir-logging.json</code> und die Diagnoseprotokolle gespeichert.</p>
         </section>
         <section id="oluntir-logging-success" class="oluntir-logging-success" hidden>
           <h3>Einrichtung abgeschlossen</h3>
@@ -362,8 +351,8 @@
       </div>
       <div class="pb-modal-actions oluntir-consent-actions">
         <button id="oluntir-logging-revoke" type="button">Log-Freigabe widerrufen</button>
-        <button id="oluntir-consent-accept" type="button">Zustimmen und ohne Logging starten</button>
-        <button id="oluntir-logging-choose" class="btn-primary" type="button">Zustimmen, Programmordner öffnen und Unterordner logs wählen</button>
+        <button id="oluntir-consent-accept" type="button">Ohne Logging starten</button>
+        <button id="oluntir-logging-choose" class="btn-primary" type="button">Zustimmen und logs-Ordner wählen</button>
         <button id="oluntir-logging-start" class="btn-primary" type="button" hidden>Oluntir starten</button>
       </div>
     </div>
@@ -483,7 +472,7 @@
   <script src="editor/js/core/oluntir-logger.js"></script>
   <script src="editor/js/core/semantic-action-engine.js"></script>
   <script src="editor/js/core/oluntir-runtime-actions.js"></script>
-  <script src="editor/js/core/oluntir-logging-consent.js"></script>
+  <script src="editor/js/core/oluntir-logging-consent.js?v=2.1.0-beta-r2"></script>
   <script src="editor/js/core/developer-diagnostics-center.js"></script>
   <script src="editor/js/core/semantic-validator.js"></script>
   <script src="editor/js/core/repeat-engine-v2.js?v=2.1.0-beta-r1"></script>
