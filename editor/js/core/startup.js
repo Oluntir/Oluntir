@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const APP_VERSION = '1.3.0';
+  const APP_VERSION = '2.2.0 BETA';
   const STARTUP_SCHEMA = 2;
   const META_KEY = 'oluntir-project-meta';
   const SESSION_KEY = 'oluntir-last-session';
@@ -18,13 +18,15 @@
     const rawProject = localStorage.getItem(fw.storageKey);
     const rawIncludes = localStorage.getItem(`oluntir-includes-${fw.id}`);
     const meta = safeParse(localStorage.getItem(META_KEY));
+    const projectData = safeParse(rawProject);
     const includes = safeParse(rawIncludes);
     const hasProjectData = !!(rawProject && rawProject !== '{}' && rawProject !== 'null');
     const hasIncludesData = !!(includes && (includes.decided || includes.enabled || (includes.sections || []).length));
     const exists = hasProjectData || hasIncludesData || !!meta;
-    const version = meta && meta.appVersion ? meta.appVersion : 'Unbekannt / ältere Speicherung';
+    const embeddedVersion = projectData && projectData.oluntir && projectData.oluntir.appVersion ? projectData.oluntir.appVersion : '';
+    const version = embeddedVersion || (meta && meta.appVersion ? meta.appVersion : 'Unbekannt / ältere Speicherung');
     const compatible = !meta || [1, STARTUP_SCHEMA].includes(meta.schemaVersion);
-    return { exists, meta, includes, version, compatible, hasProjectData, hasIncludesData };
+    return { exists, meta, includes, projectData, version, compatible, hasProjectData, hasIncludesData };
   }
 
   async function inspectBrowserStorage() {
@@ -43,10 +45,17 @@
     const old = safeParse(localStorage.getItem(META_KEY)) || {};
     const next = Object.assign({
       schemaVersion: STARTUP_SCHEMA,
-      appVersion: APP_VERSION,
       projectId: old.projectId || projectId(),
       createdAt: old.createdAt || new Date().toISOString()
-    }, old, patch || {}, { lastOpenedAt: new Date().toISOString(), lastModifiedAt: new Date().toISOString() });
+    }, old, patch || {}, {
+      // Die laufende Oluntir-Version ist die Autoritaet fuer die aktuelle
+      // Projektmetadaten-Anzeige. Aeltere Releases durften diesen Wert ueber
+      // das gespeicherte Meta-Objekt nicht dauerhaft festhalten.
+      schemaVersion: STARTUP_SCHEMA,
+      appVersion: APP_VERSION,
+      lastOpenedAt: new Date().toISOString(),
+      lastModifiedAt: new Date().toISOString()
+    });
     localStorage.setItem(META_KEY, JSON.stringify(next));
     return next;
   }
@@ -89,8 +98,12 @@
   }
 
   function openExistingProject() {
-    setMeta({ migratedFrom: currentInfo ? currentInfo.version : undefined });
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ action: 'existing', at: new Date().toISOString() }));
+    const previousVersion = currentInfo && currentInfo.version ? currentInfo.version : '';
+    const migration = previousVersion && previousVersion !== APP_VERSION
+      ? { migratedFrom: previousVersion, migratedAt: new Date().toISOString() }
+      : {};
+    setMeta(migration);
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ action: 'existing', appVersion: APP_VERSION, at: new Date().toISOString() }));
     hideModal();
     resolveStartup({ action: 'existing' });
   }
@@ -148,8 +161,11 @@
 
     existing.disabled = !currentInfo.exists;
     const projectType = currentInfo.meta && currentInfo.meta.projectType ? currentInfo.meta.projectType : 'nicht eindeutig erkennbar';
+    const versionLabel = currentInfo.version === APP_VERSION
+      ? `Version: ${APP_VERSION}`
+      : `Version: ${APP_VERSION} · bestehendes Projekt wird kompatibel übernommen`;
     details.textContent = currentInfo.exists
-      ? `Version: ${currentInfo.version} · Projekttyp: ${projectType}${currentInfo.meta && currentInfo.meta.lastOpenedAt ? ` · zuletzt geöffnet: ${new Date(currentInfo.meta.lastOpenedAt).toLocaleString('de-DE')}` : ''}`
+      ? `${versionLabel} · Projekttyp: ${projectType}${currentInfo.meta && currentInfo.meta.lastOpenedAt ? ` · zuletzt geöffnet: ${new Date(currentInfo.meta.lastOpenedAt).toLocaleString('de-DE')}` : ''}`
       : 'Im Browser wurde kein gespeichertes Oluntir-Projekt gefunden.';
     warning.hidden = currentInfo.compatible;
     cache.textContent = `Browser-Speicher erkannt: localStorage ${browser.localStorage ? 'Ja' : 'Nein'}, sessionStorage ${browser.sessionStorage ? 'Ja' : 'Nein'}, IndexedDB ${browser.indexedDb ? 'Ja' : 'Nein'}, Cache API ${browser.cacheApi ? 'Ja' : 'Nein'}. Vorhandene Daten werden nicht ungefragt gelöscht.`;

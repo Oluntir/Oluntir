@@ -2,7 +2,7 @@
 
 # Framework Profiles
 
-**Version:** 2.1.0 BETA
+**Version:** 2.2.0 BETA
 **Language:** English
 **Status:** BETA
 **Stable baseline:** Oluntir 1.3.1
@@ -10,11 +10,11 @@
 
 ## Purpose
 
-Framework profiles define the bundled CSS and JavaScript resources used by a project. Oluntir 2.1.0 BETA includes Bootstrap 4.6.2 and Bootstrap 5.3.8 profiles. Profiles must remain versioned and offline-capable. Unknown source packages are analysis-only.
+Framework profiles define the bundled CSS and JavaScript resources used by a project. Oluntir 2.2.0 BETA includes Bootstrap 4.6.2 and Bootstrap 5.3.8 profiles. Profiles must remain versioned and offline-capable. Unknown source packages are analysis-only.
 
 ## Scope
 
-This document describes the behavior included in Oluntir 2.1.0 BETA.
+This document describes the behavior included in Oluntir 2.2.0 BETA.
 
 ## Verification
 

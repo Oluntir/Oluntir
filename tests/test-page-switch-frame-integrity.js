@@ -33,4 +33,13 @@ const newPageBody = source.slice(newPageStart, renameStart);
 assert(newPageBody.includes("editor.Pages.add(pageConfig, { select: true })"), 'Neue Seiten müssen direkt über den PageManager ausgewählt werden.');
 assert(!newPageBody.includes('applySharedRegionsToPage(page);'), 'Eine neue Seite darf vor der ersten Canvas-Auswahl nicht neu aufgebaut werden.');
 
+
+assert(selectBody.includes('OluntirRepeatLibraryManager.prepareForPageNavigation(pageId);'), 'Normaler Seitenwechsel muss einen offenen Repeat-Workspace zuerst beenden.');
+const repeatExitIndex = selectBody.indexOf('OluntirRepeatLibraryManager.prepareForPageNavigation(pageId);');
+const previousPageIndex = selectBody.indexOf('const previousPage = editor.Pages.getSelected();');
+assert(repeatExitIndex >= 0 && previousPageIndex >= 0 && repeatExitIndex < previousPageIndex, 'Repeat-Workspace muss vor Ermittlung/Commit der bisherigen Projektseite beendet werden.');
+
+assert(selectBody.includes("repeat-workspace-page-handoff-failed"), 'Fehler beim Workspace-Handoff müssen mit eigener Diagnose protokolliert werden.');
+assert(selectBody.includes("duration: 12000"), 'Seitenwechsel-Fehler müssen länger sichtbar bleiben.');
+
 console.log('PAGE-SWITCH-FRAME-INTEGRITY-TEST ERFOLGREICH');

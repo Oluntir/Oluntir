@@ -56,7 +56,7 @@
     await writeFile(directory, CONSENT_FILE, JSON.stringify({
       schemaVersion: 2,
       authorizedAt: new Date().toISOString(),
-      authorizedBy: 'Oluntir 2.1.0 BETA',
+      authorizedBy: 'Oluntir 2.2.0 BETA',
       purpose: 'Local technical diagnostics and performance logging',
       directory: displayPath,
       permissionScope: 'Selected logs directory only',

@@ -6,7 +6,7 @@
   'use strict';
 
   const SCHEMA_VERSION = 1;
-  const RELEASE = '2.1.0-beta';
+  const RELEASE = '2.2.0-beta';
 
   function clone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
   function freeze(value) {
@@ -123,10 +123,10 @@
     const readiness = {
       schemaVersion: SCHEMA_VERSION,
       release: RELEASE,
-      mode: 'productive-repeat',
+      mode: 'central-library-manual-publish',
       productiveSynchronizationEnabled: contracts.valid,
       visibleRepeatUiEnabled: contracts.valid,
-      automaticSynchronizationEnabled: contracts.valid,
+      automaticSynchronizationEnabled: false,
       mutationPerformed: false,
       contracts: contracts,
       dependencies: dependencies,

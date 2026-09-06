@@ -1,7 +1,7 @@
-# Roadmap – Oluntir 2.1.0 BETA
+# Roadmap – Oluntir 2.2.0 BETA
 
 Version 1.3.1 is complete as the stable reference release. The current branch
-is the Bootstrap-focused 2.1.0 BETA continuation.
+is the Bootstrap-focused 2.2.0 BETA continuation.
 
 ## Current BETA focus
 

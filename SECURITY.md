@@ -2,7 +2,7 @@
 
 # Security policy
 
-**Supported line:** 2.1.0 BETA (experimental) · 1.3.1 (stable baseline)
+**Supported line:** 2.2.0 BETA (experimental) · 1.3.1 (stable baseline)
 
 ## Reporting
 
@@ -16,7 +16,7 @@ Relevant reports include unsafe handling of imported project data, script inject
 
 ## Response
 
-Receipt, severity, remediation, release coordination, and disclosure timing are handled case by case. The 1.3.1 stable line and the 2.1.0 BETA branch are evaluated according to their respective release status. BETA Analyzer and import paths require additional scrutiny because they process local files and archives.
+Receipt, severity, remediation, release coordination, and disclosure timing are handled case by case. The 1.3.1 stable line and the 2.2.0 BETA branch are evaluated according to their respective release status. BETA Analyzer and import paths require additional scrutiny because they process local files and archives.
 
 ## User responsibility
 

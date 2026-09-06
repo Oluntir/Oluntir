@@ -80,6 +80,10 @@ html, body {
   padding: 10px 18px;
   border-radius: 4px;
   font-size: 13px;
+  line-height: 1.4;
+  max-width: min(760px, 90vw);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -1973,7 +1977,7 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
   .oluntir-quick-edit-commit-spinner { animation-duration: 1.8s; }
 }
 
-/* Oluntir 2.1.0 BETA: kompakte zweizeilige Projekthauptleiste.
+/* Oluntir 2.2.0 BETA: kompakte zweizeilige Projekthauptleiste.
    Import, Medien, Diagnose und Export liegen in der zweiten Zeile. Dadurch
    bleibt die Oberfläche ohne horizontale Hauptleisten-Scrollbars bedienbar. */
 html, body {
@@ -2103,3 +2107,19 @@ body {
   box-sizing: border-box;
   z-index: 2147483000;
 }
+
+/* Oluntir 2.2.0 BETA – zentrale Repeat-Bibliothek */
+.oluntir-repeat-library-manager { width:min(430px, 38vw); }
+.oluntir-repeat-catalog { display:grid; gap:8px; }
+.oluntir-repeat-catalog-item { display:grid; gap:8px; padding:9px; background:#31343a; border-left:3px solid #f39c12; }
+.oluntir-repeat-catalog-main { display:grid; gap:3px; }
+.oluntir-repeat-catalog-main strong { color:#fff; font-size:13px; }
+.oluntir-repeat-catalog-pages { color:#d9dde4; font-size:11px; line-height:1.35; }
+.oluntir-repeat-catalog-main small { color:#aeb4bd; font-size:10px; }
+.oluntir-repeat-catalog-actions { display:flex; flex-wrap:wrap; gap:5px; }
+.oluntir-repeat-catalog-actions button { margin:0; }
+.oluntir-repeat-manager-editor { border-left:3px solid #f39c12; padding-left:10px !important; }
+.oluntir-repeat-manager-editor .btn-primary { background:#f39c12; border-color:#f39c12; color:#1b1d20; font-weight:700; }
+body.oluntir-tool-window .oluntir-repeat-library-manager { width:auto; }
+@media (max-width:1100px) { .oluntir-repeat-library-manager { width:min(390px, 46vw); } }
+@media (max-width:760px) { .oluntir-repeat-library-manager { width:92vw; } }

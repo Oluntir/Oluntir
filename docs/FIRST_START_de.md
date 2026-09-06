@@ -1,6 +1,6 @@
 # Erster Start
 
-1. Oluntir 2.1.0 BETA in einen eigenen Ordner entpacken.
+1. Oluntir 2.2.0 BETA in einen eigenen Ordner entpacken.
 2. `index.html` in einem aktuellen Desktop-Browser öffnen.
 3. **Ein Monitor**, **Zwei Monitore** oder die Startabfrage wählen.
 4. Ein Projekt erstellen oder eine portable `.oluntir`-Sicherung wiederherstellen.

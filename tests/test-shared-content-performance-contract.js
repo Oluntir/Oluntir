@@ -30,7 +30,6 @@ const switchBody = editor.slice(switchStart, switchEnd);
 assert(switchBody.includes('commitSelectedCanvasToShared(previousPage, { targetPage: page })'), 'Seitenwechsel verwendet nicht den optimierten Shared-Commit.');
 assert(!switchBody.includes('forceTarget: true'), 'Seitenwechsel erzwingt weiterhin unnötige Zielseiten-Vollarbeit.');
 
-console.log('SHARED-CONTENT-PERFORMANCE-CONTRACT-TEST ERFOLGREICH');
 
 const centralFingerprintIndex = sharedBody.indexOf('const centralChanged = beforeCentral !== afterCentral;');
 const targetLoopIndex = sharedBody.indexOf('editor.Pages.getAll().forEach((targetPage) => {');
@@ -46,3 +45,9 @@ const bindBody = source.slice(bindStart);
 assert(bindBody.includes("['component:update', 'component:styleUpdate']"), 'Shared Content muss normale Update-/Style-Events separat filtern.');
 assert(bindBody.includes('if (!component || !sharedRegionInfo(component)) return;'), 'Nicht-Shared-Komponenten dürfen keinen Shared-Content-Flush auslösen.');
 assert(bindBody.includes("['component:add', 'component:remove']"), 'Add/Remove muss als struktureller Sicherheitsfall beobachtet bleiben.');
+
+assert(source.includes('function suppressStructuralEventForRepeatMutation(eventName)'), 'Repeat-Projektmutationen brauchen einen expliziten Shared-Content-Strukturguard.');
+assert(bindBody.includes('if (suppressStructuralEventForRepeatMutation(eventName)) return;'), 'Add/Remove-Ereignisse aus kontrollierten Repeat-Projektmutationen müssen vor scheduleFlush() beendet werden.');
+assert(bindBody.includes('Normal user add/remove events'), 'Der Guard muss dokumentieren, dass normale strukturelle Shared-Content-Sicherheitsereignisse erhalten bleiben.');
+
+console.log('SHARED-CONTENT-PERFORMANCE-CONTRACT-TEST ERFOLGREICH');

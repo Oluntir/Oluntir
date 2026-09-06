@@ -1,4 +1,4 @@
-# Funktionen – Oluntir 2.1.0 BETA
+# Funktionen – Oluntir 2.2.0 BETA
 
 Dieser BETA-Branch nutzt Oluntir 1.3.1 als Kompatibilitätsbaseline und
 konsolidiert die produktive Frameworkunterstützung auf Bootstrap 4.6.2 und 5.3.8.
@@ -39,9 +39,13 @@ konsolidiert die produktive Frameworkunterstützung auf Bootstrap 4.6.2 und 5.3.
 - stabile Layout-Identitäten
 - read-only Resolver und Dependency Graph
 - Action- und Validierungsverträge
-- produktive bidirektionale Repeat-Synchronisation für ausdrücklich definierte Bereiche mit stabilen Identitäten
-- separates Erstellen/Bearbeiten von Repeat-Quellen mit Name, Zielseite und Einfügeposition
-- projektweite Repeat-Bibliothek zum Einsetzen gespeicherter Quellen nach Name
+- zentrale Repeat-Bibliothek mit Published-/Draft-Snapshot je Repeat-Familie
+- materialisierte, auf normalen Seiten gegen Inhaltsbearbeitung gesperrte Repeat-Instanzen
+- Einzelobjekt-Canvas für zentrale Bearbeitung; Verteilung erst über „Auf alle Vorkommen anwenden“
+- projektweite Verwendungsliste mit Seiten, Vorkommen und Revisionen
+- orange Mouseover-Steuerung für zentrale Bearbeitung und Entfernen eines Vorkommens
+- eigene Repeat-Undo/Redo-Historie für Publish- und Remove-Transaktionen
+- Einsetzen gespeicherter Quellen über Name → Zielseite → Position → Canvas-Ziel
 - Hydrierung älterer Repeat-Bindungen nur über vorhandene Oluntir-Korrelationsmarker
 - Shared-Content-No-op-Fast-Path zur Reduzierung redundanter Zielmutationen und Speichervorgänge
 - Statische Evidenzanalyse für HTML, CSS und JavaScript

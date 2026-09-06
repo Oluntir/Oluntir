@@ -38,3 +38,33 @@ assert.strictEqual(target.components().models[0].get('content'), 'Alt');
 const mismatch = component('section', {'data-oluntir-section-id':'other'}, '', []);
 assert.strictEqual(api.topologyCompatible(sourceSnapshot, mismatch.toJSON()), false);
 console.log('Repeat Sync Access Adapter DEV_006: OK');
+
+// 2.2.0 BETA: central library publishes a stored snapshot directly to a target
+// without requiring a live GrapesJS source component.
+const directSource = JSON.parse(JSON.stringify(sourceSnapshot));
+directSource.components[0].content = 'Zentral publiziert';
+adapter.writeSnapshot('page-target', 'target-root', directSource);
+assert.strictEqual(target.components().models[0].get('content'), 'Zentral publiziert');
+const directRead = adapter.readByIdentity('page-target', 'target-root');
+assert.strictEqual(directRead.components[0].content, 'Zentral publiziert');
+adapter.restoreByIdentity('page-target', 'target-root', rollback);
+assert.strictEqual(target.components().models[0].get('content'), 'Alt');
+console.log('Repeat Sync Access Adapter 2.2 central snapshot: OK');
+
+// 2.2.0 BETA v30: GrapesJS interaction locks belong to materialized page
+// instances, not to the canonical Repeat content. Otherwise a stored locked
+// instance would make the central Draft workspace uneditable after reopening.
+const lockedDefinition = {
+  tagName:'section', editable:false, stylable:false, draggable:false, droppable:false, removable:false, copyable:false,
+  attributes:{ 'data-oluntir-section-id':'locked-root' },
+  components:[{
+    tagName:'div', type:'text', editable:false, stylable:false, draggable:false, droppable:false, removable:false, copyable:false,
+    attributes:{ 'data-oluntir-component-id':'locked-text' }, content:'Editierbar', components:[]
+  }]
+};
+const cleanedLockedDefinition = api.cleanDefinition(lockedDefinition);
+['editable','stylable','draggable','droppable','removable','copyable'].forEach(key => {
+  assert.strictEqual(Object.prototype.hasOwnProperty.call(cleanedLockedDefinition, key), false, `Canonical Repeat root must not persist ${key}.`);
+  assert.strictEqual(Object.prototype.hasOwnProperty.call(cleanedLockedDefinition.components[0], key), false, `Canonical Repeat child must not persist ${key}.`);
+});
+console.log('Repeat Sync Access Adapter 2.2 workspace capability cleanup: OK');

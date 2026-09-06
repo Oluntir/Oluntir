@@ -1,25 +1,33 @@
 > **Language:** English · [Deutsch](README_de.md)
 
-# Oluntir 2.1.0 BETA
+# Oluntir 2.2.0 BETA
 
 Oluntir is a local browser-based website editor built on GrapesJS 0.23.2. It manages multi-page projects, local assets, shared page regions and exports without a server-side application runtime.
 
-**Branch:** `Oluntir-2.1.0-beta`
+**Branch:** `Oluntir-2.2.0-beta`
 **Baseline:** Oluntir 1.3.1
 **Date:** September 6, 2026
 **Status:** BETA / Bootstrap-focused
 
-Oluntir 1.3.1 remains the stable compatibility baseline. 2.1.0 BETA marks
-the first Beta state of the Bootstrap-focused 2.x line.
+Oluntir 1.3.1 remains the stable compatibility baseline. 2.2.0 BETA continues
+the Bootstrap-focused 2.x Beta line with a central Repeat library.
 
-## 2.1.0 BETA – current state
+## 2.2.0 BETA – current state
 
-- Header, navigation and footer are synchronized bidirectionally as Shared Content across project pages.
-- Repeatable areas support source → instance, instance → source and instance → sibling instances.
-- **Repeatable areas** creates/edits one source and inserts it directly through target page, insertion mode and confirmed Canvas target.
-- **Insert repeatable areas from list** is a separate project library workflow: named source → target page → insertion mode → insert.
-- Existing Alpha projects are hydrated only through existing stable Oluntir correlations; ambiguous bindings are not guessed.
-- Shared Content has a no-op fast path: unchanged central content does not mutate target pages or trigger an extra store; normal update/style events outside header/nav/footer no longer enter the Shared Content path.
+- If an imported/continued project is missing central repeat metadata, Oluntir reconstructs repeat families only from stable repeat markers on materialized page instances; nav/header/footer are excluded.
+
+- Header, navigation and footer remain bidirectional Shared Content.
+- Repeatable areas are managed as **central Repeat families**; all page occurrences are materialized instances.
+- Direct content editing on normal page instances is locked. The orange hover toolbar opens central editing or removes exactly that occurrence.
+- The central Repeat library lists names, used pages, occurrence counts and revisions.
+- A Repeat is edited in an internal single-object Canvas. Changes remain a draft until **“Apply to all occurrences”** is triggered.
+- This central single-object Canvas remains fully editable; edit locks apply only to materialized Repeat instances on normal project pages.
+- Publish and remove operations are Oluntir transactions with Repeat Undo/Redo.
+- During controlled Repeat publish/undo/redo/insert/remove transactions, internally generated GrapesJS add/remove events are isolated from the Shared Content structural safety watcher; normal navigation/footer structural changes remain fully observed.
+- The insert workflow remains: library source → target page → insertion mode → Canvas target → insert.
+- Existing projects migrate through stable Oluntir correlations into the central Published/Draft model.
+- Leaving the central Repeat canvas uses a safe PageManager handoff: select the destination project page first, then remove the temporary workspace.
+- Technical error notifications stay visible for 12 seconds; normal notices for 5 seconds.
 
 ## Historical development foundation from 2.0 Alpha
 
@@ -44,26 +52,32 @@ from its own Bootstrap source, binds it to the source hash and never reuses it
 for other packages. New versions receive a new analysis and profile identity.
 
 Resource activation and deliberate user insertion for a selected Source Package
-are available. Imported JavaScript files remain disabled. Explicitly defined
-repeatable regions are productively and transactionally synchronized in
-2.1.0 BETA.
+are available. Imported JavaScript files remain disabled. Explicitly defined repeatable regions are centrally managed in 2.2.0 BETA.
+Page occurrences remain unchanged while editing and are updated only by an
+explicit publish transaction.
 
 DEV028 connects source-bound profiles to the persistent GrapesJS editor through
-a controlled adapter. Source components can be inserted by the user; Repeat
-synchronization is enabled for explicitly defined instances and protected by
-the resolver, dependency graph, action contracts and targeted synchronization
-service. Source JavaScript is still not executed automatically.
+a controlled adapter. Source components can be inserted by the user. The Repeat
+contract foundation built in Alpha—resolver, dependency graph, action contracts
+and targeted synchronization service—remains in place; 2.2.0 BETA uses it for
+controlled publish transactions instead of synchronizing every edit. Source
+JavaScript is still not executed automatically.
 
-### Repeat synchronization in 2.1.0 BETA
+### Repeat library in 2.2.0 BETA
 
-A repeat definition separates source, instance and component identity through
-stable Oluntir IDs. Source changes propagate only to linked instances. The
-targeted service is transactional: after plan and write validation it updates
-the targets, and on failure rolls back targets already changed. Export then
-reads the consistent project model. Navigation, header and footer remain
-separate Shared Content concerns.
+A Repeat family owns one central Published/Draft content state. All occurrences
+on project pages are materialized instances and are locked against direct
+content editing there. The central library shows names, page usage, occurrence
+counts and revisions. **Edit** opens an internal single-object Canvas. Changes
+remain local until **“Apply to all occurrences”** publishes the family in one
+controlled Oluntir transaction.
 
-The independent `2.1.0-beta` branch consolidates the productive framework
+On normal pages an orange top-centered hover toolbar provides **Edit** to open
+the central source and **Remove** to delete just that occurrence while updating
+the usage list. Publish and remove operations have a dedicated Repeat Undo/Redo
+history. Navigation, header and footer remain separate Shared Content concerns.
+
+The independent `2.2.0-beta` branch consolidates the productive framework
 context on Bootstrap 4 and Bootstrap 5. Generic import, analysis and recovery
 foundations remain available; concrete foreign-framework profiles and fixtures
 are not part of this branch. Bootstrap 5 is primary and Bootstrap 4 is retained
@@ -96,9 +110,9 @@ as the legacy profile. Unknown packages can be analyzed, but are classified as
 - project favicon, lightbox and download links;
 - single- and dual-monitor workspace;
 - stable internal layout identities;
-- productive bidirectional Repeat synchronization for explicitly defined areas through stable
-  page, component and target-position identities;
-- separate Repeat source and Repeat library tools;
+- central Repeat library with materialized page instances and explicit publish transactions;
+- project-wide page usage, revisions and Repeat Undo/Redo for publish/remove operations;
+- separate central editing and list/insert workflows;
 - optional local logging after explicit consent.
 
 ## Start
@@ -118,11 +132,11 @@ An explicitly selected footer text color may look different in the editor from t
 - [Technical handbook](HANDBOOK.md)
 - [Features](FEATURES.md)
 - [Release notes](RELEASE_NOTES.md)
-- [Technical changes from 1.3.1](docs/CHANGELOG_1.3.1_TO_2.1.0_BETA.md)
-- [2.1.0 BETA cleanup list](docs/REMOVAL_LIST_2.1.0_BETA.md)
+- [Historical technical changes through 2.1.0 BETA](docs/CHANGELOG_1.3.1_TO_2.1.0_BETA.md)
+- [Historical 2.1.0 BETA cleanup list](docs/REMOVAL_LIST_2.1.0_BETA.md)
 - [Security](SECURITY.md)
 - [Privacy](PRIVACY.md)
-- [BETA release audit](audit/OLUNTIR_2.1.0_BETA_AUDIT.md)
+- [Historical 2.1.0 BETA release audit](audit/OLUNTIR_2.1.0_BETA_AUDIT.md)
 
 ## License
 

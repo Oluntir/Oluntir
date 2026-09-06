@@ -13,6 +13,9 @@
     'data-oluntir-slot-id', 'data-oluntir-component-id', 'data-oluntir-repeat-id',
     'data-oluntir-repeat-instance-id'
   ]);
+  const EDITOR_INTERACTION_KEYS = new Set([
+    'editable', 'stylable', 'draggable', 'droppable', 'removable', 'copyable'
+  ]);
 
   function clone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
   function text(value) { return value == null ? '' : String(value).trim(); }
@@ -146,6 +149,11 @@
     if (output.attributes) Object.keys(output.attributes).forEach(name => { if (INTERNAL_ATTRIBUTES.has(name)) delete output.attributes[name]; });
     delete output.id;
     delete output.cid;
+    // Editor-Sperren gehoeren nicht zum semantischen Repeat-Inhalt. Sie werden
+    // auf materialisierten Seiteninstanzen separat durch den Library-Manager
+    // gesetzt und duerfen weder zentrale Drafts noch spaetere Publikationen
+    // dauerhaft uneditierbar machen.
+    EDITOR_INTERACTION_KEYS.forEach(key => { delete output[key]; });
     output[SOURCE_IDENTITY_PROPERTY] = identity;
     output.components = (output.components || []).map(cleanDefinition);
     return output;
@@ -309,6 +317,25 @@
       },
       restoreTarget(operation, rollbackToken) {
         const component = componentByIdentity(editor, operation.targetPageId, operation.targetIdentity);
+        if (!component) { const failure = new Error('Repeat rollback target not found.'); failure.code = 'REPEAT_SYNC_TARGET_MISSING'; throw failure; }
+        restoreExact(component, rollbackToken);
+        return snapshot(component);
+      },
+      readByIdentity(pageId, identity) {
+        const component = componentByIdentity(editor, pageId, identity);
+        if (!component) { const failure = new Error('Repeat component not found.'); failure.code = 'REPEAT_SYNC_TARGET_MISSING'; throw failure; }
+        return snapshot(component);
+      },
+      writeSnapshot(pageId, identity, sourceSnapshot) {
+        const component = componentByIdentity(editor, pageId, identity);
+        if (!component) { const failure = new Error('Repeat target not found.'); failure.code = 'REPEAT_SYNC_TARGET_MISSING'; throw failure; }
+        validateSourceTree(sourceSnapshot);
+        validateTargetMappings(snapshot(component));
+        reconcileRecursive(component, sourceSnapshot);
+        return snapshot(component);
+      },
+      restoreByIdentity(pageId, identity, rollbackToken) {
+        const component = componentByIdentity(editor, pageId, identity);
         if (!component) { const failure = new Error('Repeat rollback target not found.'); failure.code = 'REPEAT_SYNC_TARGET_MISSING'; throw failure; }
         restoreExact(component, rollbackToken);
         return snapshot(component);

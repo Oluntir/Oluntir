@@ -1,7 +1,7 @@
 # Project context
 
 Oluntir is a local browser-based multi-page website editor. Version 1.3.1 is
-the stable compatibility baseline; `2.1.0-beta` is the current
+the stable compatibility baseline; `2.2.0-beta` is the current
 Bootstrap-focused development branch.
 
 ## Required behavior

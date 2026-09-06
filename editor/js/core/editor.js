@@ -353,7 +353,14 @@ assetHydration.then(() => {
       hydrationSource: 'pre-grapesjs-local-storage'
     });
   }
-  if (window.OluntirRepeatAutoSynchronization && typeof window.OluntirRepeatAutoSynchronization.bind === 'function') window.OluntirRepeatAutoSynchronization.bind(editor);
+  // 2.2.0 BETA: Repeat-Inhalte werden nicht mehr während jeder GrapesJS-
+  // Änderung live verteilt. Die zentrale Oluntir-Bibliothek bearbeitet genau
+  // einen Draft und publiziert ihn erst über eine explizite Transaktion.
+  if (window.OluntirRepeatLibraryManager && typeof window.OluntirRepeatLibraryManager.bind === 'function') {
+    window.OluntirRepeatLibraryManager.bind(editor);
+  } else if (window.OluntirRepeatAutoSynchronization && typeof window.OluntirRepeatAutoSynchronization.bind === 'function') {
+    window.OluntirRepeatAutoSynchronization.bind(editor);
+  }
   if (window.OluntirFavicon) window.OluntirFavicon.bind(editor);
   window.dispatchEvent(new CustomEvent('oluntir:editorready'));
 
@@ -418,10 +425,15 @@ assetHydration.then(() => {
 
   window.toast = (msg, options) => {
     const el = document.getElementById('toast');
-    el.textContent = msg;
+    const message = String(msg == null ? '' : msg);
+    el.textContent = message;
     el.classList.add('visible');
     clearTimeout(window.toast._t);
-    const duration = options && Number(options.duration) > 0 ? Number(options.duration) : 2800;
+    const explicitDuration = options && Number(options.duration) > 0 ? Number(options.duration) : 0;
+    const looksLikeError = Boolean(options && options.kind === 'error') || /(?:fehler|fehlgeschlagen|abgebrochen|cannot|exception|undefined|error)/i.test(message);
+    // Allgemeine Hinweise bleiben deutlich länger lesbar als bisher; Fehler
+    // bleiben zwölf Sekunden stehen, sofern der Aufrufer keine eigene Dauer setzt.
+    const duration = explicitDuration || (looksLikeError ? 12000 : 5000);
     window.toast._t = setTimeout(() => el.classList.remove('visible'), duration);
   };
   const toast = window.toast;
@@ -635,14 +647,31 @@ assetHydration.then(() => {
   const pageSelect = document.getElementById('page-select');
 
   function refreshPageList() {
-    const pages = editor.Pages.getAll();
+    const repeatManager = window.OluntirRepeatLibraryManager;
+    const isRepeatWorkspace = page => Boolean(repeatManager && typeof repeatManager.isWorkspacePage === 'function' && repeatManager.isWorkspacePage(page));
+    const pages = editor.Pages.getAll().filter(page => !isRepeatWorkspace(page));
     const selected = editor.Pages.getSelected();
     pageSelect.innerHTML = '';
+
+    // Der interne Repeat-Workspace ist keine echte Projektseite und wird nicht
+    // als solche angeboten. Eine bewusst ausgewählte Statusoption stellt aber
+    // sicher, dass jede anschließende Wahl einer Projektseite ein echtes
+    // change-Ereignis auslöst – auch wenn man zur zuvor geöffneten Seite
+    // zurückkehren möchte.
+    if (isRepeatWorkspace(selected)) {
+      const workspaceOpt = document.createElement('option');
+      workspaceOpt.value = '__oluntir_repeat_workspace__';
+      workspaceOpt.textContent = 'Zentrale Repeat-Bearbeitung';
+      workspaceOpt.disabled = true;
+      workspaceOpt.selected = true;
+      pageSelect.appendChild(workspaceOpt);
+    }
+
     pages.forEach((page) => {
       const opt = document.createElement('option');
       opt.value = page.id;
       opt.textContent = page.getName() || page.id;
-      if (page === selected) opt.selected = true;
+      if (!isRepeatWorkspace(selected) && page === selected) opt.selected = true;
       pageSelect.appendChild(opt);
     });
   }
@@ -924,9 +953,34 @@ assetHydration.then(() => {
     const page = editor.Pages.getAll().find((item) => item.id === pageId || (window.OluntirLayoutIdentities && window.OluntirLayoutIdentities.pageId && window.OluntirLayoutIdentities.pageId(item) === pageId));
     if (!page) return false;
 
+    // Der zentrale Repeat-Editor lebt auf einer temporären internen GrapesJS-
+    // Seite. GrapesJS darf diese Seite niemals entfernen, solange sie noch
+    // ausgewählt ist. prepareForPageNavigation() führt deshalb zuerst einen
+    // sicheren Handoff auf die gewünschte Projektseite durch und entfernt den
+    // Workspace erst danach. Die normale Seiten-Commit-Transaktion darf den
+    // internen Workspace nicht als Quellseite behandeln.
+    try {
+      if (window.OluntirRepeatLibraryManager && typeof window.OluntirRepeatLibraryManager.prepareForPageNavigation === 'function') {
+        window.OluntirRepeatLibraryManager.prepareForPageNavigation(pageId);
+      }
+    } catch (error) {
+      console.error('Repeat-Arbeitsbereich konnte vor dem Seitenwechsel nicht beendet werden:', error);
+      if (window.OluntirLogger && typeof window.OluntirLogger.error === 'function') {
+        window.OluntirLogger.error('error', 'repeat-workspace-page-handoff-failed', {
+          targetPageId: pageId,
+          message: error && error.message || String(error),
+          stack: error && error.stack || null
+        });
+      }
+      refreshPageList();
+      toast(`Seitenwechsel abgebrochen: ${error.message || error}`, { kind: 'error', duration: 12000 });
+      return false;
+    }
+
     const previousPage = editor.Pages.getSelected();
     if (previousPage === page) {
       refreshPageList();
+      refreshSelectedPageVisuals();
       return true;
     }
 
@@ -958,7 +1012,7 @@ assetHydration.then(() => {
     } catch (error) {
       console.error('Aktuelle Seite konnte vor dem Wechsel nicht ins Modell übernommen werden:', error);
       refreshPageList();
-      toast(`Seitenwechsel abgebrochen: ${error.message || error}`);
+      toast(`Seitenwechsel abgebrochen: ${error.message || error}`, { kind: 'error', duration: 12000 });
       return false;
     }
 
@@ -977,7 +1031,7 @@ assetHydration.then(() => {
     } catch (error) {
       console.error('Aktuelle Seite konnte vor dem Wechsel nicht gespeichert werden:', error);
       refreshPageList();
-      toast(`Seitenwechsel abgebrochen: ${error.message || error}`);
+      toast(`Seitenwechsel abgebrochen: ${error.message || error}`, { kind: 'error', duration: 12000 });
       return false;
     }
 
@@ -1243,6 +1297,7 @@ assetHydration.then(() => {
     let projectData = editor.getProjectData();
     if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
     if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.0 BETA' });
     if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
     if (window.OluntirStartup) {
@@ -1291,6 +1346,7 @@ assetHydration.then(() => {
       projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData);
     }
     if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.0 BETA' });
     if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
     return projectData;
@@ -1419,6 +1475,7 @@ assetHydration.then(() => {
       projectData = editor.getProjectData();
       if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
       if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.0 BETA' });
       if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     }
 

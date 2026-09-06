@@ -1,4 +1,4 @@
-# Features – Oluntir 2.1.0 BETA
+# Features – Oluntir 2.2.0 BETA
 
 This BETA branch uses Oluntir 1.3.1 as its compatibility baseline and
 consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.

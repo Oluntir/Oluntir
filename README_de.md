@@ -1,25 +1,33 @@
 > **Sprache:** Deutsch · [English](README.md)
 
-# Oluntir 2.1.0 BETA
+# Oluntir 2.2.0 BETA
 
 Oluntir ist ein lokaler, browserbasierter Website-Editor auf Basis von GrapesJS 0.23.2. Die Anwendung verwaltet mehrseitige Projekte, lokale Assets, gemeinsame Seitenbereiche und Exporte ohne serverseitige Anwendungslaufzeit.
 
-**Branch:** `Oluntir-2.1.0-beta`
+**Branch:** `Oluntir-2.2.0-beta`
 **Baseline:** Oluntir 1.3.1
 **Datum:** 6. September 2026
 **Status:** BETA / Bootstrap-fokussiert
 
-Oluntir 1.3.1 bleibt die stabile Kompatibilitätsbaseline. 2.1.0 BETA markiert
-den ersten Beta-Stand der Bootstrap-fokussierten 2.x-Linie.
+Oluntir 1.3.1 bleibt die stabile Kompatibilitätsbaseline. 2.2.0 BETA führt
+die Bootstrap-fokussierte 2.x-Beta-Linie mit einer zentralen Repeat-Bibliothek fort.
 
-## 2.1.0 BETA – aktueller Stand
+## 2.2.0 BETA – aktueller Stand
 
-- Header, Navigation und Footer werden als Shared Content bidirektional zwischen Projektseiten synchronisiert.
-- Wiederholbare Bereiche unterstützen Quelle → Instanz, Instanz → Quelle und Instanz → weitere Instanzen.
-- Das Werkzeug **„Wiederholbare Bereiche“** dient zum Erstellen/Bearbeiten einer Quelle und setzt diese direkt über Zielseite, Einfügeposition und Canvas-Ziel ein.
-- Das getrennte Werkzeug **„Wiederholbare Bereiche aus Liste einfügen“** zeigt projektweit gespeicherte Quellen mit verständlichem Namen und führt den Ablauf Quelle aus Liste → Zielseite → Einfügeposition → Einsetzen aus.
-- Bestehende Alpha-Projekte werden anhand vorhandener stabiler Oluntir-Korrelationen hydriert; unklare Bindungen werden nicht geraten.
-- Shared-Content-Commits besitzen einen No-op-Fast-Path: unveränderte zentrale Inhalte lösen keine Zielmutation und keinen zusätzlichen Speichervorgang aus; normale Update-/Style-Events außerhalb von Header/Nav/Footer werden nicht mehr durch den Shared-Content-Pfad verarbeitet.
+- Falls bei einem übernommenen Projekt zentrale Repeat-Metadaten fehlen, rekonstruiert Oluntir die Familien ausschließlich aus vorhandenen stabilen Repeat-Markern der materialisierten Seiteninstanzen; Nav/Header/Footer werden dabei ignoriert.
+
+- Header, Navigation und Footer bleiben bidirektionaler Shared Content.
+- Wiederholbare Bereiche werden als **zentrale Repeat-Familien** verwaltet; alle Seitenvorkommen sind materialisierte Instanzen.
+- Direkte Bearbeitung der Repeat-Inhalte auf normalen Seiten ist gesperrt. Die orange Mouseover-Leiste führt zur zentralen Bearbeitung oder entfernt genau dieses Vorkommen.
+- Die zentrale Repeat-Bibliothek listet Namen, verwendete Seiten, Vorkommen und Revisionen.
+- Ein Repeat wird in einem internen Einzelobjekt-Canvas bearbeitet. Änderungen bleiben Draft, bis **„Auf alle Vorkommen anwenden“** gedrückt wird.
+- Dieser zentrale Einzelobjekt-Canvas ist vollständig editierbar; die Bearbeitungssperre gilt ausschließlich für materialisierte Repeat-Instanzen auf normalen Projektseiten.
+- Publikation und Entfernen sind Oluntir-Transaktionen mit Repeat-Undo/Redo.
+- Während kontrollierter Repeat-Publish-/Undo-/Redo-/Insert-/Remove-Transaktionen werden die dabei intern erzeugten GrapesJS-Add/Remove-Ereignisse vom Shared-Content-Sicherheitswatcher abgeschirmt; normale Nav/Footer-Strukturänderungen bleiben vollständig überwacht.
+- Die Einfügefunktion bleibt erhalten: Bibliotheksquelle → Zielseite → Einfügeposition → Canvas-Ziel → Bereich einsetzen.
+- Bestehende Projekte werden anhand stabiler Oluntir-Korrelationen in das zentrale Published/Draft-Modell übernommen.
+- Beim Verlassen des zentralen Repeat-Canvas führt Oluntir einen sicheren PageManager-Handoff aus: Zielseite zuerst auswählen, temporären Workspace danach entfernen.
+- Technische Fehlermeldungen bleiben 12 Sekunden sichtbar; normale Hinweise 5 Sekunden.
 
 ## Historische Entwicklungsbasis aus 2.0 Alpha
 
@@ -48,27 +56,34 @@ als eigene Analyse mit eigener Profilidentität aufgenommen.
 
 Die Ressourcenaktivierung und die bewusste Benutzer-Einfügung eines
 ausgewählten Source Packages sind möglich. Die Ausführung importierter
-JavaScript-Dateien bleibt deaktiviert. Explizit definierte Wiederholbare
-Bereiche werden dagegen in 2.1.0 BETA produktiv und transaktional synchronisiert.
+JavaScript-Dateien bleibt deaktiviert. Explizit definierte wiederholbare Bereiche werden in 2.2.0 BETA zentral verwaltet.
+Seitenvorkommen bleiben während der Bearbeitung unverändert und werden erst durch eine
+ausdrückliche Publish-Transaktion aktualisiert.
 
 DEV028 verbindet die quellengebundenen Profile über eine kontrollierte
 Adapter-Schicht mit dem persistenten GrapesJS-Editor. Source-Komponenten
-können als Benutzer-Blöcke eingefügt werden; die Repeat-Synchronisation ist
-für ausdrücklich definierte Instanzen freigegeben und durch Resolver,
-Dependency Graph, Action Contracts und den gezielten Synchronisationsdienst
-abgesichert. Source-JavaScript wird weiterhin nicht automatisch ausgeführt.
+können als Benutzer-Blöcke eingefügt werden. Die in Alpha aufgebaute Repeat-
+Vertragsbasis aus Resolver, Dependency Graph, Action Contracts und gezieltem
+Synchronisationsdienst bleibt erhalten; 2.2.0 BETA nutzt sie für kontrollierte
+Publish-Transaktionen statt für eine Synchronisation bei jeder Eingabe.
+Source-JavaScript wird weiterhin nicht automatisch ausgeführt.
 
-### Repeat-Synchronisation in 2.1.0 BETA
+### Repeat-Bibliothek in 2.2.0 BETA
 
-Eine Repeat-Definition trennt Quelle, Instanz und Komponentenidentität über
-stabile Oluntir-IDs. Änderungen an der Quelle werden nur an ihre verknüpften
-Instanzen propagiert. Der Synchronisationsdienst arbeitet atomar: Nach
-erfolgreichem Plan und Schreibprüfung wird aktualisiert; bei einem Fehler
-werden bereits geänderte Ziele zurückgesetzt. Der Export liest danach das
-konsistente Projektmodell. Nav, Header und Footer bleiben als Shared Content
-separat behandelt.
+Eine Repeat-Familie besitzt genau einen zentralen Published-/Draft-Inhalt. Alle
+Vorkommen auf Projektseiten sind materialisierte Instanzen und dort gegen direkte
+Inhaltsbearbeitung gesperrt. Die zentrale Bibliothek zeigt Namen, Seitenverwendung,
+Vorkommen und Revisionen. Ein Klick auf **Bearbeiten** öffnet einen internen
+Einzelobjekt-Canvas. Änderungen bleiben dort lokal, bis **„Auf alle Vorkommen
+anwenden“** die Familie in einer kontrollierten Oluntir-Transaktion publiziert.
 
-Der eigenständige Branch `2.1.0-beta` konsolidiert den produktiven
+Auf normalen Seiten erscheint bei Mouseover eine orange Steuerleiste oben mittig.
+**Bearbeiten** springt zur zentralen Quelle; **Entfernen** löscht nur dieses
+Vorkommen und aktualisiert die Verwendungsliste. Publish und Entfernen besitzen
+eine eigene Repeat-Undo/Redo-Historie. Nav, Header und Footer bleiben als Shared
+Content separat behandelt.
+
+Der eigenständige Branch `2.2.0-beta` konsolidiert den produktiven
 Frameworkkontext auf Bootstrap 4 und Bootstrap 5. Generische Import-,
 Analyse- und Recovery-Grundlagen bleiben erhalten; konkrete Fremdframework-
 Profile und Testpakete gehören nicht zu diesem Branch. Bootstrap 5 ist das
@@ -102,9 +117,9 @@ und nicht stillschweigend Bootstrap zugeordnet.
 - Projekt-Favicon, Lightbox und Download-Links;
 - Ein- und Zwei-Monitor-Arbeitsbereich;
 - stabile interne Layout-Identitäten;
-- produktive bidirektionale Repeat-Synchronisation für ausdrücklich definierte Bereiche über
-  stabile Seiten-, Komponenten- und Zielpositions-IDs;
-- getrennte Repeat-Quellen- und Repeat-Bibliothekswerkzeuge;
+- zentrale Repeat-Bibliothek mit materialisierten Seiteninstanzen und expliziter Publish-Transaktion;
+- projektweite Seitenverwendung, Revisionen sowie Repeat-Undo/Redo für Publish und Entfernen;
+- getrennte zentrale Bearbeitung und Listen-/Einfügefunktion;
 - optionales lokales Logging nach ausdrücklicher Zustimmung.
 
 ## Start
@@ -124,11 +139,11 @@ Eine explizit gesetzte Footer-Schriftfarbe kann in der Arbeitsansicht von der ex
 - [Technisches Handbuch](HANDBOOK_de.md)
 - [Funktionen](FEATURES_de.md)
 - [Release Notes](RELEASE_NOTES_de.md)
-- [Technische Änderungen seit 1.3.1](docs/CHANGELOG_1.3.1_TO_2.1.0_BETA_de.md)
-- [Bereinigungsliste für 2.1.0 BETA](docs/REMOVAL_LIST_2.1.0_BETA_de.md)
+- [Historische technische Änderungen bis 2.1.0 BETA](docs/CHANGELOG_1.3.1_TO_2.1.0_BETA_de.md)
+- [Historische Bereinigungsliste 2.1.0 BETA](docs/REMOVAL_LIST_2.1.0_BETA_de.md)
 - [Sicherheit](SECURITY_de.md)
 - [Datenschutz](PRIVACY_de.md)
-- [BETA-Release-Audit](audit/OLUNTIR_2.1.0_BETA_AUDIT_de.md)
+- [Historisches Release-Audit 2.1.0 BETA](audit/OLUNTIR_2.1.0_BETA_AUDIT_de.md)
 
 ## Lizenz
 

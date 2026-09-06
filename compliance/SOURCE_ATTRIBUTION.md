@@ -2,7 +2,7 @@
 
 # Source Attribution
 
-**Version:** 2.1.0 BETA
+**Version:** 2.2.0 BETA
 **Language:** English
 **Status:** BETA
 **Stable baseline:** Oluntir 1.3.1
@@ -18,6 +18,6 @@ The file must be reviewed together with `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICE
 
 ## Framework scope
 
-The standalone `2.1.0-beta` branch contains concrete Bootstrap 4.6.2 and
+The standalone `2.2.0-beta` branch contains concrete Bootstrap 4.6.2 and
 Bootstrap 5.3.8 profiles. No alternative framework distribution is bundled in
 this branch.

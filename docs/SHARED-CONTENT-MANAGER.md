@@ -2,7 +2,7 @@
 
 # Shared Content Manager
 
-**Version:** 2.1.0 BETA
+**Version:** 2.2.0 BETA
 **Status:** BETA
 **Stable baseline:** Oluntir 1.3.1
 **Last updated:** 2026-09-06
@@ -25,7 +25,9 @@ Each region has one central representation in the Oluntir project state. Pages d
 4. All other pages are updated from the central state.
 5. Before page selection, deletion, save, or creation, the selected page is flushed again.
 
-The manager suppresses its own propagation events. In 2.1.0 BETA a component commit exits immediately when the central Shared Content fingerprint did not change, preventing target mutations and extra `editor.store()` calls for redundant GrapesJS events.
+The manager suppresses its own propagation events. In 2.2.0 BETA a component commit exits immediately when the central Shared Content fingerprint did not change, preventing target mutations and extra `editor.store()` calls for redundant GrapesJS events.
+
+2.2.0 BETA also defines a narrow transaction boundary with the central Repeat library: only while an Oluntir Repeat project mutation is active are materialization-generated `component:add`/`component:remove` events excluded from the Shared Content structural watcher. `component:update`/style updates inside header, navigation, or footer and normal add/remove user actions outside that Repeat transaction remain fully active.
 
 ## New pages
 

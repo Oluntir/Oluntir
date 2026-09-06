@@ -1,6 +1,6 @@
 # First start
 
-1. Extract Oluntir 2.1.0 BETA into its own folder.
+1. Extract Oluntir 2.2.0 BETA into its own folder.
 2. Open `index.html` in a current desktop browser.
 3. Choose **Single monitor**, **Two monitors**, or keep the startup question enabled.
 4. Create a project or restore a portable `.oluntir` backup.

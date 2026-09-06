@@ -1,5 +1,5 @@
 > **Language:** English · [Deutsch](WHY_OLUNTIR_de.md)
-> **Version:** 2.1.0 BETA · **Stable baseline:** 1.3.1 · **Updated:** 2026-09-04
+> **Version:** 2.2.0 BETA · **Stable baseline:** 1.3.1 · **Updated:** 2026-09-04
 
 # Why Oluntir?
 
@@ -56,5 +56,5 @@ Oluntir is not merely another visual HTML editor. It is a local Open Source webs
 - [First start](FIRST_START.md)
 - [Multi-monitor workspace](MULTI_MONITOR.md)
 - [Image Manager](IMAGE_MANAGER.md)
-- [Release notes 2.1.0 BETA](../RELEASE_NOTES.md)
-- [Technical changes since 1.3.1](CHANGELOG_1.3.1_TO_2.1.0_BETA.md)
+- [Release notes 2.2.0 BETA](../RELEASE_NOTES.md)
+- [Historical technical changes through 2.1.0 BETA](CHANGELOG_1.3.1_TO_2.1.0_BETA.md)

@@ -50,10 +50,10 @@ assert.strictEqual(blocked.mutationPerformed, false);
 assert.strictEqual(blocked.status, 'blocked');
 
 const audit = readiness.audit(null);
-assert.strictEqual(audit.mode, 'productive-repeat');
+assert.strictEqual(audit.mode, 'central-library-manual-publish');
 assert.strictEqual(audit.productiveSynchronizationEnabled, true);
 assert.strictEqual(audit.visibleRepeatUiEnabled, true);
-assert.strictEqual(audit.automaticSynchronizationEnabled, true);
+assert.strictEqual(audit.automaticSynchronizationEnabled, false);
 assert.strictEqual(audit.mutationPerformed, false);
 assert.strictEqual(audit.contracts.valid, true);
 assert.strictEqual(audit.contracts.executionEnabled, true);

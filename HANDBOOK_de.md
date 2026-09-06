@@ -1,6 +1,6 @@
-# Oluntir 2.1.0 BETA – Technisches Handbuch
+# Oluntir 2.2.0 BETA – Technisches Handbuch
 
-Dieses Handbuch beschreibt Oluntir 2.1.0 BETA im Bootstrap-fokussierten Branch.
+Dieses Handbuch beschreibt Oluntir 2.2.0 BETA im Bootstrap-fokussierten Branch.
 Oluntir 1.3.1 bleibt die stabile Kompatibilitätsbaseline.
 
 ## 1. Laufzeit
@@ -49,15 +49,28 @@ Benutzer auswählbare Blöcke bereit. Source-JavaScript wird nicht ausgeführt.
 
 `shared-content-manager.js` verwaltet Header, Navigation und Footer. Änderungen werden zentral gespeichert und nach einem erfolgreichen Commit auf die betroffenen Projektseiten propagiert. Das GrapesJS-Projektmodell ist die Autorität; langlebige Komponentenreferenzen werden nicht gecacht. Fingerprints und ein `centralChanged`-Fast-Exit verhindern redundante Zielmutationen und Speichervorgänge.
 
-## 5. Repeat Foundation
+## 5. Repeat-Bibliothek und Publish-Transaktionen
 
-`repeat-engine-v2.js` enthält das technische Datenmodell für wiederholbare
-Strukturen. Resolver-, Dependency-Graph-, Action-Vertrags- und gezielter
-Synchronisationsdienst-Gates werden ausdrücklich geprüft. Eine ausdrücklich
-definierte Quelle wird über stabile Seiten-, Komponenten- und Zielpositions-IDs
-als Instanz eingesetzt und bidirektional synchronisiert. Das Quellenwerkzeug bearbeitet
-die aktuelle Quelle und setzt sie direkt ein. Das getrennte Listenwerkzeug wählt eine
-benannte projektweite Quelle und führt Zielseite → Position → Einsetzen aus.
+`repeat-engine-v2.js` bleibt das persistente Datenmodell für Repeat-Familien und
+stabile Oluntir-Identitäten. `repeat-library-manager.js` verwaltet darüber die
+zentrale Published-/Draft-Quelle, Seitenverwendungen, Revisionen sowie die
+Repeat-Historie. Alle normalen Seitenvorkommen sind materialisierte Instanzen
+und gegen direkte Inhaltsbearbeitung gesperrt.
+
+**Bearbeiten** öffnet einen internen GrapesJS-Einzelobjekt-Arbeitsbereich. Dort
+werden Änderungen ausschließlich am Draft vorgenommen; während des Tippens gibt
+es keine projektweite Repeat-Verteilung. **„Auf alle Vorkommen anwenden“**
+schreibt den Draft kontrolliert in alle aktiven Instanzen und aktualisiert deren
+Revision/Fingerprint. Der Arbeitsbereich wird vor Persistenz und Export aus den
+GrapesJS-Seitendaten entfernt.
+
+Die orange Mouseover-Steuerleiste auf einer Seiteninstanz öffnet die zentrale
+Bearbeitung oder entfernt genau dieses Vorkommen. Entfernen und Publish werden als
+Oluntir-Transaktionen in einer begrenzten Repeat-Undo/Redo-Historie geführt. Die
+Listenfunktion materialisiert zusätzliche Instanzen über Quelle → Zielseite →
+Position → bestätigtes Canvas-Ziel. Resolver-, Dependency-Graph-, Action- und
+gezielte Synchronisationsverträge bleiben die technische Schutzschicht; eine
+Live-Synchronisation bei jedem Tastendruck ist im Produktpfad deaktiviert.
 
 ## 6. Logging
 

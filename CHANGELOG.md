@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.2.0 BETA — 2026-09-06
+
+- Central Repeat Canvas is fully editable again: page-instance lock flags are no longer carried into Draft/Published snapshots; text RTE, selection and normal GrapesJS component controls are restored in central editing.
+
+- Hardened Repeat-library target selection across page switches: the library stays open without an active central workspace, source/target-page state is preserved, and a confirmed Canvas target reliably enables insertion.
+- Existing projects now have marker-based repeat recovery: if central repeat metadata is missing, families and instances are reconstructed only from stable `data-oluntir-repeat-*` markers; header/nav/footer are excluded.
+- Startup metadata now reports `2.2.0 BETA`; older stored version labels are shown as migration sources and updated on open.
+
+- New `Oluntir-2.2.0-beta` branch based on 2.1.0 BETA.
+- Repeat architecture changed to a central draft/published library with explicit publishing.
+- Added project-wide usage catalog, single-object canvas, orange edit/remove controls, and Repeat undo/redo.
+- Per-event automatic Repeat propagation is disabled in the 2.2 branch; the targeted synchronization/rollback foundation remains available.
+- Controlled Repeat project mutations isolate internally generated GrapesJS add/remove events from the Shared Content structural watcher while normal header/navigation/footer and user structural changes remain active.
+- Repeat workspace navigation now hands off to a real project page before removing the temporary GrapesJS page, preventing the `getAttributes` failure when leaving central Repeat editing.
+- Error notifications remain visible for 12 seconds by default; normal notifications for 5 seconds.
+
+
 ## 2.1.0 BETA — 2026-09-06
 
 - Raised the release status and visible UI version from `2.0.1 Alpha` to **2.1.0 BETA**.

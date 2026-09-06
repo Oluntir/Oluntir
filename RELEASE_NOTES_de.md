@@ -1,17 +1,26 @@
-# Release Notes – Oluntir 2.1.0 BETA
+# Release Notes – Oluntir 2.2.0 BETA
 
-Oluntir 2.1.0 BETA ist eine experimentelle Weiterentwicklung der stabilen
-1.3.1-Linie. Die produktive Frameworkunterstützung wird auf Bootstrap 4.6.2
-und 5.3.8 konsolidiert.
+Oluntir 2.2.0 BETA ist der neue Bootstrap-fokussierte Entwicklungsbranch auf Basis von 2.1.0 BETA.
 
-## 2.1.0 BETA – wichtigste Änderungen
+## 2.2.0 BETA – wichtigste Änderungen
 
-- Zwei getrennte Repeat-Workflows: Erstellen/Bearbeiten einer aktuellen Quelle sowie Einsetzen aus einer projektweiten, benannten Quellenliste.
-- Bidirektionale Repeat-Synchronisation Quelle ↔ Instanzen und Instanz → weitere Instanzen über stabile Oluntir-Identitäten.
-- Kompatibilitäts-Hydrierung für bestehende Alpha-Projekte, sofern eindeutige Oluntir-Korrelationen vorhanden sind.
-- Bidirektionaler Shared Content für Header, Navigation und Footer.
-- Performance-Fix für Shared Content: redundante GrapesJS-Events mit unverändertem zentralem Inhalt beenden den Commit vor Zielmutation und `editor.store()`; Update-/Style-Events außerhalb gemeinsamer Bereiche werden früh gefiltert.
-- Sichtbare Versionskennzeichnung im Hauptfenster und Werkzeugmonitor auf **2.1.0 BETA**.
+- Der zentrale Repeat-Draft übernimmt keine Sperrflags materialisierter Seiteninstanzen mehr. Text kann wieder per RTE bearbeitet werden; Auswahl, Styling und die normalen blauen GrapesJS-Komponentenwerkzeuge sind im Einzelobjekt-Canvas aktiv.
+
+- Der Einsetz-Workflow der Repeat-Bibliothek bleibt jetzt über normale Seitenwechsel erhalten: Bibliotheksfenster, gewählte Familie und Zielseite werden nicht mehr zurückgesetzt; nach der orange bestätigten Position wird „Bereich einsetzen“ zuverlässig aktiv.
+- Bestehende Projekte mit verlorenen/unvollständigen Repeat-Metadaten werden aus den auf den Seiten vorhandenen stabilen Repeat-Familienmarkern rekonstruiert; die zentrale Bibliothek bleibt damit nach Projektübernahme nutzbar.
+- Die Startansicht kennzeichnet ältere gespeicherte Versionsmetadaten als Übernahme auf 2.2.0 BETA und schreibt anschließend den aktuellen Stand zurück.
+
+- Neue **zentrale Repeat-Bibliothek** mit vollständiger Projektliste und Seitenverwendung je Repeat-Familie.
+- Repeat-Inhalte werden auf normalen Seiten nicht mehr live bei jeder Eingabe synchronisiert. Direkte Inhaltsbearbeitung der materialisierten Instanzen ist gesperrt.
+- Zentrale Bearbeitung erfolgt in einem internen Einzelobjekt-Canvas; Draft-Änderungen werden erst über **„Auf alle Vorkommen anwenden“** verteilt.
+- Beim Publizieren aktualisiert Oluntir Quelle/alle Vorkommen in einer kontrollierten Transaktion; GrapesJS verwaltet nicht das projektweite Repeat-Netzwerk.
+- Orange Mouseover-Steuerleiste oben mittig an jedem Repeat-Vorkommen mit **Bearbeiten** und **Entfernen**. Header/Nav/Footer bleiben Shared Content und erhalten keine Repeat-Steuerung.
+- Entfernen eines einzelnen Vorkommens aktualisiert die zentrale Verwendungsliste und ist über Repeat-Undo/Redo wiederherstellbar; auch Publish-Transaktionen werden im Repeat-History-Stack geführt.
+- Bestehende Projekte werden beim ersten 2.2-Lauf aus den vorhandenen stabilen Oluntir-Korrelationen in das zentrale Published/Draft-Modell überführt.
+- Der temporäre Repeat-Arbeitsbereich wird vor Persistenz und Export aus den GrapesJS-Seiten entfernt.
+- Performance-Isolation: intern erzeugte `component:add`-/`component:remove`-Ereignisse einer kontrollierten Repeat-Projektmutation lösen keinen zusätzlichen Shared-Content-Projektscan mehr aus. Direkte Header/Nav/Footer-Änderungen sowie normale strukturelle Benutzeraktionen bleiben unverändert überwacht.
+- Der zentrale Repeat-Arbeitsbereich wird beim Seitenwechsel nicht mehr als aktive GrapesJS-Seite entfernt: Oluntir selektiert zuerst die Zielseite, löscht danach den Workspace und überspringt für diesen Übergang die normale Seiten-Commit-Transaktion.
+- Fehlerhinweise bleiben länger sichtbar (12 Sekunden), damit technische Meldungen vollständig gelesen werden können.
 
 ## Historische Alpha-Änderungen seit 1.3.1
 

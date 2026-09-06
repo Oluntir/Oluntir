@@ -192,6 +192,24 @@ assert.strictEqual(instanceCount, 1, 'Das Hauptwerkzeug muss genau eine Repeat-I
 assert.strictEqual(document.getElementById('oluntir-repeat-source-insert').disabled, true, 'Der Hauptworkflow muss sich nach Einsetzen zurücksetzen.');
 
 // Listenwerkzeug: Element aus Liste -> Zielseite -> Position -> Einsetzen.
+// v28 starts this workflow while the central Repeat canvas is still active.
+// The target-page selection must hand off to the real page first and still bind
+// the orange Canvas target listeners.
+let centralEditorActive = true;
+const insertionHandoffs = [];
+root.OluntirRepeatLibraryManager = {
+  isWorkspacePage() { return false; },
+  isEditorActive() { return centralEditorActive; },
+  prepareForInsertionNavigation(targetPageId) {
+    insertionHandoffs.push(targetPageId);
+    selectedPage = allPages.find(page => page.id === targetPageId) || selectedPage;
+    centralEditorActive = false;
+    // Entspricht dem echten v29-Handoff: Quelle + Zielseite werden fortgesetzt,
+    // ohne den bereits begonnenen Target-Workflow zurückzusetzen.
+    root.OluntirRepeatUi.resumeLibraryInsertion('def-1', targetPageId);
+    return true;
+  }
+};
 root.OluntirRepeatUi.openLibrary();
 assert.strictEqual(document.getElementById('oluntir-repeat-library-panel').hidden, false, 'Das Listen-Werkzeug muss separat geöffnet werden können.');
 assert.strictEqual(document.getElementById('oluntir-repeat-panel').hidden, true, 'Beim Öffnen der Bibliothek muss das Quellenfenster geschlossen sein.');
@@ -207,6 +225,10 @@ function selectDefinitionAndPage(pageId) {
 }
 
 selectDefinitionAndPage('target-page');
+assert.deepStrictEqual(insertionHandoffs, ['target-page'], 'Zielseite aus zentraler Bearbeitung muss ueber den Insert-Handoff geoeffnet werden.');
+assert.strictEqual(document.getElementById('oluntir-repeat-library-panel').hidden, false, 'Bibliothek muss waehrend des Insert-Handoffs sichtbar bleiben.');
+assert.strictEqual(document.getElementById('oluntir-repeat-library-target-page').value, 'target-page', 'Zielseite muss nach dem Handoff erhalten bleiben.');
+assert.ok(canvasListeners.mousemove && canvasListeners.click, 'Nach zentralem Insert-Handoff muessen die orange Vorschau- und Klick-Listener aktiv sein.');
 slot = lockAt('library', targetAEl, 150);
 assert.strictEqual(slot.mode, 'inside-end', 'Klick mitten in einem Bereich muss Inside-Ziel bestätigen.');
 assert.strictEqual(document.getElementById('oluntir-repeat-library-insert').disabled, false, 'Ein bestätigtes Bibliotheksziel muss „Bereich einsetzen“ aktivieren.');

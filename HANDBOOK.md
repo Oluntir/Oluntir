@@ -1,4 +1,4 @@
-# Oluntir 2.1.0 BETA – Technical handbook
+# Oluntir 2.2.0 BETA – Technical handbook
 
 This handbook describes the current Bootstrap-focused BETA branch. Oluntir
 1.3.1 remains the stable compatibility baseline.
@@ -47,11 +47,27 @@ structures as user-selectable blocks. Source JavaScript is not executed.
 
 `shared-content-manager.js` manages header, navigation and footer. The GrapesJS project model is authoritative and component objects are resolved fresh for writes rather than cached long-term. Fingerprints and a `centralChanged` fast exit skip redundant target mutations and stores.
 
-## 5. Repeat Foundation
+## 5. Repeat library and publish transactions
 
-`repeat-engine-v2.js` contains the technical model for repeatable structures.
-The resolver, dependency graph, action-contract and targeted-sync gates are
-audited explicitly. Productive synchronization is enabled for explicitly defined Repeat sources. The source tool creates/edits the current named source and inserts it directly; the separate library tool inserts a named stored source through target page, insertion mode and confirmed Canvas target. Synchronization is bidirectional across source and instances.
+`repeat-engine-v2.js` remains the persistent data model for Repeat families and
+stable Oluntir identities. `repeat-library-manager.js` adds the central
+Published/Draft source, page usage, revisions and Repeat history. All normal page
+occurrences are materialized instances and are locked against direct content
+editing.
+
+**Edit** opens an internal GrapesJS single-object workspace. Changes are applied
+only to the draft; there is no project-wide Repeat distribution while typing.
+**“Apply to all occurrences”** writes the draft to all active instances in a
+controlled transaction and updates their revision/fingerprint. The workspace is
+removed from GrapesJS page data before persistence and export.
+
+The orange hover toolbar on a page instance opens central editing or removes only
+that occurrence. Remove and publish are Oluntir transactions recorded in a bounded
+Repeat Undo/Redo history. The list workflow materializes additional instances via
+source → target page → insertion mode → confirmed Canvas target. Resolver,
+dependency-graph, action-contract and targeted-synchronization contracts remain
+the technical safety layer; per-keystroke live synchronization is disabled in the
+product path.
 
 ## 6. Logging
 

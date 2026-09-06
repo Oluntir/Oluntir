@@ -19,6 +19,8 @@ node --check editor/js/core/targeted-synchronization-service.js
 node --check editor/js/core/repeat-action-contracts.js
 node --check editor/js/core/repeat-foundation-readiness.js
 node --check editor/js/core/repeat-sync-access-adapter.js
+node --check editor/js/core/repeat-library-manager.js
+node --check editor/js/core/shared-content-manager.js
 node --check editor/js/core/editor.js
 node --check editor/js/core/export.js
 node tools/test-grapesjs-adapter.js
@@ -35,6 +37,8 @@ node tests/test-oluntir-logger.js
 node tests/test-oluntir-logger-files.js
 node tests/test-oluntir-logging-consent.js
 node tests/test-logging-consent-responsive-layout.js
+node tests/test-toast-error-duration.js
+node tests/test-startup-version-migration.js
 node tests/test-foundation-consent-contract.js
 node tests/test-foundation-consent-version.js
 node tests/test-foundation-consent-installation.js
@@ -44,8 +48,15 @@ node tests/test-repeat-engine-v2-contracts.js
 node tests/test-repeat-existing-project-auto-upgrade.js
 node tests/test-repeat-existing-project-binding-repair.js
 node tests/test-repeat-session-hydration.js
+node tests/test-repeat-project-marker-recovery.js
+node tests/test-repeat-project-marker-fallback-recovery.js
 node tests/test-repeat-persistence-bridge.js
 node tests/test-repeat-ui.js
+node tests/test-repeat-central-library-contract.js
+node tests/test-repeat-library-manager-runtime.js
+node tests/test-repeat-central-workspace-editability.js
+node tests/test-repeat-workspace-navigation.js
+node tests/test-repeat-shared-content-transaction-isolation.js
 node tests/test-repeat-target-selection-runtime.js
 node tests/test-rte-persistence-guard.js
 node tests/test-link-rte-focus.js

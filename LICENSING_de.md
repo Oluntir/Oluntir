@@ -2,7 +2,7 @@
 
 # Lizenzierung
 
-**Version:** 2.1.0 BETA
+**Version:** 2.2.0 BETA
 **Status:** BETA
 **Stabile Baseline:** Oluntir 1.3.1
 **Stand:** 04.09.2026

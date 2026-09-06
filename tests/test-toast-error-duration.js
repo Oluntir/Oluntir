@@ -1,0 +1,13 @@
+'use strict';
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const source = fs.readFileSync(path.join(__dirname, '../editor/js/core/editor.js'), 'utf8');
+const start = source.indexOf('window.toast = (msg, options) =>');
+const end = source.indexOf('const toast = window.toast;', start);
+assert.ok(start >= 0 && end > start, 'Toast-Implementierung wurde nicht gefunden.');
+const body = source.slice(start, end);
+assert.ok(body.includes('looksLikeError'), 'Toast muss Fehler erkennen.');
+assert.ok(body.includes('looksLikeError ? 12000 : 5000'), 'Fehler müssen 12 Sekunden und normale Hinweise 5 Sekunden sichtbar bleiben.');
+assert.ok(body.includes('options.kind === \'error\''), 'Fehlerdauer muss auch explizit steuerbar sein.');
+console.log('TOAST-ERROR-DURATION-TEST ERFOLGREICH');

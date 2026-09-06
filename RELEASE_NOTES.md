@@ -1,54 +1,24 @@
-# Release Notes – Oluntir 2.1.0 BETA
+# Release Notes – Oluntir 2.2.0 BETA
+- Repeat-library insertion now survives normal page switches: the library panel, selected family, and target page are preserved, and a confirmed orange target reliably enables insertion.
 
-Oluntir 2.1.0 BETA is an experimental continuation of the stable 1.3.1 line.
-It consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.
+Oluntir 2.2.0 BETA is the new Bootstrap-focused development branch based on 2.1.0 BETA.
 
-## 2.1.0 BETA – key changes
+## 2.2.0 BETA – key changes
 
-- Two separate Repeat workflows: create/edit the current source and insert a named source from the project-wide library.
-- Bidirectional Repeat synchronization source ↔ instances and instance → sibling instances using stable Oluntir identities.
-- Compatibility hydration for existing Alpha projects when unambiguous Oluntir correlations are present.
-- Bidirectional Shared Content for header, navigation and footer.
-- Shared Content performance fix: redundant GrapesJS events with unchanged central content exit before target mutation and `editor.store()`; update/style events outside shared regions are filtered early.
-- Visible version labels in the main UI and tool monitor changed to **2.1.0 BETA**.
+- Central Repeat drafts no longer inherit materialized page-instance lock flags. Text RTE, selection, styling and normal GrapesJS component controls are available in the single-object Canvas.
 
-## Historical Alpha changes since 1.3.1
+- Existing projects with missing or incomplete repeat metadata are rebuilt from stable repeat-family markers already present on materialized page instances, keeping the central library usable after migration.
+- Startup now labels older stored versions as migration sources into 2.2.0 BETA and persists the current version after opening.
 
-- portable Windows x64 Node.js 24.18.0 runtime and local Analyzer API;
-- universal Source-Package import for folders, ZIP, TAR, TAR.GZ/TGZ, browser
-  files and URLs through the local API;
-- per-package source directories, manifests, SHA-256 inventories and recovery
-  JSON;
-- static HTML, CSS and JavaScript analysis with OIR, evidence and capability
-  manifests;
-- source-bound Bootstrap profiles, translation matrix and JavaScript behavior
-  resolver;
-- controlled GrapesJS bridge for user-selectable source structures;
-- Bootstrap support gate: Bootstrap 4/5 are concrete profiles, unknown sources
-  are analysis-only;
-- framework-owned gallery structures, image lightbox, preview improvements and
-  export regression fixes.
+- New **central repeat library** with a complete project catalog and page usage per repeat family.
+- Repeat content is no longer propagated on every keystroke. Materialized page instances are locked for direct content editing.
+- Central editing uses an internal single-object canvas; draft changes are distributed only through **Apply to all occurrences**.
+- Publishing updates all occurrences in one Oluntir-controlled transaction; GrapesJS does not own the project-wide repeat network.
+- Orange top-centered hover toolbar on every repeat occurrence with **Edit** and **Remove**. Header/navigation/footer remain Shared Content.
+- Removing one occurrence updates the central usage catalog and can be restored through Repeat undo/redo; publish transactions are recorded as well.
+- Existing projects migrate into the central published/draft model using stable Oluntir correlations.
+- The temporary repeat workspace is stripped before project persistence and export.
+- Performance isolation: internally generated `component:add`/`component:remove` events from a controlled Repeat project mutation no longer wake the Shared Content project scan. Direct header/navigation/footer edits and normal structural user actions remain fully observed.
+- Central Repeat workspace navigation selects the destination project page before removing the temporary GrapesJS page, so the internal workspace is never deleted while it is still selected.
+- Error notifications remain visible longer (12 seconds), while normal notices remain visible for 5 seconds.
 
-Imported-source JavaScript execution remains disabled. Explicitly defined
-Repeat areas are inserted and synchronized productively through stable
-identities; header, navigation and footer use only the Shared Content Manager.
-
-## Main changes
-
-- more reliable persistence of shared header, navigation and footer regions;
-- project-wide quick editing without rebuilding the navigation;
-- transfer of text, font size and explicit presentation values into exports;
-- undo and redo for text and image changes;
-- new gallery insertion points between complete page areas;
-- more reliable export snapshots and responsive image output;
-- consolidated framework and icon sources for Bootstrap 4 and 5;
-- productive Repeat areas with target selection, clear/reset workflow,
-  structural insertion positions and persistent instance linkage.
-
-## Compatibility
-
-Existing projects continue to load through the available migration and identity routines. A portable project backup is recommended before major changes.
-
-## Known limitation
-
-An explicitly selected footer text color may appear differently in the editor than in the exported result. The export preserves the explicitly selected value.

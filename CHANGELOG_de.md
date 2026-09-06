@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.2.0 BETA — 2026-09-06
+
+- Zentraler Repeat-Canvas wieder vollständig editierbar: Seiteninstanz-Sperrflags werden nicht mehr in Draft/Published-Snapshots übernommen; Text-RTE, Auswahl und normale GrapesJS-Komponentenwerkzeuge sind in „Zentral bearbeiten“ wieder aktiv.
+
+- Repeat-Bibliotheks-Zielauswahl über Seitenwechsel gehärtet: Das Bibliotheksfenster bleibt ohne aktiven zentralen Workspace geöffnet, Quelle/Zielseite bleiben erhalten und ein bestätigtes Canvas-Ziel aktiviert „Bereich einsetzen“ zuverlässig.
+- Bestehende Projekte erhalten eine markerbasierte Repeat-Recovery: Fehlen zentrale Repeat-Metadaten, werden Familien und Vorkommen ausschließlich aus stabilen `data-oluntir-repeat-*`-Markern rekonstruiert; Header/Nav/Footer sind ausgeschlossen.
+- Startup-Metadaten verwenden jetzt verbindlich `2.2.0 BETA`; ältere gespeicherte Versionsangaben werden nur noch als interne Migrationshistorie geführt und beim Öffnen aktualisiert.
+
+- Neuer Branch `Oluntir-2.2.0-beta` auf Basis von 2.1.0 BETA.
+- Repeat-Architektur auf zentrale Draft/Published-Bibliothek mit manueller Publikation umgestellt.
+- Projektweite Verwendungsliste, Einzelobjekt-Canvas, orange Bearbeiten-/Entfernen-Steuerung und Repeat-Undo/Redo ergänzt.
+- Automatische Repeat-Verteilung bei jedem GrapesJS-Änderungsereignis im 2.2-Branch deaktiviert; der bestehende gezielte Synchronisationsdienst bleibt als Transaktions-/Rollback-Grundlage erhalten.
+- Kontrollierte Repeat-Projektmutationen schirmen intern erzeugte GrapesJS-Add/Remove-Ereignisse vom Shared-Content-Strukturwatcher ab; normale Header/Nav/Footer- und Benutzerstrukturänderungen bleiben aktiv.
+- Repeat-Workspace-Seitenwechsel gehärtet: zuerst Handoff auf eine echte Projektseite, danach Entfernen der temporären GrapesJS-Seite; damit wird der `getAttributes`-Fehler beim Verlassen des zentralen Repeat-Canvas verhindert.
+- Fehlermeldungen bleiben standardmäßig 12 Sekunden sichtbar; normale Hinweise 5 Sekunden.
+
+
 ## 2.1.0 BETA — 06.09.2026
 
 - Versionsstatus und sichtbare UI-Kennzeichnung von `2.0.1 Alpha` auf **2.1.0 BETA** angehoben.
