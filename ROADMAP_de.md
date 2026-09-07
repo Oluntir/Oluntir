@@ -1,22 +1,40 @@
-# Roadmap – Oluntir 2.2.1
+# Roadmap – Oluntir
 
-Version 1.3.1 ist als stabile Referenzversion abgeschlossen. Der aktuelle
-Branch ist die Bootstrap-fokussierte Weiterentwicklung 2.2.1.
+Die Roadmap beschreibt geplante Produktentwicklung nach 2.2.1. Sie ist keine Zusage für konkrete Termine.
 
-## Aktueller Release-Fokus
+## Performance und Skalierung
 
-- lokalen Source-Package-Import und Recovery stabilisieren;
-- quellengebundene Bootstrap-Profile für neue Versionen verbessern;
-- Erkennung von Component Boundaries und Unterdrückung von Duplikaten verbessern;
-- Source-Darstellung sowie bestehende Projekt- und Exportformate erhalten;
-- Ausführung importierter Sources und automatische Source-Package-Dokumentmutation hinter den Architektur-Gates halten;
-- produktive benutzerdefinierte Repeat-Synchronisation und die getrennten Quellen-/Listen-Workflows weiter stabilisieren;
-- Release-Dokumentation und portable Paketprüfung abschließen.
+- Benchmark-Projekte für unterschiedliche Seitenzahlen, Repeat-Familien und Komponentenkomplexität aufbauen;
+- Repeat-Publish weiter auf gezielte Delta-/Leaf-Aktualisierungen optimieren;
+- Ressourcenbedarf und empfohlene Hardware aus reproduzierbaren Benchmarks ableiten;
+- große Projekte mit möglichst wenig Canvas-Neuaufbau bearbeiten.
 
-Weitere Änderungen in der stabilen Release-Linie 1.3.1 beschränken sich auf:
+## Bootstrap-Analyse
 
-- reproduzierbare Fehlerbehebungen;
-- Sicherheitskorrekturen;
-- Kompatibilitäts- und Dokumentationspflege.
+- Erkennung realer Bootstrap-4-/Bootstrap-5-Templates weiter vertiefen;
+- zusätzliche Komponenten- und Capability-Muster aus unterstützten Bootstrap-Strukturen ableiten;
+- Analyzer-Ausgaben stärker für kontrollierte Editorintegration nutzbar machen, ohne Fremd-JavaScript automatisch auszuführen.
 
-Neue Funktionen sind nicht Bestandteil der stabilen Release-Linie 1.3.1.
+## Medien und Assets
+
+- Videoquellen enger mit dem lokalen Asset- und Uploadsystem verbinden;
+- Medienverwaltung für größere Projekte verbessern;
+- responsive Bild- und Video-Workflows weiter vereinheitlichen.
+
+## Repeat-Bibliothek
+
+- Navigation zwischen zentraler Quelle und allen Seitenvorkommen weiter verbessern;
+- Status- und Revisionsinformationen für große Repeat-Bibliotheken kompakt darstellen;
+- projektweite Nutzung und Performance transparenter machen.
+
+## Editor und Bedienung
+
+- Werkzeugleisten und große Verwaltungsdialoge weiter verdichten;
+- Tastatur- und Fokusführung verbessern;
+- Mehrmonitorbetrieb und große Arbeitsbereiche weiter optimieren.
+
+## Qualität und Portabilität
+
+- automatisierte Testabdeckung und Projektmigrationsfälle ausbauen;
+- Export- und Offline-Tests für Bootstrap-4-/Bootstrap-5-Projekte erweitern;
+- Dokumentation und Release-Audits entlang der stabilen Produktfunktionen pflegen.

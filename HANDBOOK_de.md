@@ -1,103 +1,112 @@
-# Oluntir 2.2.1 – Technisches Handbuch
+# Oluntir 2.2.1 – Handbuch
 
-Dieses Handbuch beschreibt Oluntir 2.2.1 im Bootstrap-fokussierten Branch.
-Oluntir 1.3.1 bleibt die stabile Kompatibilitätsbaseline.
+Dieses Handbuch beschreibt die Arbeit mit Oluntir 2.2.1. Implementierungsdetails befinden sich in `docs/ARCHITECTURE_de.md` und den thematischen Dokumenten unter `docs/`.
 
-## 1. Laufzeit
+## 1. Projekt starten
 
-Oluntir wird über `index.html` gestartet. GrapesJS liegt unverändert unter
-`vendor/grapesjs/`. Oluntir-spezifische Integration liegt unter
-`editor/integrations/grapesjs/`. Die optionale lokale Analyzer-API nutzt die
-portable Runtime unter `runtime/node/` und benötigt keine globale PATH-Runtime.
+Oluntir wird lokal über `index.html` geöffnet. Beim Start kann ein vorhandenes Projekt geladen oder ein neues Projekt angelegt werden. Projekte lassen sich als `.oluntir`-Dateien sichern und später weiterbearbeiten.
 
-## 2. Projektmodell
+Für Source-Package-Analysen steht zusätzlich eine portable lokale Analyzer-Runtime zur Verfügung.
 
-Seiten und Komponenten werden im GrapesJS-Projektmodell gespeichert. `layout-identities.js` ergänzt interne stabile IDs. Diese IDs bleiben im Projekt erhalten und werden vor dem finalen Export entfernt.
+## 2. Seiten und Arbeitsbereich
 
-## 3. Semantische Pipeline
+Ein Projekt kann mehrere Seiten enthalten. Seiten werden über die obere Seitensteuerung angelegt, ausgewählt, umbenannt oder entfernt.
 
-- `semantic-dictionary.js`: bekannte Rollen und Cardinality.
-- `identity-resolver.js`: Zuordnung eines Komponenten-Kontexts.
-- `context-resolver.js`: Ahnen- und Strukturkontext.
-- `structure-resolver.js`: unveränderliche Struktur-Snapshots.
-- `relationship-resolver.js`: funktionale Gruppen und Mitglieder.
-- `project-dependency-graph.js`: Knoten, Kanten und Dirty-Propagation.
-- `semantic-action-engine.js`: isolierte Action-Orchestrierung.
-- `semantic-validator.js`: semantische Prüfungen.
-- Unter `analyzer/` ergänzen statische HTML-/CSS-/JavaScript-Evidenz,
-  Source-Profile, Capability-Manifeste und ein read-only Knowledge Compiler
-  die semantische Pipeline.
-- Übersetzungs- und Behavior-Module erzeugen unveränderliche Pläne und
-  Auflösungen; sie führen importierten Code nicht aus und verändern keine
-  Dokumente.
+Oluntir unterstützt einen Ein-Monitor- und einen Zwei-Monitor-Modus. Im Zwei-Monitor-Modus können Werkzeugbereiche in ein separates Fenster ausgelagert werden, während der Canvas im Hauptfenster bleibt.
 
-## 3a. Bootstrap-Supportgrenze
+## 3. Inhalte bearbeiten
 
-`frameworks/bootstrap4/` und `frameworks/bootstrap5/` sind die einzigen
-konkreten Frameworkdistributionen. Bootstrap 5 ist primär, Bootstrap 4 ist
-Legacy. Unbekannte Source Packages dürfen in der generischen Analyse bleiben,
-werden durch die Support-Policy aber als `analysis-only` klassifiziert.
+Der Canvas basiert auf GrapesJS. Inhalte können über Blöcke eingefügt und anschließend direkt oder über Eigenschaften, Ebenen und Styles bearbeitet werden.
 
-## 3b. Source Packages und Frontend-Bridge
+Zu den typischen Inhalten gehören:
 
-Die lokale API importiert Ordner, Archive, Browser-Dateien und URLs in isolierte
-Paketordner. Jedes Paket erhält Manifest, Inventar, Source-Hash, Recovery-JSON
-und Analyseausgaben. Der GrapesJS-Adapter stellt erkannte Strukturen als vom
-Benutzer auswählbare Blöcke bereit. Source-JavaScript wird nicht ausgeführt.
+- Text und Überschriften;
+- Bilder und responsive Bildvarianten;
+- Galerien und Lightbox-Inhalte;
+- Bootstrap-Komponenten;
+- HTML5-Videos;
+- projektgebundene Source-Komponenten.
 
-## 4. Shared Content
+## 4. Bootstrap-Profile
 
-`shared-content-manager.js` verwaltet Header, Navigation und Footer. Änderungen werden zentral gespeichert und nach einem erfolgreichen Commit auf die betroffenen Projektseiten propagiert. Das GrapesJS-Projektmodell ist die Autorität; langlebige Komponentenreferenzen werden nicht gecacht. Fingerprints und ein `centralChanged`-Fast-Exit verhindern redundante Zielmutationen und Speichervorgänge.
+Oluntir 2.2.1 unterstützt Bootstrap 4.6.2 und Bootstrap 5.3.8 als konkrete Editorprofile.
 
-## 5. Repeat-Bibliothek und Publish-Transaktionen
+Bootstrap 4 und Bootstrap 5 werden getrennt behandelt. Generationsspezifische Komponenten und Hilfsklassen werden nur im passenden Profil angeboten. Die eingebauten Blöcke verwenden natives Bootstrap-Markup.
 
-`repeat-engine-v2.js` bleibt das persistente Datenmodell für Repeat-Familien und
-stabile Oluntir-Identitäten. `repeat-library-manager.js` verwaltet darüber die
-zentrale Published-/Draft-Quelle, Seitenverwendungen, Revisionen sowie die
-Repeat-Historie. Alle normalen Seitenvorkommen sind materialisierte Instanzen
-und gegen direkte Inhaltsbearbeitung gesperrt.
+## 5. Shared Content
 
-**Bearbeiten** öffnet einen internen GrapesJS-Einzelobjekt-Arbeitsbereich. Dort
-werden Änderungen ausschließlich am Draft vorgenommen; während des Tippens gibt
-es keine projektweite Repeat-Verteilung. **„Auf alle Vorkommen anwenden“**
-schreibt den Draft kontrolliert in alle aktiven Instanzen und aktualisiert deren
-Revision/Fingerprint. Der Arbeitsbereich wird vor Persistenz und Export aus den
-GrapesJS-Seitendaten entfernt.
+Header, Navigation und Footer werden als Shared Content verwaltet. Änderungen können auf einer beteiligten Seite vorgenommen und in den gemeinsamen Stand übernommen werden. Die übrigen Seiten erhalten anschließend denselben Inhalt.
 
-Die orange Mouseover-Steuerleiste auf einer Seiteninstanz öffnet die zentrale
-Bearbeitung oder entfernt genau dieses Vorkommen. Entfernen und Publish werden als
-Oluntir-Transaktionen in einer begrenzten Repeat-Undo/Redo-Historie geführt. Die
-Listenfunktion materialisiert zusätzliche Instanzen über Quelle → Zielseite →
-Position → bestätigtes Canvas-Ziel. Resolver-, Dependency-Graph-, Action- und
-gezielte Synchronisationsverträge bleiben die technische Schutzschicht; eine
-Live-Synchronisation bei jedem Tastendruck ist im Produktpfad deaktiviert.
+Shared Content ist bewusst von benutzerdefinierten Repeat-Bereichen getrennt.
 
-## 6. Logging
+## 6. Wiederholbare Bereiche
 
-`oluntir-logger.js` schreibt nach Opt-in kategorisierte JSONL-Dateien in den ausgewählten `logs`-Ordner. Die Zustimmung wird über `oluntir-logging-consent.js` verwaltet. `oluntir-runtime-actions.js` führt reale Editorereignisse durch die Semantic Action Engine.
+Wiederholbare Bereiche eignen sich für projektweite Inhalte, die auf mehreren Seiten vorkommen sollen, aber nicht zu Header, Navigation oder Footer gehören.
 
-## 7. Diagnose
+### Repeat anlegen
 
-`developer-diagnostics-center.js` zeigt Runtime-, Action-, Queue-, Shared-Content- und Log-Snapshots. Der Dependency Graph wird nur auf Benutzerbefehl analysiert.
+1. gewünschten Quellbereich auswählen;
+2. Repeat-Familie benennen und speichern;
+3. Zielseite und Einfügeposition auswählen;
+4. Position im Canvas bestätigen;
+5. Bereich einsetzen.
 
-## 8. Export
+### Repeat zentral bearbeiten
 
-`export.js` erzeugt HTML-, SSI- und PHP-Ausgaben. Der Export löst gemeinsame Bereiche entsprechend dem Ziel auf, sammelt lokale Assets und entfernt editorinterne Metadaten.
+Die Repeat-Bibliothek zeigt die vorhandenen Familien und ihre Seitenverwendung. Über **„Zentral bearbeiten“** wird nur der gewählte Repeat im Einzelobjekt-Canvas geöffnet.
 
-## 9. Tests
+Änderungen bleiben zunächst im Entwurf. Erst **„Auf alle Vorkommen anwenden“** veröffentlicht den neuen Stand auf allen aktiven Vorkommen.
 
-`tests/run-tests.sh` führt Syntax-, Architektur-, Resolver-, Logging-, Action-, Shared-Content-, Galerie- und Strukturtests aus. Einzelne Tests können mit Node direkt aufgerufen werden.
+### Repeat auf Seiten
 
-Analyzer-Tests decken Source-Inventar, statische Analyzer, Profile,
-Behavior-Auflösung, Paket-Recovery, GrapesJS-Bridge, Bootstrap-Support und die
-portable Runtime ab.
+Vorkommen auf normalen Projektseiten sind gegen direkte Inhaltsbearbeitung geschützt. Beim Mouseover erscheint eine orange Steuerleiste:
 
-## 10. Architekturregeln
+- **Bearbeiten** öffnet die zentrale Bearbeitung;
+- **Entfernen** löscht nur dieses Vorkommen.
 
-- Bestehende Module erweitern; keine Parallelarchitektur.
-- Resolver analysieren und verändern keine Dokumente.
-- Die Action Engine orchestriert und enthält keine Fachlogik.
-- Der Dependency Graph beschreibt Abhängigkeiten und Auswirkungen.
-- Keine vollständigen Projekt- oder Seiten-Neuaufbauten für lokale Änderungen.
-- Logging bleibt lokal, optional und auf den gewählten Ordner begrenzt.
-- Dokumentation beschreibt zuerst Zweck und Grenzen, danach API und Umsetzung.
+Publish und Entfernen besitzen eine eigene Repeat-Undo/Redo-Historie.
+
+## 7. Bilder, Galerien und Videos
+
+Der Bildmanager verwaltet lokale Bilder und responsive Varianten. Galerien können in geeignete Layoutbereiche eingefügt werden.
+
+Die HTML5-Videoblöcke unterstützen mehrere Wiedergabequellen, Poster und einen Download-Fallback. Bootstrap 4 und Bootstrap 5 verwenden dabei jeweils ihre native responsive Layoutstruktur.
+
+## 8. Source Packages und Analyzer
+
+Der lokale Analyzer kann Template- und Frameworkquellen importieren und statisch untersuchen. Analysiert werden insbesondere HTML-, CSS- und JavaScript-Evidenz, Bootstrap-Generation und Komponentenstrukturen.
+
+Erkannte Strukturen können – sofern das aktive Profil sie unterstützt – als quellengebundene Blöcke in den Editor übernommen werden. Importiertes Source-JavaScript wird nicht automatisch ausgeführt.
+
+## 9. Export
+
+Oluntir unterstützt:
+
+- aufgelöstes HTML;
+- Apache SSI;
+- PHP-Includes;
+- lokalen Ordnerexport;
+- ZIP;
+- TAR.
+
+Der Export sammelt benötigte lokale Assets und entfernt editorinterne Oluntir-Metadaten aus der veröffentlichten Ausgabe.
+
+## 10. Logging und Diagnose
+
+Logging ist optional und wird nur nach ausdrücklicher Zustimmung aktiviert. Logs werden in einen vom Benutzer gewählten lokalen Ordner geschrieben.
+
+Das Diagnosewerkzeug hilft bei der Analyse von Projekt-, Runtime-, Shared-Content-, Repeat- und Analyzer-Zuständen.
+
+## 11. Projektpflege
+
+Vor größeren Änderungen empfiehlt sich eine `.oluntir`-Projektsicherung. Bestehende Projekte werden über stabile Oluntir-Identitäten weitergeführt; bei nicht eindeutig rekonstruierbaren Beziehungen wird keine Zuordnung geraten.
+
+## Weiterführende Dokumentation
+
+- [Funktionen](FEATURES_de.md)
+- [Architektur](docs/ARCHITECTURE_de.md)
+- [Repeat Engine V2](docs/042_REPEAT_ENGINE_V2_de.md)
+- [Shared Content Manager](docs/SHARED-CONTENT-MANAGER_de.md)
+- [Image Manager](docs/IMAGE_MANAGER_de.md)
+- [Multi-Monitor](docs/MULTI_MONITOR_de.md)
+- [Release Notes](RELEASE_NOTES_de.md)

@@ -23,3 +23,10 @@ Test the function with a newly created project and a restored project. Where exp
 ## Limitations
 
 Browser capabilities and imported project content may affect behavior. Report reproducible deviations with the browser version, project type, steps, and console output.
+## Audience separation
+
+- `README`, `FEATURES`, `HANDBOOK`, and `WHY_OLUNTIR` describe stable product capabilities, workflows, scope, and user-relevant limitations. They do not list individual bug fixes, icon tweaks, cache changes, regression details, or internal event names.
+- `RELEASE_NOTES` summarizes release-level changes and major compatibility information.
+- `CHANGELOG`, DEV reports, audits, architecture documents, and test documents may contain implementation details, regression fixes, internal identifiers, and development history.
+- Historical documents are not rewritten to look current; they remain explicitly historical.
+

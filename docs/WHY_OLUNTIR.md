@@ -1,60 +1,52 @@
 > **Language:** English · [Deutsch](WHY_OLUNTIR_de.md)
-> **Version:** 2.2.1 · **Stable baseline:** 1.3.1 · **Updated:** 2026-09-04
+> **Version:** 2.2.1
 
 # Why Oluntir?
 
-Oluntir exists because a website is more than the page currently open in an editor. Real projects contain pages, images, framework versions, shared navigation and layout regions, export rules, backups, and decisions that must remain understandable over time.
-
-Oluntir therefore treats a website as a coherent, portable project instead of a collection of unrelated HTML files.
+Oluntir treats a website as a coherent, portable project rather than only the HTML page currently open in an editor. Pages, assets, Bootstrap generation, shared regions, repeatable content, and export rules remain connected in one project context.
 
 ## Why GrapesJS?
 
-GrapesJS provides the visual canvas, component model, blocks, responsive views, and direct editing experience. Oluntir uses **GrapesJS 0.23.2** as an unchanged, versioned Open Source editor engine.
+GrapesJS provides the Canvas, component model, blocks, responsive views, and direct editing. Oluntir uses GrapesJS 0.23.2 as an unchanged editor engine and adds project management, Shared Content, the Repeat library, assets, Analyzer, and export through its own integration layers.
 
-Oluntir-specific behavior is added through its own integration and adapter layer. GrapesJS is not modified. Project management, workspaces, assets, Shared Content, persistence, export, and multi-monitor behavior remain separated from internal GrapesJS DOM structures. This makes responsibilities clearer and future engine updates easier to review.
+## Why local?
 
-## Why local projects?
+Oluntir is local-first:
 
-Oluntir is local-first by design:
-
-- project files remain under the user's control;
-- projects can be copied, archived, backed up, and restored;
-- no mandatory cloud account or database is required;
-- browser persistence supports the current workspace without replacing the physical project structure;
-- a saved project can be continued on another computer or in another supported browser.
+- projects and assets remain under the user's control;
+- no mandatory cloud account is required;
+- projects can be copied, backed up, and continued on another computer;
+- published websites do not require an Oluntir runtime.
 
 ## Why Shared Content?
 
-Navigation, headers, footers, and other recurring content elements and regions should not have to be maintained independently on every page. Oluntir stores them centrally and references them through visible `<ope-include>` elements.
+Header, navigation, and footer are typical shared page regions. Oluntir manages them centrally so they do not need to be maintained independently on every page.
 
-A change may begin on any page, be transferred to the central Shared Content, and then be applied to the other pages. The export format is selected later: resolved HTML, Apache SSI, or PHP includes.
+## Why a Repeat library?
 
-## Why a two-monitor workspace?
+Project-wide recurring content sections need a different workflow from header or footer. Oluntir therefore manages user-defined Repeat sections in a central library. One source is edited centrally and then published to all occurrences in a controlled operation.
 
-A large page canvas and detailed tools compete for screen space. Oluntir can keep the canvas in the main window while moving the complete right tool column, Quick Edit, and Quick Setup to a dedicated tool window.
+This keeps page instances consistent without project-wide synchronization on every keystroke.
 
-The preferred mode and window geometry are stored locally. If the second window cannot be opened or disappears, Oluntir returns safely to single-monitor operation.
+## Why Bootstrap 4 and 5?
+
+Oluntir focuses active editor integration on two explicit framework profiles: Bootstrap 4.6.2 and Bootstrap 5.3.8. Components, utilities, and template structures can therefore be recognized and edited according to their generation without mixing framework models.
 
 ## Why open export formats?
 
-Oluntir does not require a proprietary runtime for the published website. Exports consist of regular HTML, CSS, JavaScript, local assets, and—when selected—standard SSI or PHP include statements.
+Oluntir exports regular HTML, CSS, JavaScript, and local assets. Shared content can also be emitted as Apache SSI or PHP includes. Folder, ZIP, and TAR output remain independent of a proprietary runtime.
 
-The internal project model remains independent of the chosen output. A project can therefore target different environments without being rebuilt from scratch.
+## Why a local Analyzer?
 
-## Why Open Source?
+Bootstrap templates differ in structure, components, and assets. The Analyzer statically inspects sources and gives Oluntir a traceable basis for detection and controlled editor integration. Foreign source JavaScript is not executed automatically.
 
-Open Source keeps the project's behavior, dependencies, and decisions inspectable. It supports community contributions, independent security review, long-term maintenance, and freedom from a single vendor.
+## Core idea
 
-## The core idea
+Oluntir combines a visual editor, project management, Bootstrap awareness, reusable content, local assets, and open export into a portable website workspace.
 
-Oluntir is not merely another visual HTML editor. It is a local Open Source website project environment—from first page and image management through shared content, workspace restoration, and open export.
+## Further reading
 
-## Related documentation
-
+- [README](../README.md)
+- [Features](../FEATURES.md)
+- [Handbook](../HANDBOOK.md)
 - [Architecture](ARCHITECTURE.md)
-- [Project principles](PROJECT-PRINCIPLES.md)
-- [First start](FIRST_START.md)
-- [Multi-monitor workspace](MULTI_MONITOR.md)
-- [Image Manager](IMAGE_MANAGER.md)
-- [Release notes 2.2.1](../RELEASE_NOTES.md)
-- [Historical technical changes through 2.1.0 BETA](CHANGELOG_1.3.1_TO_2.1.0_BETA.md)

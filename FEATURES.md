@@ -1,57 +1,79 @@
 # Features – Oluntir 2.2.1
 
-This release line uses Oluntir 1.3.1 as its compatibility baseline and
-consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.
+This page describes the user-visible product capabilities of Oluntir 2.2.1. Implementation details and bug history belong in the changelog, release notes, and architecture/DEV documentation.
 
 ## Editor and projects
 
-- Local browser-based GrapesJS editor
-- Multi-page projects
-- Portable `.oluntir` project files
-- Single- and dual-monitor workspace
-- Project favicon and local assets
+- local visual editor based on GrapesJS 0.23.2;
+- multi-page website projects;
+- portable `.oluntir` project files;
+- create, rename, select, and remove pages;
+- single- and dual-monitor workspace;
+- project favicon and local project assets.
 
-## Content and layout
+## Content and media
 
-- Text, image, gallery and component editing
-- Responsive desktop, tablet and mobile images
-- Shared header, navigation and footer content
-- Quick editing of shared content
-- Gallery insertion in existing containers
-- New gallery areas between complete page areas
-- Undo and redo for text and image changes
+- text, image, gallery, and component editing;
+- responsive image variants for desktop, tablet, and mobile;
+- local image management and reuse of existing assets;
+- lightbox and gallery integration;
+- responsive HTML5 video with WebM, MP4, and Ogg sources, poster, and download fallback;
+- Bootstrap-specific responsive video layout for BS4 and BS5.
 
-## Frameworks and export
+## Shared Content
 
-- Extended native BS4 usage: Jumbotron, Media object and Custom forms
-- Native responsive HTML5 video for BS4 (`embed-responsive`) and BS5 (`ratio`) with WebM/MP4/Ogg playback chain, poster, and download fallback
-- More precise BS4/BS5 detection using version banners, Data API, generation-specific classes and component evidence
-- Expanded source-component catalog for Offcanvas, List group, Progress, Jumbotron, Media object and custom controls
+- project-wide management of header, navigation, and footer;
+- changes may be promoted from any participating page into the shared state;
+- shared regions are kept consistent across project pages;
+- output as resolved HTML, Apache SSI, or PHP includes.
 
-- Bootstrap 4.6.2
-- Bootstrap 5.3.8
-- HTML, Apache SSI and PHP include export
-- Folder, ZIP and TAR output
-- Removal of editor-only metadata from final exports
-- Local Source-Package import through the local API: folders, ZIP, TAR,
-  TAR.GZ/TGZ, browser files and URLs
-- Source-bound recovery JSON, source hashes and package manifests
-- Non-Bootstrap packages are analysis-only and are not activated in the editor
+## Repeatable sections
 
-## Technical foundation
+- central Repeat library with human-readable names;
+- page and occurrence usage overview;
+- central editing in a single-object Canvas;
+- draft/published workflow;
+- **Apply to all occurrences** for controlled project-wide publishing;
+- protected page instances with an orange control toolbar;
+- targeted removal and restoration of individual occurrences;
+- Repeat undo/redo for publish and remove transactions;
+- insert additional occurrences through Repeat → target page → insertion position;
+- compact, sortable, expandable library lists;
+- migration of existing projects through stable Oluntir identities.
 
-- compact Repeat library with scrolling, newest/alphabetical sorting and expandable full list
+## Bootstrap 4 and 5
 
-- Stable layout identities
-- Read-only resolvers and dependency graph
-- Action and validation contracts
-- Productive Repeat synchronization for explicitly defined areas with stable identities
-- Static HTML, CSS and JavaScript evidence analysis
-- OIR project model, capability manifest and read-only knowledge compiler
-- Translation matrix and JavaScript behavior resolver
-- Controlled GrapesJS Source-Package Bridge
-- Portable Windows x64 Node.js runtime for the local Analyzer API
+- Bootstrap 4.6.2 as the legacy profile;
+- Bootstrap 5.3.8 as the primary profile;
+- native Bootstrap blocks instead of an Oluntir parallel component system;
+- BS4-specific support including Jumbotron, Media Object, and Custom Forms;
+- current BS5 component and utility structures;
+- generation-aware Bootstrap detection using version, Data API, and structural evidence.
 
-## Known limitation
+## Source Packages and Analyzer
 
-An explicitly selected footer text color may appear differently in the editor than in the export. The export preserves the selected value.
+- local Source-Package import from folders, archives, browser files, and URLs;
+- static HTML, CSS, and JavaScript evidence analysis;
+- detection of Bootstrap generation, components, and capabilities;
+- source-bound profiles and capability information;
+- suitable detected structures can be exposed as controlled GrapesJS blocks;
+- unknown frameworks remain `analysis-only`;
+- imported source JavaScript is not executed automatically.
+
+## Export
+
+- HTML export;
+- Apache SSI export;
+- PHP include export;
+- local folder output;
+- ZIP and TAR archives;
+- collection of local framework, image, font, and project assets;
+- removal of editor-only Oluntir metadata from final output.
+
+## Workspace support
+
+- global undo/redo for normal editor actions;
+- dedicated Repeat history for project-wide Repeat transactions;
+- optional local logs after consent;
+- diagnostics for project, runtime, and analyzer state;
+- GrapesJS block search, layers, traits, and style views.

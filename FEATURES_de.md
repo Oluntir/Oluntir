@@ -1,66 +1,79 @@
 # Funktionen – Oluntir 2.2.1
 
-Diese Release-Linie nutzt Oluntir 1.3.1 als Kompatibilitätsbaseline und
-konsolidiert die produktive Frameworkunterstützung auf Bootstrap 4.6.2 und 5.3.8.
+Diese Übersicht beschreibt die nutzbaren Produktfunktionen von Oluntir 2.2.1. Technische Implementierungsdetails und Fehlerhistorie stehen im Changelog, in den Release Notes und in den Architektur-/DEV-Dokumenten.
 
 ## Editor und Projekte
 
-- Lokaler browserbasierter GrapesJS-Editor
-- Mehrseitige Projekte
-- Portable `.oluntir`-Projektdateien
-- Ein- und Zwei-Monitor-Arbeitsbereich
-- Projekt-Favicon und lokale Assets
+- lokaler visueller Editor auf Basis von GrapesJS 0.23.2;
+- mehrseitige Website-Projekte;
+- portable `.oluntir`-Projektdateien;
+- Seiten anlegen, umbenennen, auswählen und entfernen;
+- Ein- und Zwei-Monitor-Arbeitsbereich;
+- Projekt-Favicon und lokale Projektassets.
 
-## Inhalte und Layout
+## Inhalte und Medien
 
-- Text-, Bild-, Galerie- und Komponentenbearbeitung
-- Responsive Bilder für Desktop, Tablet und Mobil
-- Shared Content für Header, Navigation und Footer
-- Schnellbearbeitung gemeinsamer Inhalte
-- Bidirektionale Shared-Content-Übernahme für Header, Navigation und Footer
-- Galerie-Einschübe in vorhandenen Containern
-- Neue Galerie-Bereiche zwischen vollständigen Seitenbereichen
-- Undo und Redo für Text- und Bildänderungen
+- Text-, Bild-, Galerie- und Komponentenbearbeitung;
+- responsive Bildvarianten für Desktop, Tablet und Mobil;
+- lokale Bildverwaltung und Wiederverwendung vorhandener Assets;
+- Lightbox- und Galerieintegration;
+- responsive HTML5-Videos mit WebM-, MP4- und Ogg-Quellen, Poster und Download-Fallback;
+- Bootstrap-spezifische Videodarstellung für BS4 und BS5.
 
-## Frameworks und Export
+## Shared Content
 
-- Erweiterte native BS4-Nutzung: Jumbotron, Media object und Custom forms
-- Native responsive HTML5-Videos für BS4 (`embed-responsive`) und BS5 (`ratio`) mit WebM/MP4/Ogg-Wiedergabekette, Poster und Download-Fallback
-- Präzisere BS4-/BS5-Erkennung über Versionsbanner, Data-API, generationsspezifische Klassen und Komponenten-Evidenz
-- Erweiterter Source-Komponenten-Katalog für u. a. Offcanvas, List group, Progress, Jumbotron, Media object und Custom controls
+- projektweite Verwaltung von Header, Navigation und Footer;
+- Änderungen können von jeder beteiligten Seite in den gemeinsamen Stand übernommen werden;
+- gemeinsame Bereiche werden auf Projektseiten konsistent gehalten;
+- Ausgabe als aufgelöstes HTML, Apache SSI oder PHP-Includes.
 
-- Bootstrap 4.6.2
-- Bootstrap 5.3.8
-- HTML-, Apache-SSI- und PHP-Include-Export
-- Ausgabe als Ordner, ZIP oder TAR
-- Entfernung editorinterner Metadaten im finalen Export
-- Lokaler Source-Package-Import über die API: Ordner, ZIP, TAR, TAR.GZ/TGZ,
-  Browser-Dateien und URLs
-- Quellengebundene Recovery-JSON, Source-Hashes und Paketmanifeste
-- Nicht-Bootstrap-Packages bleiben `analysis-only` und werden nicht im Editor aktiviert
+## Wiederholbare Bereiche
 
-## Technische Grundlage
+- zentrale Repeat-Bibliothek mit verständlichen Namen;
+- Anzeige der verwendeten Seiten und Vorkommen;
+- zentrale Bearbeitung im Einzelobjekt-Canvas;
+- Draft-/Published-Arbeitsweise;
+- **„Auf alle Vorkommen anwenden“** für kontrollierte projektweite Veröffentlichung;
+- geschützte Seiteninstanzen mit orangefarbener Steuerleiste;
+- einzelne Vorkommen gezielt entfernen und wiederherstellen;
+- Repeat-Undo/Redo für Veröffentlichung und Entfernen;
+- zusätzliche Vorkommen über Repeat → Zielseite → Einfügeposition einsetzen;
+- kompakte, sortierbare und erweiterbare Bibliothekslisten;
+- Übernahme bestehender Projekte über stabile Oluntir-Identitäten.
 
-- kompakte Repeat-Bibliothek mit Scrollbereich, Sortierung „Zuletzt angelegt“/alphabetisch und erweiterbarer Gesamtliste
+## Bootstrap 4 und 5
 
-- stabile Layout-Identitäten
-- read-only Resolver und Dependency Graph
-- Action- und Validierungsverträge
-- zentrale Repeat-Bibliothek mit Published-/Draft-Snapshot je Repeat-Familie
-- materialisierte, auf normalen Seiten gegen Inhaltsbearbeitung gesperrte Repeat-Instanzen
-- Einzelobjekt-Canvas für zentrale Bearbeitung; Verteilung erst über „Auf alle Vorkommen anwenden“
-- projektweite Verwendungsliste mit Seiten, Vorkommen und Revisionen
-- orange Mouseover-Steuerung für zentrale Bearbeitung und Entfernen eines Vorkommens
-- eigene Repeat-Undo/Redo-Historie für Publish- und Remove-Transaktionen
-- Einsetzen gespeicherter Quellen über Name → Zielseite → Position → Canvas-Ziel
-- Hydrierung älterer Repeat-Bindungen nur über vorhandene Oluntir-Korrelationsmarker
-- Shared-Content-No-op-Fast-Path zur Reduzierung redundanter Zielmutationen und Speichervorgänge
-- Statische Evidenzanalyse für HTML, CSS und JavaScript
-- OIR-Projektmodell, Capability-Manifest und read-only Knowledge Compiler
-- Übersetzungsmatrix und JavaScript-Behavior-Resolver
-- Kontrollierte GrapesJS-Source-Package-Bridge
-- Portable Windows-x64-Node.js-Runtime für die lokale Analyzer-API
+- Bootstrap 4.6.2 als Legacy-Profil;
+- Bootstrap 5.3.8 als primäres Profil;
+- native Bootstrap-Blöcke statt eigener Parallelkomponenten;
+- BS4-spezifische Unterstützung u. a. für Jumbotron, Media Object und Custom Forms;
+- BS5-spezifische aktuelle Komponenten und Utility-Strukturen;
+- getrennte Erkennung der Bootstrap-Generationen über Versions-, Data-API- und Strukturmerkmale.
 
-## Bekannte Einschränkung
+## Source Packages und Analyzer
 
-Eine explizit gesetzte Footer-Schriftfarbe kann in der Arbeitsansicht anders erscheinen als im Export. Der Export übernimmt den gewählten Wert korrekt.
+- lokaler Source-Package-Import aus Ordnern, Archiven, Browser-Dateien und URLs;
+- statische Analyse von HTML, CSS und JavaScript-Evidenz;
+- Erkennung von Bootstrap-Versionen, Komponenten und Fähigkeiten;
+- quellengebundene Profile und Capability-Informationen;
+- geeignete erkannte Strukturen können kontrolliert als GrapesJS-Blöcke bereitgestellt werden;
+- unbekannte Frameworks bleiben `analysis-only`;
+- importiertes Source-JavaScript wird nicht automatisch ausgeführt.
+
+## Export
+
+- HTML-Export;
+- Apache-SSI-Export;
+- PHP-Include-Export;
+- Ausgabe in einen lokalen Ordner;
+- ZIP- und TAR-Archive;
+- Sammlung lokaler Framework-, Bild-, Schrift- und Projektassets;
+- Entfernung editorinterner Oluntir-Metadaten aus der finalen Ausgabe.
+
+## Arbeitsunterstützung
+
+- globales Undo/Redo für normale Editoraktionen;
+- eigene Repeat-Historie für projektweite Repeat-Transaktionen;
+- optionale lokale Logs nach Zustimmung;
+- Diagnosewerkzeuge für Projekt-, Runtime- und Analysezustände;
+- Blocksuche, Ebenen-, Eigenschaften- und Style-Ansichten von GrapesJS.

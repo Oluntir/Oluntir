@@ -2,6 +2,7 @@
 
 ## 2.2.1 — 2026-09-07
 
+- Editorial documentation cleanup: README, FEATURES, HANDBOOK, ROADMAP, and WHY_OLUNTIR now focus on stable product capabilities and usage; implementation details and bug history remain in changelog, release notes, DEV, audit, architecture, and test documentation.
 - Toolbar cleanup: removed the redundant GrapesJS import/download button between Redo and Clear; the Oluntir folder export remains available.
 - First regular 2.2.x release based on the successfully tested 2.2.0 BETA baseline.
 - Repeat target selection now supports genuine top-level content boundaries outside `<main>` while shared header, navigation and footer remain excluded.

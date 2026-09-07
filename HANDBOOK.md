@@ -1,100 +1,112 @@
-# Oluntir 2.2.1 – Technical handbook
+# Oluntir 2.2.1 – Handbook
 
-This handbook describes the current Bootstrap-focused release line. Oluntir
-1.3.1 remains the stable compatibility baseline.
+This handbook describes how to work with Oluntir 2.2.1. Implementation details are documented in `docs/ARCHITECTURE.md` and the topic-specific files under `docs/`.
 
-## 1. Runtime
+## 1. Start a project
 
-Oluntir starts from `index.html`. GrapesJS remains unchanged under
-`vendor/grapesjs/`. Oluntir-specific integration is contained under
-`editor/integrations/grapesjs/`. The optional local Analyzer API uses the
-portable runtime under `runtime/node/` and never requires a global PATH runtime.
+Oluntir runs locally from `index.html`. At startup, open an existing project or create a new one. Projects can be saved as portable `.oluntir` files and continued later.
 
-## 2. Project model
+A bundled portable local Analyzer runtime is available when Source-Package analysis is needed.
 
-Pages and components are stored in the GrapesJS project model. `layout-identities.js` adds stable internal identities. These identities remain in project data and are removed before final export.
+## 2. Pages and workspace
 
-## 3. Semantic pipeline
+A project may contain multiple pages. The top page controls create, select, rename, and remove pages.
 
-- `semantic-dictionary.js`: known roles, capabilities and cardinality.
-- `identity-resolver.js`: semantic resolution of component context.
-- `context-resolver.js`: identity and ancestor context.
-- `structure-resolver.js`: immutable structure snapshots.
-- `relationship-resolver.js`: functional groups and members.
-- `project-dependency-graph.js`: nodes, edges and dirty propagation.
-- `semantic-action-engine.js`: isolated action orchestration.
-- `semantic-validator.js`: semantic checks.
-- Source analysis adds static HTML/CSS/JavaScript evidence, source profiles,
-  capability manifests and a read-only knowledge compiler under `analyzer/`.
-- Translation and behavior modules create immutable plans and resolutions;
-  they do not execute imported code or mutate documents.
+Oluntir supports single- and dual-monitor operation. In dual-monitor mode, tool areas can move into a separate window while the Canvas remains in the main window.
 
-## 3a. Bootstrap support boundary
+## 3. Edit content
 
-`frameworks/bootstrap4/` and `frameworks/bootstrap5/` are the only concrete
-framework distributions. Bootstrap 5 is primary and Bootstrap 4 is legacy.
-Unknown source packages can remain in the generic analysis pipeline, but the
-support policy classifies them as `analysis-only`.
+The Canvas is based on GrapesJS. Content can be inserted from blocks and edited directly or through traits, layers, and styles.
 
-## 3b. Source Packages and Frontend Bridge
+Typical content includes:
 
-The local API imports folders, archives, browser files and URLs into isolated
-package directories. Each package receives a manifest, inventory, source hash,
-recovery JSON and analysis outputs. The GrapesJS adapter exposes recognized
-structures as user-selectable blocks. Source JavaScript is not executed.
+- text and headings;
+- images and responsive image variants;
+- galleries and lightbox content;
+- Bootstrap components;
+- HTML5 video;
+- project-bound Source components.
 
-## 4. Shared content
+## 4. Bootstrap profiles
 
-`shared-content-manager.js` manages header, navigation and footer. The GrapesJS project model is authoritative and component objects are resolved fresh for writes rather than cached long-term. Fingerprints and a `centralChanged` fast exit skip redundant target mutations and stores.
+Oluntir 2.2.1 supports Bootstrap 4.6.2 and Bootstrap 5.3.8 as concrete editor profiles.
 
-## 5. Repeat library and publish transactions
+Bootstrap 4 and Bootstrap 5 are treated separately. Generation-specific components and utilities are offered only in the matching profile. Built-in blocks use native Bootstrap markup.
 
-`repeat-engine-v2.js` remains the persistent data model for Repeat families and
-stable Oluntir identities. `repeat-library-manager.js` adds the central
-Published/Draft source, page usage, revisions and Repeat history. All normal page
-occurrences are materialized instances and are locked against direct content
-editing.
+## 5. Shared Content
 
-**Edit** opens an internal GrapesJS single-object workspace. Changes are applied
-only to the draft; there is no project-wide Repeat distribution while typing.
-**“Apply to all occurrences”** writes the draft to all active instances in a
-controlled transaction and updates their revision/fingerprint. The workspace is
-removed from GrapesJS page data before persistence and export.
+Header, navigation, and footer are managed as Shared Content. Changes can be made on a participating page and promoted into the shared state so the other pages receive the same content.
 
-The orange hover toolbar on a page instance opens central editing or removes only
-that occurrence. Remove and publish are Oluntir transactions recorded in a bounded
-Repeat Undo/Redo history. The list workflow materializes additional instances via
-source → target page → insertion mode → confirmed Canvas target. Resolver,
-dependency-graph, action-contract and targeted-synchronization contracts remain
-the technical safety layer; per-keystroke live synchronization is disabled in the
-product path.
+Shared Content is intentionally separate from user-defined Repeat sections.
 
-## 6. Logging
+## 6. Repeatable sections
 
-`oluntir-logger.js` writes categorized JSONL files to a selected `logs` directory after opt-in. `oluntir-logging-consent.js` manages consent. `oluntir-runtime-actions.js` routes actual editor events through the Semantic Action Engine.
+Repeatable sections are intended for project-wide content that should appear on multiple pages but does not belong to header, navigation, or footer.
 
-## 7. Diagnostics
+### Create a Repeat
 
-`developer-diagnostics-center.js` displays runtime, action, queue, shared-content and log snapshots. Dependency-graph analysis runs only on explicit request.
+1. select the source section;
+2. name and save the Repeat family;
+3. choose the target page and insertion position;
+4. confirm the position in the Canvas;
+5. insert the section.
 
-## 8. Export
+### Edit a Repeat centrally
 
-`export.js` creates HTML, SSI and PHP output, resolves shared regions for the selected target, collects local assets and removes editor-only metadata.
+The Repeat library lists the available families and where they are used. **Central editing** opens only the selected Repeat in a single-object Canvas.
 
-## 9. Tests
+Changes remain in the draft until **Apply to all occurrences** publishes the new version to every active occurrence.
 
-`tests/run-tests.sh` runs syntax, architecture, resolver, logging, action, shared-content, gallery and structure tests. Focused tests can also be executed directly with Node.
+### Repeat occurrences on pages
 
-Analyzer tests cover source inventory, static analyzers, profiles, behavior
-resolution, package recovery, the GrapesJS bridge, Bootstrap support and the
-portable runtime.
+Occurrences on normal project pages are protected from direct content editing. On hover, an orange toolbar provides:
 
-## 10. Architecture rules
+- **Edit** to open central editing;
+- **Remove** to remove only that occurrence.
 
-- Extend existing modules; do not create a parallel architecture.
-- Resolvers analyze and do not mutate documents.
-- The Action Engine orchestrates and contains no feature business logic.
-- The Dependency Graph describes dependencies and effects.
-- Do not rebuild complete projects or pages for local changes.
-- Logging remains local, optional and limited to the selected directory.
-- Documentation states purpose and limits before API and implementation details.
+Publish and remove operations use a dedicated Repeat undo/redo history.
+
+## 7. Images, galleries, and video
+
+The Image Manager handles local images and responsive variants. Galleries can be inserted into suitable layout regions.
+
+HTML5 video blocks support multiple playback sources, poster images, and a download fallback. Bootstrap 4 and Bootstrap 5 use the native responsive layout mechanism of the selected profile.
+
+## 8. Source Packages and Analyzer
+
+The local Analyzer can import and statically inspect template and framework sources. It evaluates HTML, CSS, and JavaScript evidence, Bootstrap generation, and component structures.
+
+Detected structures may be exposed as source-bound editor blocks when supported by the active profile. Imported source JavaScript is not executed automatically.
+
+## 9. Export
+
+Oluntir supports:
+
+- resolved HTML;
+- Apache SSI;
+- PHP includes;
+- local folder export;
+- ZIP;
+- TAR.
+
+Export collects required local assets and removes editor-only Oluntir metadata from published output.
+
+## 10. Logging and diagnostics
+
+Logging is optional and is enabled only after explicit consent. Logs are written to a local directory chosen by the user.
+
+Diagnostics help inspect project, runtime, Shared Content, Repeat, and Analyzer state.
+
+## 11. Project maintenance
+
+Create a `.oluntir` project backup before major changes. Existing projects are continued through stable Oluntir identities; ambiguous relationships are not guessed.
+
+## Further documentation
+
+- [Features](FEATURES.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Repeat Engine V2](docs/042_REPEAT_ENGINE_V2.md)
+- [Shared Content Manager](docs/SHARED-CONTENT-MANAGER.md)
+- [Image Manager](docs/IMAGE_MANAGER.md)
+- [Multi-monitor](docs/MULTI_MONITOR.md)
+- [Release notes](RELEASE_NOTES.md)

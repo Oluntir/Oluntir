@@ -49,3 +49,10 @@ Nicht benötigte Abschnitte werden ausgelassen. Rechtliche Dokumente und Tabelle
 ## Pflege
 
 Bei einer Funktionsänderung werden mindestens README, Changelog und das zugehörige technische Dokument geprüft. Veraltete Aussagen werden entfernt oder ausdrücklich als historisch gekennzeichnet.
+## Trennung nach Zielgruppe
+
+- `README`, `FEATURES`, `HANDBOOK` und `WHY_OLUNTIR` beschreiben stabile Produktfunktionen, Arbeitsabläufe, Umfang und nutzerrelevante Grenzen. Einzelne Fehlerbehebungen, Icon-Details, Cache-Anpassungen, Regressionen oder interne Eventnamen gehören dort nicht hinein.
+- `RELEASE_NOTES` fassen Änderungen auf Release-Ebene und wichtige Kompatibilitätsinformationen zusammen.
+- `CHANGELOG`, DEV-Berichte, Audits, Architekturdokumente und Testdokumente dürfen Implementierungsdetails, Regressionen, interne Bezeichner und Entwicklungshistorie enthalten.
+- Historische Dokumente werden nicht nachträglich auf den aktuellen Stand umgeschrieben, sondern bleiben ausdrücklich historisch.
+

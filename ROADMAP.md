@@ -1,22 +1,40 @@
-# Roadmap – Oluntir 2.2.1
+# Roadmap – Oluntir
 
-Version 1.3.1 is complete as the stable reference release. The current branch
-is the Bootstrap-focused 2.2.1 continuation.
+This roadmap describes planned product development after 2.2.1. It does not promise specific delivery dates.
 
-## Current release focus
+## Performance and scale
 
-- stabilize the local Source-Package import and recovery path;
-- improve source-bound Bootstrap profile generation for new versions;
-- improve component-boundary recognition and duplicate suppression;
-- preserve source appearance and existing project/export formats;
-- keep imported source execution and automatic Source-Package document mutation behind their architecture gates;
-- further stabilize productive user-defined Repeat synchronization and the separate source/library workflows;
-- complete release documentation and portable-package verification.
+- build reproducible benchmark projects across page counts, Repeat families, and component complexity;
+- further optimize Repeat publishing toward targeted delta/leaf updates;
+- derive hardware recommendations and practical project limits from benchmarks;
+- reduce Canvas rebuilds for large projects.
 
-Further changes in the 1.3.1 stable release line are limited to:
+## Bootstrap analysis
 
-- reproducible bug fixes;
-- security corrections;
-- compatibility and documentation maintenance.
+- deepen recognition of real Bootstrap 4 and Bootstrap 5 templates;
+- derive additional component and capability patterns from supported Bootstrap structures;
+- make Analyzer results more useful for controlled editor integration without executing imported JavaScript automatically.
 
-New features are not part of the 1.3.1 stable release line.
+## Media and assets
+
+- connect video sources more closely to the local asset and upload workflow;
+- improve media management for larger projects;
+- further unify responsive image and video workflows.
+
+## Repeat library
+
+- improve navigation between a central Repeat source and all page occurrences;
+- present status and revision information compactly for large Repeat libraries;
+- make project-wide usage and performance more transparent.
+
+## Editor and usability
+
+- continue compacting toolbars and large management dialogs;
+- improve keyboard and focus behavior;
+- further optimize dual-monitor and large-workspace operation.
+
+## Quality and portability
+
+- expand automated test coverage and project migration scenarios;
+- extend export and offline tests for Bootstrap 4 and Bootstrap 5 projects;
+- maintain documentation and release audits around stable product capabilities.
