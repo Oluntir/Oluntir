@@ -1,6 +1,19 @@
 # Changelog
 
+## 2.2.1 — 2026-09-07
+
+- First regular 2.2.x release based on the successfully tested 2.2.0 BETA baseline.
+- Repeat target selection now supports genuine top-level content boundaries outside `<main>` while shared header, navigation and footer remain excluded.
+- Repeat library subtitle changed to “Bereich zentral bearbeiten”.
+- ZIP and TAR export icons now carry small explicit format badges.
+- Bootstrap 4/5 coverage, HTML5 video fallbacks, the central Repeat library, controlled publish and Repeat undo/redo remain part of the release line.
+
 ## 2.2.0 BETA — 2026-09-06
+
+- 2026-09-07: Added native HTML5 video blocks for Bootstrap 4 and 5. BS4 uses `embed-responsive`, BS5 uses `ratio`; both provide WebM/MP4/Ogg sources, poster, and a visible download fallback. Analyzer extended with `media.video` and video source-component recognition.
+- 2026-09-07: Extended Bootstrap 4 usage with Jumbotron, Media object and Custom forms; BS5 does not register removed BS4-only components. Analyzer detection now uses weighted version/Data-API/class evidence and a broader Bootstrap source-component catalog.
+- 2026-09-07: Reorganized the Repeat library into separate **selection editing** and **library insertion** sections, with compact Newest/A–Z buttons, two slim scroll lists, and icon actions for undo/redo/discard in the central editor. The misplaced central “insert on page” action and the top-row insert buttons were removed.
+- 2026-09-07: Global GrapesJS undo/redo now restores the active right-side tool view deterministically. Stale `open-blocks`/style/layers/traits command state is normalized and the Block Manager is explicitly re-rendered when opened.
 
 - Central Repeat Canvas is fully editable again: page-instance lock flags are no longer carried into Draft/Published snapshots; text RTE, selection and normal GrapesJS component controls are restored in central editing.
 

@@ -23,7 +23,9 @@
     redo: [],
     initialized: false,
     workspaceClosing: false,
-    recoveringUi: false
+    recoveringUi: false,
+    catalogSort: 'recent',
+    catalogExpanded: false
   };
 
   const text = value => value == null ? '' : String(value).trim();
@@ -118,6 +120,47 @@
 
   function definitionById(definitionId) {
     return engine() && engine().getDefinition ? engine().getDefinition(definitionId) : null;
+  }
+
+  function sortDefinitions(definitions) {
+    const indexed = (definitions || []).map((definition, index) => ({ definition, index }));
+    if (state.catalogSort === 'alpha') {
+      indexed.sort((a, b) => definitionLabel(a.definition).localeCompare(definitionLabel(b.definition), 'de', { sensitivity: 'base' }) || a.index - b.index);
+    } else {
+      indexed.sort((a, b) => {
+        const aMeta = a.definition && a.definition.metadata || {};
+        const bMeta = b.definition && b.definition.metadata || {};
+        const aTime = Date.parse(aMeta.libraryCreatedAt || aMeta.createdAt || '') || 0;
+        const bTime = Date.parse(bMeta.libraryCreatedAt || bMeta.createdAt || '') || 0;
+        if (aTime !== bTime) return bTime - aTime;
+        return b.index - a.index;
+      });
+    }
+    return indexed.map(entry => entry.definition);
+  }
+
+  function updateCatalogControls(definitionCount) {
+    const hosts = [byId('oluntir-repeat-library-catalog'), byId('oluntir-repeat-insert-catalog')].filter(Boolean);
+    const recent = byId('oluntir-repeat-library-sort-recent');
+    const alpha = byId('oluntir-repeat-library-sort-alpha');
+    const expand = byId('oluntir-repeat-library-expand');
+    hosts.forEach(host => { host.dataset.expanded = state.catalogExpanded ? 'true' : 'false'; });
+    if (recent) {
+      const active = state.catalogSort !== 'alpha';
+      recent.classList.toggle('is-active', active);
+      recent.setAttribute('aria-pressed', active ? 'true' : 'false');
+    }
+    if (alpha) {
+      const active = state.catalogSort === 'alpha';
+      alpha.classList.toggle('is-active', active);
+      alpha.setAttribute('aria-pressed', active ? 'true' : 'false');
+    }
+    if (expand) {
+      expand.hidden = Number(definitionCount || 0) < 5;
+      expand.disabled = Number(definitionCount || 0) < 5;
+      expand.setAttribute('aria-expanded', state.catalogExpanded ? 'true' : 'false');
+      expand.textContent = state.catalogExpanded ? 'Gesamtliste reduzieren' : 'Gesamtliste erweitern';
+    }
   }
 
   function pageById(identity) {
@@ -331,11 +374,29 @@
     });
   }
 
-  function refreshUi() {
-    const host = byId('oluntir-repeat-library-catalog');
+  function selectedInsertionDefinitionId() {
+    const select = byId('oluntir-repeat-definition-select');
+    return text(select && select.value);
+  }
+
+  function catalogDetails(definition) {
+    const meta = libraryMeta(definition);
+    const used = usage(definition.definitionId);
+    const pagesText = used.length ? Array.from(new Set(used.map(entry => entry.pageName))).join(', ') : 'noch nicht eingesetzt';
+    return { meta, used, pagesText };
+  }
+
+  function fillCatalogMain(main, definition, details) {
+    const strong = main.querySelector('strong');
+    const pagesHost = main.querySelector('.oluntir-repeat-catalog-pages');
+    const metaHost = main.querySelector('small');
+    if (strong) strong.textContent = definitionLabel(definition);
+    if (pagesHost) pagesHost.textContent = `Verwendet auf: ${details.pagesText}`;
+    if (metaHost) metaHost.textContent = `${details.used.length}× · R${details.meta.publishedRevision || 1}${details.meta.dirty ? ' · offen' : ''}`;
+  }
+
+  function renderEditCatalog(host, definitions) {
     if (!host) return;
-    let definitions = explicitDefinitions();
-    if (!definitions.length) definitions = recoverExplicitDefinitions('repeat-library-refresh-empty-catalog');
     host.innerHTML = '';
     if (!definitions.length) {
       const empty = host.ownerDocument.createElement('p');
@@ -348,17 +409,57 @@
       const item = host.ownerDocument.createElement('article');
       item.className = 'oluntir-repeat-catalog-item';
       item.dataset.definitionId = definition.definitionId;
-      const meta = libraryMeta(definition);
-      const used = usage(definition.definitionId);
-      const pagesText = used.length ? Array.from(new Set(used.map(entry => entry.pageName))).join(', ') : 'noch nicht eingesetzt';
-      item.innerHTML = '<div class="oluntir-repeat-catalog-main"><strong></strong><span class="oluntir-repeat-catalog-pages"></span><small></small></div><div class="oluntir-repeat-catalog-actions"><button type="button" data-repeat-action="edit">Zentral bearbeiten</button><button type="button" data-repeat-action="insert">Einsetzen</button></div>';
-      item.querySelector('strong').textContent = definitionLabel(definition);
-      item.querySelector('.oluntir-repeat-catalog-pages').textContent = `Verwendet auf: ${pagesText}`;
-      item.querySelector('small').textContent = `${used.length} Vorkommen · Revision ${meta.publishedRevision || 1}${meta.dirty ? ' · Änderungen noch nicht verteilt' : ''}`;
+      item.innerHTML = '<div class="oluntir-repeat-catalog-main"><strong></strong><span class="oluntir-repeat-catalog-pages"></span><small></small></div><div class="oluntir-repeat-catalog-actions"><button type="button" data-repeat-action="edit">Zentral bearbeiten</button></div>';
+      fillCatalogMain(item.querySelector('.oluntir-repeat-catalog-main'), definition, catalogDetails(definition));
       item.querySelector('[data-repeat-action="edit"]').addEventListener('click', () => openEditor(definition.definitionId));
-      item.querySelector('[data-repeat-action="insert"]').addEventListener('click', () => beginInsertion(definition.definitionId));
       host.appendChild(item);
     });
+  }
+
+  function renderInsertCatalog(host, definitions) {
+    if (!host) return;
+    const selectedId = selectedInsertionDefinitionId();
+    host.innerHTML = '';
+    if (!definitions.length) {
+      const empty = host.ownerDocument.createElement('p');
+      empty.className = 'oluntir-repeat-muted';
+      empty.textContent = 'Noch keine wiederholbaren Bereiche im Projekt.';
+      host.appendChild(empty);
+      return;
+    }
+    definitions.forEach(definition => {
+      const item = host.ownerDocument.createElement('article');
+      item.className = 'oluntir-repeat-catalog-item';
+      item.dataset.definitionId = definition.definitionId;
+      item.dataset.selected = selectedId === definition.definitionId ? 'true' : 'false';
+      const button = host.ownerDocument.createElement('button');
+      button.type = 'button';
+      button.className = 'oluntir-repeat-catalog-select';
+      button.setAttribute('aria-pressed', selectedId === definition.definitionId ? 'true' : 'false');
+      button.innerHTML = '<span class="oluntir-repeat-catalog-main"><strong></strong><span class="oluntir-repeat-catalog-pages"></span><small></small></span>';
+      fillCatalogMain(button.querySelector('.oluntir-repeat-catalog-main'), definition, catalogDetails(definition));
+      button.addEventListener('click', () => {
+        if (root.OluntirRepeatUi && typeof root.OluntirRepeatUi.selectLibraryDefinition === 'function') {
+          root.OluntirRepeatUi.selectLibraryDefinition(definition.definitionId);
+          return;
+        }
+        refreshUi();
+      });
+      item.appendChild(button);
+      host.appendChild(item);
+    });
+  }
+
+  function refreshUi() {
+    const editHost = byId('oluntir-repeat-library-catalog');
+    const insertHost = byId('oluntir-repeat-insert-catalog');
+    if (!editHost && !insertHost) return;
+    let definitions = explicitDefinitions();
+    if (!definitions.length) definitions = recoverExplicitDefinitions('repeat-library-refresh-empty-catalog');
+    definitions = sortDefinitions(definitions);
+    updateCatalogControls(definitions.length);
+    renderEditCatalog(editHost, definitions);
+    renderInsertCatalog(insertHost, definitions);
     updateManagerState();
   }
 
@@ -366,13 +467,14 @@
     const doc = root.document || toolDocument();
     if (!doc && !toolDocument()) return;
     const definition = state.activeDefinitionId ? definitionById(state.activeDefinitionId) : null;
+    const editorSection = byId('oluntir-repeat-manager-editor');
     const title = byId('oluntir-repeat-manager-current');
     const usageHost = byId('oluntir-repeat-manager-usage');
     const publish = byId('oluntir-repeat-manager-publish');
     const discard = byId('oluntir-repeat-manager-discard');
     const undo = byId('oluntir-repeat-manager-undo');
     const redo = byId('oluntir-repeat-manager-redo');
-    const insert = byId('oluntir-repeat-manager-insert');
+    if (editorSection) editorSection.hidden = !definition;
     if (title) title.textContent = definition ? `Zentrale Bearbeitung: ${definitionLabel(definition)}` : 'Keine Repeat-Quelle zur Bearbeitung geöffnet.';
     if (usageHost) usageHost.textContent = definition ? `Verwendet auf: ${Array.from(new Set(usage(definition.definitionId).map(item => item.pageName))).join(', ') || 'keinen Seiten'}` : '';
     const meta = definition ? libraryMeta(definition) : null;
@@ -380,7 +482,6 @@
     if (discard) discard.disabled = !definition || !state.workspaceRoot;
     if (undo) undo.disabled = !state.history.length;
     if (redo) redo.disabled = !state.redo.length;
-    if (insert) insert.disabled = !definition;
   }
 
   function removeWorkspacePage(targetPageId) {
@@ -896,13 +997,20 @@
     const close = byId('oluntir-repeat-manager-return');
     const undoButton = byId('oluntir-repeat-manager-undo');
     const redoButton = byId('oluntir-repeat-manager-redo');
-    const insertButton = byId('oluntir-repeat-manager-insert');
+    const catalogSortRecent = byId('oluntir-repeat-library-sort-recent');
+    const catalogSortAlpha = byId('oluntir-repeat-library-sort-alpha');
+    const catalogExpand = byId('oluntir-repeat-library-expand');
     if (publish) publish.addEventListener('click', () => { try { publishActive(); } catch (error) { root.alert && root.alert(error.message || String(error)); } });
     if (discard) discard.addEventListener('click', () => { try { discardDraft(); } catch (error) { root.alert && root.alert(error.message || String(error)); } });
     if (close) close.addEventListener('click', closeEditor);
     if (undoButton) undoButton.addEventListener('click', () => { try { undo(); } catch (error) { root.alert && root.alert(error.message || String(error)); } });
     if (redoButton) redoButton.addEventListener('click', () => { try { redo(); } catch (error) { root.alert && root.alert(error.message || String(error)); } });
-    if (insertButton) insertButton.addEventListener('click', () => { try { beginInsertion(state.activeDefinitionId); } catch (error) { root.alert && root.alert(error.message || String(error)); } });
+    if (catalogSortRecent) catalogSortRecent.addEventListener('click', () => { state.catalogSort = 'recent'; refreshUi(); });
+    if (catalogSortAlpha) catalogSortAlpha.addEventListener('click', () => { state.catalogSort = 'alpha'; refreshUi(); });
+    if (catalogExpand) catalogExpand.addEventListener('click', () => {
+      state.catalogExpanded = !state.catalogExpanded;
+      updateCatalogControls(explicitDefinitions().length);
+    });
   }
 
   if (root.document) {
@@ -942,7 +1050,9 @@
       redoCount: state.redo.length,
       projectMutationActive: isProjectMutationActive(),
       projectMutationKind: state.projectMutation && state.projectMutation.kind || '',
-      suppressedSharedStructuralEvents: state.projectMutation && state.projectMutation.suppressedSharedStructuralEvents || 0
+      suppressedSharedStructuralEvents: state.projectMutation && state.projectMutation.suppressedSharedStructuralEvents || 0,
+      catalogSort: state.catalogSort,
+      catalogExpanded: state.catalogExpanded
     })
   });
 });

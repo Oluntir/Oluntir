@@ -1,6 +1,6 @@
-# Features – Oluntir 2.2.0 BETA
+# Features – Oluntir 2.2.1
 
-This BETA branch uses Oluntir 1.3.1 as its compatibility baseline and
+This release line uses Oluntir 1.3.1 as its compatibility baseline and
 consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.
 
 ## Editor and projects
@@ -23,6 +23,11 @@ consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.
 
 ## Frameworks and export
 
+- Extended native BS4 usage: Jumbotron, Media object and Custom forms
+- Native responsive HTML5 video for BS4 (`embed-responsive`) and BS5 (`ratio`) with WebM/MP4/Ogg playback chain, poster, and download fallback
+- More precise BS4/BS5 detection using version banners, Data API, generation-specific classes and component evidence
+- Expanded source-component catalog for Offcanvas, List group, Progress, Jumbotron, Media object and custom controls
+
 - Bootstrap 4.6.2
 - Bootstrap 5.3.8
 - HTML, Apache SSI and PHP include export
@@ -34,6 +39,8 @@ consolidates productive framework support on Bootstrap 4.6.2 and 5.3.8.
 - Non-Bootstrap packages are analysis-only and are not activated in the editor
 
 ## Technical foundation
+
+- compact Repeat library with scrolling, newest/alphabetical sorting and expandable full list
 
 - Stable layout identities
 - Read-only resolvers and dependency graph

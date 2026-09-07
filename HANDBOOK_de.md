@@ -1,6 +1,6 @@
-# Oluntir 2.2.0 BETA – Technisches Handbuch
+# Oluntir 2.2.1 – Technisches Handbuch
 
-Dieses Handbuch beschreibt Oluntir 2.2.0 BETA im Bootstrap-fokussierten Branch.
+Dieses Handbuch beschreibt Oluntir 2.2.1 im Bootstrap-fokussierten Branch.
 Oluntir 1.3.1 bleibt die stabile Kompatibilitätsbaseline.
 
 ## 1. Laufzeit

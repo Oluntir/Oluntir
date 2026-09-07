@@ -18,3 +18,7 @@ kein produktiver Templatebestandteil.
 
 Die Erkennung ist noch keine Materialisierung. Die spätere Übersetzung in
 einen validierten Compile-Plan erfolgt erst im Translation Resolver.
+
+## Bootstrap-4-/Bootstrap-5-Evidenz
+
+Für Bootstrap-Quellen wird die Frameworkgeneration nicht mehr aus einem einzelnen generischen Signal abgeleitet. Der Analyzer gewichtet Versionsbanner und versionierte Pfade, Data-API-Attribute, Runtime-Indizien sowie generationsspezifische Klassen. Zusätzlich erkennt der quellengebundene Komponenten-Katalog weitere Bootstrap-Strukturen wie Jumbotron, Media object, Custom controls, Offcanvas, List groups, Progress, Breadcrumbs und Input groups. Die Analyse bleibt read-only; fremdes JavaScript wird weiterhin nicht ausgeführt.

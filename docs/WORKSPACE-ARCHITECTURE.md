@@ -1,6 +1,6 @@
 # Oluntir workspace architecture
 
-Oluntir 2.2.0 BETA uses `OluntirWorkspaceManager` for large application-owned tools. GrapesJS remains the visual editor engine, while Oluntir owns the visible Image Manager and multi-monitor workspace. The current branch also coordinates the local Source-Package and Bootstrap profile services without recreating the editor.
+Oluntir 2.2.1 uses `OluntirWorkspaceManager` for large application-owned tools. GrapesJS remains the visual editor engine, while Oluntir owns the visible Image Manager and multi-monitor workspace. The current branch also coordinates the local Source-Package and Bootstrap profile services without recreating the editor.
 
 ## Responsibilities
 

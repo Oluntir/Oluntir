@@ -7,8 +7,8 @@ const crypto = require('crypto');
 const SCHEMA_VERSION = 1;
 const MAX_COMPONENTS = 250;
 const MAX_MARKUP_BYTES = 128 * 1024;
-const SEMANTIC_TAGS = new Set(['section', 'nav', 'header', 'footer', 'article', 'aside', 'form', 'table', 'ul', 'ol']);
-const COMPONENT_SIGNAL = /(?:card|navbar|hero|accordion|carousel|modal|tab|alert|button|grid|row|container|toast|dropdown|pagination|gallery|slider|component|block)/i;
+const SEMANTIC_TAGS = new Set(['section', 'nav', 'header', 'footer', 'article', 'aside', 'form', 'table', 'ul', 'ol', 'video']);
+const COMPONENT_SIGNAL = /(?:card|navbar|hero|accordion|carousel|modal|tab|alert|button|grid|row|container|toast|dropdown|pagination|gallery|slider|component|block|jumbotron|media(?:-body)?|offcanvas|collapse|spinner|progress|breadcrumb|list-group|input-group|form-control|form-check|custom-control|custom-file|custom-select|placeholder|video)/i;
 
 function sha256(value) { return crypto.createHash('sha256').update(value).digest('hex'); }
 function stripTags(value) { return String(value || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); }
@@ -62,6 +62,7 @@ function attributesFor(inventory) {
 }
 
 function createLabel(markup, tagName, classes) {
+  if (String(tagName || '').toLowerCase() === 'video') return 'HTML5 Video';
   const heading = markup.match(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]\s*>/i);
   const headingText = heading ? stripTags(heading[1]) : '';
   if (headingText) return headingText.slice(0, 80);

@@ -1,18 +1,26 @@
 > **Language:** English · [Deutsch](README_de.md)
 
-# Oluntir 2.2.0 BETA
+# Oluntir 2.2.1
 
 Oluntir is a local browser-based website editor built on GrapesJS 0.23.2. It manages multi-page projects, local assets, shared page regions and exports without a server-side application runtime.
 
-**Branch:** `Oluntir-2.2.0-beta`
+**Branch:** `Oluntir-2.2.1`
 **Baseline:** Oluntir 1.3.1
-**Date:** September 6, 2026
-**Status:** BETA / Bootstrap-focused
+**Date:** September 7, 2026
+**Status:** Release / Bootstrap-focused
 
-Oluntir 1.3.1 remains the stable compatibility baseline. 2.2.0 BETA continues
-the Bootstrap-focused 2.x Beta line with a central Repeat library.
+Oluntir 1.3.1 remains the stable compatibility baseline. 2.2.1 continues
+the Bootstrap-focused 2.x release line with a central Repeat library.
 
-## 2.2.0 BETA – current state
+## 2.2.1 – current state
+
+- Repeat targets now work at genuine page-level content boundaries outside `<main>` (for example a standalone Hero directly before the footer); shared header/nav/footer remain protected. ZIP/TAR export icons are explicitly badged.
+- Bootstrap usage coverage is extended: the BS4 profile now includes Jumbotron, Media object and Custom forms as native Bootstrap 4 markup; BS5 remains limited to components actually present in 5.3.8.
+- Native HTML5 video blocks are available for BS4 and BS5: BS4 uses `embed-responsive`, BS5 uses the `ratio` helper. Both include WebM, MP4 and Ogg sources, a poster, `controls`, `preload="metadata"`, `playsinline`, and a visible download fallback. The three source paths can be edited independently in the video properties.
+- The Oluntir API Analyzer now weights Bootstrap version, Data API and generation-specific class evidence and recognizes more Bootstrap components as source-backed structures.
+- The Repeat library is split into two compact workflows: **selection editing** for central changes and **library insertion** for materializing a family on project pages. Both use slim scroll lists; sorting is available through **Newest** and **A–Z**, with an expandable full-list mode.
+- The central editor uses compact icon actions for Repeat undo, Repeat redo, and discarding the draft. Page insertion remains exclusively in the lower insertion workflow.
+- After global GrapesJS undo/redo, Oluntir re-synchronizes the active right-side tool view so **Open Blocks** remains reliably accessible.
 
 - If an imported/continued project is missing central repeat metadata, Oluntir reconstructs repeat families only from stable repeat markers on materialized page instances; nav/header/footer are excluded.
 
@@ -52,18 +60,18 @@ from its own Bootstrap source, binds it to the source hash and never reuses it
 for other packages. New versions receive a new analysis and profile identity.
 
 Resource activation and deliberate user insertion for a selected Source Package
-are available. Imported JavaScript files remain disabled. Explicitly defined repeatable regions are centrally managed in 2.2.0 BETA.
+are available. Imported JavaScript files remain disabled. Explicitly defined repeatable regions are centrally managed in 2.2.1.
 Page occurrences remain unchanged while editing and are updated only by an
 explicit publish transaction.
 
 DEV028 connects source-bound profiles to the persistent GrapesJS editor through
 a controlled adapter. Source components can be inserted by the user. The Repeat
 contract foundation built in Alpha—resolver, dependency graph, action contracts
-and targeted synchronization service—remains in place; 2.2.0 BETA uses it for
+and targeted synchronization service—remains in place; 2.2.1 uses it for
 controlled publish transactions instead of synchronizing every edit. Source
 JavaScript is still not executed automatically.
 
-### Repeat library in 2.2.0 BETA
+### Repeat library in 2.2.1
 
 A Repeat family owns one central Published/Draft content state. All occurrences
 on project pages are materialized instances and are locked against direct
@@ -77,7 +85,7 @@ the central source and **Remove** to delete just that occurrence while updating
 the usage list. Publish and remove operations have a dedicated Repeat Undo/Redo
 history. Navigation, header and footer remain separate Shared Content concerns.
 
-The independent `2.2.0-beta` branch consolidates the productive framework
+The independent `2.2.1` branch consolidates the productive framework
 context on Bootstrap 4 and Bootstrap 5. Generic import, analysis and recovery
 foundations remain available; concrete foreign-framework profiles and fixtures
 are not part of this branch. Bootstrap 5 is primary and Bootstrap 4 is retained

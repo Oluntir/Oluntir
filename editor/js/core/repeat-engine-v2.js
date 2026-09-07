@@ -766,7 +766,7 @@
     return `Wiederholbarer Bereich ${index + 1}`;
   }
 
-  // 2.2.0-BETA-Kompatibilitaet: Repeat-Metadaten sind Oluntir-eigene
+  // 2.2.1-Kompatibilitaet: Repeat-Metadaten sind Oluntir-eigene
   // Projektmetadaten. Falls ein aelterer/zwischenzeitlich gespeicherter Stand
   // diese Metadaten verloren hat, bleiben auf den materialisierten Seiten die
   // stabilen Repeat-Familienmarker erhalten. Nur diese eindeutigen Marker werden
@@ -943,7 +943,7 @@
 
   function decorateProjectData(projectData) {
     const data = projectData || {};
-    // 2.2.0 BETA: Der zentrale Repeat-Arbeitsbereich ist eine rein temporäre
+    // 2.2.1: Der zentrale Repeat-Arbeitsbereich ist eine rein temporäre
     // GrapesJS-Seite. Er darf niemals als echte Projektseite persistiert oder
     // exportiert werden. Der Draft selbst liegt im Oluntir-Repeat-Zustand.
     if (Array.isArray(data.pages)) {

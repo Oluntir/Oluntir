@@ -171,6 +171,10 @@
     'Navbar · Suche + CTA':'Navbar · Search + CTA', 'Footer · 3 Spalten':'Footer · 3 columns',
     'Footer · 4 Spalten':'Footer · 4 columns', 'Hero · Text + Bild':'Hero · Text + image',
     'Cards · Bild-Overlay':'Cards · Image overlay', 'Responsive Bildergalerie':'Responsive image gallery',
+    'Video (HTML5)':'Video (HTML5)', 'WebM-Quelle':'WebM source', 'MP4-Quelle':'MP4 source',
+    'Ogg-Quelle':'Ogg source', 'Poster':'Poster', 'Vorladen':'Preload', 'Metadaten':'Metadata',
+    'Nicht vorladen':'Do not preload', 'Steuerung':'Controls', 'Stumm':'Muted', 'Autoplay':'Autoplay',
+    'Wiederholen':'Loop',
     'Bildergalerie BS5':'Image gallery BS5', 'Überschrift':'Heading', 'Eigenschaften':'Properties',
     'Gestaltung':'Design', 'Ebenen':'Layers', 'Bausteine':'Blocks'
   };

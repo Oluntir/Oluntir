@@ -136,6 +136,63 @@ assetHydration.then(() => {
 
 
   let oluntirHistoryReplayActive = false;
+  const OLUNTIR_VIEW_COMMANDS = Object.freeze(['open-sm', 'open-tm', 'open-layers', 'open-blocks']);
+
+  function activeOluntirViewCommand(editorInstance) {
+    const panels = editorInstance && editorInstance.Panels;
+    if (!panels || typeof panels.getButton !== 'function') return '';
+    for (const id of OLUNTIR_VIEW_COMMANDS) {
+      const button = panels.getButton('views', id);
+      if (button && button.get && button.get('active')) return id;
+    }
+    return '';
+  }
+
+  function restoreOluntirViewPanel(editorInstance, preferredCommand, reason) {
+    const panels = editorInstance && editorInstance.Panels;
+    const commands = editorInstance && editorInstance.Commands;
+    if (!editorInstance || !panels || !commands) return false;
+    const desired = OLUNTIR_VIEW_COMMANDS.includes(preferredCommand) ? preferredCommand : activeOluntirViewCommand(editorInstance);
+
+    // GrapesJS 0.23.2 keeps command state and panel-button state separately.
+    // After an Undo/Redo replay those states can diverge (eg. open-blocks command
+    // still active while the corresponding button/view is no longer usable).
+    // Bring all four native right-hand views back to one deterministic state.
+    OLUNTIR_VIEW_COMMANDS.forEach(id => {
+      const button = panels.getButton('views', id);
+      if (button && button.set) button.set('active', false, { silent: true });
+      try {
+        if (typeof commands.isActive === 'function' && commands.isActive(id) && typeof editorInstance.stopCommand === 'function') {
+          editorInstance.stopCommand(id, { force: true });
+        }
+      } catch (_) {}
+    });
+
+    if (desired) {
+      try {
+        if (typeof editorInstance.runCommand === 'function') editorInstance.runCommand(desired, { force: true });
+      } catch (error) {
+        console.warn(`GrapesJS-Ansicht ${desired} konnte nach ${reason || 'History'} nicht wiederhergestellt werden:`, error);
+      }
+      const button = panels.getButton('views', desired);
+      if (button && button.set) button.set('active', true, { silent: true });
+      if (desired === 'open-blocks' && editorInstance.BlockManager && typeof editorInstance.BlockManager.render === 'function') {
+        try { editorInstance.BlockManager.render(); } catch (_) {}
+      }
+    }
+
+    if (window.OluntirRuntimeActions) {
+      window.OluntirRuntimeActions.emit('panel.view-restored', {
+        reason: reason || 'history-replay',
+        viewCommand: desired || null
+      });
+    }
+    return true;
+  }
+
+  function restoreOluntirViewPanelSoon(editorInstance, preferredCommand, reason) {
+    window.setTimeout(() => restoreOluntirViewPanel(editorInstance, preferredCommand, reason), 0);
+  }
 
   function bindOluntirUndoRedo(editorInstance) {
     if (!editorInstance || editorInstance.__oluntirUndoRedoBound) return;
@@ -147,6 +204,7 @@ assetHydration.then(() => {
     commands.add('oluntir:undo', {
       run() {
         if (typeof manager.undo === 'function' && (typeof manager.hasUndo !== 'function' || manager.hasUndo())) {
+          const activeViewBeforeReplay = activeOluntirViewCommand(editorInstance);
           cancelPendingProjectPersist();
           oluntirHistoryReplayActive = true;
           try {
@@ -154,6 +212,7 @@ assetHydration.then(() => {
           } finally {
             oluntirHistoryReplayActive = false;
           }
+          restoreOluntirViewPanelSoon(editorInstance, activeViewBeforeReplay, 'undo');
           persistHistoryReplayStateSoon();
           return true;
         }
@@ -163,6 +222,7 @@ assetHydration.then(() => {
     commands.add('oluntir:redo', {
       run() {
         if (typeof manager.redo === 'function' && (typeof manager.hasRedo !== 'function' || manager.hasRedo())) {
+          const activeViewBeforeReplay = activeOluntirViewCommand(editorInstance);
           cancelPendingProjectPersist();
           oluntirHistoryReplayActive = true;
           try {
@@ -170,12 +230,22 @@ assetHydration.then(() => {
           } finally {
             oluntirHistoryReplayActive = false;
           }
+          restoreOluntirViewPanelSoon(editorInstance, activeViewBeforeReplay, 'redo');
           persistHistoryReplayStateSoon();
           return true;
         }
         return false;
       }
     });
+    if (!editorInstance.__oluntirBlockPanelRecoveryBound && typeof editorInstance.on === 'function') {
+      editorInstance.__oluntirBlockPanelRecoveryBound = true;
+      editorInstance.on('run:open-blocks', () => {
+        window.requestAnimationFrame(() => {
+          try { if (editorInstance.BlockManager && typeof editorInstance.BlockManager.render === 'function') editorInstance.BlockManager.render(); } catch (_) {}
+        });
+        if (window.OluntirRuntimeActions) window.OluntirRuntimeActions.emit('panel.blocks-opened', { source: 'grapesjs-command' });
+      });
+    }
     const undoButton = panels.getButton('options', 'undo');
     const redoButton = panels.getButton('options', 'redo');
     if (undoButton) undoButton.set('command', 'oluntir:undo');
@@ -270,6 +340,10 @@ assetHydration.then(() => {
     window.registerTextMediaEditing(editor);
   }
 
+  if (typeof window.registerBootstrapVideoEditing === 'function') {
+    window.registerBootstrapVideoEditing(editor);
+  }
+
   if (typeof window.registerSmartLinkEditing === 'function') {
     window.registerSmartLinkEditing(editor);
   }
@@ -353,7 +427,7 @@ assetHydration.then(() => {
       hydrationSource: 'pre-grapesjs-local-storage'
     });
   }
-  // 2.2.0 BETA: Repeat-Inhalte werden nicht mehr während jeder GrapesJS-
+  // 2.2.1: Repeat-Inhalte werden nicht mehr während jeder GrapesJS-
   // Änderung live verteilt. Die zentrale Oluntir-Bibliothek bearbeitet genau
   // einen Draft und publiziert ihn erst über eine explizite Transaktion.
   if (window.OluntirRepeatLibraryManager && typeof window.OluntirRepeatLibraryManager.bind === 'function') {
@@ -480,12 +554,14 @@ assetHydration.then(() => {
         icon: 'fa fa-file-archive-o',
         titleKey: 'tool.exportTar',
         separator: true,
+        attributes: { 'data-oluntir-export-badge': 'TAR' },
         action: () => document.getElementById('btn-export-tar').click(),
       },
       {
         id: 'pb-ui-toolbar-export-zip',
         icon: 'fa fa-file-archive-o',
         titleKey: 'tool.exportZip',
+        attributes: { 'data-oluntir-export-badge': 'ZIP' },
         action: () => document.getElementById('btn-export-zip').click(),
       },
       {
@@ -1297,7 +1373,7 @@ assetHydration.then(() => {
     let projectData = editor.getProjectData();
     if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
     if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
-    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.0 BETA' });
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.1' });
     if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
     if (window.OluntirStartup) {
@@ -1346,7 +1422,7 @@ assetHydration.then(() => {
       projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData);
     }
     if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
-    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.0 BETA' });
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.1' });
     if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
     return projectData;
@@ -1475,7 +1551,7 @@ assetHydration.then(() => {
       projectData = editor.getProjectData();
       if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
       if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
-    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.0 BETA' });
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.1' });
       if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     }
 

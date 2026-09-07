@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Oluntir 2.2.0 BETA</title>
+  <title>Oluntir 2.2.1</title>
   <link rel="stylesheet" href="vendor/grapesjs/0.23.2/grapes.min.css">
   <link rel="stylesheet" href="plugins/editor/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="editor/css/editor.css?v=2.2.0-beta-r3">
+  <link rel="stylesheet" href="editor/css/editor.css?v=2.2.1-r5">
 </head>
 <body>
   
@@ -72,7 +72,7 @@
 
 
   <div id="toolbar">
-    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">2.2.0 BETA</span></div>
+    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">2.2.1</span></div>
 
     <div class="toolbar-language" role="group" data-i18n-aria="language.group" aria-label="Sprache">
       <button type="button" data-lang="de" class="active" data-i18n-title="language.de" title="Deutsch">DE</button>
@@ -370,9 +370,45 @@
 
   <aside id="oluntir-repeat-library-panel" class="oluntir-repeat-panel oluntir-repeat-library-manager" hidden tabindex="-1" role="region" aria-label="Projektweite wiederholbare Bereiche" aria-labelledby="oluntir-repeat-library-title">
     <div class="oluntir-repeat-panel-head"><div><h2 id="oluntir-repeat-library-title">Projektweite wiederholbare Bereiche</h2><p>Zentrale Quellen verwalten, bearbeiten und kontrolliert auf alle Vorkommen anwenden.</p></div><div class="oluntir-repeat-head-actions"><button id="oluntir-repeat-library-close" type="button" aria-label="Schließen">×</button></div></div>
-    <section><h3>Repeat-Bibliothek</h3><div id="oluntir-repeat-library-catalog" class="oluntir-repeat-catalog"><p class="oluntir-repeat-muted">Noch keine wiederholbaren Bereiche im Projekt.</p></div></section>
-    <section class="oluntir-repeat-manager-editor"><h3 id="oluntir-repeat-manager-current">Keine Repeat-Quelle zur Bearbeitung geöffnet.</h3><p id="oluntir-repeat-manager-usage"></p><div class="oluntir-repeat-actions"><button id="oluntir-repeat-manager-undo" type="button" disabled>Undo Repeat-Aktion</button><button id="oluntir-repeat-manager-redo" type="button" disabled>Redo</button></div><div class="oluntir-repeat-actions"><button id="oluntir-repeat-manager-discard" type="button" disabled>Entwurf verwerfen</button><button id="oluntir-repeat-manager-publish" class="btn-primary" type="button" disabled>Auf alle Vorkommen anwenden</button></div><div class="oluntir-repeat-actions"><button id="oluntir-repeat-manager-insert" type="button" disabled>Auf Seite einsetzen</button><button id="oluntir-repeat-manager-return" type="button">Zur Seitenansicht zurück</button></div><p class="oluntir-repeat-muted">Während der zentralen Bearbeitung wird nur der Repeat-Entwurf im Canvas verändert. Für „Auf Seite einsetzen“ wird der Entwurf gespeichert, der zentrale Canvas sauber verlassen und anschließend die normale orange Zielauswahl geöffnet.</p></section>
-    <section><h3>Bereich aus Bibliothek einsetzen</h3><label>Gespeicherte Quelle<select id="oluntir-repeat-definition-select" aria-label="Wiederholbarer Bereich"><option value="">Quelle auswählen</option></select></label><div id="oluntir-repeat-library-source-info" class="oluntir-repeat-info">Noch keine Quelle ausgewählt.</div><h3 class="oluntir-repeat-section-title">Zielseite und Einfügeposition <button id="oluntir-repeat-library-help" class="oluntir-repeat-help" type="button" title="Anleitung zur Zielbereichsauswahl" aria-label="Anleitung zur Zielbereichsauswahl"><i class="fa fa-info-circle" aria-hidden="true"></i></button></h3><div id="oluntir-repeat-library-help-popover" class="oluntir-repeat-help-popover" role="note" hidden><strong>So setzt du einen Bereich aus der Bibliothek ein</strong><ol><li>Wähle eine gespeicherte Quelle aus.</li><li>Wähle die Zielseite.</li><li>Wähle „im Bereich“, „davor“ oder „danach“.</li><li>Bestätige die orange Zielposition im Canvas.</li><li>Klicke „Bereich einsetzen“.</li></ol></div><label>Zielseite<select id="oluntir-repeat-library-target-page"><option value="">Zielseite auswählen</option></select></label><label>Einfügeposition<select id="oluntir-repeat-library-target-position"><option value="inside">Im markierten Bereich</option><option value="before">Davor – orange Einfügelinie</option><option value="after">Danach – orange Einfügelinie</option></select></label><div id="oluntir-repeat-library-target-selection-info" class="oluntir-repeat-target-info" aria-live="polite">Noch keine gültige Zielposition markiert.</div><div class="oluntir-repeat-actions"><button id="oluntir-repeat-library-target-clear" type="button">Zielauswahl löschen</button><button id="oluntir-repeat-library-insert" class="btn-primary" type="button" disabled>Bereich einsetzen</button></div></section>
+
+    <section class="oluntir-repeat-library-section">
+      <div class="oluntir-repeat-library-section-head"><h3>Repeat-Bibliothek</h3><p>Bereich zentral bearbeiten</p></div>
+      <div class="oluntir-repeat-catalog-toolbar" aria-label="Repeat-Bibliothek sortieren">
+        <span class="oluntir-repeat-catalog-toolbar-label">Sortierung</span>
+        <div class="oluntir-repeat-sort-buttons" role="group" aria-label="Sortierreihenfolge">
+          <button id="oluntir-repeat-library-sort-recent" class="oluntir-repeat-sort-button is-active" type="button" aria-pressed="true">Zuletzt angelegt</button>
+          <button id="oluntir-repeat-library-sort-alpha" class="oluntir-repeat-sort-button" type="button" aria-pressed="false">A–Z</button>
+        </div>
+        <button id="oluntir-repeat-library-expand" class="oluntir-repeat-expand-button" type="button" aria-expanded="false">Gesamtliste erweitern</button>
+      </div>
+      <div id="oluntir-repeat-library-catalog" class="oluntir-repeat-catalog oluntir-repeat-catalog--edit" data-expanded="false"><p class="oluntir-repeat-muted">Noch keine wiederholbaren Bereiche im Projekt.</p></div>
+    </section>
+
+    <section id="oluntir-repeat-manager-editor" class="oluntir-repeat-manager-editor" hidden>
+      <div class="oluntir-repeat-manager-heading">
+        <div class="oluntir-repeat-manager-heading-text"><h3 id="oluntir-repeat-manager-current">Keine Repeat-Quelle zur Bearbeitung geöffnet.</h3><p id="oluntir-repeat-manager-usage"></p></div>
+        <div class="oluntir-repeat-manager-icon-actions" aria-label="Bearbeitungshistorie">
+          <button id="oluntir-repeat-manager-undo" class="oluntir-repeat-icon-button" type="button" disabled title="Repeat-Aktion rückgängig" aria-label="Repeat-Aktion rückgängig"><i class="fa fa-undo" aria-hidden="true"></i></button>
+          <button id="oluntir-repeat-manager-redo" class="oluntir-repeat-icon-button" type="button" disabled title="Repeat-Aktion wiederholen" aria-label="Repeat-Aktion wiederholen"><i class="fa fa-repeat" aria-hidden="true"></i></button>
+          <button id="oluntir-repeat-manager-discard" class="oluntir-repeat-icon-button" type="button" disabled title="Entwurf verwerfen" aria-label="Entwurf verwerfen"><i class="fa fa-eraser" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div class="oluntir-repeat-manager-primary-actions"><button id="oluntir-repeat-manager-publish" class="btn-primary" type="button" disabled>Auf alle Vorkommen anwenden</button><button id="oluntir-repeat-manager-return" type="button">Zur Seitenansicht zurück</button></div>
+      <p class="oluntir-repeat-muted">Im zentralen Canvas wird nur der Entwurf bearbeitet. Erst „Auf alle Vorkommen anwenden“ überträgt den Stand projektweit.</p>
+    </section>
+
+    <section class="oluntir-repeat-library-section oluntir-repeat-library-insert-section">
+      <div class="oluntir-repeat-library-section-head"><h3>Bereich aus Bibliothek einsetzen</h3><p>Auswahl Repeat und bei Ziel einfügen</p></div>
+      <div id="oluntir-repeat-insert-catalog" class="oluntir-repeat-catalog oluntir-repeat-catalog--insert" data-expanded="false"><p class="oluntir-repeat-muted">Noch keine wiederholbaren Bereiche im Projekt.</p></div>
+      <select id="oluntir-repeat-definition-select" hidden aria-hidden="true" tabindex="-1"><option value="">Quelle auswählen</option></select>
+      <div id="oluntir-repeat-library-source-info" class="oluntir-repeat-info">Noch keine Quelle ausgewählt.</div>
+      <h3 class="oluntir-repeat-section-title">Zielseite und Einfügeposition <button id="oluntir-repeat-library-help" class="oluntir-repeat-help" type="button" title="Anleitung zur Zielbereichsauswahl" aria-label="Anleitung zur Zielbereichsauswahl"><i class="fa fa-info-circle" aria-hidden="true"></i></button></h3>
+      <div id="oluntir-repeat-library-help-popover" class="oluntir-repeat-help-popover" role="note" hidden><strong>So setzt du einen Bereich aus der Bibliothek ein</strong><ol><li>Wähle eine Repeat-Quelle aus der Liste.</li><li>Wähle die Zielseite.</li><li>Wähle „im Bereich“, „davor“ oder „danach“.</li><li>Bestätige die orange Zielposition im Canvas.</li><li>Klicke „Bereich einsetzen“.</li></ol></div>
+      <label>Zielseite<select id="oluntir-repeat-library-target-page"><option value="">Zielseite auswählen</option></select></label>
+      <label>Einfügeposition<select id="oluntir-repeat-library-target-position"><option value="inside">Im markierten Bereich</option><option value="before">Davor – orange Einfügelinie</option><option value="after">Danach – orange Einfügelinie</option></select></label>
+      <div id="oluntir-repeat-library-target-selection-info" class="oluntir-repeat-target-info" aria-live="polite">Noch keine gültige Zielposition markiert.</div>
+      <div class="oluntir-repeat-actions"><button id="oluntir-repeat-library-target-clear" type="button">Zielauswahl löschen</button><button id="oluntir-repeat-library-insert" class="btn-primary" type="button" disabled>Bereich einsetzen</button></div>
+    </section>
     <p id="oluntir-repeat-library-status" class="oluntir-repeat-status" aria-live="polite"></p>
   </aside>
 
@@ -395,17 +431,18 @@
   <script src="editor/js/features/ui-settings.js"></script>
   <script src="editor/js/features/block-search.js"></script>
   <script src="editor/js/core/edition.js"></script>
-  <script src="editor/js/core/source-package-bridge.js?v=2.2.0-beta"></script>
-  <script src="editor/js/core/source-package-grapesjs-adapter.js?v=2.2.0-beta"></script>
-  <script src="editor/js/core/framework.js?v=2.2.0-beta"></script>
+  <script src="editor/js/core/source-package-bridge.js?v=2.2.1"></script>
+  <script src="editor/js/core/source-package-grapesjs-adapter.js?v=2.2.1"></script>
+  <script src="editor/js/core/framework.js?v=2.2.1"></script>
   <script src="editor/js/core/translation-matrix.js?v=2.0.0-dev016"></script>
   <script src="editor/js/core/translation-matrix-profiles.js?v=2.0.0-dev017"></script>
   <script src="editor/js/core/translation-analyzer.js?v=2.0.0-dev018"></script>
   <script src="editor/js/core/translation-resolver.js?v=2.0.0-dev019"></script>
   <script src="editor/js/core/translation-matrix-validation.js?v=2.0.0-dev020"></script>
-  <script src="editor/js/core/translation-materialization-plan.js?v=2.2.0-beta"></script>
+  <script src="editor/js/core/translation-materialization-plan.js?v=2.2.1"></script>
   <script src="editor/js/core/site-images.js"></script>
-  <script src="editor/js/features/bootstrap-blocks.js"></script>
+  <script src="editor/js/features/bootstrap-blocks.js?v=2.2.1-r3"></script>
+  <script src="editor/js/features/bootstrap-video.js?v=2.2.1-r1"></script>
   <script src="editor/js/features/variant-blocks.js"></script>
   <script src="editor/js/features/quick-setup.js"></script>
   <script src="editor/js/core/image-lightbox-api.js"></script>
@@ -431,7 +468,7 @@
   <script src="editor/js/core/includes.js"></script>
   <script src="editor/js/core/favicon-manager.js?v=1.3.1"></script>
 <script src="editor/js/core/presentation-vocabulary.js"></script>
-  <script src="editor/js/core/shared-content-manager.js?v=2.2.0-beta-r3"></script>
+  <script src="editor/js/core/shared-content-manager.js?v=2.2.1-r3"></script>
   <script src="editor/js/core/semantic-dictionary.js"></script>
   <script src="editor/js/core/identity-resolver.js"></script>
   <script src="editor/js/core/context-resolver.js"></script>
@@ -473,20 +510,20 @@
   <script src="editor/js/core/oluntir-logger.js"></script>
   <script src="editor/js/core/semantic-action-engine.js"></script>
   <script src="editor/js/core/oluntir-runtime-actions.js"></script>
-  <script src="editor/js/core/oluntir-logging-consent.js?v=2.2.0-beta-r2"></script>
+  <script src="editor/js/core/oluntir-logging-consent.js?v=2.2.1-r2"></script>
   <script src="editor/js/core/developer-diagnostics-center.js"></script>
   <script src="editor/js/core/semantic-validator.js"></script>
-  <script src="editor/js/core/repeat-engine-v2.js?v=2.2.0-beta-r3"></script>
+  <script src="editor/js/core/repeat-engine-v2.js?v=2.2.1-r3"></script>
   <script src="editor/js/core/repeat-contract-resolver.js"></script>
   <script src="editor/js/core/repeat-dependency-graph.js"></script>
   <script src="editor/js/core/targeted-synchronization-service.js"></script>
   <script src="editor/js/core/repeat-action-contracts.js"></script>
-  <script src="editor/js/core/repeat-sync-access-adapter.js?v=2.2.0-beta-r2"></script>
-  <script src="editor/js/core/repeat-library-manager.js?v=2.2.0-beta-r9"></script>
+  <script src="editor/js/core/repeat-sync-access-adapter.js?v=2.2.1-r2"></script>
+  <script src="editor/js/core/repeat-library-manager.js?v=2.2.1-r11"></script>
   <script src="editor/js/core/repeat-synchronization-runtime.js"></script>
   <script src="editor/js/core/repeat-auto-synchronization.js"></script>
   <script src="editor/js/core/repeat-foundation-readiness.js"></script>
-  <script src="editor/js/core/startup.js?v=2.2.0-beta-r2"></script>
+  <script src="editor/js/core/startup.js?v=2.2.1-r2"></script>
   <script src="editor/js/core/export-snapshot.js"></script>
   <script src="editor/js/core/export-readiness.js"></script>
   <script src="editor/js/core/export.js"></script>
@@ -494,7 +531,7 @@
   <script src="editor/js/features/text-media-editor.js"></script>
   <script src="editor/js/features/link-editor.js"></script>
   <script src="editor/js/core/oluntir-code-view.js"></script>
-  <script src="editor/js/core/editor.js?v=2.2.0-beta-r4"></script>
-  <script src="editor/js/core/repeat-ui.js?v=2.2.0-beta-r3"></script>
+  <script src="editor/js/core/editor.js?v=2.2.1-r5"></script>
+  <script src="editor/js/core/repeat-ui.js?v=2.2.1-r5"></script>
 </body>
 </html>

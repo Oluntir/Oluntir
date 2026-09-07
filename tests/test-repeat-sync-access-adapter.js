@@ -39,7 +39,7 @@ const mismatch = component('section', {'data-oluntir-section-id':'other'}, '', [
 assert.strictEqual(api.topologyCompatible(sourceSnapshot, mismatch.toJSON()), false);
 console.log('Repeat Sync Access Adapter DEV_006: OK');
 
-// 2.2.0 BETA: central library publishes a stored snapshot directly to a target
+// 2.2.1: central library publishes a stored snapshot directly to a target
 // without requiring a live GrapesJS source component.
 const directSource = JSON.parse(JSON.stringify(sourceSnapshot));
 directSource.components[0].content = 'Zentral publiziert';
@@ -51,7 +51,7 @@ adapter.restoreByIdentity('page-target', 'target-root', rollback);
 assert.strictEqual(target.components().models[0].get('content'), 'Alt');
 console.log('Repeat Sync Access Adapter 2.2 central snapshot: OK');
 
-// 2.2.0 BETA v30: GrapesJS interaction locks belong to materialized page
+// 2.2.1 v30: GrapesJS interaction locks belong to materialized page
 // instances, not to the canonical Repeat content. Otherwise a stored locked
 // instance would make the central Draft workspace uneditable after reopening.
 const lockedDefinition = {

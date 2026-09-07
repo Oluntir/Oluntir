@@ -2,10 +2,10 @@
 
 # Private Edition Placeholder
 
-**Version:** 2.2.0 BETA
+**Version:** 2.2.1
 **Language:** English
-**Status:** BETA
+**Status:** Release
 **Stable baseline:** Oluntir 1.3.1
-**Last updated:** 2026-09-06
+**Last updated:** 2026-09-07
 
 This directory is reserved for private edition overrides that are not part of the public community distribution. Do not commit private credentials, customer data, or restricted assets.

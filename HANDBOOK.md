@@ -1,6 +1,6 @@
-# Oluntir 2.2.0 BETA – Technical handbook
+# Oluntir 2.2.1 – Technical handbook
 
-This handbook describes the current Bootstrap-focused BETA branch. Oluntir
+This handbook describes the current Bootstrap-focused release line. Oluntir
 1.3.1 remains the stable compatibility baseline.
 
 ## 1. Runtime

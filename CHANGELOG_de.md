@@ -1,6 +1,19 @@
 # Changelog
 
+## 2.2.1 — 2026-09-07
+
+- Erster regulärer 2.2.x-Release auf Basis des erfolgreich getesteten 2.2.0-BETA-Stands.
+- Repeat-Zielauswahl unterstützt nun auch echte Top-Level-Inhaltsgrenzen außerhalb von `<main>`; Shared Header, Navigation und Footer bleiben ausgeschlossen.
+- Repeat-Bibliothek: Untertitel „Bereich zentral bearbeiten“.
+- ZIP- und TAR-Exportsymbole besitzen eindeutige kleine Format-Badges.
+- Bootstrap-4/5-Abdeckung, HTML5-Video-Fallbacks, zentrale Repeat-Bibliothek, kontrolliertes Publish sowie Repeat-Undo/Redo bleiben Bestandteil der Release-Linie.
+
 ## 2.2.0 BETA — 2026-09-06
+
+- 2026-09-07: Native HTML5-Videoblöcke für Bootstrap 4 und 5 ergänzt. BS4 verwendet `embed-responsive`, BS5 `ratio`; beide bieten WebM/MP4/Ogg, Poster und sichtbaren Download-Fallback. Analyzer um `media.video` und Video-Quellkomponenten-Erkennung erweitert.
+- 2026-09-07: Bootstrap-4-Nutzung um Jumbotron, Media object und Custom forms ergänzt; BS5 registriert keine entfernten BS4-Komponenten. Analyzer-Erkennung auf gewichtete Versions-/Data-API-/Klassenevidenz und breiteren Bootstrap-Komponenten-Katalog erweitert.
+- 2026-09-07: Repeat-Bibliothek neu strukturiert: getrennte Bereiche **„Bereich zentral bearbeiten“** und **„Auswahl Repeat und bei Ziel einfügen“**, kompakte A–Z-/Zuletzt-angelegt-Schalter, zwei schmale Scrolllisten und zentraler Bearbeitungsbereich mit Icon-Aktionen für Undo/Redo/Entwurf verwerfen. Der unpassende zentrale Button „Auf Seite einsetzen“ sowie die oberen zeilenweisen „Einsetzen“-Buttons wurden entfernt.
+- 2026-09-07: Globales GrapesJS-Undo/Redo stellt die aktive rechte Werkzeugansicht kontrolliert wieder her. Hängende `open-blocks`-/Style-/Layer-/Traits-Commandzustände werden normalisiert; `Open Blocks` rendert den BlockManager beim Öffnen erneut.
 
 - Zentraler Repeat-Canvas wieder vollständig editierbar: Seiteninstanz-Sperrflags werden nicht mehr in Draft/Published-Snapshots übernommen; Text-RTE, Auswahl und normale GrapesJS-Komponentenwerkzeuge sind in „Zentral bearbeiten“ wieder aktiv.
 

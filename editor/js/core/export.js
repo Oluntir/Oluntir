@@ -125,12 +125,23 @@ function restoreStablePathsFromBlobUrls(html) {
   return container.innerHTML;
 }
 
+function stripBootstrapVideoEditorMetadata(html) {
+  const container = document.createElement('div');
+  container.innerHTML = html || '';
+  container.querySelectorAll('[data-oluntir-bootstrap-video], [data-oluntir-video-source], [data-oluntir-video-fallback]').forEach((element) => {
+    element.removeAttribute('data-oluntir-bootstrap-video');
+    element.removeAttribute('data-oluntir-video-source');
+    element.removeAttribute('data-oluntir-video-fallback');
+  });
+  return container.innerHTML;
+}
+
 function normalizeExportHtml(html) {
   const presentationApi = window.OluntirPresentationApi;
   const materialized = presentationApi && typeof presentationApi.materializeHtml === 'function'
     ? presentationApi.materializeHtml(html, { stripMetadata: true })
     : html;
-  return resolveUploadPathsInHtml(restoreStablePathsFromBlobUrls(materialized))
+  return stripBootstrapVideoEditorMetadata(resolveUploadPathsInHtml(restoreStablePathsFromBlobUrls(materialized)))
     .replace(/(?:\.\/)?site-assets\//g, '')
     .replace(/(?:\.\/)?assets\/images\//g, 'images/')
     .replace(/blob:[^"')\s]+/g, '');

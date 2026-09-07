@@ -1,14 +1,22 @@
-# Release Notes – Oluntir 2.2.0 BETA
+# Release Notes – Oluntir 2.2.1
 - Repeat-library insertion now survives normal page switches: the library panel, selected family, and target page are preserved, and a confirmed orange target reliably enables insertion.
 
-Oluntir 2.2.0 BETA is the new Bootstrap-focused development branch based on 2.1.0 BETA.
+Oluntir 2.2.1 is the current Bootstrap-focused release line based on 2.1.0 BETA.
 
-## 2.2.0 BETA – key changes
+## 2.2.1 – key changes
+
+- Repeat target selection now supports top-level content outside `<main>`, including insertion between a standalone Hero section and the shared footer; shared header/nav/footer remain excluded.
+- Export tools now carry small explicit **ZIP** / **TAR** badges on the archive icons.
+- Repeat library subtitle now reads **„Bereich zentral bearbeiten“**.
+- Extended Bootstrap coverage: BS4 now exposes Jumbotron, Media object and Custom forms as native framework markup. Analyzer detection distinguishes BS4/BS5 more strictly using version, Data API and class evidence and recognizes more source-backed Bootstrap components.
+- Video support added: BS4 and BS5 each provide a native responsive HTML5 video block with WebM/MP4/Ogg sources, poster, inline playback, and a visible download fallback. GrapesJS exposes separate source paths for these blocks instead of a single `src` field.
+- Repeat library reorganized into **selection editing** and **library insertion** sections with compact Newest/A–Z controls and separate scroll lists. The central editor now uses icon actions for undo/redo/discard; its misplaced “insert on page” action and the top-row insert buttons were removed.
+- Global undo/redo now normalizes the GrapesJS right-view command state, keeping **Open Blocks** usable after history replay and explicitly re-rendering the Block Manager when it opens.
 
 - Central Repeat drafts no longer inherit materialized page-instance lock flags. Text RTE, selection, styling and normal GrapesJS component controls are available in the single-object Canvas.
 
 - Existing projects with missing or incomplete repeat metadata are rebuilt from stable repeat-family markers already present on materialized page instances, keeping the central library usable after migration.
-- Startup now labels older stored versions as migration sources into 2.2.0 BETA and persists the current version after opening.
+- Startup now labels older stored versions as migration sources into 2.2.1 and persists the current version after opening.
 
 - New **central repeat library** with a complete project catalog and page usage per repeat family.
 - Repeat content is no longer propagated on every keystroke. Materialized page instances are locked for direct content editing.

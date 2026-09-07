@@ -1,7 +1,7 @@
-# Dokumentation – Oluntir 2.2.0 BETA
+# Dokumentation – Oluntir 2.2.1
 
 Oluntir 1.3.1 ist die stabile Kompatibilitätsbaseline. Dieser Index beschreibt
-den aktuellen Bootstrap-fokussierten BETA-Branch.
+den aktuellen Bootstrap-fokussierten Release-Linie.
 
 ## Einstieg
 - [README](../README_de.md)

@@ -1,10 +1,10 @@
-# Repeat Engine V2 – Oluntir 2.2.0 BETA
+# Repeat Engine V2 – Oluntir 2.2.1
 
 `editor/js/core/repeat-engine-v2.js` manages repeat families through stable Oluntir identities. DOM positions, CSS selectors, and changing `unitId` are not identities.
 
 ## Central repeat library
 
-2.2.0 BETA replaces per-keystroke live propagation with an Oluntir-owned central model:
+2.2.1 replaces per-keystroke live propagation with an Oluntir-owned central model:
 
 1. A repeatable section is registered once as a named repeat family.
 2. Every occurrence on a project page is a materialized instance of that family.

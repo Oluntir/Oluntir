@@ -8,3 +8,9 @@ Oluntir enthält lokale Profile für:
 - Bootstrap 5.3.8.
 
 Das gewählte Profil bestimmt verfügbare Komponenten sowie die in Vorschau und Export verwendeten Framework-Dateien. Profilwechsel müssen mit vorhandenen Seiteninhalten geprüft werden, da Bootstrap-Versionen unterschiedliche Klassen und Komponentenstrukturen verwenden.
+
+## Bootstrap-Abdeckung
+
+Die produktiven Profile verwenden ausschließlich Framework-eigenes Markup. Bootstrap 5.3.8 deckt die aktuelle Komponenten-, Formular-, Helper- und Utility-Linie ab. Für Bootstrap 4.6.2 ergänzt Oluntir die noch fehlenden nativen Bereiche **Jumbotron**, **Media object** und **Custom forms**. Entfernte BS4-Komponenten werden im BS5-Profil nicht künstlich emuliert.
+
+Die Source-Analyse unterscheidet die Generationen über gewichtete Evidenz: Versionsbanner bzw. versionierte Pfade, `data-bs-*` gegenüber `data-*`, jQuery als BS4-Runtime-Indiz sowie generationsspezifische Klassen. Ein generischer Dateiname `bootstrap.css` allein genügt nicht für eine Generationszuordnung.

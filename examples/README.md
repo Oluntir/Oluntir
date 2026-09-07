@@ -2,10 +2,10 @@
 
 # Examples
 
-**Version:** 2.2.0 BETA
+**Version:** 2.2.1
 **Language:** English
-**Status:** BETA
+**Status:** Release
 **Stable baseline:** Oluntir 1.3.1
-**Last updated:** 2026-09-06
+**Last updated:** 2026-09-07
 
 This directory contains example material for testing editor, project, and export functions. Examples must not contain credentials, personal data, unlicensed assets, or network dependencies required for basic operation.

@@ -76,10 +76,12 @@ sourceBody.components().models.push(sourceMain);
 
 const targetBody = component('target-body', 'body', null, []);
 const targetMain = component('target-main', 'main', targetBody, []);
+const targetHero = component('target-hero', 'section', targetBody, []);
+const targetFooter = component('target-footer', 'footer', targetBody, []);
 const targetSectionA = component('target-a', 'section', targetMain, []);
 const targetSectionB = component('target-b', 'section', targetMain, []);
 targetMain.components().models.push(targetSectionA, targetSectionB);
-targetBody.components().models.push(targetMain);
+targetBody.components().models.push(targetMain, targetHero, targetFooter);
 
 const emptyBody = component('empty-body', 'body', null, []);
 const emptyMain = component('empty-main', 'main', emptyBody, []);
@@ -87,9 +89,12 @@ emptyBody.components().models.push(emptyMain);
 
 const sourceMainEl = canvasElement(sourceMain, { top: 0, bottom: 500, height: 500, left: 0, right: 800, width: 800 }, null);
 canvasElement(sourceSection, { top: 100, bottom: 200, height: 100, left: 0, right: 800, width: 800 }, sourceMainEl);
-const targetMainEl = canvasElement(targetMain, { top: 0, bottom: 500, height: 500, left: 0, right: 800, width: 800 }, null);
+const targetBodyEl = canvasElement(targetBody, { top: 0, bottom: 820, height: 820, left: 0, right: 800, width: 800 }, null);
+const targetMainEl = canvasElement(targetMain, { top: 0, bottom: 500, height: 500, left: 0, right: 800, width: 800 }, targetBodyEl);
 const targetAEl = canvasElement(targetSectionA, { top: 100, bottom: 200, height: 100, left: 0, right: 800, width: 800 }, targetMainEl);
 const targetBEl = canvasElement(targetSectionB, { top: 300, bottom: 400, height: 100, left: 0, right: 800, width: 800 }, targetMainEl);
+const targetHeroEl = canvasElement(targetHero, { top: 520, bottom: 640, height: 120, left: 0, right: 800, width: 800 }, targetBodyEl);
+const targetFooterEl = canvasElement(targetFooter, { top: 700, bottom: 820, height: 120, left: 0, right: 800, width: 800 }, targetBodyEl);
 const emptyMainEl = canvasElement(emptyMain, { top: 0, bottom: 500, height: 500, left: 0, right: 800, width: 800 }, null);
 
 const sourcePage = { id: 'source-page', getName: () => 'Source', getMainComponent: () => sourceBody };
@@ -120,7 +125,7 @@ const engine = {
 const logs = [];
 const descriptions = new Map([
   [sourceBody, ['source-body','page']], [sourceMain, ['source-main','main']], [sourceSection, ['source-section','section']],
-  [targetBody, ['target-body','page']], [targetMain, ['target-main','main']], [targetSectionA, ['target-a','section']], [targetSectionB, ['target-b','section']],
+  [targetBody, ['target-body','page']], [targetMain, ['target-main','main']], [targetHero, ['target-hero','section']], [targetFooter, ['target-footer','section']], [targetSectionA, ['target-a','section']], [targetSectionB, ['target-b','section']],
   [emptyBody, ['empty-body','page']], [emptyMain, ['empty-main','main']]
 ]);
 const identities = {
@@ -253,6 +258,19 @@ assert.strictEqual(slot.mode, 'before'); assert.strictEqual(slot.anchorIdentity,
 unlockTarget('library'); selectDefinitionAndPage('target-page');
 slot = lockAt('library', targetMainEl, 450);
 assert.strictEqual(slot.mode, 'after'); assert.strictEqual(slot.anchorIdentity, 'target-b');
+
+
+// Top-Level-Inhalt außerhalb von <main>: testseite-artiger Aufbau
+// <main>...</main><section Hero>...</section><footer>...</footer>.
+// Die freie Grenze Hero -> Footer muss als Seitenebenen-Ziel auflösbar sein,
+// ohne den Shared Footer selbst als Repeat-Ziel freizugeben.
+unlockTarget('library'); selectDefinitionAndPage('target-page');
+slot = lockAt('library', targetBodyEl, 670);
+assert.strictEqual(slot.mode, 'after', 'Freier Seitenabstand nach einem Hero außerhalb von MAIN muss als After-Ziel auflösbar sein.');
+assert.strictEqual(slot.anchorIdentity, 'target-hero', 'Die Seitenebenen-Grenze vor dem Footer muss am Hero verankert werden.');
+unlockTarget('library'); selectDefinitionAndPage('target-page');
+canvasListeners.mousemove.fn({ target: targetFooterEl, clientY: 730 });
+assert.notStrictEqual(document.getElementById('oluntir-repeat-library-target-selection-info').dataset.locked, 'true', 'Shared Footer darf niemals selbst als Repeat-Ziel bestätigt werden.');
 
 // Leerer Main bleibt ein gültiges, bestätigbares Inside-Ziel.
 unlockTarget('library'); selectDefinitionAndPage('empty-page');

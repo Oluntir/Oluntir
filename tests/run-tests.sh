@@ -52,6 +52,10 @@ node tests/test-repeat-project-marker-recovery.js
 node tests/test-repeat-project-marker-fallback-recovery.js
 node tests/test-repeat-persistence-bridge.js
 node tests/test-repeat-ui.js
+node tests/test-repeat-library-compact-list.js
+node tests/test-undo-block-panel-recovery.js
+node tests/test-bootstrap-component-coverage.js
+node tests/test-bootstrap-video-fallbacks.js
 node tests/test-repeat-central-library-contract.js
 node tests/test-repeat-library-manager-runtime.js
 node tests/test-repeat-central-workspace-editability.js
@@ -101,6 +105,7 @@ node tests/test-gallery-icon-assets.js
 
 node tests/test-gallery-svg-icons.js
 node tests/test-gallery-toolbar-css-icons.js
+node tests/test-export-archive-toolbar-badges.js
 
 node tests/test-gallery-framework-icon-sources.js
 
@@ -205,6 +210,8 @@ node analyzer/tests/test-source-package-zip.js
 node analyzer/tests/test-source-runtime-selection.js
 node analyzer/tests/test-source-package-server.js
 node analyzer/tests/test-bootstrap-framework-import.js
+node analyzer/tests/test-bootstrap-evidence-depth.js
+node analyzer/tests/test-bootstrap-component-catalog-depth.js
 node analyzer/tests/test-javascript-behavior.js
 node analyzer/tests/test-source-framework-profile.js
 node tests/test-source-package-grapesjs-adapter.js

@@ -659,6 +659,34 @@ html, body {
   padding-right: 10px;
 }
 
+/* ZIP/TAR bleiben als gemeinsame Archivsymbole erhalten, bekommen aber eine
+   kleine eindeutige Formatkennzeichnung nach demselben Badge-Prinzip wie das
+   Repeat-Listenwerkzeug. */
+.gjs-pn-options .gjs-pn-btn[data-oluntir-export-badge] {
+  position:relative;
+  overflow:visible !important;
+}
+.gjs-pn-options .gjs-pn-btn[data-oluntir-export-badge]::after {
+  content:attr(data-oluntir-export-badge);
+  position:absolute;
+  right:-1px;
+  bottom:1px;
+  min-width:18px;
+  height:12px;
+  padding:0 2px;
+  border:1px solid rgba(30,34,40,.9);
+  border-radius:3px;
+  background:#f39c12;
+  color:#fff;
+  font:700 7px/10px Arial,sans-serif;
+  letter-spacing:.2px;
+  text-align:center;
+  box-sizing:border-box;
+  box-shadow:0 0 0 1px rgba(255,255,255,.16);
+  z-index:6;
+  pointer-events:none;
+}
+
 /* Das Listen-Werkzeug sitzt in der GrapesJS-views-Leiste. Der Selektor muss
    deshalb sowohl views als auch options abdecken. Die kleine orange Liste macht
    das zweite Repeat-Symbol auch ohne Tooltip eindeutig unterscheidbar. */
@@ -1977,7 +2005,7 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
   .oluntir-quick-edit-commit-spinner { animation-duration: 1.8s; }
 }
 
-/* Oluntir 2.2.0 BETA: kompakte zweizeilige Projekthauptleiste.
+/* Oluntir 2.2.1: kompakte zweizeilige Projekthauptleiste.
    Import, Medien, Diagnose und Export liegen in der zweiten Zeile. Dadurch
    bleibt die Oberfläche ohne horizontale Hauptleisten-Scrollbars bedienbar. */
 html, body {
@@ -2108,18 +2136,44 @@ body {
   z-index: 2147483000;
 }
 
-/* Oluntir 2.2.0 BETA – zentrale Repeat-Bibliothek */
+/* Oluntir 2.2.1 – zentrale Repeat-Bibliothek */
 .oluntir-repeat-library-manager { width:min(430px, 38vw); }
-.oluntir-repeat-catalog { display:grid; gap:8px; }
-.oluntir-repeat-catalog-item { display:grid; gap:8px; padding:9px; background:#31343a; border-left:3px solid #f39c12; }
-.oluntir-repeat-catalog-main { display:grid; gap:3px; }
-.oluntir-repeat-catalog-main strong { color:#fff; font-size:13px; }
-.oluntir-repeat-catalog-pages { color:#d9dde4; font-size:11px; line-height:1.35; }
-.oluntir-repeat-catalog-main small { color:#aeb4bd; font-size:10px; }
-.oluntir-repeat-catalog-actions { display:flex; flex-wrap:wrap; gap:5px; }
-.oluntir-repeat-catalog-actions button { margin:0; }
-.oluntir-repeat-manager-editor { border-left:3px solid #f39c12; padding-left:10px !important; }
+.oluntir-repeat-library-section { display:grid; gap:8px; }
+.oluntir-repeat-library-section-head { display:grid; gap:1px; }
+.oluntir-repeat-library-section-head h3 { margin:0; font-size:15px; line-height:1.2; color:#fff; }
+.oluntir-repeat-library-section-head p { margin:0; font-size:10px; color:#aeb4bd; }
+.oluntir-repeat-catalog-toolbar { display:grid; grid-template-columns:auto minmax(0,1fr); gap:5px 7px; align-items:center; }
+.oluntir-repeat-catalog-toolbar-label { color:#cbd0d8; font-size:10px; font-weight:700; }
+.oluntir-repeat-sort-buttons { display:grid; grid-template-columns:1fr auto; gap:4px; min-width:0; }
+.oluntir-repeat-catalog-toolbar .oluntir-repeat-sort-button { margin:0; min-height:26px; padding:4px 7px; font-size:10px; line-height:1.1; }
+.oluntir-repeat-catalog-toolbar .oluntir-repeat-sort-button.is-active { background:#f39c12; border-color:#f39c12; color:#1b1d20; font-weight:700; }
+.oluntir-repeat-catalog-toolbar .oluntir-repeat-expand-button { grid-column:1 / -1; justify-self:stretch; margin:0; padding:4px 7px; font-size:10px; }
+.oluntir-repeat-catalog { display:grid; gap:3px; max-height:176px; overflow-y:auto; overflow-x:hidden; padding-right:3px; scrollbar-gutter:stable; }
+.oluntir-repeat-catalog[data-expanded="true"] { max-height:min(56vh, 600px); }
+.oluntir-repeat-catalog-item { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:5px; min-height:36px; padding:4px 5px; background:#31343a; border-left:3px solid #f39c12; }
+.oluntir-repeat-catalog-main { display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:6px; row-gap:0; min-width:0; }
+.oluntir-repeat-catalog-main strong { color:#fff; font-size:11px; line-height:1.15; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.oluntir-repeat-catalog-pages { grid-column:1 / -1; color:#d9dde4; font-size:9px; line-height:1.15; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.oluntir-repeat-catalog-main small { grid-column:2; grid-row:1; color:#aeb4bd; font-size:8px; white-space:nowrap; }
+.oluntir-repeat-catalog-actions { display:flex; flex-wrap:nowrap; gap:3px; }
+.oluntir-repeat-catalog-actions button { margin:0; padding:3px 5px; font-size:9px; white-space:nowrap; }
+.oluntir-repeat-catalog--insert .oluntir-repeat-catalog-item { grid-template-columns:1fr; padding:0; border-left-color:#6d727b; }
+.oluntir-repeat-catalog-select { display:grid !important; grid-template-columns:minmax(0,1fr) !important; width:100%; margin:0 !important; padding:4px 6px !important; border:0 !important; background:transparent !important; text-align:left; color:inherit !important; }
+.oluntir-repeat-catalog-select:hover,.oluntir-repeat-catalog-select:focus-visible { background:#3a3e45 !important; outline:1px solid #68707b; }
+.oluntir-repeat-catalog--insert .oluntir-repeat-catalog-item[data-selected="true"] { border-left-color:#f39c12; background:#39342c; }
+.oluntir-repeat-catalog--insert .oluntir-repeat-catalog-item[data-selected="true"] .oluntir-repeat-catalog-select { box-shadow:inset 0 0 0 1px rgba(243,156,18,.35); }
+.oluntir-repeat-manager-editor { border-left:3px solid #f39c12; padding-left:9px !important; }
+.oluntir-repeat-manager-editor[hidden] { display:none !important; }
+.oluntir-repeat-manager-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:start; }
+.oluntir-repeat-manager-heading-text { min-width:0; }
+.oluntir-repeat-manager-heading-text h3 { margin:0 0 2px; font-size:13px; }
+.oluntir-repeat-manager-heading-text p { margin:0; }
+.oluntir-repeat-manager-icon-actions { display:flex; gap:3px; align-items:center; }
+.oluntir-repeat-panel .oluntir-repeat-icon-button { display:inline-flex; align-items:center; justify-content:center; width:29px; height:29px; margin:0; padding:0; }
+.oluntir-repeat-manager-primary-actions { display:grid; grid-template-columns:1fr auto; gap:5px; margin-top:8px; }
+.oluntir-repeat-manager-primary-actions button { margin:0; min-height:31px; }
 .oluntir-repeat-manager-editor .btn-primary { background:#f39c12; border-color:#f39c12; color:#1b1d20; font-weight:700; }
+.oluntir-repeat-library-insert-section #oluntir-repeat-library-source-info { margin:1px 0 4px; padding:6px 7px; font-size:10px; }
 body.oluntir-tool-window .oluntir-repeat-library-manager { width:auto; }
 @media (max-width:1100px) { .oluntir-repeat-library-manager { width:min(390px, 46vw); } }
-@media (max-width:760px) { .oluntir-repeat-library-manager { width:92vw; } }
+@media (max-width:760px) { .oluntir-repeat-library-manager { width:92vw; } .oluntir-repeat-manager-primary-actions { grid-template-columns:1fr; } }

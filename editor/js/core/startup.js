@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const APP_VERSION = '2.2.0 BETA';
+  const APP_VERSION = '2.2.1';
   const STARTUP_SCHEMA = 2;
   const META_KEY = 'oluntir-project-meta';
   const SESSION_KEY = 'oluntir-last-session';

@@ -11,7 +11,7 @@ const editor = fs.readFileSync(path.join(__dirname, '../editor/js/core/editor.js
 const i18n = fs.readFileSync(path.join(__dirname, '../editor/js/core/i18n.js'), 'utf8');
 const css = fs.readFileSync(path.join(__dirname, '../editor/css/editor.css'), 'utf8');
 
-assert.ok(index.includes('Oluntir 2.2.0 BETA'));
+assert.ok(index.includes('Oluntir 2.2.1'));
 assert.ok(index.includes('id="oluntir-repeat-panel"'));
 assert.ok(index.includes('id="oluntir-repeat-library-panel"'));
 assert.ok(index.includes('Projektweite wiederholbare Bereiche'));
@@ -28,7 +28,7 @@ assert.ok(index.includes('id="oluntir-repeat-library-target-page"'));
 assert.ok(index.includes('id="oluntir-repeat-library-target-position"'));
 assert.ok(index.includes('id="oluntir-repeat-library-insert"'));
 assert.ok(index.includes('3. Auf Zielseite einsetzen'), 'Das Erstellwerkzeug behält den direkten Quelle→Ziel-Ablauf.');
-assert.ok(index.includes('repeat-library-manager.js?v=2.2.0-beta-r9'));
+assert.ok(index.includes('repeat-library-manager.js?v=2.2.1-r11'));
 
 assert.ok(ui.includes('function repeatBindingForComponent(component)'));
 assert.ok(ui.includes('data-oluntir-repeat-hover-badge'));
@@ -62,7 +62,13 @@ assert.ok(manager.includes('editable: false'));
 assert.ok(manager.includes('stylable: false'));
 assert.ok(manager.includes('createMaterializedInstance'));
 assert.ok(manager.includes('Verwendet auf:'));
-assert.ok(manager.includes('Revision ${meta.publishedRevision'));
+assert.ok(manager.includes('R${details.meta.publishedRevision'));
+assert.ok(index.includes('Gesamtliste erweitern'));
+assert.ok(index.includes('Zuletzt angelegt'));
+assert.ok(index.includes('id="oluntir-repeat-library-sort-alpha"'));
+assert.ok(index.includes('>A–Z</button>'));
+assert.ok(index.includes('id="oluntir-repeat-insert-catalog"'));
+assert.ok(!index.includes('id="oluntir-repeat-manager-insert"')); 
 
 assert.ok(engine.includes("repeatArchitecture: 'central-library-manual-publish'"));
 assert.ok(engine.includes("id !== 'oluntir-repeat-workspace'"));

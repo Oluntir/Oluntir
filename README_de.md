@@ -1,18 +1,26 @@
 > **Sprache:** Deutsch · [English](README.md)
 
-# Oluntir 2.2.0 BETA
+# Oluntir 2.2.1
 
 Oluntir ist ein lokaler, browserbasierter Website-Editor auf Basis von GrapesJS 0.23.2. Die Anwendung verwaltet mehrseitige Projekte, lokale Assets, gemeinsame Seitenbereiche und Exporte ohne serverseitige Anwendungslaufzeit.
 
-**Branch:** `Oluntir-2.2.0-beta`
+**Branch:** `Oluntir-2.2.1`
 **Baseline:** Oluntir 1.3.1
-**Datum:** 6. September 2026
-**Status:** BETA / Bootstrap-fokussiert
+**Datum:** 7. September 2026
+**Status:** Release / Bootstrap-fokussiert
 
-Oluntir 1.3.1 bleibt die stabile Kompatibilitätsbaseline. 2.2.0 BETA führt
-die Bootstrap-fokussierte 2.x-Beta-Linie mit einer zentralen Repeat-Bibliothek fort.
+Oluntir 1.3.1 bleibt die stabile Kompatibilitätsbaseline. 2.2.1 führt
+die Bootstrap-fokussierte 2.x-Release-Linie mit einer zentralen Repeat-Bibliothek fort.
 
-## 2.2.0 BETA – aktueller Stand
+## 2.2.1 – aktueller Stand
+
+- Repeat-Ziele funktionieren jetzt auch an echten Seitenebenen-Grenzen außerhalb von `<main>` (z. B. Hero direkt vor Footer); Shared Header/Nav/Footer bleiben geschützt. ZIP-/TAR-Exporticons sind eindeutig gekennzeichnet.
+- Bootstrap-Nutzung erweitert: Das BS4-Profil enthält zusätzlich Jumbotron, Media object und Custom forms als natives Bootstrap-4-Markup; BS5 bleibt auf den tatsächlich in 5.3.8 vorhandenen Komponenten.
+- Native HTML5-Videoelemente für BS4 und BS5: BS4 nutzt `embed-responsive`, BS5 den `ratio`-Helper. Beide Varianten enthalten WebM-, MP4- und Ogg-Quellen, Poster, `controls`, `preload="metadata"`, `playsinline` sowie einen sichtbaren Download-Fallback. Die drei Quellen sind über die Video-Eigenschaften getrennt editierbar.
+- Der Oluntir API Analyzer gewichtet Bootstrap-Version, Data-API und generationsspezifische Klassen und erkennt zusätzliche Bootstrap-Komponenten als quellengebundene Strukturen.
+- Die Repeat-Bibliothek ist in zwei kompakte Arbeitsbereiche getrennt: **„Bereich zentral bearbeiten“** für die zentrale Bearbeitung und **„Auswahl Repeat und bei Ziel einfügen“** für die Materialisierung auf Seiten. Beide verwenden schmale Scrolllisten; die Sortierung erfolgt über **„Zuletzt angelegt“** oder **„A–Z“**, die Liste kann über **„Gesamtliste erweitern“** vergrößert werden.
+- Der zentrale Bearbeitungsbereich verwendet kompakte Icon-Aktionen für Repeat-Undo, Repeat-Redo und **Entwurf verwerfen**. Das Einsetzen auf Seiten bleibt ausschließlich im unteren Einsetzbereich.
+- Nach globalem GrapesJS-Undo/Redo wird die aktive rechte Werkzeugansicht wieder synchronisiert; **Open Blocks** bleibt dadurch zuverlässig erreichbar.
 
 - Falls bei einem übernommenen Projekt zentrale Repeat-Metadaten fehlen, rekonstruiert Oluntir die Familien ausschließlich aus vorhandenen stabilen Repeat-Markern der materialisierten Seiteninstanzen; Nav/Header/Footer werden dabei ignoriert.
 
@@ -56,7 +64,7 @@ als eigene Analyse mit eigener Profilidentität aufgenommen.
 
 Die Ressourcenaktivierung und die bewusste Benutzer-Einfügung eines
 ausgewählten Source Packages sind möglich. Die Ausführung importierter
-JavaScript-Dateien bleibt deaktiviert. Explizit definierte wiederholbare Bereiche werden in 2.2.0 BETA zentral verwaltet.
+JavaScript-Dateien bleibt deaktiviert. Explizit definierte wiederholbare Bereiche werden in 2.2.1 zentral verwaltet.
 Seitenvorkommen bleiben während der Bearbeitung unverändert und werden erst durch eine
 ausdrückliche Publish-Transaktion aktualisiert.
 
@@ -64,17 +72,15 @@ DEV028 verbindet die quellengebundenen Profile über eine kontrollierte
 Adapter-Schicht mit dem persistenten GrapesJS-Editor. Source-Komponenten
 können als Benutzer-Blöcke eingefügt werden. Die in Alpha aufgebaute Repeat-
 Vertragsbasis aus Resolver, Dependency Graph, Action Contracts und gezieltem
-Synchronisationsdienst bleibt erhalten; 2.2.0 BETA nutzt sie für kontrollierte
+Synchronisationsdienst bleibt erhalten; 2.2.1 nutzt sie für kontrollierte
 Publish-Transaktionen statt für eine Synchronisation bei jeder Eingabe.
 Source-JavaScript wird weiterhin nicht automatisch ausgeführt.
 
-### Repeat-Bibliothek in 2.2.0 BETA
+### Repeat-Bibliothek in 2.2.1
 
 Eine Repeat-Familie besitzt genau einen zentralen Published-/Draft-Inhalt. Alle
 Vorkommen auf Projektseiten sind materialisierte Instanzen und dort gegen direkte
-Inhaltsbearbeitung gesperrt. Die zentrale Bibliothek zeigt Namen, Seitenverwendung,
-Vorkommen und Revisionen. Ein Klick auf **Bearbeiten** öffnet einen internen
-Einzelobjekt-Canvas. Änderungen bleiben dort lokal, bis **„Auf alle Vorkommen
+Inhaltsbearbeitung gesperrt. Die zentrale Bibliothek zeigt Namen, Seitenverwendung, Vorkommen und Revisionen in einer kompakten, sortierbaren Scrollliste. Der obere Bereich dient ausschließlich der **Bereich zentral bearbeiten**; ein Klick auf **Zentral bearbeiten** öffnet den internen Einzelobjekt-Canvas. Eine zweite Liste darunter dient ausschließlich der Auswahl einer Repeat-Familie für das Einsetzen auf einer Zielseite. Änderungen bleiben dort lokal, bis **„Auf alle Vorkommen
 anwenden“** die Familie in einer kontrollierten Oluntir-Transaktion publiziert.
 
 Auf normalen Seiten erscheint bei Mouseover eine orange Steuerleiste oben mittig.
@@ -83,7 +89,7 @@ Vorkommen und aktualisiert die Verwendungsliste. Publish und Entfernen besitzen
 eine eigene Repeat-Undo/Redo-Historie. Nav, Header und Footer bleiben als Shared
 Content separat behandelt.
 
-Der eigenständige Branch `2.2.0-beta` konsolidiert den produktiven
+Der eigenständige Branch `2.2.1` konsolidiert den produktiven
 Frameworkkontext auf Bootstrap 4 und Bootstrap 5. Generische Import-,
 Analyse- und Recovery-Grundlagen bleiben erhalten; konkrete Fremdframework-
 Profile und Testpakete gehören nicht zu diesem Branch. Bootstrap 5 ist das

@@ -2,19 +2,19 @@
 
 # Framework Profiles
 
-**Version:** 2.2.0 BETA
+**Version:** 2.2.1
 **Language:** English
-**Status:** BETA
+**Status:** Release
 **Stable baseline:** Oluntir 1.3.1
-**Last updated:** 2026-09-06
+**Last updated:** 2026-09-07
 
 ## Purpose
 
-Framework profiles define the bundled CSS and JavaScript resources used by a project. Oluntir 2.2.0 BETA includes Bootstrap 4.6.2 and Bootstrap 5.3.8 profiles. Profiles must remain versioned and offline-capable. Unknown source packages are analysis-only.
+Framework profiles define the bundled CSS and JavaScript resources used by a project. Oluntir 2.2.1 includes Bootstrap 4.6.2 and Bootstrap 5.3.8 profiles. Profiles must remain versioned and offline-capable. Unknown source packages are analysis-only.
 
 ## Scope
 
-This document describes the behavior included in Oluntir 2.2.0 BETA.
+This document describes the behavior included in Oluntir 2.2.1.
 
 ## Verification
 
@@ -23,3 +23,9 @@ Test the function with a newly created project and a restored project. Where exp
 ## Limitations
 
 Browser capabilities and imported project content may affect behavior. Report reproducible deviations with the browser version, project type, steps, and console output.
+
+## Bootstrap coverage
+
+Productive profiles use framework-native markup only. Bootstrap 5.3.8 covers its current component, form, helper and utility line. Bootstrap 4.6.2 additionally exposes the previously missing native **Jumbotron**, **Media object** and **Custom forms** blocks. Removed BS4-only components are not emulated as Bootstrap 5 components.
+
+Source analysis distinguishes generations through weighted evidence: version banners or versioned paths, `data-bs-*` versus `data-*`, jQuery as a BS4 runtime signal, and generation-specific classes. A generic `bootstrap.css` filename alone is not sufficient to classify a Bootstrap generation.

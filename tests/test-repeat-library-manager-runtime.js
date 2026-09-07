@@ -252,7 +252,7 @@ assert.ok(guardedOperations.every(item => item.active), `Alle materialisierenden
 assert.strictEqual(manager.isProjectMutationActive(), false, 'Nach Abschluss darf kein Repeat-Projektmutations-Lock aktiv bleiben.');
 
 
-// 2.2.0 BETA v25: Ein normaler Seitenwechsel muss den temporären Repeat-Workspace
+// 2.2.1 v25: Ein normaler Seitenwechsel muss den temporären Repeat-Workspace
 // vor der allgemeinen Canvas-/Shared-Persistenz sauber beenden.
 assert.strictEqual(manager.openEditor(definition.definitionId), true, 'Workspace muss für Navigationstest erneut geöffnet werden.');
 assert.ok(Pages.getAll().some(manager.isWorkspacePage), 'Workspace-Seite muss vor Navigation vorhanden sein.');
