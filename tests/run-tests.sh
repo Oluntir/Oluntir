@@ -106,6 +106,7 @@ node tests/test-gallery-icon-assets.js
 node tests/test-gallery-svg-icons.js
 node tests/test-gallery-toolbar-css-icons.js
 node tests/test-export-archive-toolbar-badges.js
+node tests/test-toolbar-redundant-import-removed.js
 
 node tests/test-gallery-framework-icon-sources.js
 

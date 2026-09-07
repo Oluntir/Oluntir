@@ -1,5 +1,6 @@
 # Release Notes – Oluntir 2.2.1
 
+- Werkzeugleiste bereinigt: der redundante GrapesJS-Import/Download-Button zwischen Redo und Löschen wurde entfernt; der Oluntir-Ordnerexport bleibt erhalten.
 Oluntir 2.2.1 ist der aktuelle Bootstrap-fokussierte Release-Linie auf Basis von 2.1.0 BETA.
 
 ## 2.2.1 – wichtigste Änderungen

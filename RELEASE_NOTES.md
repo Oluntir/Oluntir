@@ -1,4 +1,5 @@
 # Release Notes – Oluntir 2.2.1
+- Toolbar cleanup: removed the redundant GrapesJS import/download button between Redo and Clear; the Oluntir folder export remains available.
 - Repeat-library insertion now survives normal page switches: the library panel, selected family, and target page are preserved, and a confirmed orange target reliably enables insertion.
 
 Oluntir 2.2.1 is the current Bootstrap-focused release line based on 2.1.0 BETA.

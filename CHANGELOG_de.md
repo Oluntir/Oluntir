@@ -2,6 +2,7 @@
 
 ## 2.2.1 — 2026-09-07
 
+- Werkzeugleiste bereinigt: der redundante GrapesJS-Import/Download-Button zwischen Redo und Löschen wurde entfernt; der Oluntir-Ordnerexport bleibt erhalten.
 - Erster regulärer 2.2.x-Release auf Basis des erfolgreich getesteten 2.2.0-BETA-Stands.
 - Repeat-Zielauswahl unterstützt nun auch echte Top-Level-Inhaltsgrenzen außerhalb von `<main>`; Shared Header, Navigation und Footer bleiben ausgeschlossen.
 - Repeat-Bibliothek: Untertitel „Bereich zentral bearbeiten“.

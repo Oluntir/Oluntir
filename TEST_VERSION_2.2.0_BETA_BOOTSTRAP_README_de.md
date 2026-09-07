@@ -64,15 +64,25 @@ Profil; es wird nicht für andere Packages wiederverwendet.
 
 1. Im Werkzeug **Wiederholbare Bereiche** einen Bereich auswählen, benennen und als Repeat-Familie anlegen.
 2. Die Familie über Zielseite → Einfügeposition → bestätigtes Canvas-Ziel auf mehreren Seiten einsetzen.
-3. Repeat-Bibliothek öffnen: Familie, alle verwendeten Seiten, Vorkommen und Revision müssen erscheinen.
+3. Repeat-Bibliothek öffnen: Oben müssen **„Repeat-Bibliothek“** und der Untertitel **„Anpassung bei Auswahl“** erscheinen. Die kompakte Scrollliste muss alle Familien mit Seitenverwendung/Vorkommen/Revision zeigen. Die Schalter **„Zuletzt angelegt“** und **„A–Z“** müssen die Reihenfolge umstellen; **„Gesamtliste erweitern“** muss den Scrollbereich vergrößern. Pro Eintrag darf oben nur **„Zentral bearbeiten“** angeboten werden.
 4. Auf einer normalen Seite prüfen, dass der Repeat-Inhalt nicht direkt bearbeitet werden kann und bei Mouseover oben mittig die orange Steuerleiste erscheint.
 5. **Bearbeiten** öffnen: Es darf nur der gewählte Repeat im internen Einzelobjekt-Canvas bearbeitet werden. Während des Tippens dürfen die Seiteninstanzen unverändert bleiben.
 6. Ohne den Workspace manuell zu schließen über die normale Seitenauswahl auf eine Projektseite wechseln. Die Zielseite muss sofort im allgemeinen Canvas erscheinen; im Repeat-Log muss vorher `repeat.library-workspace-handoff` und anschließend `repeat.library-editor-closed` erscheinen. Es darf kein `getAttributes`-Fehler auftreten.
 7. **„Auf alle Vorkommen anwenden“** auslösen: Alle aktiven Instanzen müssen anschließend denselben veröffentlichten Stand besitzen.
 8. Auf einer Seiteninstanz **Entfernen** auslösen: Nur dieses Vorkommen muss verschwinden und die Verwendungsliste muss aktualisiert werden.
 9. Repeat-**Undo** prüfen: das entfernte Vorkommen muss an Seite und Position wiederhergestellt werden. Repeat-**Redo** muss es erneut entfernen.
-10. Eine vorhandene Familie über **Einsetzen** aus der Bibliothek auf einer weiteren Zielseite materialisieren. Beim Wechsel der Zielseite muss die Bibliothek geöffnet bleiben; Familienauswahl und Zielseite müssen erhalten bleiben. Nach Bestätigung der orangefarbenen Zielposition muss **„Bereich einsetzen“** aktiv sein. Dasselbe direkt aus **„Zentral bearbeiten“ → „Auf Seite einsetzen“** prüfen.
-11. Browser schließen und neu öffnen: Bibliothek, Published/Draft-Stand, Seitenverwendungen und Instanzzuordnungen müssen erhalten bleiben.
+10. Im unteren Bereich **„Bereich aus Bibliothek einsetzen“** muss der Untertitel **„Auswahl Repeat und bei Ziel einfügen“** erscheinen. Eine Familie dort aus der eigenen kompakten Liste auswählen, Zielseite und Einfügeposition wählen und die orange Zielposition bestätigen. Beim Seitenwechsel muss die Bibliothek geöffnet bleiben; Familienauswahl und Zielseite müssen erhalten bleiben. Danach muss **„Bereich einsetzen“** aktiv sein. Im zentralen Bearbeitungsbereich darf kein eigener Button **„Auf Seite einsetzen“** mehr vorhanden sein.
+11. Im zentralen Bearbeitungsbereich müssen Repeat-Undo, Repeat-Redo und **Entwurf verwerfen** als Icons erscheinen; **„Auf alle Vorkommen anwenden“** und **„Zur Seitenansicht zurück“** bleiben als Textaktionen.
+12. Browser schließen und neu öffnen: Bibliothek, Published/Draft-Stand, Seitenverwendungen und Instanzzuordnungen müssen erhalten bleiben.
+
+## Globales Undo / Open Blocks
+
+1. Auf einer normalen Projektseite den Bereich **Blocks** öffnen und einen Block einfügen oder eine andere Undo-fähige Änderung erzeugen.
+2. In der oberen Oluntir-Leiste **Undo** auslösen.
+3. Danach **Open Blocks** erneut anklicken. Der BlockManager muss sichtbar werden und seine Blöcke erneut rendern.
+4. Dasselbe mit **Redo** wiederholen.
+5. Optional nacheinander Styles, Eigenschaften, Ebenen und Blocks öffnen, jeweils Undo/Redo auslösen und prüfen, dass die zuvor aktive rechte Ansicht wiederhergestellt wird.
+6. Im Action-Log dürfen `panel.view-restored` bzw. `panel.blocks-opened` erscheinen; es darf kein dauerhaft hängender `open-blocks`-Command zurückbleiben.
 
 ## Performance-Prüfung
 
@@ -83,3 +93,12 @@ Profil; es wird nicht für andere Packages wiederverwendet.
 5. Im Shared-Content-Log darf derselbe Repeat-Publish keinen zusätzlichen projektweiten Header/Nav/Footer-Flush nur aufgrund dieser internen Add/Remove-Ereignisse auslösen.
 6. Direkt danach Navigation oder Footer normal bearbeiten und zwischen Seiten wechseln. Die bidirektionale Shared-Content-Übernahme muss weiterhin funktionieren.
 7. CPU/Komponentenereignisse für 4, 8 und mehr Vorkommen protokollieren, um die neue Publish-Kostenkurve zu vermessen.
+
+## Video-Test Bootstrap 4 / Bootstrap 5
+
+1. Bootstrap 4 auswählen und **Video (HTML5)** aus `BS4 · Content` einsetzen. Der Rahmen muss `embed-responsive embed-responsive-16by9` verwenden.
+2. Das Video auswählen und in **Eigenschaften** getrennte Felder für WebM, MP4 und Ogg sowie Poster, Vorladen, Steuerung, Stumm, Autoplay und Wiederholen prüfen.
+3. Mindestens MP4 und WebM auf existierende Testdateien/Pfade setzen. Wiedergabe im Canvas prüfen.
+4. Eine Quelle absichtlich ungültig setzen. Der Browser muss zur nächsten unterstützten `<source>`-Quelle wechseln; der sichtbare Download-Link muss auf die bevorzugte MP4-Quelle zeigen.
+5. Bootstrap 5 auswählen und denselben Test mit **Video (HTML5)** aus `BS5 · Content` durchführen. Der Rahmen muss `ratio ratio-16x9` verwenden und darf keine BS4-`embed-responsive`-Klasse enthalten.
+6. Export prüfen: `<video>`, die drei `<source>`-Elemente, Poster, `controls`, `preload="metadata"`, `playsinline` und Download-Fallback bleiben erhalten; die editorinternen `data-oluntir-video-*`-Attribute dürfen im finalen HTML nicht enthalten sein.

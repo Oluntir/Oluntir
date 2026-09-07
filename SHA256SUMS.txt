@@ -5,8 +5,8 @@ ed6f3fbb2305d2054c7eb24ff1bdfcef5c52c534f45790c524b058728b7d96de  ./.github/ISSU
 4c08c1c65aa685d30e66b008c383726dd4e5c4dc90b1ff45420bcc4e69e4894f  ./.github/workflows/structure-check.yml
 79b5fe3c5cb4eda9fd29d7698a05ec7ee4c015a00ed1138f7ab79172e7a3bcc7  ./.gitignore
 b31d3a90f27baa9ac0ca2a540337eb3df9a18f7e27fd6846e862951ef72ef0c6  ./Build-Windows-Portable-Package.cmd
-fa05241e47dd61fb14434eb8d6ddbf2f3d9e47c415454477f25a9f4536d4ca6c  ./CHANGELOG.md
-f3965e246317696c2f09dc8717278acd1946da0cf4e9a4efc7830c7386052e44  ./CHANGELOG_de.md
+cb64b92c8588a04c5c5ea6a38a11b8176eab07c1deb09f417933f5ba1701e7bf  ./CHANGELOG.md
+d534f04b126df045cc2200993a82735f5d57bf50ff13c90dd262c584c55e5a4b  ./CHANGELOG_de.md
 1e6c4a48251db60c7c2e16e4a89aa444315442120fa42ba0a25e41da197138f0  ./CODE_OF_CONDUCT.md
 3421d18cdb5b831f5b7ca1c59d98917280b4f5f9f590d2c82ddfb96f9124ffb5  ./CODE_OF_CONDUCT_de.md
 513249dfb7d56287297289891fd1a531f4f30a15e084fcebf7ec010487924abf  ./CONTRIBUTING.md
@@ -39,8 +39,8 @@ e6ec6ff08d5cd84a781107edf7eb7338789351c8f4530e4766ee9bbd78de0735  ./PRIVACY.md
 463bda57f6ff14137a6856db3052874bd499d0bac75923f2051df61f99635042  ./PRIVACY_de.md
 6b4bb6f806bc21ca338588be85528c0e445732e2603bf8b1f9f970688b598046  ./README.md
 7a80b7ad08f0a9fc22871b2b62cbf676be040086253c989fc9b4df6557465a8b  ./README_de.md
-1a7d939bcc8a9ae1afec5228fc3c1c873db672011b8aaa8c97330387332511bc  ./RELEASE_NOTES.md
-69dfaaba67b74d6ca4d405bb10478800463cb3eff0ce553eb84f3752405c15a8  ./RELEASE_NOTES_de.md
+509e934a7fabdf03cdd63035ebe61dd5a9523ee54e18125dd4169516b993ceb2  ./RELEASE_NOTES.md
+68f84aaef43fede23100b77d159bff49c8dfb747cdc0d86bcd44962dbf43d69e  ./RELEASE_NOTES_de.md
 3bda7338ae73766eafd81e259919d32308f37dc3bb6e94a0fdb426ef0c1983c0  ./ROADMAP.md
 7722fd3a2f933a967dc43a758cbf098fab4b0abfcef2c47a0f22d1dfb1fa88ff  ./ROADMAP_de.md
 c75683b8064415fb6dd73ea185a9b22febdd4c3e4b4e9c0b4dc94c3497d95722  ./SECURITY.md
@@ -52,6 +52,7 @@ fffcefed43e526fdd8120cb09788c8e3133f358863c9a051e94b531f33587e9e  ./Start-Olunti
 229f023d1313218148152596d7b3d5ba26ec26ad9cca83289850320febb6fd89  ./Start-Oluntir-API-Analyzer.command
 29194562bf3c3fe673d4f9c9a19a2ebb36aa2c01a96a38a6fe1a00c1ac4ab834  ./TEST_VERSION_2.0.1_ALPHA_BOOTSTRAP_README_de.md
 0f02bc9404d780f90a29da814e052f245c0c65e29eb7538f26ac08a94c401b5d  ./TEST_VERSION_2.1.0_BETA_BOOTSTRAP_README_de.md
+0e7e62aa7841fe771a90162b0d636b46433824a6a29b02b68bd12a0e3a4cd829  ./TEST_VERSION_2.2.0_BETA_BOOTSTRAP_README_de.md
 7e83fdb93ed06b20b2f7d1bf9a68d2b8be20ea524a4d429bcd2275b50ac6c358  ./TEST_VERSION_2.2.1_BOOTSTRAP_README_de.md
 8811d3a5aa51ee4359afb2a52d7a016c97cf091f6b76116b61159c9f110d161a  ./THIRD_PARTY_NOTICES.md
 605658335efccde7ac0e06ae2794839319118fbfd2a7f6c4074e3b5dbf4ade2e  ./THIRD_PARTY_NOTICES_de.md
@@ -446,7 +447,7 @@ dacf7103de133344d697fda200313f187612205db1ef1a0d5dcd761970296d03  ./editor/js/co
 09d187fe6bea1c47912ea0f628495787bc9dd16dc8b97d6a5f4627364050a73e  ./editor/js/core/context-resolver.js
 f8d21d39562683fd86c89ec57fadad0e96b8c4a5d9bfbb7b5448bbdf083fc76b  ./editor/js/core/developer-diagnostics-center.js
 b8bc064c65bf26c1c93aec7d239ae45b06c415798bcccb20c84b4df772612804  ./editor/js/core/edition.js
-9977305e9819bdfaf9e26e2527f7f6dde120030afe60a7ddc0177be47cce2dd0  ./editor/js/core/editor.js
+9583165885da2cfa0747719de6653c0cd9c5b898f7bcf01afd2740fc52438e2c  ./editor/js/core/editor.js
 d7159955c95f81199886c3dd8f94b2ee6ad7bcce726ca16dcf88f9ad20a103e4  ./editor/js/core/export-readiness.js
 37446472852b35bf8a29c46441e0383a7d86cc83a48f5636bac00a921d45e2b6  ./editor/js/core/export-snapshot.js
 217abbdea48dc498850078ee37c3fadcf4f4a3c57b27e722cbf51a8623144b15  ./editor/js/core/export.js
@@ -593,7 +594,7 @@ dfd7890237dd562f8f3646813c83c571c871bda86dcbbb579f8c142d2fd72dc7  ./tests/MANUAL
 29b5a7663f6688e287743af8bf2250218e3fc5572f3997f941d9743b0945e554  ./tests/fixtures/bootstrap5-source.html
 a4f84e967eb4402aaeaade9a3beea6855496624eac8f6286e23c06ef4bd5659e  ./tests/fixtures/layout-repeat-export-contract.json
 d7a50203179f79aba7d6c14371563b2267a4fa43c5ab74172bc2de14b924429e  ./tests/gallery-empty-buttons-visual.html
-2d21c1b08ba24f4cfe0584149b8bddfbdf221fc064beb8c920d243014a8172a3  ./tests/run-tests.sh
+a6afa3f646e7ea133c6ef7b7798ee0a33f7c57cf896f3caafc5f311378e3965e  ./tests/run-tests.sh
 eb6fe0f1fe342c142054b5db1a1a93e32ca3ad478907508ea83bad1c19bf0647  ./tests/test-1.3.1-export-presentation-readonly.js
 b7bf4f58ca95096f8b9ffddd4b5fe5d3b8babcbb3db65ca4a90a7b135318dbaa  ./tests/test-1.3.1-export-presentation-translation.js
 1d30e4cd35f3bce35f9072ca9cce540868cc4fbc420250b602648509782915f5  ./tests/test-1.3.1-presentation-attribute-atomicity.js
@@ -736,6 +737,7 @@ a2ee2513f7f4ccbce46bead53c321960b15fb5f8fab89e07b5c85bd6933e3b6d  ./tests/test-t
 068f6664d158a9a81a6d92fc2ccf42e4b11b54a69a3e04d68f6840266fb264fa  ./tests/test-template-first-semantics.js
 40653592b8b9ee14429dd75462fdeb94f1e56d3567e334c2873c46a16092cd34  ./tests/test-template-structure-api.js
 007ffbfb27eb045b507c607204fbc176104b3bc5ef622a9184b8c9ca33d13e36  ./tests/test-toast-error-duration.js
+325aa61308931f6e4668bf44e61069945f42c37de6d7083b0fda1255d891ddd5  ./tests/test-toolbar-redundant-import-removed.js
 1ac68b2726e7caf7275671806005cb4a8cc12d79430396ec92a784ce3c1cdba2  ./tests/test-translation-analyzer-bootstrap5.js
 ca312fe1b4f6136c445ac4e5d1fdbb1661ce2644dfdc8a980271f7c72dbc77b4  ./tests/test-translation-materialization-plan.js
 1ef3ffdb084642c9bc9c95524c25fe3dc8141375249c254f3b83f205efefd610  ./tests/test-translation-matrix-contract.js

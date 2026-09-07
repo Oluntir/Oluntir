@@ -110,6 +110,19 @@ assetHydration.then(() => {
     },
   });
 
+  // Das Preset bringt einen generischen HTML-Import-Button (fa-download) mit.
+  // Oluntir besitzt dafür bereits die eigenen Source-/Recovery-Workflows; der
+  // zusätzliche Download-Pfeil zwischen Redo und Löschen ist daher redundant
+  // und wird aus der sichtbaren GrapesJS-Toolbar entfernt. Der separate
+  // Oluntir-Ordnerexport weiter rechts bleibt davon unberührt.
+  try {
+    if (editor.Panels && typeof editor.Panels.removeButton === 'function') {
+      editor.Panels.removeButton('options', 'gjs-open-import-webpage');
+    }
+  } catch (error) {
+    console.warn('Redundanter GrapesJS-Import-Button konnte nicht entfernt werden:', error);
+  }
+
   if (window.OluntirLoggingConsent && typeof window.OluntirLoggingConsent.initialize === 'function') {
     window.OluntirLoggingConsent.initialize().catch(error => console.warn('Logging-Freigabe konnte nicht initialisiert werden:', error));
   }
