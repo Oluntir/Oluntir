@@ -2,6 +2,8 @@
 
 ## 2.3.0 — 2026-09-10
 
+- Komponenten-Toolbar für komplexe Shared-Regionen gehärtet: der Löschbefehl verwendet nun den beim Toolbar-Klick stabil ermittelten GrapesJS-Zielknoten und übergibt ihn explizit an `core:component-delete`; dadurch kann insbesondere ein ausgewählter Footer zuverlässig über die blaue Leiste entfernt werden.
+- Template-Verwaltung korrigiert: „Entfernen“ öffnet keinen Directory-Picker mehr, sondern verwendet ausschließlich den bereits freigegebenen bzw. gemerkten `templates`-Handle. Das synthetische `runtime-test`-Template wird nicht mehr ausgeliefert.
 - Shared Footer werden bei strukturellem Löschen aus dem resultierenden Seitenmodell übernommen; selbst erzeugte Style-Updates lösen keine rekursiven Shared-Content-Commits mehr aus. Embed-Platzhalter sind im Editiermodus pointer-transparent und nicht fokussierbar.
 - Modulares Template-System unter `templates/`: zusätzliche Bootstrap-4-/Bootstrap-5-Templates werden außerhalb von `frameworks/` verwaltet und über eine statische Registry geladen.
 - Neue `template-manager.html` für Analyse, Aufnahme, Prüfung, Registrierung manuell kopierter Templates und Entfernung zusätzlicher Templates.

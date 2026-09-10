@@ -101,6 +101,7 @@ node tests/test-shared-content-lazy-scaling.js
 node tests/test-shared-content-live-target-refresh.js
 node tests/test-shared-content-performance-contract.js
 node tests/test-shared-content-footer-lifecycle.js
+node tests/test-shared-toolbar-delete-target.js
 node tests/test-presentation-noop-write.js
 python3 tools/validate-structure.py
 node tests/test-gallery-icons-idle-visible.js
@@ -184,6 +185,7 @@ node tests/test-template-runtime-controlled-scripts.js
 node tests/test-template-runtime-editor-isolation.js
 node tests/test-template-runtime-embed-preview.js
 node tests/test-template-manager-registry.js
+node tests/test-template-manager-remove-action.js
 node tests/test-template-manager-layout.js
 node tests/test-template-manager-permissions.js
 node tests/test-template-manager-user-gesture.js

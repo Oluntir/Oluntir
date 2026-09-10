@@ -31,7 +31,15 @@ assert.ok(html.includes('Template aufnehmen'), 'Aufnahme-Button für das kompili
 assert.ok(html.includes('frameworks/</code> werden nicht verändert'), 'Hinweis auf unveränderten Oluntir-Kern/frameworks fehlt');
 assert.ok(html.includes('const readyToAnalyze = Boolean(importNameEl.value.trim() && importArchiveEl.files && importArchiveEl.files[0])'), 'Analyse darf nicht von einem vorher gewählten templates-Ordner abhängen');
 assert.ok(html.includes('installImportButton.disabled = !pendingCompilation'), 'Template aufnehmen muss nach erfolgreicher Analyse unabhängig von einer vorherigen Ordnerwahl aktiv werden');
-assert.ok(html.includes('await selectAndInspectTemplatesRoot({ write: true });'), 'Schreibfreigabe muss beim Aufnehmen/Verwalten bei Bedarf angefordert werden');
+const confirmInstallStart = html.indexOf("confirmInstallButton.addEventListener('click', async () => {");
+const registeredHandlerStart = html.indexOf("registeredEl.addEventListener('click', async event => {");
+assert.ok(confirmInstallStart >= 0 && registeredHandlerStart > confirmInstallStart, 'Aufnahme-/Verwaltungs-Handler müssen vorhanden sein');
+const confirmInstallHandler = html.slice(confirmInstallStart, registeredHandlerStart);
+assert.ok(confirmInstallHandler.includes('await selectAndInspectTemplatesRoot({'), 'Die Template-Aufnahme muss den Ordner-Picker bei Bedarf direkt aus dem Benutzerklick öffnen können');
+const registeredHandlerEnd = html.indexOf("unregisteredEl.addEventListener('click'", registeredHandlerStart);
+const registeredHandler = html.slice(registeredHandlerStart, registeredHandlerEnd);
+assert.ok(registeredHandler.includes('ensureTemplatesRootForManagementAction()'), 'Registrierte Templates müssen den vorhandenen templates-Handle wiederverwenden');
+assert.ok(!registeredHandler.includes('selectAndInspectTemplatesRoot('), 'Entfernen darf nicht als versteckte Ordnerauswahl verdrahtet sein');
 assert.ok(!html.includes("${rootHandle ? '' : 'disabled'}"), 'Entfernen darf vor der Ordnerprüfung nicht dauerhaft ausgegraut sein');
 
 assert.ok(html.includes('Bootstrap 5.3.8 – Community Edition'), 'Bootstrap-5-Systemtemplate fehlt');

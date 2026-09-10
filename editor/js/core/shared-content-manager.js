@@ -19,6 +19,8 @@
   let lastRegionsJson = '';
   const pageAppliedFingerprints = new WeakMap();
   const modelAuthoritativePages = new WeakSet();
+  let toolbarTargetSnapshot = null;
+  let toolbarTargetSnapshotAt = 0;
 
   function diagnostic(event, details) {
     const payload = Object.assign({ event }, details || {});
@@ -818,9 +820,70 @@
     return Boolean(token > 0 && completedExportCommitSequence >= token && !exportPreparing);
   }
 
+  function selectedToolbarTargets(nextEditor) {
+    if (!nextEditor) return [];
+    if (typeof nextEditor.getSelectedAll === 'function') {
+      const all = nextEditor.getSelectedAll();
+      if (Array.isArray(all)) return all.filter(Boolean);
+      if (all && typeof all.toArray === 'function') return all.toArray().filter(Boolean);
+    }
+    const selected = typeof nextEditor.getSelected === 'function' ? nextEditor.getSelected() : null;
+    return selected ? [selected] : [];
+  }
+
+  function bindStableToolbarDelete(nextEditor) {
+    if (!nextEditor || nextEditor.__oluntirStableToolbarDeleteBound) return;
+    const commands = nextEditor.Commands;
+    if (!commands || typeof commands.get !== 'function' || typeof commands.add !== 'function') return;
+    nextEditor.__oluntirStableToolbarDeleteBound = true;
+
+    // GrapesJS' stock tlb-delete drops the toolbar's concrete component context
+    // and resolves the target again from the live selection. Complex shared
+    // regions (especially footer trees with embedded frames) can change focus/
+    // hover state between the toolbar becoming visible and the click. Capture the
+    // selected model synchronously at toolbar click time and pass it explicitly to
+    // core:component-delete. This leaves keyboard/programmatic deletion untouched.
+    nextEditor.on('toolbar:run:before', () => {
+      toolbarTargetSnapshot = selectedToolbarTargets(nextEditor);
+      toolbarTargetSnapshotAt = Date.now();
+    });
+
+    if (typeof commands.remove === 'function') commands.remove('tlb-delete');
+    commands.add('tlb-delete', {
+      run(ed, sender, options) {
+        const freshSnapshot = toolbarTargetSnapshot && (Date.now() - toolbarTargetSnapshotAt) < 1000
+          ? toolbarTargetSnapshot.slice()
+          : [];
+        const targets = freshSnapshot.length ? freshSnapshot : selectedToolbarTargets(ed);
+        toolbarTargetSnapshot = null;
+        toolbarTargetSnapshotAt = 0;
+        if (!targets.length) return false;
+        diagnostic('toolbar-delete-target', {
+          count: targets.length,
+          targets: targets.map((component) => {
+            const info = sharedRegionInfo(component);
+            return {
+              id: component && typeof component.getId === 'function' ? component.getId() : null,
+              tagName: componentTagName(component),
+              sharedRegion: info ? info.name : null,
+              sharedRoot: Boolean(info && info.root === component),
+              removable: component && typeof component.get === 'function' ? component.get('removable') !== false : null
+            };
+          })
+        });
+        const commandOptions = Object.assign({}, options || {}, {
+          component: targets.length === 1 ? targets[0] : targets,
+          oluntirToolbarTarget: true
+        });
+        return ed.runCommand('core:component-delete', commandOptions);
+      }
+    });
+  }
+
   function bind(nextEditor) {
     if (!nextEditor || editor === nextEditor) return;
     editor = nextEditor;
+    bindStableToolbarDelete(editor);
     lastRegionsJson = regionFingerprint(currentRegions());
 
     // GrapesJS fires these events for direct text edits, component changes,

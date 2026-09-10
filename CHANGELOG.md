@@ -2,6 +2,8 @@
 
 ## 2.3.0 — 2026-09-10
 
+- Hardened the component toolbar for complex shared regions: delete now uses the GrapesJS target captured at toolbar-click time and passes it explicitly to `core:component-delete`, so selected footers can be removed reliably from the blue toolbar.
+- Fixed template management: “Remove” no longer opens a directory picker and only reuses an already authorized/remembered `templates` handle. The synthetic `runtime-test` template is no longer shipped.
 - Shared footers now commit structural deletion from the resulting page model; self-generated style updates no longer trigger recursive Shared Content commits. Embed placeholders are pointer-transparent and non-focusable in edit mode.
 - Added the modular `templates/` system: additional Bootstrap 4/5 templates are managed outside `frameworks/` and loaded through a static registry.
 - Added `template-manager.html` for analysis, acceptance, validation, manual-folder registration and removal of additional templates.

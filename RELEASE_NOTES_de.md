@@ -4,6 +4,10 @@ Oluntir 2.3.0 erweitert den Bootstrap-fokussierten Editor um eine modulare Templ
 
 ## Schwerpunkte von 2.3.0
 
+### Stabilere Footer-Bearbeitung und Template-Verwaltung
+
+Die blaue GrapesJS-Komponentenleiste verwendet beim Löschen komplexer Shared-Regionen nun einen stabilen Ziel-Snapshot. Dadurch wird der ausgewählte Footer direkt adressiert, auch wenn eingebettete oder stark verschachtelte Inhalte den Fokus verändern. Der Template-Manager trennt außerdem „Entfernen“ strikt von der Ordnerauswahl: der Entfernen-Button öffnet keinen Explorer mehr und verwendet nur einen bereits freigegebenen `templates`-Ordner. Das bisherige synthetische `runtime-test`-Template wurde aus dem Distributionsstand entfernt.
+
 ### Modulare Template-Architektur
 
 Importierte Templates werden ausschließlich unter `templates/<name>/` abgelegt. Die Ordner `frameworks/bootstrap4` und `frameworks/bootstrap5` bleiben unangetastet. Eine statische Registry bindet aufgenommene Templates beim normalen `index.html`-Start ohne erneute Analyse ein.

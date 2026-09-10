@@ -4,6 +4,10 @@ Oluntir 2.3.0 extends the Bootstrap-focused editor with a modular template runti
 
 ## 2.3.0 highlights
 
+### More stable footer editing and template management
+
+The blue GrapesJS component toolbar now deletes complex shared regions using a stable target snapshot captured at toolbar-click time. This addresses the selected footer directly even when embedded or deeply nested content changes focus. Template management also separates “Remove” from folder selection: the remove action no longer opens Explorer and only reuses an already authorized `templates` directory. The synthetic `runtime-test` template has been removed from the distribution.
+
 ### Modular template architecture
 
 Imported templates are stored only below `templates/<name>/`. `frameworks/bootstrap4` and `frameworks/bootstrap5` remain untouched. A static registry loads accepted templates during normal `index.html` startup without re-running the analyzer.

@@ -371,6 +371,34 @@
     return rootHandle;
   }
 
+
+  async function ensureTemplatesRootForManagementAction() {
+    // Management buttons must never open the Explorer implicitly. A destructive
+    // action either reuses the already selected/remembered File System Access
+    // handle or tells the user to select the templates root explicitly first.
+    if (!rootHandle) {
+      const handle = rememberedRootHandle || await loadRememberedTemplatesRootHandle();
+      if (handle && String(handle.name || '').toLowerCase() === 'templates' && typeof handle.queryPermission === 'function') {
+        const permission = await handle.queryPermission({ mode: 'readwrite' });
+        if (permission === 'granted') {
+          await api.validateTemplatesRoot(handle);
+          rootHandle = handle;
+          rememberedRootHandle = handle;
+        }
+      }
+    }
+    if (!rootHandle) {
+      throw new Error('Bitte zuerst mit „templates-Ordner auswählen und prüfen“ den Template-Ordner dieser Oluntir-Installation freigeben. Der Entfernen-Button öffnet bewusst keinen Explorer.');
+    }
+    await api.verifyWritableRoot(rootHandle);
+    registry = await api.readRegistry(rootHandle, registry);
+    window.OLUNTIR_TEMPLATE_REGISTRY = registry;
+    refreshButton.disabled = false;
+    await refresh();
+    updateImportButtons();
+    return rootHandle;
+  }
+
   function renderImportAnalysis(compilation) {
     const a = compilation.manifest.analysis;
     const framework = compilation.analysis.framework;
@@ -586,27 +614,28 @@
     if (!button) return;
     const card = button.closest('[data-template-id]');
     const id = card && card.getAttribute('data-template-id');
+    button.disabled = true;
     try {
-      await selectAndInspectTemplatesRoot({ write: true });
-    } catch (error) {
-      if (error && error.name === 'AbortError') return;
-      setMessage(error.message || String(error), true);
-      return;
-    }
-    const entry = registry.templates.find(item => item.id === id);
-    const status = currentStatus(id);
-    if (!entry) return;
-    const deleteFolder = Boolean(status && status.present);
-    const question = deleteFolder
-      ? `Template „${entry.name}“ entfernen?\n\nDer Ordner templates/${entry.folder}/ wird gelöscht und der Registry-Eintrag entfernt. Bootstrap 4 und 5 bleiben unverändert.`
-      : `Der Ordner des Templates „${entry.name}“ fehlt bereits. Soll nur der veraltete Registry-Eintrag entfernt werden?`;
-    if (!window.confirm(question)) return;
-    try {
+      await ensureTemplatesRootForManagementAction();
+      const entry = registry.templates.find(item => item.id === id);
+      const status = currentStatus(id);
+      if (!entry) return;
+      const deleteFolder = Boolean(status && status.present);
+      const question = deleteFolder
+        ? `Template „${entry.name}“ entfernen?
+
+Der Ordner templates/${entry.folder}/ wird gelöscht und der Registry-Eintrag entfernt. Bootstrap 4 und 5 bleiben unverändert.`
+        : `Der Ordner des Templates „${entry.name}“ fehlt bereits. Soll nur der veraltete Registry-Eintrag entfernt werden?`;
+      if (!window.confirm(question)) return;
       registry = await api.removeTemplate(rootHandle, registry, id, { deleteFolder });
       window.OLUNTIR_TEMPLATE_REGISTRY = registry;
       setMessage(deleteFolder ? `Template „${entry.name}“ wurde entfernt.` : `Veralteter Eintrag „${entry.name}“ wurde aus der Registry entfernt.`);
       await refresh();
-    } catch (error) { setMessage(error.message || String(error), true); }
+    } catch (error) {
+      setMessage(error.message || String(error), true);
+    } finally {
+      button.disabled = false;
+    }
   });
 
   unregisteredEl.addEventListener('click', async event => {
