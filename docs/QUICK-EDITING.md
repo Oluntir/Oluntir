@@ -2,7 +2,7 @@
 
 # Quick Editing
 
-**Version:** 2.2.1
+**Version:** 2.3.0
 **Language:** English
 **Status:** Release
 **Stable baseline:** Oluntir 1.3.1
@@ -14,7 +14,7 @@ Provides direct editing actions for common page content. Operations must update 
 
 ## Scope
 
-This document describes the behavior included in Oluntir 2.2.1.
+This document describes the behavior included in Oluntir 2.3.0.
 
 ## Verification
 

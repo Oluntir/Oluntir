@@ -372,7 +372,11 @@ assetHydration.then(() => {
     window.registerPageBuilderVariants(editor, ACTIVE_FRAMEWORK.id);
   }
 
-  if (ACTIVE_FRAMEWORK.sourcePackage && window.OluntirSourcePackageGrapesJsAdapter) {
+  if (ACTIVE_FRAMEWORK.templateRuntime && window.OluntirTemplateRuntime) {
+    const result = window.OluntirTemplateRuntime.connect(editor, ACTIVE_FRAMEWORK);
+    if (result.connected) console.info('Oluntir Template Runtime verbunden:', result.added);
+    else console.warn('Oluntir Template Runtime blockiert:', result.issues);
+  } else if (ACTIVE_FRAMEWORK.sourcePackage && window.OluntirSourcePackageGrapesJsAdapter) {
     window.OluntirSourcePackageGrapesJsAdapter.connect(editor, ACTIVE_FRAMEWORK.sourcePackage)
       .then(result => {
         if (result.connected) console.info('Oluntir Universal-Source-Bridge verbunden:', result.blocks.added);
@@ -440,7 +444,7 @@ assetHydration.then(() => {
       hydrationSource: 'pre-grapesjs-local-storage'
     });
   }
-  // 2.2.1: Repeat-Inhalte werden nicht mehr während jeder GrapesJS-
+  // 2.3.0: Repeat-Inhalte werden nicht mehr während jeder GrapesJS-
   // Änderung live verteilt. Die zentrale Oluntir-Bibliothek bearbeitet genau
   // einen Draft und publiziert ihn erst über eine explizite Transaktion.
   if (window.OluntirRepeatLibraryManager && typeof window.OluntirRepeatLibraryManager.bind === 'function') {
@@ -1386,7 +1390,7 @@ assetHydration.then(() => {
     let projectData = editor.getProjectData();
     if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
     if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
-    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.1' });
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.3.0' });
     if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
     if (window.OluntirStartup) {
@@ -1435,7 +1439,7 @@ assetHydration.then(() => {
       projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData);
     }
     if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
-    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.1' });
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.3.0' });
     if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
     return projectData;
@@ -1564,7 +1568,7 @@ assetHydration.then(() => {
       projectData = editor.getProjectData();
       if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
       if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
-    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.2.1' });
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.3.0' });
       if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     }
 

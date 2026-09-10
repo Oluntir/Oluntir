@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.3.0 — 2026-09-10
+
+- Shared Footer werden bei strukturellem Löschen aus dem resultierenden Seitenmodell übernommen; selbst erzeugte Style-Updates lösen keine rekursiven Shared-Content-Commits mehr aus. Embed-Platzhalter sind im Editiermodus pointer-transparent und nicht fokussierbar.
+- Modulares Template-System unter `templates/`: zusätzliche Bootstrap-4-/Bootstrap-5-Templates werden außerhalb von `frameworks/` verwaltet und über eine statische Registry geladen.
+- Neue `template-manager.html` für Analyse, Aufnahme, Prüfung, Registrierung manuell kopierter Templates und Entfernung zusätzlicher Templates.
+- Universeller Bootstrap-Template-Compiler: Primär-/Doku-HTML-Trennung, semantische Sections/Bausteinfamilien, Repeat-Kandidaten, Asset- und CSS-Erfassung sowie statische Kompilierung.
+- Universelle JavaScript-Analyse mit Bibliotheks-/Plugin-Erkennung, Dependency Graph, DOM-/Section-Zuordnung, Runtime-Plan und kontrolliertem Aktivierungsplan.
+- Importiertes Template-JavaScript wird im bearbeitbaren GrapesJS-Canvas isoliert und nicht ausgeführt; kontrollierte Runtime-Skripte bleiben für Preview/Veröffentlichung vorbereitet.
+- Externe `iframe`-, `object`- und `embed`-Inhalte werden im Editiermodus providerunabhängig durch skalierende SVG-Platzhalter ersetzt; Originalquelle und Größen-/Style-Struktur bleiben erhalten.
+- Templateanalyse und Aufnahme besitzen Fortschrittsanzeige und verifizieren Registry sowie Template-Einstiegsdateien nach dem Schreiben.
+- Standardprofile Bootstrap 4.6.2 und Bootstrap 5.3.8 bleiben geschützt und unverändert.
+
 ## 2.2.1 — 2026-09-07
 
 - Dokumentation redaktionell bereinigt: README, FEATURES, HANDBOOK, ROADMAP und WHY_OLUNTIR konzentrieren sich auf stabile Produktfunktionen und Nutzung; Implementierungsdetails und Fehlerhistorie bleiben Changelog, Release Notes, DEV-, Audit-, Architektur- und Testdokumenten vorbehalten.

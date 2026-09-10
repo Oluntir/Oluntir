@@ -60,9 +60,14 @@
   };
 
   function refreshFrameworkProfiles() {
-    window.PAGEBUILDER_FRAMEWORKS = window.OluntirSourcePackageBridge
-      ? window.OluntirSourcePackageBridge.extendProfiles(profiles)
-      : profiles;
+    let availableProfiles = profiles;
+    if (window.OluntirTemplateRuntime && typeof window.OluntirTemplateRuntime.extendProfiles === 'function') {
+      availableProfiles = window.OluntirTemplateRuntime.extendProfiles(availableProfiles);
+    }
+    if (window.OluntirSourcePackageBridge) {
+      availableProfiles = window.OluntirSourcePackageBridge.extendProfiles(availableProfiles);
+    }
+    window.PAGEBUILDER_FRAMEWORKS = availableProfiles;
     const available = window.PAGEBUILDER_FRAMEWORKS;
     const selected = localStorage.getItem(STORAGE_KEY);
     window.PAGEBUILDER_FRAMEWORK = available[selected] || available[current] || available.bs5;
@@ -71,7 +76,13 @@
 
   refreshFrameworkProfiles();
   window.OluntirFrameworkReady = (async function () {
-    if (window.OluntirSourcePackageBridge && typeof window.OluntirSourcePackageBridge.discover === 'function') {
+    if (window.OluntirTemplateRuntimeReady) {
+      try { await window.OluntirTemplateRuntimeReady; }
+      catch (error) { console.warn('Installierte Templates konnten beim Start nicht geladen werden:', error); }
+      refreshFrameworkProfiles();
+    }
+    const directFileStart = typeof location !== 'undefined' && String(location.protocol || '') === 'file:';
+    if (!directFileStart && window.OluntirSourcePackageBridge && typeof window.OluntirSourcePackageBridge.discover === 'function') {
       try { await window.OluntirSourcePackageBridge.discover(); }
       catch (error) { console.warn('Source Packages konnten beim Start nicht entdeckt werden:', error); }
       refreshFrameworkProfiles();

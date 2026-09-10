@@ -1,0 +1,13 @@
+'use strict';
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const html = fs.readFileSync(path.join(__dirname, '..', 'template-manager.html'), 'utf8');
+assert.ok(html.includes("const HANDLE_DB_NAME = 'oluntir-template-manager'"), 'Template-Manager braucht einen persistenten Handle-Speicher.');
+assert.ok(html.includes("const HANDLE_KEY = 'templates-root'"), 'Der templates-Handle braucht einen stabilen Schlüssel.');
+assert.ok(html.includes('rememberTemplatesRootHandle(handle)'), 'Eine erfolgreiche Auswahl muss den DirectoryHandle merken.');
+assert.ok(html.includes('loadRememberedTemplatesRootHandle()'), 'Der gemerkte DirectoryHandle muss wieder geladen werden können.');
+assert.ok(html.includes('restoreRememberedTemplatesRoot()'), 'Ein bereits freigegebener templates-Ordner muss automatisch wiederverwendet werden können.');
+assert.ok(html.includes('pickerOptions.startIn = rememberedRootHandle'), 'Eine erneute Ordnerwahl muss am gemerkten templates-Ordner starten.');
+assert.ok(html.includes("queryPermission({ mode: 'readwrite' })"), 'Automatische Wiederverwendung darf nur bei gültiger Schreibfreigabe erfolgen.');
+console.log('TEMPLATE-MANAGER-REMEMBERED-ROOT-TEST ERFOLGREICH');

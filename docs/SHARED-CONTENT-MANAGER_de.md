@@ -2,7 +2,7 @@
 
 # Shared Content Manager
 
-**Version:** 2.2.1
+**Version:** 2.3.0
 **Status:** Release
 **Stabile Baseline:** Oluntir 1.3.1
 **Letzte Aktualisierung:** 2026-09-06
@@ -25,9 +25,9 @@ Jeder Bereich besitzt genau eine zentrale Repräsentation im Oluntir-Projektzust
 4. Alle anderen Seiten werden aus dem zentralen Zustand aktualisiert.
 5. Vor Seitenwechsel, Löschen, Speichern oder Neuerstellung wird die ausgewählte Seite erneut übernommen.
 
-Eigene Aktualisierungsereignisse werden während der Übertragung unterdrückt. Zusätzlich beendet 2.2.1 einen Komponenten-Commit sofort, wenn sich der zentrale Shared-Content-Fingerprint nicht geändert hat. Dadurch entstehen bei redundanten GrapesJS-Events weder Zielmutationen noch zusätzliche `editor.store()`-Aufrufe.
+Eigene Aktualisierungsereignisse werden während der Übertragung unterdrückt. Zusätzlich beendet 2.3.0 einen Komponenten-Commit sofort, wenn sich der zentrale Shared-Content-Fingerprint nicht geändert hat. Dadurch entstehen bei redundanten GrapesJS-Events weder Zielmutationen noch zusätzliche `editor.store()`-Aufrufe.
 
-Für 2.2.1 ist außerdem eine enge Transaktionsgrenze zur zentralen Repeat-Bibliothek definiert: Nur während einer aktiven Oluntir-Repeat-Projektmutation werden die von der Materialisierung erzeugten `component:add`-/`component:remove`-Ereignisse nicht als Shared-Content-Strukturänderung behandelt. `component:update`/Style-Updates innerhalb von Header, Navigation oder Footer sowie normale Add/Remove-Benutzeraktionen außerhalb dieser Repeat-Transaktion bleiben vollständig aktiv.
+Für 2.3.0 ist außerdem eine enge Transaktionsgrenze zur zentralen Repeat-Bibliothek definiert: Nur während einer aktiven Oluntir-Repeat-Projektmutation werden die von der Materialisierung erzeugten `component:add`-/`component:remove`-Ereignisse nicht als Shared-Content-Strukturänderung behandelt. `component:update`/Style-Updates innerhalb von Header, Navigation oder Footer sowie normale Add/Remove-Benutzeraktionen außerhalb dieser Repeat-Transaktion bleiben vollständig aktiv.
 
 ## Neue Seiten
 

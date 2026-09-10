@@ -1,5 +1,5 @@
 > **Sprache:** Deutsch · [English](ARCHITECTURE.md)
-> **Version:** 2.2.1 · **Stabile Baseline:** 1.3.1
+> **Version:** 2.3.0 · **Stabile Baseline:** 1.3.1
 
 # Architekturübersicht
 
@@ -55,3 +55,20 @@ Shared Content vergleicht Fingerprints, speichert Komponentenreferenzen pro Seit
 ## Weiterführend
 
 Siehe `docs/Architecture/` sowie `docs/AI/`.
+
+## Modulare Template-Runtime ab 2.3.0
+
+Zusätzliche Bootstrap-Templates werden nicht als neue Framework-Unterordner angelegt. `frameworks/bootstrap4` und `frameworks/bootstrap5` bleiben die festen technischen Basen. Benutzer-Templates liegen ausschließlich unter `templates/` und werden über `registry.js` beim Start eingebunden.
+
+```text
+Template-ZIP
+→ Browser-Compiler
+→ HTML-/CSS-/Asset-/JS-Analyse
+→ statische Template-Artefakte
+→ templates/<id>/
+→ registry.js
+→ generische Template-Runtime
+→ GrapesJS-Blöcke
+```
+
+Die Runtime führt importiertes Template-JavaScript im Editier-Canvas nicht aus. Externe `iframe`-/`object`-/`embed`-Quellen werden vor der Registrierung als Editorbaustein isoliert und durch SVG-Platzhalter ersetzt. Preview-Reaktivierung erfolgt ausschließlich im Canvas-DOM. Dadurch bleiben das persistierte Komponentenmodell, Undo/Redo und Shared Content von Fremdruntime-Mutationen getrennt.

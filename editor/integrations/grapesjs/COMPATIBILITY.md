@@ -1,6 +1,6 @@
 # GrapesJS compatibility
 
-Oluntir 2.2.1 uses a dedicated adapter and does not modify GrapesJS vendor files.
+Oluntir 2.3.0 uses a dedicated adapter and does not modify GrapesJS vendor files.
 
 | Version | Status |
 |---|---|

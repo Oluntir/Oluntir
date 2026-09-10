@@ -1,10 +1,10 @@
-# Repeat Engine V2 – Oluntir 2.2.1
+# Repeat Engine V2 – Oluntir 2.3.0
 
 `editor/js/core/repeat-engine-v2.js` verwaltet Repeat-Familien über stabile Oluntir-Identitäten. DOM-Positionen, CSS-Selektoren und eine Änderung der `unitId` dienen nicht als Identität.
 
 ## Zentrale Repeat-Bibliothek
 
-2.2.1 ersetzt die permanente Live-Synchronisation beim Tippen durch ein zentrales Oluntir-Modell:
+2.3.0 ersetzt die permanente Live-Synchronisation beim Tippen durch ein zentrales Oluntir-Modell:
 
 1. Ein wiederholbarer Bereich wird einmal als benannte Repeat-Familie angelegt.
 2. Alle Vorkommen auf Projektseiten sind materialisierte Instanzen dieser Familie.

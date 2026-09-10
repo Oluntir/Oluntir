@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Oluntir · Template-Verwaltung</title>
+  <style>
+    :root { font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color-scheme: light dark; }
+    body { margin: 0; background: Canvas; color: CanvasText; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
+    header { display:flex; gap:18px; align-items:flex-start; justify-content:space-between; margin-bottom:28px; }
+    h1 { margin:0 0 8px; font-size: clamp(1.7rem, 4vw, 2.4rem); }
+    h2 { margin-top:0; font-size:1.1rem; }
+    p { line-height:1.55; }
+    .muted { opacity:.72; }
+    .toolbar, .actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .form-grid { display:grid; grid-template-columns:minmax(220px,1fr) minmax(220px,1fr); gap:14px; align-items:end; }
+    label { display:block; font-weight:650; margin-bottom:6px; }
+    input[type="text"], input[type="file"] { width:100%; box-sizing:border-box; border:1px solid color-mix(in srgb, CanvasText 22%, transparent); background:Canvas; color:CanvasText; border-radius:9px; padding:9px 11px; font:inherit; }
+    .analysis-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:14px; }
+    .metric { border:1px solid color-mix(in srgb, CanvasText 14%, transparent); border-radius:10px; padding:10px 12px; }
+    .metric strong { display:block; font-size:1.15rem; margin-top:3px; }
+    .notice { border-left:4px solid color-mix(in srgb, #1976d2 75%, transparent); padding:10px 12px; margin:14px 0; background:color-mix(in srgb, #1976d2 8%, transparent); }
+    button, a.button { appearance:none; border:1px solid color-mix(in srgb, CanvasText 25%, transparent); background:ButtonFace; color:ButtonText; border-radius:9px; padding:9px 13px; font:inherit; cursor:pointer; text-decoration:none; }
+    button.primary { font-weight:650; }
+    button.danger { border-color: color-mix(in srgb, #c62828 55%, transparent); }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    section { border:1px solid color-mix(in srgb, CanvasText 18%, transparent); border-radius:14px; padding:18px; margin:18px 0; }
+    .card { border-top:1px solid color-mix(in srgb, CanvasText 14%, transparent); padding:15px 0; display:grid; grid-template-columns:1fr auto; gap:12px 20px; }
+    .card:first-of-type { border-top:0; }
+    .title { font-weight:700; }
+    .meta { font-size:.9rem; opacity:.72; margin-top:4px; }
+    .status { display:inline-block; margin-top:7px; padding:3px 8px; border-radius:999px; font-size:.82rem; background: color-mix(in srgb, CanvasText 9%, transparent); }
+    .status.ok { background: color-mix(in srgb, #2e7d32 20%, transparent); }
+    .status.warn { background: color-mix(in srgb, #ed6c02 20%, transparent); }
+    .status.bad { background: color-mix(in srgb, #c62828 20%, transparent); }
+    #message { min-height:1.4em; margin:14px 0; font-weight:600; }
+    .empty { opacity:.65; padding:8px 0; }
+    .confirm-panel { margin-top:14px; border:1px solid color-mix(in srgb, #1976d2 35%, CanvasText 12%); border-radius:12px; padding:14px; background:color-mix(in srgb, #1976d2 7%, Canvas); }
+    .confirm-panel[hidden] { display:none; }
+    .confirm-panel p { margin:0 0 10px; }
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size:.9em; }
+    .busy-overlay { position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; background:color-mix(in srgb, #000 62%, transparent); backdrop-filter:blur(2px); }
+    .busy-overlay[hidden] { display:none; }
+    .busy-dialog { width:min(560px, calc(100vw - 40px)); border:1px solid color-mix(in srgb, CanvasText 20%, transparent); border-radius:16px; padding:22px; background:Canvas; color:CanvasText; box-shadow:0 20px 70px rgba(0,0,0,.35); }
+    .busy-dialog h2 { margin:0 0 8px; font-size:1.2rem; }
+    .busy-dialog p { margin:6px 0 14px; }
+    .busy-progress { width:100%; height:14px; border-radius:999px; overflow:hidden; background:color-mix(in srgb, CanvasText 12%, transparent); }
+    .busy-progress-bar { width:0%; height:100%; background:currentColor; opacity:.72; transition:width .16s ease; }
+    .busy-progress.indeterminate .busy-progress-bar { width:35%; animation:oluntir-progress 1.1s ease-in-out infinite; }
+    .busy-percent { margin-top:8px; text-align:right; font-variant-numeric:tabular-nums; font-size:.85rem; opacity:.7; }
+    .button.success { background:#198754; border-color:#198754; color:#fff; font-weight:700; }
+    .button.success:hover { background:#157347; border-color:#146c43; color:#fff; }
+    .workflow-step { margin-top:18px; padding-top:18px; border-top:1px solid color-mix(in srgb, CanvasText 12%, transparent); }
+    .workflow-step:first-of-type { margin-top:14px; padding-top:0; border-top:0; }
+    .workflow-step h3 { margin:0 0 10px; font-size:1rem; }
+    .workflow-step .step-hint { margin:0 0 12px; font-size:.94rem; opacity:.75; }
+    .success-launch { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:10px; }
+    .success-launch .button.success:disabled { background:color-mix(in srgb, #198754 45%, Canvas); border-color:color-mix(in srgb, #198754 35%, CanvasText 15%); color:color-mix(in srgb, CanvasText 55%, transparent); opacity:.7; cursor:not-allowed; }
+    @keyframes oluntir-progress { 0% { transform:translateX(-110%); } 55% { transform:translateX(130%); } 100% { transform:translateX(310%); } }
+    @media (max-width:700px){ header,.card{display:block}.actions{margin-top:12px}.form-grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Template-Verwaltung</h1>
+      <p class="muted">Verwaltet ausschließlich modulare Templates unter <code>templates/</code>. Die integrierten Bootstrap-4- und Bootstrap-5-Profile werden nicht verändert.</p>
+    </div>
+    <a class="button" href="index.html">Oluntir öffnen</a>
+  </header>
+
+  <section id="template-workflow">
+    <h2>Template importieren und kompilieren</h2>
+    <p class="muted">Der Import analysiert die Beispiel-HTMLs, trennt Bootstrap vom Custom-Template und erzeugt daraus ein fertiges, statisches Template unter <code>templates/&lt;name&gt;/</code>. Der Oluntir-Kern und <code>frameworks/</code> werden nicht verändert.</p>
+
+    <div class="workflow-step" id="workflow-analyze">
+      <h3>1. Template auswählen und analysieren</h3>
+      <div class="form-grid">
+        <div>
+          <label for="import-name">Name des neuen Templates</label>
+          <input id="import-name" type="text" placeholder="z. B. Agency Blue">
+        </div>
+        <div>
+          <label for="import-archive">Template-Archiv</label>
+          <input id="import-archive" type="file" accept=".zip,application/zip,application/x-zip-compressed">
+        </div>
+      </div>
+      <div class="toolbar" style="margin-top:14px">
+        <button id="analyze-import" type="button" disabled>Template analysieren</button>
+      </div>
+      <div id="import-result" class="muted" style="margin-top:12px">Name und ZIP auswählen und anschließend analysieren. Noch werden keine Dateien nach <code>templates/</code> geschrieben.</div>
+    </div>
+
+    <div class="workflow-step" id="workflow-install">
+      <h3>2. Speicherort prüfen und Template aufnehmen</h3>
+      <p class="step-hint">Nach erfolgreicher Analyse kannst du den Template-Ordner prüfen und das Template dauerhaft aufnehmen. Falls der Ordner noch nicht freigegeben wurde, wird die Auswahl beim Aufnahmevorgang automatisch angeboten.</p>
+      <div class="notice"><strong>Empfohlener Ordner:</strong> <code id="recommended-templates-path">templates/</code><br><span class="muted">Beim ersten Zugriff muss dieser Ordner aus Browser-Sicherheitsgründen manuell ausgewählt werden. Bereits freigegebene Ordner werden nach Möglichkeit wiederverwendet; Edge/Chrome können sich zusätzlich den letzten Auswahlort merken.</span></div>
+      <div class="toolbar">
+        <button id="choose-root" type="button">templates-Ordner auswählen und prüfen</button>
+        <button id="refresh" type="button" disabled>Erneut prüfen</button>
+        <button id="install-import" class="primary" type="button" disabled>Template aufnehmen</button>
+      </div>
+      <div id="message" role="status" aria-live="polite"></div>
+      <div id="install-confirmation" class="confirm-panel" hidden>
+        <p><strong>Template dauerhaft in Oluntir aufnehmen?</strong></p>
+        <p id="install-confirmation-text"></p>
+        <p class="muted">Beim Bestätigen wird – falls noch nicht gewählt – direkt der <code>templates</code>-Ordner dieser Oluntir-Installation angefordert. <code>frameworks/</code> und der Oluntir-Kern bleiben unverändert.</p>
+        <div class="toolbar">
+          <button id="cancel-install" type="button">Abbrechen</button>
+          <button id="confirm-install" class="primary" type="button">Template jetzt aufnehmen</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="workflow-step" id="workflow-open">
+      <h3>3. Oluntir öffnen</h3>
+      <div class="success-launch">
+        <button id="open-oluntir-success" class="button success" type="button" disabled>Oluntir öffnen</button>
+        <span id="open-after-install-hint" class="muted">Wird erst nach vollständig abgeschlossener und verifizierter Aufnahme freigeschaltet.</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Nicht registrierte Template-Ordner</h2>
+    <p class="muted">Gültige Template-Ordner mit <code>template.json</code>, die manuell nach <code>templates/</code> kopiert wurden, können hier in die Liste aufgenommen werden.</p>
+    <div id="unregistered"></div>
+  </section>
+
+  <section>
+    <h2>Registrierte Templates</h2>
+    <div id="registered"></div>
+  </section>
+
+  <section>
+    <h2>Standard-Templates</h2>
+    <p class="muted">Die integrierten Standard-Templates dienen nur als Referenz. Sie können hier nicht administriert oder entfernt werden.</p>
+    <div class="card"><div><div class="title">Bootstrap 5.3.8 – Community Edition</div><div class="meta">Integriertes Systemprofil · Version 5.3.8</div><span class="status ok">geschützt</span></div></div>
+    <div class="card"><div><div class="title">Bootstrap 4.6.2 – Community Edition</div><div class="meta">Integriertes Systemprofil · Version 4.6.2</div><span class="status ok">geschützt</span></div></div>
+  </section>
+</main>
+<div id="busy-overlay" class="busy-overlay" hidden aria-hidden="true">
+  <div class="busy-dialog" role="status" aria-live="polite" aria-atomic="true">
+    <h2 id="busy-title">Oluntir arbeitet …</h2>
+    <p id="busy-text" class="muted">Vorgang wird vorbereitet.</p>
+    <div id="busy-progress" class="busy-progress indeterminate" aria-label="Fortschritt">
+      <div id="busy-progress-bar" class="busy-progress-bar"></div>
+    </div>
+    <div id="busy-percent" class="busy-percent">Bitte warten …</div>
+  </div>
+</div>
+<script src="plugins/editor/jszip/jszip.min.js"></script>
+<script src="templates/registry.js?v=2.3.0"></script>
+<script src="templates/template-manager.js?v=2.3.0"></script>
+<script src="templates/javascript-analyzer.js?v=2.3.0"></script>
+<script src="templates/javascript-runtime-planner.js?v=2.3.0"></script>
+<script src="templates/javascript-activation-planner.js?v=2.3.0"></script>
+<script src="templates/embed-isolator.js?v=2.3.0"></script>
+<script src="templates/template-compiler.js?v=2.3.0"></script>
+<script>
+(function () {
+  'use strict';
+  const api = window.OluntirTemplateManager;
+  let registry = api.normalizeRegistry(window.OLUNTIR_TEMPLATE_REGISTRY || { schemaVersion: 1, templates: [] });
+  let rootHandle = null;
+  let rememberedRootHandle = null;
+  let inspection = null;
+  const HANDLE_DB_NAME = 'oluntir-template-manager';
+  const HANDLE_DB_VERSION = 1;
+  const HANDLE_STORE_NAME = 'handles';
+  const HANDLE_KEY = 'templates-root';
+  const registeredEl = document.getElementById('registered');
+  const unregisteredEl = document.getElementById('unregistered');
+  const messageEl = document.getElementById('message');
+  const refreshButton = document.getElementById('refresh');
+  const importNameEl = document.getElementById('import-name');
+  const importArchiveEl = document.getElementById('import-archive');
+  const analyzeImportButton = document.getElementById('analyze-import');
+  const installImportButton = document.getElementById('install-import');
+  const importResultEl = document.getElementById('import-result');
+  const openOluntirSuccessEl = document.getElementById('open-oluntir-success');
+  const openAfterInstallHintEl = document.getElementById('open-after-install-hint');
+  const installConfirmationEl = document.getElementById('install-confirmation');
+  const installConfirmationTextEl = document.getElementById('install-confirmation-text');
+  const confirmInstallButton = document.getElementById('confirm-install');
+  const cancelInstallButton = document.getElementById('cancel-install');
+  const recommendedTemplatesPathEl = document.getElementById('recommended-templates-path');
+  const busyOverlayEl = document.getElementById('busy-overlay');
+  const busyTitleEl = document.getElementById('busy-title');
+  const busyTextEl = document.getElementById('busy-text');
+  const busyProgressEl = document.getElementById('busy-progress');
+  const busyProgressBarEl = document.getElementById('busy-progress-bar');
+  const busyPercentEl = document.getElementById('busy-percent');
+  const compiler = window.OluntirTemplateCompiler;
+  let pendingCompilation = null;
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  }
+
+  function openHandleDb() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) return resolve(null);
+      const request = window.indexedDB.open(HANDLE_DB_NAME, HANDLE_DB_VERSION);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(HANDLE_STORE_NAME)) db.createObjectStore(HANDLE_STORE_NAME);
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error('Template-Ordner-Merker konnte nicht geöffnet werden.'));
+    });
+  }
+
+  async function rememberTemplatesRootHandle(handle) {
+    rememberedRootHandle = handle || null;
+    const db = await openHandleDb();
+    if (!db) return;
+    await new Promise((resolve, reject) => {
+      const transaction = db.transaction(HANDLE_STORE_NAME, 'readwrite');
+      transaction.objectStore(HANDLE_STORE_NAME).put(handle, HANDLE_KEY);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error || new Error('Template-Ordner konnte nicht gemerkt werden.'));
+      transaction.onabort = () => reject(transaction.error || new Error('Template-Ordner konnte nicht gemerkt werden.'));
+    });
+    db.close();
+  }
+
+  async function loadRememberedTemplatesRootHandle() {
+    const db = await openHandleDb();
+    if (!db) return null;
+    const handle = await new Promise((resolve, reject) => {
+      const transaction = db.transaction(HANDLE_STORE_NAME, 'readonly');
+      const request = transaction.objectStore(HANDLE_STORE_NAME).get(HANDLE_KEY);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error || new Error('Gemerkter Template-Ordner konnte nicht gelesen werden.'));
+    });
+    db.close();
+    rememberedRootHandle = handle || null;
+    return rememberedRootHandle;
+  }
+
+  async function restoreRememberedTemplatesRoot() {
+    const handle = await loadRememberedTemplatesRootHandle();
+    if (!handle || String(handle.name || '').toLowerCase() !== 'templates') return false;
+    if (typeof handle.queryPermission !== 'function') return false;
+    const permission = await handle.queryPermission({ mode: 'readwrite' });
+    if (permission !== 'granted') return false;
+    try {
+      await api.validateTemplatesRoot(handle);
+      rootHandle = handle;
+      registry = await api.readRegistry(rootHandle, registry);
+      window.OLUNTIR_TEMPLATE_REGISTRY = registry;
+      refreshButton.disabled = false;
+      await refresh();
+      updateImportButtons();
+      setMessage('Der zuletzt freigegebene templates-Ordner wurde wiederverwendet.');
+      return true;
+    } catch (_) {
+      rootHandle = null;
+      return false;
+    }
+  }
+
+  function showBusy(title, text, percent) {
+    busyTitleEl.textContent = title || 'Oluntir arbeitet …';
+    busyTextEl.textContent = text || 'Bitte warten …';
+    busyOverlayEl.hidden = false;
+    busyOverlayEl.setAttribute('aria-hidden', 'false');
+    updateBusy(text, percent);
+  }
+
+  function updateBusy(text, percent) {
+    if (text) busyTextEl.textContent = text;
+    const value = Number(percent);
+    const determinate = Number.isFinite(value);
+    busyProgressEl.classList.toggle('indeterminate', !determinate);
+    if (determinate) {
+      const bounded = Math.max(0, Math.min(100, Math.round(value)));
+      busyProgressBarEl.style.width = `${bounded}%`;
+      busyPercentEl.textContent = `${bounded} %`;
+    } else {
+      busyProgressBarEl.style.width = '';
+      busyPercentEl.textContent = 'Bitte warten …';
+    }
+  }
+
+  function hideBusy() {
+    busyOverlayEl.hidden = true;
+    busyOverlayEl.setAttribute('aria-hidden', 'true');
+    busyProgressEl.classList.add('indeterminate');
+    busyProgressBarEl.style.width = '';
+    busyPercentEl.textContent = 'Bitte warten …';
+  }
+
+  function recommendedTemplatesPath() {
+    if (window.location && window.location.protocol === 'file:') {
+      let value = decodeURIComponent(window.location.pathname || '');
+      if (/^\/[A-Za-z]:\//.test(value)) value = value.slice(1);
+      value = value.replace(/\//g, '\\');
+      value = value.replace(/\\template-manager\.html$/i, '');
+      return `${value}\\templates`;
+    }
+    return 'templates/ (Unterordner der aktuell geöffneten Oluntir-Installation)';
+  }
+
+  function reloadStaticRegistry() {
+    return new Promise(resolve => {
+      const script = document.createElement('script');
+      script.src = `templates/registry.js?manager=${Date.now()}`;
+      script.async = false;
+      script.onload = () => {
+        registry = api.normalizeRegistry(window.OLUNTIR_TEMPLATE_REGISTRY || { schemaVersion: 1, templates: [] });
+        render();
+        resolve(registry);
+      };
+      script.onerror = () => resolve(registry);
+      (document.head || document.documentElement).appendChild(script);
+    });
+  }
+
+  function setMessage(text, isError) {
+    messageEl.textContent = text || '';
+    messageEl.style.color = isError ? '#c62828' : '';
+  }
+
+  function hideOpenAfterInstall() {
+    if (openOluntirSuccessEl) {
+      openOluntirSuccessEl.disabled = true;
+      openOluntirSuccessEl.textContent = 'Oluntir öffnen';
+      openOluntirSuccessEl.removeAttribute('data-template-name');
+    }
+    if (openAfterInstallHintEl) openAfterInstallHintEl.textContent = 'Wird erst nach vollständig abgeschlossener und verifizierter Aufnahme freigeschaltet.';
+  }
+
+  function showOpenAfterInstall(name) {
+    if (openOluntirSuccessEl) {
+      openOluntirSuccessEl.textContent = name ? `Oluntir mit „${name}“ öffnen` : 'Oluntir öffnen';
+      openOluntirSuccessEl.disabled = false;
+      if (name) openOluntirSuccessEl.setAttribute('data-template-name', name);
+    }
+    if (openAfterInstallHintEl) openAfterInstallHintEl.textContent = 'Aufnahme abgeschlossen und verifiziert.';
+  }
+
+  function updateImportButtons() {
+    const readyToAnalyze = Boolean(importNameEl.value.trim() && importArchiveEl.files && importArchiveEl.files[0]);
+    analyzeImportButton.disabled = !readyToAnalyze;
+    installImportButton.disabled = !pendingCompilation;
+  }
+
+  async function selectAndInspectTemplatesRoot(options) {
+    const settings = options || {};
+    if (typeof window.showDirectoryPicker !== 'function') throw new Error('Diese Verwaltungsfunktion benötigt einen Chromium-Browser wie Edge oder Chrome.');
+    if (!rootHandle) {
+      const pickerOptions = { id: 'oluntir-templates-root', mode: 'readwrite' };
+      if (rememberedRootHandle) pickerOptions.startIn = rememberedRootHandle;
+      const handle = await window.showDirectoryPicker(pickerOptions);
+      if (String(handle.name || '').toLowerCase() !== 'templates') throw new Error('Bitte den Ordner „templates“ dieser Oluntir-Installation auswählen.');
+      await api.validateTemplatesRoot(handle);
+      rootHandle = handle;
+      await rememberTemplatesRootHandle(handle);
+    }
+    if (typeof settings.onRootReady === 'function') settings.onRootReady(rootHandle);
+    if (settings.write !== false) await api.verifyWritableRoot(rootHandle);
+    registry = await api.readRegistry(rootHandle, registry);
+    window.OLUNTIR_TEMPLATE_REGISTRY = registry;
+    refreshButton.disabled = false;
+    await refresh();
+    updateImportButtons();
+    return rootHandle;
+  }
+
+  function renderImportAnalysis(compilation) {
+    const a = compilation.manifest.analysis;
+    const framework = compilation.analysis.framework;
+    importResultEl.innerHTML = `<div class="notice"><strong>Analyse abgeschlossen.</strong> Noch wurde nichts in den Template-Ordner kopiert.</div><div class="analysis-grid">
+      <div class="metric">Bootstrap-Basis<strong>${escapeHtml(framework.baseFramework.toUpperCase())} · ${escapeHtml(framework.version)}</strong></div>
+      <div class="metric">Primäre HTMLs<strong>${a.primaryHtmlCount}</strong></div>
+      <div class="metric">Hilfs-/Doku-HTMLs<strong>${a.auxiliaryHtmlCount}</strong></div>
+      <div class="metric">Bereiche<strong>${a.regionCount}</strong></div>
+      <div class="metric">Bausteinfamilien<strong>${a.familyCount}</strong></div>
+      <div class="metric">Repeat-Kandidaten<strong>${a.repeatCandidateCount}</strong></div>
+      <div class="metric">Bilder<strong>${a.assetCounts.image || 0}</strong></div>
+      <div class="metric">Dateien gesamt<strong>${a.fileCount}</strong></div>
+      <div class="metric">Externe Embeds isoliert<strong>${a.embedIsolation ? a.embedIsolation.count : 0}</strong></div>
+      <div class="metric">JS-Dateien primär<strong>${a.javascript ? a.javascript.primaryScriptFiles : 0}</strong></div>
+      <div class="metric">Custom-JS<strong>${a.javascript ? a.javascript.customScripts : 0}</strong></div>
+      <div class="metric">JS-Bibliotheken<strong>${a.javascript ? a.javascript.libraries : 0}</strong></div>
+      <div class="metric">Behavior-Bindungen<strong>${a.javascript ? a.javascript.bindings : 0}</strong></div>
+      <div class="metric">HTML/Section-Zuordnungen<strong>${a.javascript ? a.javascript.mappedBindings : 0}</strong></div>
+      <div class="metric">JS-Abhängigkeiten<strong>${a.javascript ? a.javascript.dependencyEdges : 0}</strong></div>
+      <div class="metric">Section-Verhalten<strong>${a.javascript && a.javascript.runtimePlan ? a.javascript.runtimePlan.section : 0}</strong></div>
+      <div class="metric">Globales Verhalten<strong>${a.javascript && a.javascript.runtimePlan ? a.javascript.runtimePlan.global : 0}</strong></div>
+      <div class="metric">Helper / Konfiguration<strong>${a.javascript && a.javascript.runtimePlan ? a.javascript.runtimePlan.helper : 0}</strong></div>
+      <div class="metric">Unaufgelöst<strong>${a.javascript && a.javascript.runtimePlan ? a.javascript.runtimePlan.unresolved : 0}</strong></div>
+      <div class="metric">Geplante JS-Dateien<strong>${a.javascript && a.javascript.runtimePlan ? a.javascript.runtimePlan.plannedScriptFiles : 0}</strong></div>
+      <div class="metric">Runtime-Verhalten freigegeben<strong>${a.javascript && a.javascript.runtimePlan ? a.javascript.runtimePlan.executionEligible : 0}</strong></div>
+      <div class="metric">JS für Preview/Export vorbereitet<strong>${a.javascript && a.javascript.activationPlan ? a.javascript.activationPlan.enabledScriptFiles : 0}</strong></div>
+      <div class="metric">Davon Abhängigkeiten<strong>${a.javascript && a.javascript.activationPlan ? a.javascript.activationPlan.enabledDependencyScripts : 0}</strong></div>
+      <div class="metric">Base-JS wiederverwendet<strong>${a.javascript && a.javascript.activationPlan ? a.javascript.activationPlan.baseProvidedScriptFiles : 0}</strong></div>
+      <div class="metric">JS-Dateien blockiert<strong>${a.javascript && a.javascript.activationPlan ? a.javascript.activationPlan.blockedScriptFiles : 0}</strong></div>
+      <div class="metric">Inline-JS zurückgestellt<strong>${a.javascript && a.javascript.activationPlan ? a.javascript.activationPlan.deferredInlineScripts : 0}</strong></div>
+    </div><p><strong>Ziel:</strong> <code>templates/${escapeHtml(compilation.id)}/</code></p><p class="muted">CSS des Templates wird aktiviert; die erkannte Bootstrap-Datei wird nicht doppelt geladen. JavaScript wird universell statisch analysiert und als <strong>Section-, Global-, Dependency-, Helper- oder unaufgelöstes Verhalten</strong> klassifiziert. Aus der Analyse entstehen <code>behavior-manifest.json</code>, <code>dependencies.json</code> und <code>runtime-plan.json</code>. Der Compiler erzeugt zusätzlich einen kontrollierten <code>javascript-activation-plan.json</code>: Bootstrap-/jQuery-Duplikate der Basis werden nicht erneut geladen, externe/Inline-/Modul-Skripte sowie Custom-JS mit erkannten Hochrisiko-Seiteneffekten bleiben blockiert. Nur freigegebene lokale Template-Skripte und ihre benötigten Abhängigkeiten werden für <strong>isolierte Preview und Export</strong> vorbereitet. Im bearbeitbaren GrapesJS-Canvas läuft bewusst nur die vertrauenswürdige Bootstrap-Basis; importiertes Template-JavaScript wird dort nicht ausgeführt, damit Undo/Redo, Löschen, Shared Content und Autosave nicht durch Runtime-DOM-Mutationen gestört werden. <strong>Externe Iframes sowie object/embed-Inhalte werden im Editor pauschal durch skalierende SVG-Platzhalter ersetzt.</strong> Die Originalquelle bleibt für Preview und Export erhalten. <strong>Während der Analyse selbst wird weiterhin kein Template-JavaScript ausgeführt.</strong></p>`;
+  }
+
+  function invalidateImport() {
+    pendingCompilation = null;
+    hideOpenAfterInstall();
+    installImportButton.disabled = true;
+    installConfirmationEl.hidden = true;
+    updateImportButtons();
+  }
+
+  function currentStatus(id) {
+    return inspection && inspection.registered.find(item => item.entry.id === id);
+  }
+
+  function render() {
+    if (!registry.templates.length) registeredEl.innerHTML = '<div class="empty">Keine zusätzlichen Templates registriert.</div>';
+    else registeredEl.innerHTML = registry.templates.map(entry => {
+      const status = currentStatus(entry.id);
+      const state = !inspection ? ['Ordner noch nicht geprüft','warn'] : status && status.valid ? ['vorhanden','ok'] : [status ? status.message : 'nicht gefunden','bad'];
+      const removeLabel = status && !status.present ? 'Aus Liste entfernen' : 'Entfernen';
+      return `<div class="card" data-template-id="${escapeHtml(entry.id)}"><div><div class="title">${escapeHtml(entry.name)}</div><div class="meta"><code>templates/${escapeHtml(entry.folder)}/${escapeHtml(entry.entry)}</code></div><span class="status ${state[1]}">${escapeHtml(state[0])}</span></div><div class="actions"><button class="danger remove" type="button">${removeLabel}</button></div></div>`;
+    }).join('');
+
+    const candidates = inspection ? inspection.unregistered : [];
+    if (!rootHandle) unregisteredEl.innerHTML = '<div class="empty">Template-Ordner auswählen, um manuell kopierte Ordner zu prüfen.</div>';
+    else if (!candidates.length) unregisteredEl.innerHTML = '<div class="empty">Keine zusätzlichen Template-Ordner gefunden.</div>';
+    else unregisteredEl.innerHTML = candidates.map(item => {
+      if (!item.valid) return `<div class="card"><div><div class="title">${escapeHtml(item.folder)}</div><div class="meta">${escapeHtml(item.message)}</div><span class="status warn">nicht registrierbar</span></div></div>`;
+      return `<div class="card" data-candidate-id="${escapeHtml(item.entry.id)}"><div><div class="title">${escapeHtml(item.entry.name)}</div><div class="meta"><code>templates/${escapeHtml(item.entry.folder)}/</code> · ${escapeHtml(item.manifest.baseFramework)}</div><span class="status warn">nicht registriert</span></div><div class="actions"><button class="register" type="button">In Liste aufnehmen</button></div></div>`;
+    }).join('');
+  }
+
+  async function refresh() {
+    if (!rootHandle) return;
+    inspection = await api.inspect(rootHandle, registry);
+    render();
+  }
+
+  openOluntirSuccessEl.addEventListener('click', () => {
+    if (openOluntirSuccessEl.disabled) return;
+    window.location.href = 'index.html';
+  });
+
+  document.getElementById('choose-root').addEventListener('click', async () => {
+    try {
+      rootHandle = null;
+      await selectAndInspectTemplatesRoot({
+        write: true,
+        onRootReady() { showBusy('Template-Ordner wird geprüft', 'Schreibzugriff, Registry und Template-Ordner werden geprüft …'); }
+      });
+      updateBusy('Prüfung abgeschlossen.', 100);
+      setMessage('Template-Ordner ausgewählt. Schreibzugriff bestätigt; Registry und Ordnerbestand wurden geprüft.');
+    } catch (error) {
+      if (!(error && error.name === 'AbortError')) setMessage(error.message || String(error), true);
+    } finally {
+      hideBusy();
+    }
+  });
+
+  refreshButton.addEventListener('click', async () => {
+    showBusy('Templates werden geprüft', 'Registry und Template-Ordner werden neu abgeglichen …');
+    try {
+      await refresh();
+      updateBusy('Prüfung abgeschlossen.', 100);
+    } catch (error) {
+      setMessage(error.message || String(error), true);
+    } finally {
+      hideBusy();
+    }
+  });
+
+  importNameEl.addEventListener('input', invalidateImport);
+  importArchiveEl.addEventListener('change', invalidateImport);
+
+  analyzeImportButton.addEventListener('click', async () => {
+    const archive = importArchiveEl.files && importArchiveEl.files[0];
+    const name = importNameEl.value.trim();
+    if (!archive || !name) return;
+    analyzeImportButton.disabled = true;
+    installImportButton.disabled = true;
+    importResultEl.textContent = 'Template wird analysiert …';
+    showBusy('Template wird analysiert', 'ZIP-Archiv wird gelesen und vorbereitet …');
+    try {
+      if (!window.JSZip) throw new Error('ZIP-Unterstützung konnte nicht geladen werden.');
+      const zip = await window.JSZip.loadAsync(await archive.arrayBuffer());
+      updateBusy('HTML-Strukturen, Bootstrap-Basis, Assets und Template-Bausteine werden analysiert …');
+      pendingCompilation = await compiler.compileZip(zip, { name });
+      renderImportAnalysis(pendingCompilation);
+      installImportButton.disabled = false;
+      setMessage(`Analyse für „${pendingCompilation.name}“ abgeschlossen. Noch keine Dateien kopiert.`);
+    } catch (error) {
+      pendingCompilation = null;
+      importResultEl.textContent = error.message || String(error);
+      setMessage(error.message || String(error), true);
+    } finally {
+      hideBusy();
+      updateImportButtons();
+    }
+  });
+
+  installImportButton.addEventListener('click', () => {
+    if (!pendingCompilation) return;
+    const target = `templates/${pendingCompilation.id}/`;
+    const recommended = recommendedTemplatesPath();
+    installConfirmationTextEl.innerHTML = `Das analysierte Template <strong>${escapeHtml(pendingCompilation.name)}</strong> ist bereit zur Aufnahme.<br><br><strong>Empfohlen und erwartet:</strong> Wähle im folgenden Browserdialog den Ordner <code>${escapeHtml(recommended)}</code> aus. Nach der Auswahl legt Oluntir darin den Unterordner <code>${escapeHtml(pendingCompilation.id)}/</code> an und aktualisiert <code>registry.json</code> sowie <code>registry.js</code>.`;
+    installConfirmationEl.hidden = false;
+    confirmInstallButton.focus();
+  });
+
+  cancelInstallButton.addEventListener('click', () => {
+    installConfirmationEl.hidden = true;
+  });
+
+  confirmInstallButton.addEventListener('click', async () => {
+    if (!pendingCompilation) return;
+    const compilation = pendingCompilation;
+    const target = `templates/${compilation.id}/`;
+    confirmInstallButton.disabled = true;
+    installImportButton.disabled = true;
+    try {
+      // IMPORTANT: selectAndInspectTemplatesRoot() is invoked directly from this
+      // click handler. showDirectoryPicker() therefore retains Chromium's
+      // required transient user activation and must not be preceded by confirm().
+      await selectAndInspectTemplatesRoot({
+        write: true,
+        onRootReady() { showBusy('Template wird aufgenommen', 'Template-Ordner und Schreibzugriff werden geprüft …'); }
+      });
+      installConfirmationEl.hidden = true;
+      updateBusy('Template-Dateien werden vorbereitet …', 0);
+      const result = await compiler.writeCompilation(rootHandle, registry, compilation, api, {
+        onProgress(progress) {
+          if (progress.phase === 'source') {
+            const total = Math.max(1, Number(progress.total) || 1);
+            const completed = Math.max(0, Number(progress.completed) || 0);
+            const percent = Math.min(85, Math.round((completed / total) * 85));
+            const text = `Template-Dateien werden kopiert: ${completed} / ${total}`;
+            importResultEl.textContent = text + ' …';
+            updateBusy(text, percent);
+          } else if (progress.phase === 'metadata') {
+            importResultEl.textContent = 'Template-Metadaten werden geschrieben …';
+            updateBusy('Template-Metadaten werden geschrieben …', 90);
+          } else if (progress.phase === 'registry') {
+            importResultEl.textContent = 'Template-Registry wird aktualisiert …';
+            updateBusy('Template-Registry wird aktualisiert …', 95);
+          }
+        }
+      });
+      updateBusy('Aufnahme wird verifiziert und die Template-Liste neu geprüft …', 97);
+      const persistedRegistry = await api.readRegistry(rootHandle, { schemaVersion: 1, templates: [] });
+      const persistedEntry = persistedRegistry.templates.find(item => item.id === compilation.id);
+      if (!persistedEntry) throw new Error(`Selbstkontrolle fehlgeschlagen: „${compilation.name}“ wurde nicht aus registry.json zurückgelesen.`);
+      await api.verifyRegisteredTemplate(rootHandle, persistedEntry);
+      registry = persistedRegistry;
+      window.OLUNTIR_TEMPLATE_REGISTRY = registry;
+      inspection = await api.inspect(rootHandle, registry);
+      render();
+      updateBusy('Template wurde aufgenommen und die Verwaltung ist synchronisiert.', 100);
+      const installedName = compilation.name;
+      pendingCompilation = null;
+      importNameEl.value = '';
+      importArchiveEl.value = '';
+      importResultEl.innerHTML = `<div class="notice"><strong>Template aufgenommen und verifiziert.</strong> Der Ordner <code>${escapeHtml(target)}</code>, die Einstiegsdatei und der Registry-Eintrag wurden aus dem ausgewählten <code>templates</code>-Ordner zurückgelesen. Beim nächsten normalen Start über <code>index.html</code> wird die Registry frisch vom Datenträger geladen.</div>`;
+      setMessage(`Template „${installedName}“ wurde aufgenommen und auf dem Datenträger verifiziert.`);
+      showOpenAfterInstall(installedName);
+    } catch (error) {
+      if (error && error.name === 'AbortError') {
+        setMessage('Aufnahme abgebrochen. Es wurden keine Template-Dateien geschrieben.');
+      } else {
+        hideOpenAfterInstall();
+        setMessage(error.message || String(error), true);
+        importResultEl.textContent = error.message || String(error);
+      }
+    } finally {
+      hideBusy();
+      confirmInstallButton.disabled = false;
+      updateImportButtons();
+    }
+  });
+
+  registeredEl.addEventListener('click', async event => {
+    const button = event.target.closest('button.remove');
+    if (!button) return;
+    const card = button.closest('[data-template-id]');
+    const id = card && card.getAttribute('data-template-id');
+    try {
+      await selectAndInspectTemplatesRoot({ write: true });
+    } catch (error) {
+      if (error && error.name === 'AbortError') return;
+      setMessage(error.message || String(error), true);
+      return;
+    }
+    const entry = registry.templates.find(item => item.id === id);
+    const status = currentStatus(id);
+    if (!entry) return;
+    const deleteFolder = Boolean(status && status.present);
+    const question = deleteFolder
+      ? `Template „${entry.name}“ entfernen?\n\nDer Ordner templates/${entry.folder}/ wird gelöscht und der Registry-Eintrag entfernt. Bootstrap 4 und 5 bleiben unverändert.`
+      : `Der Ordner des Templates „${entry.name}“ fehlt bereits. Soll nur der veraltete Registry-Eintrag entfernt werden?`;
+    if (!window.confirm(question)) return;
+    try {
+      registry = await api.removeTemplate(rootHandle, registry, id, { deleteFolder });
+      window.OLUNTIR_TEMPLATE_REGISTRY = registry;
+      setMessage(deleteFolder ? `Template „${entry.name}“ wurde entfernt.` : `Veralteter Eintrag „${entry.name}“ wurde aus der Registry entfernt.`);
+      await refresh();
+    } catch (error) { setMessage(error.message || String(error), true); }
+  });
+
+  unregisteredEl.addEventListener('click', async event => {
+    const button = event.target.closest('button.register');
+    if (!button || !rootHandle || !inspection) return;
+    const card = button.closest('[data-candidate-id]');
+    const id = card && card.getAttribute('data-candidate-id');
+    const candidate = inspection.unregistered.find(item => item.valid && item.entry.id === id);
+    if (!candidate) return;
+    try {
+      registry = await api.registerTemplate(rootHandle, registry, candidate.entry);
+      window.OLUNTIR_TEMPLATE_REGISTRY = registry;
+      setMessage(`Template „${candidate.entry.name}“ wurde in die Registry aufgenommen.`);
+      await refresh();
+    } catch (error) { setMessage(error.message || String(error), true); }
+  });
+
+  if (recommendedTemplatesPathEl) recommendedTemplatesPathEl.textContent = recommendedTemplatesPath();
+  render();
+  hideOpenAfterInstall();
+  updateImportButtons();
+  reloadStaticRegistry()
+    .catch(() => {})
+    .finally(() => restoreRememberedTemplatesRoot().catch(() => {}));
+})();
+</script>
+</body>
+</html>

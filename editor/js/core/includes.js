@@ -460,11 +460,13 @@
       }
       return changed;
     },
-    updateLayoutRegions: (regions) => {
+    updateLayoutRegions: (regions, options) => {
       if (!state.enabled || !regions || typeof regions !== 'object') return clone(state.regions);
+      const allowEmpty = new Set(Array.isArray(options && options.allowEmpty) ? options.allowEmpty : []);
       let changed = false;
       ['header', 'navigation', 'footer'].forEach((name) => {
-        if (typeof regions[name] !== 'string' || !regions[name].trim()) return;
+        if (typeof regions[name] !== 'string') return;
+        if (!regions[name].trim() && !allowEmpty.has(name)) return;
         if (state.regions[name] === regions[name]) return;
         state.regions[name] = regions[name];
         changed = true;

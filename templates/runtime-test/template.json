@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "id": "runtime-test",
+  "name": "2.3.0 Runtime Test",
+  "baseFramework": "bs4",
+  "version": "1.0.0",
+  "entry": "template.js"
+}

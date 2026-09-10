@@ -6,7 +6,7 @@
   'use strict';
 
   const SCHEMA_VERSION = 1;
-  const RELEASE = '2.2.1';
+  const RELEASE = '2.3.0';
 
   function clone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
   function freeze(value) {

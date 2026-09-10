@@ -1,4 +1,4 @@
-# Documentation – Oluntir 2.2.1
+# Documentation – Oluntir 2.3.0
 
 Documentation is separated by audience: getting started and product usage come first; architecture, development history, and audits are listed separately.
 
@@ -47,3 +47,8 @@ Documentation is separated by audience: getting started and product usage come f
 - [AI knowledge base](AI/000_PROJECT.md)
 - [Architecture principles](AI/020_ARCHITECTURE_PRINCIPLES.md)
 - [Architecture decisions](AI/080_ARCHITECTURE_DECISIONS.md)
+
+
+## 2.3.0 Template-System
+
+- [Modular template system](TEMPLATE-SYSTEM.md)

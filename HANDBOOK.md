@@ -1,6 +1,6 @@
-# Oluntir 2.2.1 – Handbook
+# Oluntir 2.3.0 – Handbook
 
-This handbook describes how to work with Oluntir 2.2.1. Implementation details are documented in `docs/ARCHITECTURE.md` and the topic-specific files under `docs/`.
+This handbook describes how to work with Oluntir 2.3.0. Implementation details are documented in `docs/ARCHITECTURE.md` and the topic-specific files under `docs/`.
 
 ## 1. Start a project
 
@@ -29,7 +29,7 @@ Typical content includes:
 
 ## 4. Bootstrap profiles
 
-Oluntir 2.2.1 supports Bootstrap 4.6.2 and Bootstrap 5.3.8 as concrete editor profiles.
+Oluntir 2.3.0 supports Bootstrap 4.6.2 and Bootstrap 5.3.8 as concrete editor profiles.
 
 Bootstrap 4 and Bootstrap 5 are treated separately. Generation-specific components and utilities are offered only in the matching profile. Built-in blocks use native Bootstrap markup.
 
@@ -110,3 +110,25 @@ Create a `.oluntir` project backup before major changes. Existing projects are c
 - [Image Manager](docs/IMAGE_MANAGER.md)
 - [Multi-monitor](docs/MULTI_MONITOR.md)
 - [Release notes](RELEASE_NOTES.md)
+
+## 11. Managing additional Bootstrap templates
+
+Additional templates are imported through `template-manager.html` and stored below `templates/<name>/`. The bundled profiles below `frameworks/` are not modified.
+
+Recommended flow:
+
+1. Choose a template ZIP and name.
+2. Run **Analyze template**.
+3. Review the detected Bootstrap base plus HTML/section, asset and JavaScript results.
+4. Select this Oluntir installation's `templates` folder.
+5. Accept the template.
+6. Wait for registry/file verification to complete.
+7. Open Oluntir through the green completion button.
+
+Registered templates can be removed in the same manager. If a folder is deleted manually, the manager detects it and can clean the stale registry record. Valid template folders copied manually below `templates/` can be registered.
+
+## 12. Imported template behavior
+
+The compiler analyzes template JavaScript statically and creates behavior, dependency and runtime plans. Third-party template JavaScript does not run inside the normal editable GrapesJS canvas.
+
+`iframe`, `object` and `embed` are neutralized by scalable SVG placeholders in edit mode. This covers maps, video/social embeds and other third-party widgets. Original source and size/style information are retained; preview may reactivate the original source only in the canvas DOM.

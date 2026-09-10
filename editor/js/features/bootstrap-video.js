@@ -1,4 +1,4 @@
-// Oluntir 2.2.1 – native HTML5-Video-Unterstützung für Bootstrap 4/5.
+// Oluntir 2.3.0 – native HTML5-Video-Unterstützung für Bootstrap 4/5.
 //
 // Es wird bewusst KEINE eigene Oluntir-Video-Komponente erzeugt. Das Element bleibt
 // ein normales <video>-Element mit <source>-Fallbacks. Diese kleine Editor-Brücke

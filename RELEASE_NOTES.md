@@ -1,36 +1,41 @@
-# Release Notes – Oluntir 2.2.1
+# Release Notes – Oluntir 2.3.0
 
-Oluntir 2.2.1 is the current Bootstrap-focused release. The complete technical change history is available in the [changelog](CHANGELOG.md).
+Oluntir 2.3.0 extends the Bootstrap-focused editor with a modular template runtime and a universal compiler for additional Bootstrap 4/5 templates. The bundled Bootstrap profiles remain unchanged and protected.
 
-## 2.2.1 highlights
+## 2.3.0 highlights
 
-### Central Repeat library
+### Modular template architecture
 
-Repeatable sections are managed project-wide as central Repeat families. Editing takes place in a single-object Canvas; changes are published only through **Apply to all occurrences**. Page occurrences can be inserted, removed, and restored through a dedicated Repeat history.
+Imported templates are stored only below `templates/<name>/`. `frameworks/bootstrap4` and `frameworks/bootstrap5` remain untouched. A static registry loads accepted templates during normal `index.html` startup without re-running the analyzer.
 
-### Bootstrap 4 and 5
+### Template management
 
-Productive framework support is focused on Bootstrap 4.6.2 and Bootstrap 5.3.8. The component catalog and template detection account for generation differences. Bootstrap-4-specific elements are exposed only in the BS4 profile.
+`template-manager.html` handles analysis, acceptance, validation and removal. Valid template folders copied manually can be registered; manually removed folders are detected and stale registry entries can be cleaned up. Bundled standard templates remain visible, versioned and protected.
 
-### HTML5 video
+### Universal Bootstrap template compiler
 
-BS4 and BS5 each provide a native responsive HTML5 video block with multiple playback sources, poster support, and a download fallback.
+The compiler analyzes arbitrary BS4/BS5 templates without template-specific rules. Sample HTML, sections, semantic block families, repeat candidates, CSS, assets and JavaScript are analyzed once during import and stored as a static template module.
 
-### Template and source analysis
+### JavaScript analysis and activation planning
 
-The local Analyzer identifies Bootstrap generation and component structures more precisely and can expose suitable source-bound structures to the editor in a controlled way. Unsupported frameworks remain `analysis-only`; imported source JavaScript is not executed automatically.
+JavaScript is analyzed for libraries, plugins, dependencies, DOM selectors, events and section mappings. Behavior, dependency and runtime manifests are generated. Imported template JavaScript does not run in the editable GrapesJS canvas, keeping Undo/Redo, deletion, Shared Content and autosave isolated from third-party DOM mutations.
 
-### Export
+### External embeds and maps
 
-Oluntir exports resolved HTML, Apache SSI, or PHP includes and can write projects to a local folder, ZIP, or TAR. Local assets are collected and editor-only metadata is removed from published output.
+`iframe`, `object` and `embed` are generically isolated in edit mode. Active third-party sources such as Google Maps, OpenStreetMap, video/social embeds and similar plugin frames are replaced by scalable SVG placeholders. Width, height, classes and styles are retained; placeholders capture neither pointer events nor keyboard focus while editing. Original sources are preserved for preview/publishing contracts.
 
-### Compatibility
+### Existing core features
 
-Existing projects continue through stable Oluntir identities. A portable `.oluntir` project backup is recommended before major changes.
+2.3.0 retains multi-page project management, Shared Content for header/navigation/footer, the central Repeat library, image/gallery management, responsive media, dual-monitor workspace and HTML/SSI/PHP plus folder/ZIP/TAR export.
+
+## Compatibility
+
+The productive framework base remains Bootstrap 4.6.2 and Bootstrap 5.3.8. The new compiler targets templates based on those Bootstrap generations. Existing projects continue to use stable Oluntir identities.
 
 ## More information
 
 - [README](README.md)
 - [Features](FEATURES.md)
+- [Template system](docs/TEMPLATE-SYSTEM.md)
 - [Handbook](HANDBOOK.md)
 - [Changelog](CHANGELOG.md)

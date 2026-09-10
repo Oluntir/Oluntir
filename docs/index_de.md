@@ -1,4 +1,4 @@
-# Dokumentation – Oluntir 2.2.1
+# Dokumentation – Oluntir 2.3.0
 
 Die Dokumentation ist nach Zielgruppe getrennt: Einstieg und Nutzung stehen zuerst; Architektur, Entwicklungshistorie und Audits sind separat aufgeführt.
 
@@ -47,3 +47,8 @@ Die Dokumentation ist nach Zielgruppe getrennt: Einstieg und Nutzung stehen zuer
 - [AI-Wissensbasis](AI/000_PROJECT_de.md)
 - [Architekturprinzipien](AI/020_ARCHITECTURE_PRINCIPLES_de.md)
 - [Architekturentscheidungen](AI/080_ARCHITECTURE_DECISIONS_de.md)
+
+
+## 2.3.0 Template-System
+
+- [Modulares Template-System](TEMPLATE-SYSTEM_de.md)

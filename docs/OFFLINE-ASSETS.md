@@ -2,7 +2,7 @@
 
 # Offline Assets
 
-**Version:** 2.2.1
+**Version:** 2.3.0
 **Language:** English
 **Status:** Release
 **Stable baseline:** Oluntir 1.3.1
@@ -14,7 +14,7 @@ Framework files, fonts, icons, images, and editor dependencies required at runti
 
 ## Scope
 
-This document describes the behavior included in Oluntir 2.2.1.
+This document describes the behavior included in Oluntir 2.3.0.
 
 ## Verification
 

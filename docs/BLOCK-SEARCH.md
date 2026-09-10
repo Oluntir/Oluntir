@@ -2,7 +2,7 @@
 
 # Block Search
 
-**Version:** 2.2.1
+**Version:** 2.3.0
 **Language:** English
 **Status:** Release
 **Stable baseline:** Oluntir 1.3.1
@@ -14,7 +14,7 @@ Searches the available content blocks by name and descriptive metadata. The func
 
 ## Scope
 
-This document describes the behavior included in Oluntir 2.2.1.
+This document describes the behavior included in Oluntir 2.3.0.
 
 ## Verification
 

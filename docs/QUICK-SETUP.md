@@ -2,7 +2,7 @@
 
 # Quick Setup
 
-**Version:** 2.2.1
+**Version:** 2.3.0
 **Language:** English
 **Status:** Release
 **Stable baseline:** Oluntir 1.3.1
@@ -14,7 +14,7 @@ Provides initial project configuration for framework profile and common page set
 
 ## Scope
 
-This document describes the behavior included in Oluntir 2.2.1.
+This document describes the behavior included in Oluntir 2.3.0.
 
 ## Verification
 

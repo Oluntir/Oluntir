@@ -1,6 +1,6 @@
-# Oluntir 2.2.1 – Handbuch
+# Oluntir 2.3.0 – Handbuch
 
-Dieses Handbuch beschreibt die Arbeit mit Oluntir 2.2.1. Implementierungsdetails befinden sich in `docs/ARCHITECTURE_de.md` und den thematischen Dokumenten unter `docs/`.
+Dieses Handbuch beschreibt die Arbeit mit Oluntir 2.3.0. Implementierungsdetails befinden sich in `docs/ARCHITECTURE_de.md` und den thematischen Dokumenten unter `docs/`.
 
 ## 1. Projekt starten
 
@@ -29,7 +29,7 @@ Zu den typischen Inhalten gehören:
 
 ## 4. Bootstrap-Profile
 
-Oluntir 2.2.1 unterstützt Bootstrap 4.6.2 und Bootstrap 5.3.8 als konkrete Editorprofile.
+Oluntir 2.3.0 unterstützt Bootstrap 4.6.2 und Bootstrap 5.3.8 als konkrete Editorprofile.
 
 Bootstrap 4 und Bootstrap 5 werden getrennt behandelt. Generationsspezifische Komponenten und Hilfsklassen werden nur im passenden Profil angeboten. Die eingebauten Blöcke verwenden natives Bootstrap-Markup.
 
@@ -110,3 +110,25 @@ Vor größeren Änderungen empfiehlt sich eine `.oluntir`-Projektsicherung. Best
 - [Image Manager](docs/IMAGE_MANAGER_de.md)
 - [Multi-Monitor](docs/MULTI_MONITOR_de.md)
 - [Release Notes](RELEASE_NOTES_de.md)
+
+## 11. Zusätzliche Bootstrap-Templates verwalten
+
+Zusätzliche Templates werden über `template-manager.html` importiert und unter `templates/<name>/` gespeichert. Die Standardprofile unter `frameworks/` werden dabei nicht verändert.
+
+Der empfohlene Ablauf ist:
+
+1. Template-ZIP und Namen wählen.
+2. **Template analysieren**.
+3. erkannte Bootstrap-Basis, HTML-/Section-, Asset- und JavaScript-Werte prüfen.
+4. den `templates`-Ordner dieser Oluntir-Installation auswählen.
+5. **Template aufnehmen**.
+6. auf die erfolgreiche Registry-/Dateiprüfung warten.
+7. Oluntir über den grünen Abschlussbutton öffnen.
+
+Registrierte Templates können in derselben Verwaltung entfernt werden. Wird ein Template-Ordner manuell gelöscht, erkennt die Verwaltung den fehlenden Ordner und kann den Registry-Eintrag bereinigen. Gültige Template-Ordner, die manuell unter `templates/` kopiert wurden, können in die Registry aufgenommen werden.
+
+## 12. Verhalten importierter Templates
+
+Der Compiler analysiert Template-JavaScript statisch und erzeugt Behavior-, Dependency- und Runtime-Pläne. Fremdes Template-JavaScript läuft im normalen Editiermodus nicht im GrapesJS-Canvas.
+
+`iframe`, `object` und `embed` werden im Editor durch skalierende SVG-Platzhalter neutralisiert. Das betrifft z. B. Maps, Video-/Social-Embeds und andere Fremd-Widgets. Originalquelle und Größen-/Style-Informationen bleiben erhalten; Preview kann die Originalquelle nur im Canvas-DOM reaktivieren.

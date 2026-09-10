@@ -1,36 +1,41 @@
-# Release Notes – Oluntir 2.2.1
+# Release Notes – Oluntir 2.3.0
 
-Oluntir 2.2.1 ist der aktuelle Bootstrap-fokussierte Release. Die vollständige technische Änderungshistorie steht im [Changelog](CHANGELOG_de.md).
+Oluntir 2.3.0 erweitert den Bootstrap-fokussierten Editor um eine modulare Template-Runtime und einen universellen Compiler für zusätzliche Bootstrap-4-/Bootstrap-5-Templates. Die fest integrierten Bootstrap-Profile bleiben unverändert und geschützt.
 
-## Schwerpunkte von 2.2.1
+## Schwerpunkte von 2.3.0
 
-### Zentrale Repeat-Bibliothek
+### Modulare Template-Architektur
 
-Wiederholbare Bereiche werden projektweit als zentrale Repeat-Familien verwaltet. Die Bearbeitung erfolgt in einem Einzelobjekt-Canvas; Änderungen werden erst über **„Auf alle Vorkommen anwenden“** veröffentlicht. Seitenvorkommen können gezielt eingesetzt, entfernt und über eine eigene Repeat-Historie wiederhergestellt werden.
+Importierte Templates werden ausschließlich unter `templates/<name>/` abgelegt. Die Ordner `frameworks/bootstrap4` und `frameworks/bootstrap5` bleiben unangetastet. Eine statische Registry bindet aufgenommene Templates beim normalen `index.html`-Start ohne erneute Analyse ein.
 
-### Bootstrap 4 und 5
+### Template-Verwaltung
 
-Die produktive Frameworkunterstützung konzentriert sich auf Bootstrap 4.6.2 und Bootstrap 5.3.8. Die Komponentenpalette und die Template-Erkennung berücksichtigen die Unterschiede beider Generationen. Bootstrap-4-spezifische Elemente werden nur im BS4-Profil angeboten.
+`template-manager.html` übernimmt Analyse, Aufnahme, Prüfung und Entfernung zusätzlicher Templates. Manuell kopierte gültige Template-Ordner können registriert werden; manuell gelöschte Ordner werden erkannt und veraltete Registry-Einträge lassen sich bereinigen. Standard-Templates bleiben sichtbar, versioniert und geschützt.
 
-### HTML5-Video
+### Universeller Bootstrap-Template-Compiler
 
-BS4 und BS5 besitzen jeweils einen nativen responsiven HTML5-Videoblock mit mehreren Wiedergabequellen, Poster und Download-Fallback.
+Der Compiler analysiert beliebige BS4-/BS5-Templates ohne templatespezifische Sonderlogik. Beispiel-HTMLs, Sections, semantische Bausteinfamilien, Repeat-Kandidaten, CSS, Assets und JavaScript werden einmalig beim Import ausgewertet und anschließend als statisches Template-Modul gespeichert.
 
-### Template- und Source-Analyse
+### JavaScript-Analyse und Aktivierungsplan
 
-Der lokale Analyzer erkennt Bootstrap-Versionen und Komponentenstrukturen präziser und kann geeignete quellengebundene Strukturen kontrolliert in den Editor übernehmen. Nicht unterstützte Frameworks bleiben `analysis-only`; importiertes Source-JavaScript wird nicht automatisch ausgeführt.
+JavaScript wird statisch auf Bibliotheken, Plugins, Dependencies, DOM-Selektoren, Events und Section-Zuordnungen untersucht. Aus der Analyse entstehen Behavior-, Dependency- und Runtime-Manifeste. Importiertes Template-JavaScript wird im bearbeitbaren GrapesJS-Canvas nicht ausgeführt; dadurch bleiben Undo/Redo, Löschen, Shared Content und Autosave von fremden DOM-Mutationen entkoppelt.
 
-### Export
+### Externe Embeds und Maps
 
-Oluntir exportiert als HTML, Apache SSI oder PHP-Includes und kann Projekte als lokalen Ordner, ZIP oder TAR ausgeben. Lokale Assets werden gesammelt und editorinterne Metadaten aus der veröffentlichten Ausgabe entfernt.
+`iframe`, `object` und `embed` werden im Editiermodus pauschal isoliert. Aktive Fremdquellen wie Google Maps, OpenStreetMap, Video-/Social-Embeds und vergleichbare Plugin-Frames werden durch skalierende SVG-Platzhalter ersetzt. Breite, Höhe, Klassen und Styles bleiben erhalten; die Platzhalter fangen im Editor weder Mausereignisse noch Tastaturfokus ab. Originalquellen werden für Preview und Veröffentlichungsvertrag gespeichert.
 
-### Kompatibilität
+### Bestehende Kernfunktionen
 
-Bestehende Projekte werden über stabile Oluntir-Identitäten weitergeführt. Vor größeren Änderungen wird weiterhin eine portable `.oluntir`-Projektsicherung empfohlen.
+2.3.0 erhält die mehrseitige Projektverwaltung, Shared Content für Header/Navigation/Footer, die zentrale Repeat-Bibliothek, Bild- und Galerieverwaltung, responsive Medien, Zwei-Monitor-Arbeitsbereich sowie HTML-/SSI-/PHP- und Ordner-/ZIP-/TAR-Export.
+
+## Kompatibilität
+
+Die produktive Frameworkbasis bleibt Bootstrap 4.6.2 und Bootstrap 5.3.8. Der neue Template-Compiler ist auf Templates dieser beiden Bootstrap-Generationen ausgelegt. Bestehende Projekte werden über die vorhandenen Oluntir-Identitäten weitergeführt.
 
 ## Weitere Informationen
 
 - [README](README_de.md)
 - [Funktionen](FEATURES_de.md)
+- [Template-System](docs/TEMPLATE-SYSTEM_de.md)
 - [Handbuch](HANDBOOK_de.md)
 - [Changelog](CHANGELOG_de.md)

@@ -1,6 +1,6 @@
 # Roadmap – Oluntir
 
-Die Roadmap beschreibt geplante Produktentwicklung nach 2.2.1. Sie ist keine Zusage für konkrete Termine.
+Die Roadmap beschreibt geplante Produktentwicklung nach 2.3.0. Sie ist keine Zusage für konkrete Termine.
 
 ## Performance und Skalierung
 

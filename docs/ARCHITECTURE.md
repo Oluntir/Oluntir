@@ -1,5 +1,5 @@
 > **Language:** English · [Deutsch](ARCHITECTURE_de.md)
-> **Version:** 2.2.1 · **Stable baseline:** 1.3.1
+> **Version:** 2.3.0 · **Stable baseline:** 1.3.1
 
 # Architecture overview
 
@@ -55,3 +55,20 @@ Shared Content vergleicht Fingerprints, speichert Komponentenreferenzen pro Seit
 ## Further reading
 
 Siehe `docs/Architecture/` sowie `docs/AI/`.
+
+## Modular template runtime in 2.3.0
+
+Additional Bootstrap templates are not created as new framework directories. `frameworks/bootstrap4` and `frameworks/bootstrap5` remain the fixed technical bases. User templates live only below `templates/` and are loaded at startup through `registry.js`.
+
+```text
+Template ZIP
+→ browser compiler
+→ HTML/CSS/asset/JS analysis
+→ static template artifacts
+→ templates/<id>/
+→ registry.js
+→ generic template runtime
+→ GrapesJS blocks
+```
+
+Imported template JavaScript does not run in the editable canvas. External `iframe`/`object`/`embed` sources are isolated before blocks are registered and replaced by SVG placeholders. Preview restoration changes only the canvas DOM. The persisted component model, Undo/Redo and Shared Content therefore remain isolated from third-party runtime mutations.

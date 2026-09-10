@@ -37,6 +37,7 @@ node tests/test-oluntir-logger.js
 node tests/test-oluntir-logger-files.js
 node tests/test-oluntir-logging-consent.js
 node tests/test-logging-consent-responsive-layout.js
+node tests/test-consent-accept-all.js
 node tests/test-toast-error-duration.js
 node tests/test-startup-version-migration.js
 node tests/test-foundation-consent-contract.js
@@ -99,6 +100,8 @@ node tests/test-shared-content-targeted-regions.js
 node tests/test-shared-content-lazy-scaling.js
 node tests/test-shared-content-live-target-refresh.js
 node tests/test-shared-content-performance-contract.js
+node tests/test-shared-content-footer-lifecycle.js
+node tests/test-presentation-noop-write.js
 python3 tools/validate-structure.py
 node tests/test-gallery-icons-idle-visible.js
 node tests/test-gallery-icon-assets.js
@@ -173,6 +176,34 @@ node tests/test-bs5-gallery-image-manager-regression.js
 node tests/test-framework-gallery-editor-contract.js
 
 node tests/test-framework-gallery-wizard.js
+node tests/test-template-runtime-registry.js
+node tests/test-template-runtime-index-contract.js
+node tests/test-template-runtime-framework-selection.js
+node tests/test-template-runtime-file-start.js
+node tests/test-template-runtime-controlled-scripts.js
+node tests/test-template-runtime-editor-isolation.js
+node tests/test-template-runtime-embed-preview.js
+node tests/test-template-manager-registry.js
+node tests/test-template-manager-layout.js
+node tests/test-template-manager-permissions.js
+node tests/test-template-manager-user-gesture.js
+node tests/test-template-manager-root-validation.js
+node tests/test-template-manager-persistence-contract.js
+node tests/test-template-manager-busy-overlay.js
+node tests/test-template-manager-remembered-root.js
+node tests/test-template-manager-open-after-install.js
+node --check templates/javascript-analyzer.js
+node tests/test-template-javascript-analyzer.js
+node --check templates/javascript-runtime-planner.js
+node tests/test-template-javascript-runtime-planner.js
+node --check templates/javascript-activation-planner.js
+node tests/test-template-javascript-activation-planner.js
+node tests/test-template-manager-javascript-analysis.js
+node --check templates/embed-isolator.js
+node tests/test-template-embed-isolation.js
+node --check templates/template-compiler.js
+node tests/test-template-compiler.js
+node tests/test-template-compiler-write.js
 node tests/test-source-package-bridge.js
 node tests/test-dev030-bootstrap-consolidation.js
 

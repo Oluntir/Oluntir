@@ -1,79 +1,106 @@
-# Features – Oluntir 2.2.1
+# Features – Oluntir 2.3.0
 
-This page describes the user-visible product capabilities of Oluntir 2.2.1. Implementation details and bug history belong in the changelog, release notes, and architecture/DEV documentation.
+This page describes the user-visible product capabilities of Oluntir 2.3.0. Implementation detail and bug history belong in the changelog, release notes and architecture/DEV documentation.
 
 ## Editor and projects
 
 - local visual editor based on GrapesJS 0.23.2;
-- multi-page website projects;
-- portable `.oluntir` project files;
-- create, rename, select, and remove pages;
+- multi-page websites and portable `.oluntir` project files;
+- page creation, rename, selection and removal;
 - single- and dual-monitor workspace;
+- global Undo/Redo for normal editor actions;
 - project favicon and local project assets.
 
 ## Content and media
 
-- text, image, gallery, and component editing;
-- responsive image variants for desktop, tablet, and mobile;
-- local image management and reuse of existing assets;
+- text, image, gallery and component editing;
+- responsive image variants for desktop, tablet and mobile;
+- local asset reuse;
 - lightbox and gallery integration;
-- responsive HTML5 video with WebM, MP4, and Ogg sources, poster, and download fallback;
-- Bootstrap-specific responsive video layout for BS4 and BS5.
+- responsive HTML5 video with WebM, MP4 and Ogg sources, poster and download fallback;
+- Bootstrap-specific BS4/BS5 video presentation.
 
 ## Shared Content
 
-- project-wide management of header, navigation, and footer;
-- changes may be promoted from any participating page into the shared state;
-- shared regions are kept consistent across project pages;
-- output as resolved HTML, Apache SSI, or PHP includes.
+- project-wide header, navigation and footer management;
+- changes can be committed from participating pages into the shared state;
+- shared regions remain consistent across project pages;
+- resolved HTML, Apache SSI or PHP include output.
 
-## Repeatable sections
+## Repeatable regions
 
-- central Repeat library with human-readable names;
-- page and occurrence usage overview;
-- central editing in a single-object Canvas;
+- central Repeat library with user-readable names;
+- page/occurrence visibility;
+- central editing in a dedicated single-object canvas;
 - draft/published workflow;
-- **Apply to all occurrences** for controlled project-wide publishing;
-- protected page instances with an orange control toolbar;
-- targeted removal and restoration of individual occurrences;
-- Repeat undo/redo for publish and remove transactions;
-- insert additional occurrences through Repeat → target page → insertion position;
-- compact, sortable, expandable library lists;
-- migration of existing projects through stable Oluntir identities.
+- controlled project-wide publishing;
+- protected page instances;
+- targeted occurrence removal/recovery;
+- dedicated Repeat Undo/Redo;
+- insertion onto selected target pages and positions.
 
 ## Bootstrap 4 and 5
 
-- Bootstrap 4.6.2 as the legacy profile;
-- Bootstrap 5.3.8 as the primary profile;
-- native Bootstrap blocks instead of an Oluntir parallel component system;
-- BS4-specific support including Jumbotron, Media Object, and Custom Forms;
-- current BS5 component and utility structures;
-- generation-aware Bootstrap detection using version, Data API, and structural evidence.
+- protected Bootstrap 4.6.2 standard profile;
+- protected Bootstrap 5.3.8 standard profile;
+- native Bootstrap blocks instead of a parallel component framework;
+- generation-specific components and utilities;
+- Bootstrap generation detection from version, Data API and structural evidence.
 
-## Source Packages and Analyzer
+## Modular template management
 
-- local Source-Package import from folders, archives, browser files, and URLs;
-- static HTML, CSS, and JavaScript evidence analysis;
-- detection of Bootstrap generation, components, and capabilities;
-- source-bound profiles and capability information;
-- suitable detected structures can be exposed as controlled GrapesJS blocks;
-- unknown frameworks remain `analysis-only`;
-- imported source JavaScript is not executed automatically.
+- separate `template-manager.html` for additional Bootstrap templates;
+- imported templates live only under `templates/<name>/`;
+- imports never modify `frameworks/bootstrap4` or `frameworks/bootstrap5`;
+- static `registry.json`/`registry.js` for fast startup without re-analysis;
+- discover/register manually copied template folders;
+- detect manually removed folders and clean stale registry entries;
+- remove imported templates through the manager;
+- bundled standard profiles remain visible, versioned and protected.
+
+## Universal Bootstrap template compiler
+
+- ZIP import for arbitrary Bootstrap 4/5 templates;
+- structure-independent file analysis;
+- primary HTML pages separated from documentation/helper pages;
+- semantic sections, regions and block families;
+- repeat candidates and variants recorded as structural metadata;
+- images, fonts, media and unreferenced demo/placeholder assets retained;
+- template/vendor CSS separated from Bootstrap CSS;
+- expensive analysis runs during import while normal startup loads only compiled output.
+
+## Universal JavaScript analysis
+
+- analysis of local and referenced JavaScript;
+- script load order, libraries, plugins and dependencies;
+- DOM selectors mapped to HTML pages and section families;
+- unknown plugins remain analyzable without per-template hard-coding;
+- behavior classification into section, global, dependency, helper/configuration and unresolved groups;
+- `behavior-manifest.json`, `dependencies.json`, `runtime-plan.json` and `javascript-activation-plan.json`;
+- duplicate Bootstrap/jQuery runtimes excluded by the activation plan;
+- imported template JavaScript does not run in the editable GrapesJS canvas.
+
+## External embeds and plugin frames
+
+- generic edit-mode isolation for `iframe`, `object` and `embed`;
+- provider-independent handling for Google Maps, OpenStreetMap, video/social embeds and similar widgets;
+- active external source replaced by a scalable SVG placeholder;
+- tag, classes, style, width and height remain intact;
+- original source and `srcdoc` retained for preview/publishing;
+- preview restoration affects only the canvas DOM, not the stored editor model;
+- `embed-isolation.json` records the compiler contract.
 
 ## Export
 
-- HTML export;
-- Apache SSI export;
-- PHP include export;
-- local folder output;
-- ZIP and TAR archives;
-- collection of local framework, image, font, and project assets;
-- removal of editor-only Oluntir metadata from final output.
+- HTML, Apache SSI and PHP include output;
+- local folder, ZIP and TAR export;
+- local framework/image/font/project asset collection;
+- editor-only Oluntir metadata removed from published output.
 
-## Workspace support
+## Assistance and diagnostics
 
-- global undo/redo for normal editor actions;
-- dedicated Repeat history for project-wide Repeat transactions;
 - optional local logs after consent;
-- diagnostics for project, runtime, and analyzer state;
-- GrapesJS block search, layers, traits, and style views.
+- project/runtime/analyzer diagnostics;
+- GrapesJS block search, layers, traits and style views;
+- progress overlay during template analysis and acceptance;
+- template acceptance is only reported successful after registry and entry files are read back and verified.

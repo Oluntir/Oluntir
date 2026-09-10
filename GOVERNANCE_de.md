@@ -2,7 +2,7 @@
 
 # Projektverwaltung
 
-**Version:** 2.2.1
+**Version:** 2.3.0
 **Status:** Release
 **Stabile Baseline:** Oluntir 1.3.1
 **Stand:** 07.09.2026

@@ -12,6 +12,7 @@
   let flushTimer = 0;
   let pendingFlushPage = null;
   let pendingSharedComponent = null;
+  let pendingFlushOptions = null;
   let exportPreparing = false;
   let exportCommitSequence = 0;
   let completedExportCommitSequence = 0;
@@ -83,14 +84,17 @@
 
     function replace(name) {
       const value = String(regions && regions[name] || '').trim();
-      if (!value) return;
+      const selector = REGION_SELECTORS[name];
+      const matches = Array.from(template.content.querySelectorAll(selector));
+      if (!value) {
+        matches.forEach((current) => current.remove());
+        return;
+      }
       const replacementTemplate = document.createElement('template');
       replacementTemplate.innerHTML = value;
       const replacement = replacementTemplate.content.firstElementChild;
       if (!replacement) return;
 
-      const selector = REGION_SELECTORS[name];
-      const matches = Array.from(template.content.querySelectorAll(selector));
       const current = matches.shift();
       if (current) {
         current.replaceWith(replacement);
@@ -274,11 +278,14 @@
       return false;
     }
     const regions = parseRegions(pageHtml(page));
+    const clearRegions = Array.isArray(options && options.clearRegions) ? options.clearRegions.filter((name) => REGION_SELECTORS[name]) : [];
     const hasAnyRegion = Object.keys(REGION_SELECTORS).some((name) => String(regions[name] || '').trim());
-    if (!hasAnyRegion) return false;
+    const current = currentRegions() || {};
+    const clearsExistingRegion = clearRegions.some((name) => String(current[name] || '').trim() && !String(regions[name] || '').trim());
+    if (!hasAnyRegion && !clearsExistingRegion) return false;
 
-    const before = regionFingerprint(currentRegions());
-    window.OluntirIncludes.updateLayoutRegions(regions);
+    const before = regionFingerprint(current);
+    window.OluntirIncludes.updateLayoutRegions(regions, { allowEmpty: clearRegions });
     const after = regionFingerprint(currentRegions());
     lastRegionsJson = after;
     const changed = before !== after;
@@ -304,12 +311,14 @@
   function flushPending(options) {
     const page = pendingFlushPage;
     const sharedEdit = pendingSharedComponent;
+    const scheduledOptions = pendingFlushOptions;
     if (flushTimer) {
       window.clearTimeout(flushTimer);
       flushTimer = 0;
     }
     pendingFlushPage = null;
     pendingSharedComponent = null;
+    pendingFlushOptions = null;
     if (!page || isRichTextEditing()) return false;
     if (sharedEdit && sharedEdit.page === page) {
       return commitSharedComponentChange(sharedEdit.component, page, {
@@ -317,17 +326,18 @@
         render: false
       });
     }
-    return flushPage(page, options);
+    return flushPage(page, Object.assign({}, scheduledOptions || {}, options || {}));
   }
 
-  function scheduleFlush(component) {
+  function scheduleFlush(component, options) {
     // Bind the delayed transaction to the page on which the component event
     // actually occurred. A page switch during the debounce window must never
     // make the timer read shared regions from the newly selected page.
     if (applying || exportPreparing || !enabled() || isRichTextEditing()) return;
     pendingFlushPage = editor && editor.Pages ? editor.Pages.getSelected() : null;
     pendingSharedComponent = null;
-    if (pendingFlushPage && component && sharedRegionInfo(component)) {
+    pendingFlushOptions = Object.assign({}, options || {});
+    if (pendingFlushPage && component && sharedRegionInfo(component) && !pendingFlushOptions.structural) {
       pendingSharedComponent = { page: pendingFlushPage, component };
     }
     window.clearTimeout(flushTimer);
@@ -335,8 +345,10 @@
       flushTimer = 0;
       const page = pendingFlushPage;
       const sharedEdit = pendingSharedComponent;
+      const scheduledOptions = pendingFlushOptions;
       pendingFlushPage = null;
       pendingSharedComponent = null;
+      pendingFlushOptions = null;
       if (!page || isRichTextEditing()) return;
       if (sharedEdit && sharedEdit.page === page) {
         // The delayed path can be reached while the RTE selection is settling.
@@ -344,9 +356,17 @@
         // unresponsive. The component model is already current for this event.
         commitSharedComponentChange(sharedEdit.component, page, { propagate: true, render: false });
       } else {
-        flushPage(page, { propagate: true });
+        flushPage(page, Object.assign({ propagate: true }, scheduledOptions || {}));
       }
     }, 60);
+  }
+
+  function removedSharedRegions(component) {
+    const tagName = componentTagName(component);
+    if (tagName === 'footer') return ['footer'];
+    if (tagName === 'header') return ['header', 'navigation'];
+    if (tagName === 'nav') return ['navigation'];
+    return [];
   }
 
   function componentTagName(component) {
@@ -405,6 +425,7 @@
     }
     pendingFlushPage = null;
     pendingSharedComponent = null;
+    pendingFlushOptions = null;
     modelAuthoritativePages.delete(page);
 
     if (!window.OluntirIncludes || typeof window.OluntirIncludes.updateLayoutRegions !== 'function') return false;
@@ -603,10 +624,19 @@
     }
     pendingFlushPage = null;
     pendingSharedComponent = null;
+    pendingFlushOptions = null;
     // GrapesJS stores component styles in CssComposer. Shared Content persists
-    // HTML regions, so mirror the edited component style into its markup before
-    // the central snapshot and target-page propagation are created.
-    persistEditableStyleInMarkup(component);
+    // HTML regions, so mirror a real edited component style into its markup before
+    // the central snapshot is created. The persistence write itself may emit
+    // component:update/component:styleUpdate. Suppress those self-generated events
+    // so one footer edit can never schedule the next 60-ms Shared Content commit.
+    const previousApplying = applying;
+    applying = true;
+    try {
+      persistEditableStyleInMarkup(component);
+    } finally {
+      applying = previousApplying;
+    }
     if (!options || options.render !== false) renderComponent(component);
 
     // Resolve the authoritative central state before touching any target page.
@@ -716,6 +746,7 @@
     }
     pendingFlushPage = null;
     pendingSharedComponent = null;
+    pendingFlushOptions = null;
     modelAuthoritativePages.add(page);
     const changed = flushPage(page, { propagate: !options || options.propagate !== false });
     if (typeof editor.store === 'function') {
@@ -740,6 +771,7 @@
       }
       pendingFlushPage = null;
       pendingSharedComponent = null;
+      pendingFlushOptions = null;
 
       // Export is model-first and read-only with regard to presentation. The
       // quick-edit translation already persists the edited component through
@@ -772,6 +804,7 @@
       }
       pendingFlushPage = null;
       pendingSharedComponent = null;
+      pendingFlushOptions = null;
       completedExportCommitSequence = commitToken;
 
       return Object.freeze({ committed: Boolean(committed), pendingFlush: false, commitToken });
@@ -813,7 +846,14 @@
         // project-wide Shared Content safety scan. Normal user add/remove events
         // remain observed so header/nav/footer structure stays protected.
         if (suppressStructuralEventForRepeatMutation(eventName)) return;
-        scheduleFlush(component);
+        // Structural mutations must be committed from the resulting page model,
+        // never from the added/removed component object itself. In particular a
+        // removed <footer> still has its old toHTML() and would otherwise write
+        // itself straight back into the central Shared Content state.
+        scheduleFlush(null, {
+          structural: true,
+          clearRegions: eventName === 'component:remove' ? removedSharedRegions(component) : []
+        });
       });
     });
 

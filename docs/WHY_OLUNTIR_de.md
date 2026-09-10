@@ -1,5 +1,5 @@
 > **Sprache:** Deutsch · [English](WHY_OLUNTIR.md)
-> **Version:** 2.2.1
+> **Version:** 2.3.0
 
 # Warum Oluntir?
 

@@ -1,5 +1,5 @@
 > **Language:** English · [Deutsch](049_STRUCTURE_RESOLVER_de.md)
-> **Development state:** Oluntir 1.3.1 baseline · current branch 2.2.1
+> **Development state:** Oluntir 1.3.1 baseline · current branch 2.3.0
 
 # Structure Resolver
 
@@ -91,7 +91,7 @@ All returned snapshots, nodes, child lists, capabilities and summaries are prote
 ## Integration status
 
 Version 1.3.1 provides shared structure resolution as an independent core API.
-The 2.2.1 branch retains this contract and adds the read-only Source,
+The 2.3.0 branch retains this contract and adds the read-only Source,
 translation and behavior pipelines around it; it does not turn this resolver
 into a document-mutation service.
 

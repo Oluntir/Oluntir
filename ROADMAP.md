@@ -1,6 +1,6 @@
 # Roadmap – Oluntir
 
-This roadmap describes planned product development after 2.2.1. It does not promise specific delivery dates.
+This roadmap describes planned product development after 2.3.0. It does not promise specific delivery dates.
 
 ## Performance and scale
 
