@@ -329,8 +329,16 @@ function bindGalleryItemLifecycle(editorInstance) {
     if (originalDelete) {
       if (typeof commands.remove === 'function') commands.remove('core:component-delete');
       commands.add('core:component-delete', {
+        // Mirror GrapesJS' native component-delete command contract: deletion is
+        // a one-shot command. Without noStop, Commands in strict mode marks this
+        // wrapper as active after the first delete and silently ignores every
+        // later delete until the command is stopped manually.
+        noStop: true,
         run(ed, sender, options) {
-          const selected = ed && typeof ed.getSelected === 'function' ? ed.getSelected() : null;
+          const explicitTarget = options && options.component;
+          const selected = Array.isArray(explicitTarget)
+            ? explicitTarget[0] || null
+            : explicitTarget || (ed && typeof ed.getSelected === 'function' ? ed.getSelected() : null);
           const item = findGalleryItemComponent(selected);
           if (item && window.OluntirDocumentApi && typeof window.OluntirDocumentApi.removeComponent === 'function') {
             const removed = window.OluntirDocumentApi.removeComponent(item, { label: 'gallery.item.remove' });
@@ -339,10 +347,6 @@ function bindGalleryItemLifecycle(editorInstance) {
           }
           if (typeof originalDelete.run === 'function') return originalDelete.run.call(originalDelete, ed, sender, options || {});
           return false;
-        },
-        stop(ed, sender, options) {
-          if (typeof originalDelete.stop === 'function') return originalDelete.stop.call(originalDelete, ed, sender, options || {});
-          return undefined;
         }
       });
     }

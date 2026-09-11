@@ -78,6 +78,7 @@ node tests/test-repeat-action-contracts.js
 node tests/test-1.3.1-repeat-foundation-readiness.js
 node tests/test-bs4-gallery-controls.js
 node tests/test-gallery-item-lifecycle.js
+node tests/test-gallery-delete-repeatability.js
 node tests/test-oluntir-document-api.js
 node tests/test-bootstrap-row-insertion-slots.js
 node tests/test-gallery-area-slots.js
@@ -102,6 +103,7 @@ node tests/test-shared-content-live-target-refresh.js
 node tests/test-shared-content-performance-contract.js
 node tests/test-shared-content-footer-lifecycle.js
 node tests/test-shared-toolbar-delete-target.js
+node tests/test-template-toolbar-delete-selection-loss.js
 node tests/test-presentation-noop-write.js
 python3 tools/validate-structure.py
 node tests/test-gallery-icons-idle-visible.js

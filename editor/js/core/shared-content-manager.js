@@ -21,6 +21,7 @@
   const modelAuthoritativePages = new WeakSet();
   let toolbarTargetSnapshot = null;
   let toolbarTargetSnapshotAt = 0;
+  let toolbarSelectionSnapshot = null;
 
   function diagnostic(event, details) {
     const payload = Object.assign({ event }, details || {});
@@ -831,51 +832,109 @@
     return selected ? [selected] : [];
   }
 
+  function rememberToolbarSelection(nextEditor, component) {
+    const targets = selectedToolbarTargets(nextEditor);
+    if (targets.length) {
+      toolbarSelectionSnapshot = targets.slice();
+    } else if (component) {
+      toolbarSelectionSnapshot = [component];
+    }
+    return toolbarSelectionSnapshot ? toolbarSelectionSnapshot.slice() : [];
+  }
+
+  function clearToolbarSelectionFor(component) {
+    if (!component) return;
+    if (toolbarSelectionSnapshot && toolbarSelectionSnapshot.indexOf(component) >= 0) toolbarSelectionSnapshot = null;
+    if (toolbarTargetSnapshot && toolbarTargetSnapshot.indexOf(component) >= 0) {
+      toolbarTargetSnapshot = null;
+      toolbarTargetSnapshotAt = 0;
+    }
+  }
+
+  function toolbarTargetDetails(component) {
+    const info = sharedRegionInfo(component);
+    return {
+      id: component && typeof component.getId === 'function' ? component.getId() : null,
+      tagName: componentTagName(component),
+      sharedRegion: info ? info.name : null,
+      sharedRoot: Boolean(info && info.root === component),
+      removable: component && typeof component.get === 'function' ? component.get('removable') !== false : null
+    };
+  }
+
   function bindStableToolbarDelete(nextEditor) {
     if (!nextEditor || nextEditor.__oluntirStableToolbarDeleteBound) return;
     const commands = nextEditor.Commands;
     if (!commands || typeof commands.get !== 'function' || typeof commands.add !== 'function') return;
     nextEditor.__oluntirStableToolbarDeleteBound = true;
 
-    // GrapesJS' stock tlb-delete drops the toolbar's concrete component context
-    // and resolves the target again from the live selection. Complex shared
-    // regions (especially footer trees with embedded frames) can change focus/
-    // hover state between the toolbar becoming visible and the click. Capture the
-    // selected model synchronously at toolbar click time and pass it explicitly to
-    // core:component-delete. This leaves keyboard/programmatic deletion untouched.
+    // GrapesJS' stock tlb-delete resolves its target from the live selection.
+    // Imported templates can contain nested RTE/embed structures whose own
+    // toolbar:run:before handlers clear or replace that live selection before
+    // tlb-delete executes. Therefore keep the last real component selection as
+    // the toolbar owner and prefer it whenever the click-time selection vanished.
+    // This preserves the exact model which originally produced the blue toolbar.
+    nextEditor.on('component:selected', (component) => {
+      rememberToolbarSelection(nextEditor, component);
+    });
+    nextEditor.on('component:remove', (component) => {
+      clearToolbarSelectionFor(component);
+    });
+    nextEditor.on('page:select', () => {
+      toolbarSelectionSnapshot = null;
+      toolbarTargetSnapshot = null;
+      toolbarTargetSnapshotAt = 0;
+    });
     nextEditor.on('toolbar:run:before', () => {
-      toolbarTargetSnapshot = selectedToolbarTargets(nextEditor);
-      toolbarTargetSnapshotAt = Date.now();
+      const liveTargets = selectedToolbarTargets(nextEditor);
+      toolbarTargetSnapshot = liveTargets.length
+        ? liveTargets.slice()
+        : toolbarSelectionSnapshot && toolbarSelectionSnapshot.length
+          ? toolbarSelectionSnapshot.slice()
+          : [];
+      toolbarTargetSnapshotAt = toolbarTargetSnapshot.length ? Date.now() : 0;
     });
 
     if (typeof commands.remove === 'function') commands.remove('tlb-delete');
     commands.add('tlb-delete', {
       run(ed, sender, options) {
-        const freshSnapshot = toolbarTargetSnapshot && (Date.now() - toolbarTargetSnapshotAt) < 1000
+        const freshSnapshot = toolbarTargetSnapshot && (Date.now() - toolbarTargetSnapshotAt) < 1500
           ? toolbarTargetSnapshot.slice()
           : [];
-        const targets = freshSnapshot.length ? freshSnapshot : selectedToolbarTargets(ed);
+        const liveTargets = selectedToolbarTargets(ed);
+        const rememberedTargets = toolbarSelectionSnapshot && toolbarSelectionSnapshot.length
+          ? toolbarSelectionSnapshot.slice()
+          : [];
+        const targets = freshSnapshot.length
+          ? freshSnapshot
+          : liveTargets.length
+            ? liveTargets
+            : rememberedTargets;
+        const source = freshSnapshot.length ? 'toolbar-snapshot' : liveTargets.length ? 'live-selection' : rememberedTargets.length ? 'remembered-selection' : 'none';
         toolbarTargetSnapshot = null;
         toolbarTargetSnapshotAt = 0;
-        if (!targets.length) return false;
+        if (!targets.length) {
+          diagnostic('toolbar-delete-miss', { source, liveCount: liveTargets.length, rememberedCount: rememberedTargets.length });
+          return false;
+        }
+        toolbarSelectionSnapshot = targets.slice();
         diagnostic('toolbar-delete-target', {
+          source,
           count: targets.length,
-          targets: targets.map((component) => {
-            const info = sharedRegionInfo(component);
-            return {
-              id: component && typeof component.getId === 'function' ? component.getId() : null,
-              tagName: componentTagName(component),
-              sharedRegion: info ? info.name : null,
-              sharedRoot: Boolean(info && info.root === component),
-              removable: component && typeof component.get === 'function' ? component.get('removable') !== false : null
-            };
-          })
+          targets: targets.map(toolbarTargetDetails)
         });
         const commandOptions = Object.assign({}, options || {}, {
           component: targets.length === 1 ? targets[0] : targets,
-          oluntirToolbarTarget: true
+          oluntirToolbarTarget: true,
+          oluntirToolbarTargetSource: source
         });
-        return ed.runCommand('core:component-delete', commandOptions);
+        const result = ed.runCommand('core:component-delete', commandOptions);
+        diagnostic('toolbar-delete-result', {
+          source,
+          requestedCount: targets.length,
+          removedCount: Array.isArray(result) ? result.length : result ? 1 : 0
+        });
+        return result;
       }
     });
   }

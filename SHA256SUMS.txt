@@ -484,7 +484,7 @@ a14030caeed9550903920ffaccf91625c072878c2791b942b47e1aa017484ad2  ./editor/js/co
 7f84505b863346356596c6c49721a65147f1048ab9443e662df9c802fec8b059  ./editor/js/core/semantic-action-engine.js
 37c1665fac9b5241c9c4a7e9c097c4a6104c192964e9eed7745d824e92bb2b5a  ./editor/js/core/semantic-dictionary.js
 6b3cd58068601bcf2e52eadcfc0b4a4f50299a0c7b0c90a880e278b1b4f6e2af  ./editor/js/core/semantic-validator.js
-ad1153233b43e0531bfb38b47a92a310faccd86e7514273107f564d91561f367  ./editor/js/core/shared-content-manager.js
+ee99b59af49010be0ad89dc76337721eeb6ea3101f560b12765a034c355573f4  ./editor/js/core/shared-content-manager.js
 11a9acce9c9abf44cdea867bd56f32297b320dd727712943fd9312d541ff7da3  ./editor/js/core/site-assets-bundle.js
 fa08d598d0711c53e5c1073c23b6ab01d34bb4d84b1ea120e91c08ee624c3d83  ./editor/js/core/site-images.js
 dcaba3742aa6a38ce8ff8bf464d2654a289ce3237f042f4095b607cc758a335a  ./editor/js/core/source-package-bridge.js
@@ -507,7 +507,7 @@ a5230b9e220ed8009a7082ed312752d16c2c6327d74d419722a1cde3f1bea07a  ./editor/js/fe
 4a5025b4f741c9fea438db3f2af5c47076122ebc2d489a88f7f8282765a0fd1a  ./editor/js/features/blocks-bs5.js
 57d143e0772320a79c18dc2411e59db7a8880c5d4b53730ae177ff56a102b020  ./editor/js/features/bootstrap-blocks.js
 de0c47d1c8834e119af28f790bf17b873029c6dc4c02fb28c1e188168a38f6cd  ./editor/js/features/bootstrap-video.js
-c20b133b865939629704c1b952d232e618643b211bf423d236b044e7ae7cf7f3  ./editor/js/features/gallery.js
+5ba2c317b38e7400ee354c3a9d848790809ebe749d7fefee1e44399256939c45  ./editor/js/features/gallery.js
 3db5d1c1af2c1ae06fac2150ec5621173fe6d25f6ea6f7190998f6194b699762  ./editor/js/features/link-editor.js
 f21fa23514fb968a114eddbc41676ee07178af66a73b03b67a863cb3523c25a1  ./editor/js/features/quick-edit.js
 efd0daba9383e8bde7598b535e9244150e1a13b20edeaa6f2e02f0aaf2d6f3f1  ./editor/js/features/quick-setup.js
@@ -536,7 +536,7 @@ d85327d99c7a3ee1f9b5d0500d1370acea3ad2db39c163c2f51f232baedbdede  ./frameworks/b
 48144faf6aa0fb3cd2ce748d9730238f888f4ab715f05dabd1c9af2c5671988a  ./frameworks/bootstrap5/css/bootstrap.min.css.map
 e4fd49181388c48ec5040bd3fe66f57c29c8e67fcd8502b3354b96ec7ab47cc7  ./frameworks/bootstrap5/js/bootstrap.bundle.min.js
 c61123e58cc0a4b65d737ba070c485911b3dbec6d7b802bdf6628395abd9c08b  ./frameworks/bootstrap5/js/bootstrap.bundle.min.js.map
-9a492980c324154afe7bd70d1a5de12c1c3dc1b4ea9a4e6877eeb065befeada4  ./index.html
+61eac1ad138e1cb8a1e04fe4c738bce1c6824606d51ac13f146fd5b01e8a37b1  ./index.html
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./logs/.gitkeep
 214452d08bbddaf0369b8e8fcce37cfd9de932d8509a3121a7d86c666f4fb0f6  ./logs/README.md
 c68874cbaa2fd1650b7d770b328680ea765fb3376023cc3608427fde4f0d0481  ./plugins/editor/filesaver/FileSaver.min.js
@@ -608,7 +608,7 @@ dfd7890237dd562f8f3646813c83c571c871bda86dcbbb579f8c142d2fd72dc7  ./tests/MANUAL
 29b5a7663f6688e287743af8bf2250218e3fc5572f3997f941d9743b0945e554  ./tests/fixtures/bootstrap5-source.html
 a4f84e967eb4402aaeaade9a3beea6855496624eac8f6286e23c06ef4bd5659e  ./tests/fixtures/layout-repeat-export-contract.json
 d7a50203179f79aba7d6c14371563b2267a4fa43c5ab74172bc2de14b924429e  ./tests/gallery-empty-buttons-visual.html
-3dc47561f20d73c4e4fae1e8c7efa441417725ba3acab324c0ed8cef1b4316af  ./tests/run-tests.sh
+0189a5d187e34ff5a77fad432cb597e5db71c892cd90f34518a2bf736e4a2640  ./tests/run-tests.sh
 eb6fe0f1fe342c142054b5db1a1a93e32ca3ad478907508ea83bad1c19bf0647  ./tests/test-1.3.1-export-presentation-readonly.js
 b7bf4f58ca95096f8b9ffddd4b5fe5d3b8babcbb3db65ca4a90a7b135318dbaa  ./tests/test-1.3.1-export-presentation-translation.js
 1d30e4cd35f3bce35f9072ca9cce540868cc4fbc420250b602648509782915f5  ./tests/test-1.3.1-presentation-attribute-atomicity.js
@@ -672,13 +672,14 @@ b7e0909e1384ca92c2dac5cc3f89531408175b8a98bd6ccbafa449e6116666ec  ./tests/test-e
 9f825795cce6bc489fa6d399eda957055752d8a8078b74f2910e11878ae2f9c4  ./tests/test-framework-gallery-wizard.js
 6eee65d52f5dad8a1e749d96c5c06a7772aa2f4092bec58ed34b1be3e14e8d71  ./tests/test-framework-switch-guard.js
 a06aee0e2f3a5935fbfc6e6206a552cf27dfbd0c391fce2c25d6a545cee958cb  ./tests/test-gallery-area-slots.js
+7d2b0825b3cf93d0982240fc1a4c6b12c3893b2b147bd6900304ca479220e4a2  ./tests/test-gallery-delete-repeatability.js
 ff3525bfdb40e92d7046aa0be4bb0730d7bed9d4f3c2b8f84ab5e2255fcbd136  ./tests/test-gallery-download-icon.js
 fca35b5157d2a9b626176304d082e467e83fcf30a15245d3e48f9507b8a62e80  ./tests/test-gallery-empty-action-buttons.js
 baba19708ed60a4be749952e17fb583540ea20dff35d71ae16769cd2f091e6a4  ./tests/test-gallery-framework-icon-sources.js
 ff3525bfdb40e92d7046aa0be4bb0730d7bed9d4f3c2b8f84ab5e2255fcbd136  ./tests/test-gallery-icon-assets.js
 ff3525bfdb40e92d7046aa0be4bb0730d7bed9d4f3c2b8f84ab5e2255fcbd136  ./tests/test-gallery-icons-idle-visible.js
 16394a074f189dfb0dba4ac97e929e0a53d95fd5406e620fdce9687943f833ce  ./tests/test-gallery-insertion-target-and-history.js
-c4abdd0b5c57509d37f54e66acd73613dc577387ad6f838491887eb137920e35  ./tests/test-gallery-item-lifecycle.js
+54657ef5f9304df1e673259b9999029877b6162af3a2cb6aae57c44a3aed71b1  ./tests/test-gallery-item-lifecycle.js
 ff3525bfdb40e92d7046aa0be4bb0730d7bed9d4f3c2b8f84ab5e2255fcbd136  ./tests/test-gallery-overlay-icons.js
 ff3525bfdb40e92d7046aa0be4bb0730d7bed9d4f3c2b8f84ab5e2255fcbd136  ./tests/test-gallery-overlay-modern.js
 ff3525bfdb40e92d7046aa0be4bb0730d7bed9d4f3c2b8f84ab5e2255fcbd136  ./tests/test-gallery-svg-icons.js
@@ -778,6 +779,7 @@ f56b8ef77e096325b74a90e40265a7f6ee27a7ceac92aa89b7ae52da3f33f872  ./tests/test-t
 8f7bcfccbd41b3e22ca1703c78e0f1b7bce4e39e824694faf61e3d7364f3238b  ./tests/test-template-runtime-index-contract.js
 0120547059539daf8506dfb58c1676dc38a933e5f7734668f272abfc4f37eb78  ./tests/test-template-runtime-registry.js
 40653592b8b9ee14429dd75462fdeb94f1e56d3567e334c2873c46a16092cd34  ./tests/test-template-structure-api.js
+3c7be74879ec8bfd62540e11564706f31167aa67b463a041519c5452a51430ae  ./tests/test-template-toolbar-delete-selection-loss.js
 007ffbfb27eb045b507c607204fbc176104b3bc5ef622a9184b8c9ca33d13e36  ./tests/test-toast-error-duration.js
 325aa61308931f6e4668bf44e61069945f42c37de6d7083b0fda1255d891ddd5  ./tests/test-toolbar-redundant-import-removed.js
 1ac68b2726e7caf7275671806005cb4a8cc12d79430396ec92a784ce3c1cdba2  ./tests/test-translation-analyzer-bootstrap5.js
