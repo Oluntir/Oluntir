@@ -6,7 +6,7 @@
   'use strict';
 
   const SCHEMA_VERSION = 1;
-  const RELEASE = '1.3.1';
+  const RELEASE = '2.3.0';
 
   function clone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
   function freeze(value) {
@@ -17,6 +17,53 @@
   function frozen(value) { return freeze(clone(value)); }
   function item(name, available, details) {
     return { name: name, available: available === true, details: details || null };
+  }
+
+  function contract(name, api, requiredFunctions, details) {
+    const available = !!api;
+    const missing = available
+      ? requiredFunctions.filter(function (key) { return typeof api[key] !== 'function'; })
+      : requiredFunctions.slice();
+    return {
+      name: name,
+      available: available,
+      valid: available && missing.length === 0,
+      requiredFunctions: requiredFunctions.slice(),
+      missingFunctions: missing,
+      details: details || null
+    };
+  }
+
+  function contractSnapshot() {
+    const resolver = root && root.OluntirRepeatContractResolver;
+    const graph = root && root.OluntirRepeatDependencyGraph;
+    const actions = root && root.OluntirRepeatActionContracts;
+    const sync = root && root.OluntirTargetedSynchronizationService;
+    const contracts = [
+      contract('resolver-extensions', resolver, ['resolveProject', 'resolveDefinition'], {
+        schemaVersion: resolver && resolver.SCHEMA_VERSION || null
+      }),
+      contract('dependency-graph-model', graph, ['buildProject'], {
+        schemaVersion: graph && graph.SCHEMA_VERSION || null
+      }),
+      contract('action-contracts', actions, ['createAction', 'registerReadOnlyHandlers'], {
+        schemaVersion: actions && actions.SCHEMA_VERSION || null,
+        mutationAllowed: true
+      }),
+      contract('targeted-synchronization-service', sync, ['create', 'validatePlan', 'validateAccessAdapter'], {
+        schemaVersion: sync && sync.SCHEMA_VERSION || null,
+        executionEnabled: true,
+        mutationAllowed: true
+      })
+    ];
+    return frozen({
+      schemaVersion: SCHEMA_VERSION,
+      required: contracts.map(function (entry) { return entry.name; }),
+      contracts: contracts,
+      valid: contracts.every(function (entry) { return entry.valid; }),
+      executionEnabled: true,
+      mutationPerformed: false
+    });
   }
 
   function dependencySnapshot() {
@@ -32,15 +79,23 @@
       item('repeat-resolver', !!resolver, resolver && { schemaVersion: resolver.SCHEMA_VERSION || null }),
       item('dependency-graph', !!graph, graph && { schemaVersion: graph.SCHEMA_VERSION || null }),
       item('action-contracts', !!actions, actions && { schemaVersion: actions.SCHEMA_VERSION, types: actions.ACTION_TYPE }),
-      item('targeted-sync-service', !!sync, sync && { schemaVersion: sync.SCHEMA_VERSION, executionEnabled: false })
+      item('targeted-sync-service', !!sync, sync && { schemaVersion: sync.SCHEMA_VERSION, executionEnabled: true })
     ];
   }
 
   function audit(editor) {
     const dependencies = dependencySnapshot();
+    const contracts = contractSnapshot();
     const issues = [];
     dependencies.forEach(function (entry) {
       if (!entry.available) issues.push({ code: 'REPEAT_FOUNDATION_DEPENDENCY_MISSING', dependency: entry.name });
+    });
+    contracts.contracts.forEach(function (entry) {
+      if (!entry.valid) issues.push({
+        code: 'REPEAT_CONTRACT_INVALID',
+        contract: entry.name,
+        missingFunctions: entry.missingFunctions.slice()
+      });
     });
 
     const repeat = root && root.OluntirRepeatEngineV2;
@@ -68,18 +123,19 @@
     const readiness = {
       schemaVersion: SCHEMA_VERSION,
       release: RELEASE,
-      mode: 'foundation-only',
-      productiveSynchronizationEnabled: false,
-      visibleRepeatUiEnabled: false,
+      mode: 'central-library-manual-publish',
+      productiveSynchronizationEnabled: contracts.valid,
+      visibleRepeatUiEnabled: contracts.valid,
       automaticSynchronizationEnabled: false,
       mutationPerformed: false,
+      contracts: contracts,
       dependencies: dependencies,
       state: state,
       validation: validation,
       resolution: resolution,
       graph: graph,
       issues: issues,
-      readyForFirstImplementation: dependencies.every(function (entry) { return entry.available; }) && issues.length === 0
+      readyForFirstImplementation: dependencies.every(function (entry) { return entry.available; }) && contracts.valid && issues.length === 0
     };
     return frozen(readiness);
   }
@@ -95,5 +151,5 @@
     return result;
   }
 
-  return Object.freeze({ SCHEMA_VERSION: SCHEMA_VERSION, RELEASE: RELEASE, audit: audit, assertFoundation: assertFoundation, dependencySnapshot: dependencySnapshot });
+  return Object.freeze({ SCHEMA_VERSION: SCHEMA_VERSION, RELEASE: RELEASE, audit: audit, assertFoundation: assertFoundation, dependencySnapshot: dependencySnapshot, contractSnapshot: contractSnapshot });
 });

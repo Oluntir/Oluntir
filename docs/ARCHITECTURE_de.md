@@ -1,5 +1,5 @@
-> **Sprache:** Deutsch · [English](ARCHITECTURE.md)  
-> **Version:** 1.3.1
+> **Sprache:** Deutsch · [English](ARCHITECTURE.md)
+> **Version:** 2.3.0 · **Stabile Baseline:** 1.3.1
 
 # Architekturübersicht
 
@@ -16,6 +16,19 @@ UI und Editorbefehle
 → Semantic Action Engine
 → Validator / Shared Content / Repeat Engine / Export
 → Logger und Diagnostics Center
+
+Source Packages durchlaufen einen getrennten read-only-Pfad:
+
+```text
+lokaler Ordner/Archiv/URL
+→ lokale API
+→ isoliertes Source Package
+→ Inventar und Evidenz
+→ OIR und Knowledge Compiler
+→ Bootstrap-Support-Policy
+→ Source-Profil / Übersetzung / Behavior-Pläne
+→ kontrollierte GrapesJS-Bridge
+```
 ```
 
 ## Trennung der Verantwortlichkeiten
@@ -28,6 +41,12 @@ UI und Editorbefehle
 - Shared Content führt gezielte Regionsupdates aus.
 - Export arbeitet auf dem Projektmodell und einer Exportkopie.
 - Logging ist optional, lokal und berechtigungsgebunden.
+- Konkrete Editorprofile sind auf Bootstrap 4.6.2 und 5.3.8 begrenzt.
+- Unbekannte Source Packages bleiben `analysis-only`.
+- Importiertes Source-JavaScript wird nicht ausgeführt.
+- Benutzerdefinierte Repeat-Definitionen werden über den Resolver, Dependency
+  Graph, Action Contracts und den gezielten Synchronisationsdienst produktiv
+  und atomar synchronisiert.
 
 ## Performance
 
@@ -36,3 +55,20 @@ Shared Content vergleicht Fingerprints, speichert Komponentenreferenzen pro Seit
 ## Weiterführend
 
 Siehe `docs/Architecture/` sowie `docs/AI/`.
+
+## Modulare Template-Runtime ab 2.3.0
+
+Zusätzliche Bootstrap-Templates werden nicht als neue Framework-Unterordner angelegt. `frameworks/bootstrap4` und `frameworks/bootstrap5` bleiben die festen technischen Basen. Benutzer-Templates liegen ausschließlich unter `templates/` und werden über `registry.js` beim Start eingebunden.
+
+```text
+Template-ZIP
+→ Browser-Compiler
+→ HTML-/CSS-/Asset-/JS-Analyse
+→ statische Template-Artefakte
+→ templates/<id>/
+→ registry.js
+→ generische Template-Runtime
+→ GrapesJS-Blöcke
+```
+
+Die Runtime führt importiertes Template-JavaScript im Editier-Canvas nicht aus. Externe `iframe`-/`object`-/`embed`-Quellen werden vor der Registrierung als Editorbaustein isoliert und durch SVG-Platzhalter ersetzt. Preview-Reaktivierung erfolgt ausschließlich im Canvas-DOM. Dadurch bleiben das persistierte Komponentenmodell, Undo/Redo und Shared Content von Fremdruntime-Mutationen getrennt.

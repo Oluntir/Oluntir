@@ -2,11 +2,11 @@
 
 # Code of Conduct
 
-**Version:** 1.2.0  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.2.0  
-**Last updated:** 2026-07-30
+**Version:** 2.3.0
+**Language:** English
+**Status:** Release
+**Stable baseline:** Oluntir 1.3.1
+**Last updated:** 2026-09-07
 
 Project communication must remain professional and relevant to the technical work.
 

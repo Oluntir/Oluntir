@@ -1,0 +1,13 @@
+'use strict';
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const js = fs.readFileSync(path.join(__dirname, '..', 'editor/js/core/oluntir-logging-consent.js'), 'utf8');
+assert.ok(html.includes('id="oluntir-consent-all"'), 'Der Zustimmungsdialog braucht „Alle akzeptieren“.');
+assert.ok(html.includes('<strong>Alle akzeptieren</strong>'), 'Die Sammelzustimmung muss verständlich beschriftet sein.');
+assert.ok(js.includes("document.getElementById('oluntir-consent-all')"), 'Die Sammelcheckbox muss verdrahtet sein.');
+assert.ok(js.includes('el.checked = acceptAll.checked'), '„Alle akzeptieren“ muss alle drei Pflichtcheckboxen gemeinsam setzen/lösen.');
+assert.ok(js.includes('acceptAll.checked = requiredAccepted()'), 'Die Sammelcheckbox muss den Zustand der Einzelcheckboxen spiegeln.');
+assert.ok(js.includes('acceptAll.indeterminate'), 'Teilweise gesetzte Einzelzustimmungen müssen als Mischzustand dargestellt werden.');
+console.log('CONSENT-ACCEPT-ALL-TEST ERFOLGREICH');

@@ -95,8 +95,22 @@
     return Object.keys(normalized).sort().map((name) => `${name}: ${normalized[name]}`).join('; ');
   }
 
+  function sameAttributes(left, right) {
+    const a = left || {};
+    const b = right || {};
+    const aKeys = Object.keys(a).sort();
+    const bKeys = Object.keys(b).sort();
+    if (aKeys.length !== bKeys.length) return false;
+    for (let index = 0; index < aKeys.length; index += 1) {
+      const key = aKeys[index];
+      if (key !== bKeys[index] || String(a[key] == null ? '' : a[key]) !== String(b[key] == null ? '' : b[key])) return false;
+    }
+    return true;
+  }
+
   function updateAttributes(component, normalized, persistInline) {
-    const attributes = typeof component.getAttributes === 'function' ? Object.assign({}, component.getAttributes() || {}) : {};
+    const currentAttributes = typeof component.getAttributes === 'function' ? Object.assign({}, component.getAttributes() || {}) : {};
+    const attributes = Object.assign({}, currentAttributes);
     Object.keys(attributes).forEach((name) => {
       if (String(name).toLowerCase().indexOf(ATTRIBUTE_PREFIX) === 0) delete attributes[name];
     });
@@ -110,24 +124,29 @@
       Object.keys(existingInline).forEach((name) => {
         if (!CSS_TO_TERM[name]) retainedInline[name] = existingInline[name];
       });
-      const value = Object.keys(Object.assign({}, retainedInline, normalized)).sort()
-        .map((name) => `${name}: ${Object.assign({}, retainedInline, normalized)[name]}`).join('; ');
+      const mergedInline = Object.assign({}, retainedInline, normalized);
+      const value = Object.keys(mergedInline).sort()
+        .map((name) => `${name}: ${mergedInline[name]}`).join('; ');
       if (value) attributes.style = value;
       else delete attributes.style;
     }
+    if (sameAttributes(currentAttributes, attributes)) return false;
     if (typeof component.set === 'function') component.set('attributes', attributes);
     else if (typeof component.addAttributes === 'function') component.addAttributes(attributes);
+    return true;
   }
 
   function apply(component, presentation, options) {
     if (!component) return false;
     const normalized = normalizeCssMap(presentation);
-    const before = capture(component);
-    const changed = JSON.stringify(before) !== JSON.stringify(normalized);
-    if (typeof component.setStyle === 'function') component.setStyle(normalized);
-    else if (typeof component.addStyle === 'function') component.addStyle(normalized);
-    updateAttributes(component, normalized, !options || options.persistInline !== false);
-    return changed;
+    const currentStyle = typeof component.getStyle === 'function' ? normalizeCssMap(component.getStyle() || {}) : {};
+    const styleChanged = JSON.stringify(currentStyle) !== JSON.stringify(normalized);
+    if (styleChanged) {
+      if (typeof component.setStyle === 'function') component.setStyle(normalized);
+      else if (typeof component.addStyle === 'function') component.addStyle(normalized);
+    }
+    const attributesChanged = updateAttributes(component, normalized, !options || options.persistInline !== false);
+    return styleChanged || attributesChanged;
   }
 
   function copy(source, target) {

@@ -97,11 +97,26 @@
 
     function rebuildIndex() {
       if (!root) return;
-      entries = manager.getAll().map((block) => {
-        const id = String(block.get('id'));
-        const element = root.querySelector(`.gjs-block[data-id="${escapeSelector(id)}"]`);
-        return element ? { element, text: blockSearchText(block) } : null;
-      }).filter(Boolean);
+      // GrapesJS 0.23.x rendert die Block-DOM-Knoten nicht in jeder Ansicht
+      // identisch. Insbesondere ist data-id nicht zuverlässig vorhanden bzw.
+      // nicht immer der Wert der Block-Model-ID. Der Suchindex darf deshalb
+      // nicht davon abhängen, dass ein bestimmter DOM-Schlüssel existiert.
+      const blocks = manager.getAll();
+      const modelsById = new Map();
+      blocks.forEach((block) => modelsById.set(String(block.get('id')), block));
+      entries = Array.from(root.querySelectorAll('.gjs-block')).map((element) => {
+        const id = element.getAttribute('data-id') || element.dataset && element.dataset.id;
+        const block = id ? modelsById.get(String(id)) : null;
+        const domText = [
+          element.textContent,
+          element.getAttribute('title'),
+          element.getAttribute('data-keywords'),
+        ].filter(Boolean).join(' ');
+        return {
+          element,
+          text: normalize([block ? blockSearchText(block) : '', domText].filter(Boolean).join(' ')),
+        };
+      });
     }
 
     function updateCategories(hasQuery) {

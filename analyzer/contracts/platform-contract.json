@@ -1,0 +1,27 @@
+{
+  "contractVersion": 1,
+  "project": "Oluntir Framework Knowledge Compiler",
+  "boundaries": {
+    "sourceMutation": false,
+    "htmlGeneration": false,
+    "grapesJsDependency": false,
+    "editorRuntimeDependency": false,
+    "oluntirComponentGeneration": false,
+    "frameworkComponentReplacement": false,
+    "declarativeKnowledgeOutput": true,
+    "evidenceRequired": true
+  },
+  "requiredGraphs": [
+    "semantic",
+    "presentation",
+    "interaction",
+    "asset",
+    "dependency",
+    "capability",
+    "validation"
+  ],
+  "outputKinds": [
+    "oluntir-intermediate-representation",
+    "oluntir-framework-knowledge"
+  ]
+}

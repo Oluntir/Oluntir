@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Oluntir 1.3.1</title>
+  <title>Oluntir 2.3.0</title>
   <link rel="stylesheet" href="vendor/grapesjs/0.23.2/grapes.min.css">
   <link rel="stylesheet" href="plugins/editor/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="editor/css/editor.css?v=1.3.1">
+  <link rel="stylesheet" href="editor/css/editor.css?v=2.3.0-r5">
 </head>
 <body>
   
@@ -72,7 +72,7 @@
 
 
   <div id="toolbar">
-    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">1.3.1</span></div>
+    <div class="toolbar-brand" title="Oluntir">Oluntir<span class="toolbar-version">2.3.0</span></div>
 
     <div class="toolbar-language" role="group" data-i18n-aria="language.group" aria-label="Sprache">
       <button type="button" data-lang="de" class="active" data-i18n-title="language.de" title="Deutsch">DE</button>
@@ -87,13 +87,27 @@
         <option value="bs4">Bootstrap 4.6.2 – Community Edition</option>
       </select>
     </div>
-
-    <div class="toolbar-group">
+    <div class="toolbar-group toolbar-page-actions">
       <label for="page-select" class="toolbar-label" data-i18n="toolbar.page">Seite:</label>
       <select id="page-select"></select>
       <button id="btn-new-page" data-i18n-title="toolbar.newPageTitle" title="Neue Seite anlegen" data-i18n="toolbar.newPage">+ Neue Seite</button>
       <button id="btn-rename-page" data-i18n-title="toolbar.renameTitle" title="Seite umbenennen" data-i18n="toolbar.rename">Umbenennen</button>
       <button id="btn-delete-page" data-i18n-title="toolbar.deleteTitle" title="Seite löschen" data-i18n="toolbar.delete">Löschen</button>
+    </div>
+  </div>
+
+  <div id="toolbar-secondary" aria-label="Weitere Oluntir-Funktionen">
+    <div class="toolbar-group toolbar-source-package" role="group" aria-label="Framework-Source importieren">
+      <button id="btn-import-source-url" type="button" title="Framework oder Template über die lokale API importieren">+ Source-URL</button>
+      <label class="toolbar-file-label" title="Framework oder Template aus einem lokalen Ordner importieren">
+        <span>+ Source-Ordner</span><input id="input-source-folder" type="file" webkitdirectory directory multiple hidden>
+      </label>
+      <label class="toolbar-file-label" title="Framework oder Template als ZIP oder TAR importieren">
+        <span>+ Source-Archiv</span><input id="input-source-archive" type="file" accept=".zip,.tar,.gz,.tgz,.tar.gz,application/zip,application/gzip" hidden>
+      </label>
+      <label class="toolbar-file-label" title="Source Package aus einer Recovery-JSON wiederherstellen">
+        <span>+ Recovery-JSON</span><input id="input-source-recovery" type="file" accept="application/json,.json" hidden>
+      </label>
     </div>
 
     <div class="toolbar-group toolbar-media-actions">
@@ -293,37 +307,28 @@
     <div class="pb-modal oluntir-logging-modal" role="dialog" aria-modal="true" aria-labelledby="oluntir-logging-title">
       <div class="pb-ui-modal-head">
         <div>
-          <h2 id="oluntir-logging-title">Oluntir – Zustimmung und lokale Diagnoseprotokolle</h2>
-          <p>Bitte lesen und bestätigen Sie die grundlegenden Nutzungs-, Datenschutz- und Sicherheitsbedingungen. Technisches Logging bleibt freiwillig.</p>
-          <p>Die Zustimmung gilt ausschließlich für diesen entpackten Oluntir-Programmordner. Wird Oluntir aus einem anderen Ordner gestartet, ist eine neue Zustimmung erforderlich.</p>
+          <h2 id="oluntir-logging-title">Oluntir – Zustimmung &amp; lokale Diagnose</h2>
+          <p>Bitte bestätigen Sie Lizenz, Datenschutz und Sicherheit. Lokales Logging ist freiwillig und bleibt auf Ihrem PC.</p>
+          <p>Die Zustimmung gilt für diesen entpackten Oluntir-Programmordner.</p>
         </div>
         <button id="oluntir-logging-close" class="pb-ui-close" type="button" aria-label="Schließen">×</button>
       </div>
       <div class="oluntir-logging-content">
         <section class="oluntir-consent-documents">
           <h3>Verbindliche Grundbestätigungen</h3>
-          <label class="oluntir-consent-check"><input id="oluntir-consent-license" type="checkbox"> <span>Ich habe die <a href="LICENSING_de.md" target="_blank" rel="noopener">Lizenzbestimmungen</a> gelesen und akzeptiere sie.</span></label>
-          <label class="oluntir-consent-check"><input id="oluntir-consent-privacy" type="checkbox"> <span>Ich habe die <a href="PRIVACY_de.md" target="_blank" rel="noopener">Datenschutzrichtlinie</a> gelesen und akzeptiere die ausschließlich lokale Verarbeitung.</span></label>
-          <label class="oluntir-consent-check"><input id="oluntir-consent-security" type="checkbox"> <span>Ich habe die <a href="SECURITY_de.md" target="_blank" rel="noopener">Sicherheitsrichtlinien</a> gelesen und werde sensible Daten nicht bewusst in Diagnosevorgänge einbringen.</span></label>
+          <label class="oluntir-consent-check"><input id="oluntir-consent-all" type="checkbox"> <span><strong>Alle akzeptieren</strong> – Lizenz, Datenschutz und Sicherheit gemeinsam bestätigen.</span></label>
+          <label class="oluntir-consent-check"><input id="oluntir-consent-license" type="checkbox"> <span><a href="LICENSING_de.md" target="_blank" rel="noopener">Lizenzbestimmungen</a> gelesen und akzeptiert.</span></label>
+          <label class="oluntir-consent-check"><input id="oluntir-consent-privacy" type="checkbox"> <span><a href="PRIVACY_de.md" target="_blank" rel="noopener">Datenschutzrichtlinie</a> gelesen; Verarbeitung erfolgt lokal.</span></label>
+          <label class="oluntir-consent-check"><input id="oluntir-consent-security" type="checkbox"> <span><a href="SECURITY_de.md" target="_blank" rel="noopener">Sicherheitsrichtlinien</a> gelesen; keine sensiblen Daten bewusst in Diagnosen einbringen.</span></label>
         </section>
         <section class="oluntir-redaction-box">
-          <h3>Automatische Maskierung sensibler Daten</h3>
-          <p>Bei aktiviertem Logging maskiert Oluntir unter anderem:</p>
-          <ul>
-            <li>Passwörter</li><li>Tokens</li><li>Secrets</li><li>API-Schlüssel</li>
-            <li>Authorization-Daten</li><li>Cookies</li><li>Credentials</li><li>private Schlüssel</li>
-            <li>Benutzeranteile von Windows-Pfaden</li><li>Token- und Passwortparameter in URLs</li>
-          </ul>
-          <p><strong>Keine Garantie:</strong> Automatische Maskierung reduziert Risiken, ersetzt aber nicht die Datenminimierung. Seiteninhalte werden nicht absichtlich protokolliert.</p>
+          <h3>Automatische Maskierung</h3>
+          <p>Oluntir maskiert bei aktiviertem Logging u. a. Passwörter, Tokens/Secrets/API-Schlüssel, Auth-/Cookie-/Credential-Daten, private Schlüssel, Benutzerpfade und sensible URL-Parameter.</p>
+          <p><strong>Hinweis:</strong> Maskierung reduziert Risiken, ersetzt aber nicht die Datenminimierung. Seiteninhalte werden nicht absichtlich protokolliert.</p>
         </section>
         <section>
           <h3>Freiwilliges lokales Logging</h3>
-          <ul>
-            <li>Standardmäßig deaktiviert; Aktivierung nur durch ausdrückliche Ordnerfreigabe.</li>
-            <li>Least Privilege: Zugriff ausschließlich auf den gewählten <code>logs</code>-Ordner.</li>
-            <li>Keine automatische Übertragung, kein Cloud-Upload.</li>
-            <li>Jederzeit widerrufbar; Dateien bleiben unter Kontrolle des Benutzers.</li>
-          </ul>
+          <p>Nur nach ausdrücklicher Freigabe des <code>logs</code>-Ordners. Keine automatische Übertragung oder Cloud-Nutzung; die Freigabe ist jederzeit widerrufbar.</p>
         </section>
         <label>Log-Level
           <select id="oluntir-logging-level">
@@ -332,12 +337,11 @@
           </select>
         </label>
         <section class="oluntir-logging-path-box">
-          <strong>Welcher Ordner muss ausgewählt werden?</strong>
-          <p>Öffnen Sie im Ordnerdialog den entpackten <strong>Oluntir-Programmordner</strong> und wählen Sie ausschließlich dessen bereits vorhandenen Unterordner <code>logs</code> aus.</p>
-          <p><strong>Nicht auswählen:</strong> den gesamten Oluntir-Programmordner, einen Projektordner oder einen übergeordneten Ordner.</p>
-          <strong>Speicherort der Berechtigungs- und Logdateien</strong>
+          <strong>logs-Ordner auswählen</strong>
+          <p>Wählen Sie ausschließlich den vorhandenen Unterordner <code>logs</code> im entpackten Oluntir-Programmordner – nicht den Programm-, Projekt- oder einen übergeordneten Ordner.</p>
+          <strong>Aktueller Speicherort</strong>
           <code id="oluntir-logging-path">Noch kein logs-Ordner freigegeben.</code>
-          <p>Nur im gewählten Ordner wird <code>.oluntir-logging.json</code> angelegt. Darin stehen Freigabeumfang, Zustimmungsversion, Log-Level, Maskierungsklassen und Rotationsgrenzen.</p>
+          <p>Dort werden die lokale Freigabe <code>.oluntir-logging.json</code> und die Diagnoseprotokolle gespeichert.</p>
         </section>
         <section id="oluntir-logging-success" class="oluntir-logging-success" hidden>
           <h3>Einrichtung abgeschlossen</h3>
@@ -348,14 +352,66 @@
       </div>
       <div class="pb-modal-actions oluntir-consent-actions">
         <button id="oluntir-logging-revoke" type="button">Log-Freigabe widerrufen</button>
-        <button id="oluntir-consent-accept" type="button">Zustimmen und ohne Logging starten</button>
-        <button id="oluntir-logging-choose" class="btn-primary" type="button">Zustimmen, Programmordner öffnen und Unterordner logs wählen</button>
+        <button id="oluntir-consent-accept" type="button">Ohne Logging starten</button>
+        <button id="oluntir-logging-choose" class="btn-primary" type="button">Zustimmen und logs-Ordner wählen</button>
         <button id="oluntir-logging-start" class="btn-primary" type="button" hidden>Oluntir starten</button>
       </div>
     </div>
   </div>
 
   <div id="gjs"></div>
+  <aside id="oluntir-repeat-panel" class="oluntir-repeat-panel" hidden tabindex="-1" role="region" aria-label="Arbeitsbereich für wiederholbare Inhalte" aria-labelledby="oluntir-repeat-title">
+    <div class="oluntir-repeat-panel-head"><div><h2 id="oluntir-repeat-title">Wiederholbare Bereiche</h2><p>Aktuellen Bereich als Repeat-Quelle definieren und direkt auf einer Zielseite einsetzen.</p></div><div class="oluntir-repeat-head-actions"><button id="oluntir-repeat-reset" type="button" title="Aktuelle Repeat-Auswahl zurücksetzen" aria-label="Aktuelle Repeat-Auswahl zurücksetzen"><i class="fa fa-eraser" aria-hidden="true"></i></button><button id="oluntir-repeat-close" type="button" aria-label="Schließen">×</button></div></div>
+    <section><h3>1. Quelle auswählen</h3><div id="oluntir-repeat-selection-info" class="oluntir-repeat-info">Kein geeigneter Bereich ausgewählt.</div><div class="oluntir-repeat-actions"><button id="oluntir-repeat-clear-selection" type="button">Auswahl löschen</button><button id="oluntir-repeat-undo" type="button" disabled>Rückgängig</button></div></section>
+    <section><h3>2. Quelle definieren</h3><label>Quellenname<input id="oluntir-repeat-name" type="text" required placeholder="z. B. Produktkarte"></label><label>Typ<select id="oluntir-repeat-type"><option value="explicit-repeat">Ausgewählter Bereich</option></select></label><button id="oluntir-repeat-define" class="btn-primary" type="button" disabled>Quelle speichern</button></section>
+    <section><h3>Aktuelle Repeat-Quelle</h3><div id="oluntir-repeat-current-source" class="oluntir-repeat-current-source"><p class="oluntir-repeat-muted">Noch keine Repeat-Quelle ausgewählt oder definiert.</p></div></section>
+    <section><h3 class="oluntir-repeat-section-title">3. Auf Zielseite einsetzen <button id="oluntir-repeat-source-help" class="oluntir-repeat-help" type="button" title="Anleitung zur Zielbereichsauswahl" aria-label="Anleitung zur Zielbereichsauswahl"><i class="fa fa-info-circle" aria-hidden="true"></i></button></h3><div id="oluntir-repeat-source-help-popover" class="oluntir-repeat-help-popover" role="note" hidden><strong>So setzt du die aktuelle Quelle ein</strong><ol><li>Wähle im Canvas den Quellbereich aus und speichere ihn mit einem Namen.</li><li>Wähle die Zielseite aus. Sie wird im Canvas geöffnet.</li><li>Wähle die Einfügeposition „im Bereich“, „davor“ oder „danach“.</li><li>Bewege den Mauszeiger an die gewünschte Strukturgrenze und bestätige sie per Klick.</li><li>Bestätige mit „Bereich einsetzen“.</li></ol></div><label>Zielseite<select id="oluntir-repeat-source-target-page"><option value="">Zielseite auswählen</option></select></label><label>Einfügeposition<select id="oluntir-repeat-source-target-position"><option value="inside">Im markierten Bereich</option><option value="before">Davor – orange Einfügelinie</option><option value="after">Danach – orange Einfügelinie</option></select></label><div id="oluntir-repeat-source-target-selection-info" class="oluntir-repeat-target-info" aria-live="polite">Noch keine gültige Zielposition markiert. Speichere zuerst die Quelle, wähle dann eine Zielseite und klicke im Canvas den gewünschten Bereich an.</div><div class="oluntir-repeat-actions"><button id="oluntir-repeat-source-target-clear" type="button">Zielauswahl löschen</button><button id="oluntir-repeat-source-insert" class="btn-primary" type="button" disabled>Bereich einsetzen</button></div></section>
+    <p id="oluntir-repeat-status" class="oluntir-repeat-status" aria-live="polite"></p>
+  </aside>
+
+  <aside id="oluntir-repeat-library-panel" class="oluntir-repeat-panel oluntir-repeat-library-manager" hidden tabindex="-1" role="region" aria-label="Projektweite wiederholbare Bereiche" aria-labelledby="oluntir-repeat-library-title">
+    <div class="oluntir-repeat-panel-head"><div><h2 id="oluntir-repeat-library-title">Projektweite wiederholbare Bereiche</h2><p>Zentrale Quellen verwalten, bearbeiten und kontrolliert auf alle Vorkommen anwenden.</p></div><div class="oluntir-repeat-head-actions"><button id="oluntir-repeat-library-close" type="button" aria-label="Schließen">×</button></div></div>
+
+    <section class="oluntir-repeat-library-section">
+      <div class="oluntir-repeat-library-section-head"><h3>Repeat-Bibliothek</h3><p>Bereich zentral bearbeiten</p></div>
+      <div class="oluntir-repeat-catalog-toolbar" aria-label="Repeat-Bibliothek sortieren">
+        <span class="oluntir-repeat-catalog-toolbar-label">Sortierung</span>
+        <div class="oluntir-repeat-sort-buttons" role="group" aria-label="Sortierreihenfolge">
+          <button id="oluntir-repeat-library-sort-recent" class="oluntir-repeat-sort-button is-active" type="button" aria-pressed="true">Zuletzt angelegt</button>
+          <button id="oluntir-repeat-library-sort-alpha" class="oluntir-repeat-sort-button" type="button" aria-pressed="false">A–Z</button>
+        </div>
+        <button id="oluntir-repeat-library-expand" class="oluntir-repeat-expand-button" type="button" aria-expanded="false">Gesamtliste erweitern</button>
+      </div>
+      <div id="oluntir-repeat-library-catalog" class="oluntir-repeat-catalog oluntir-repeat-catalog--edit" data-expanded="false"><p class="oluntir-repeat-muted">Noch keine wiederholbaren Bereiche im Projekt.</p></div>
+    </section>
+
+    <section id="oluntir-repeat-manager-editor" class="oluntir-repeat-manager-editor" hidden>
+      <div class="oluntir-repeat-manager-heading">
+        <div class="oluntir-repeat-manager-heading-text"><h3 id="oluntir-repeat-manager-current">Keine Repeat-Quelle zur Bearbeitung geöffnet.</h3><p id="oluntir-repeat-manager-usage"></p></div>
+        <div class="oluntir-repeat-manager-icon-actions" aria-label="Bearbeitungshistorie">
+          <button id="oluntir-repeat-manager-undo" class="oluntir-repeat-icon-button" type="button" disabled title="Repeat-Aktion rückgängig" aria-label="Repeat-Aktion rückgängig"><i class="fa fa-undo" aria-hidden="true"></i></button>
+          <button id="oluntir-repeat-manager-redo" class="oluntir-repeat-icon-button" type="button" disabled title="Repeat-Aktion wiederholen" aria-label="Repeat-Aktion wiederholen"><i class="fa fa-repeat" aria-hidden="true"></i></button>
+          <button id="oluntir-repeat-manager-discard" class="oluntir-repeat-icon-button" type="button" disabled title="Entwurf verwerfen" aria-label="Entwurf verwerfen"><i class="fa fa-eraser" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div class="oluntir-repeat-manager-primary-actions"><button id="oluntir-repeat-manager-publish" class="btn-primary" type="button" disabled>Auf alle Vorkommen anwenden</button><button id="oluntir-repeat-manager-return" type="button">Zur Seitenansicht zurück</button></div>
+      <p class="oluntir-repeat-muted">Im zentralen Canvas wird nur der Entwurf bearbeitet. Erst „Auf alle Vorkommen anwenden“ überträgt den Stand projektweit.</p>
+    </section>
+
+    <section class="oluntir-repeat-library-section oluntir-repeat-library-insert-section">
+      <div class="oluntir-repeat-library-section-head"><h3>Bereich aus Bibliothek einsetzen</h3><p>Auswahl Repeat und bei Ziel einfügen</p></div>
+      <div id="oluntir-repeat-insert-catalog" class="oluntir-repeat-catalog oluntir-repeat-catalog--insert" data-expanded="false"><p class="oluntir-repeat-muted">Noch keine wiederholbaren Bereiche im Projekt.</p></div>
+      <select id="oluntir-repeat-definition-select" hidden aria-hidden="true" tabindex="-1"><option value="">Quelle auswählen</option></select>
+      <div id="oluntir-repeat-library-source-info" class="oluntir-repeat-info">Noch keine Quelle ausgewählt.</div>
+      <h3 class="oluntir-repeat-section-title">Zielseite und Einfügeposition <button id="oluntir-repeat-library-help" class="oluntir-repeat-help" type="button" title="Anleitung zur Zielbereichsauswahl" aria-label="Anleitung zur Zielbereichsauswahl"><i class="fa fa-info-circle" aria-hidden="true"></i></button></h3>
+      <div id="oluntir-repeat-library-help-popover" class="oluntir-repeat-help-popover" role="note" hidden><strong>So setzt du einen Bereich aus der Bibliothek ein</strong><ol><li>Wähle eine Repeat-Quelle aus der Liste.</li><li>Wähle die Zielseite.</li><li>Wähle „im Bereich“, „davor“ oder „danach“.</li><li>Bestätige die orange Zielposition im Canvas.</li><li>Klicke „Bereich einsetzen“.</li></ol></div>
+      <label>Zielseite<select id="oluntir-repeat-library-target-page"><option value="">Zielseite auswählen</option></select></label>
+      <label>Einfügeposition<select id="oluntir-repeat-library-target-position"><option value="inside">Im markierten Bereich</option><option value="before">Davor – orange Einfügelinie</option><option value="after">Danach – orange Einfügelinie</option></select></label>
+      <div id="oluntir-repeat-library-target-selection-info" class="oluntir-repeat-target-info" aria-live="polite">Noch keine gültige Zielposition markiert.</div>
+      <div class="oluntir-repeat-actions"><button id="oluntir-repeat-library-target-clear" type="button">Zielauswahl löschen</button><button id="oluntir-repeat-library-insert" class="btn-primary" type="button" disabled>Bereich einsetzen</button></div>
+    </section>
+    <p id="oluntir-repeat-library-status" class="oluntir-repeat-status" aria-live="polite"></p>
+  </aside>
 
   <div id="toast"></div>
 
@@ -376,11 +432,24 @@
   <script src="editor/js/features/ui-settings.js"></script>
   <script src="editor/js/features/block-search.js"></script>
   <script src="editor/js/core/edition.js"></script>
-  <script src="editor/js/core/framework.js?v=1.3.0"></script>
+  <script src="templates/registry.js?v=2.3.0"></script>
+  <script src="editor/js/core/template-runtime.js?v=2.3.0"></script>
+  <script src="editor/js/core/template-runtime-bootstrap.js?v=2.3.0"></script>
+  <script src="editor/js/core/source-package-bridge.js?v=2.3.0"></script>
+  <script src="editor/js/core/source-package-grapesjs-adapter.js?v=2.3.0"></script>
+  <script src="editor/js/core/framework.js?v=2.3.0"></script>
+  <script src="editor/js/core/translation-matrix.js?v=2.0.0-dev016"></script>
+  <script src="editor/js/core/translation-matrix-profiles.js?v=2.0.0-dev017"></script>
+  <script src="editor/js/core/translation-analyzer.js?v=2.0.0-dev018"></script>
+  <script src="editor/js/core/translation-resolver.js?v=2.0.0-dev019"></script>
+  <script src="editor/js/core/translation-matrix-validation.js?v=2.0.0-dev020"></script>
+  <script src="editor/js/core/translation-materialization-plan.js?v=2.3.0"></script>
   <script src="editor/js/core/site-images.js"></script>
-  <script src="editor/js/features/bootstrap-blocks.js"></script>
+  <script src="editor/js/features/bootstrap-blocks.js?v=2.3.0-r3"></script>
+  <script src="editor/js/features/bootstrap-video.js?v=2.3.0-r1"></script>
   <script src="editor/js/features/variant-blocks.js"></script>
   <script src="editor/js/features/quick-setup.js"></script>
+  <script src="editor/js/core/image-lightbox-api.js"></script>
   <script src="editor/js/features/quick-edit.js"></script>
   <script src="editor/js/features/blocks-bs5.js"></script>
   <script src="editor/js/core/progress.js"></script>
@@ -403,7 +472,7 @@
   <script src="editor/js/core/includes.js"></script>
   <script src="editor/js/core/favicon-manager.js?v=1.3.1"></script>
 <script src="editor/js/core/presentation-vocabulary.js"></script>
-  <script src="editor/js/core/shared-content-manager.js"></script>
+  <script src="editor/js/core/shared-content-manager.js?v=2.3.0-r4"></script>
   <script src="editor/js/core/semantic-dictionary.js"></script>
   <script src="editor/js/core/identity-resolver.js"></script>
   <script src="editor/js/core/context-resolver.js"></script>
@@ -434,7 +503,7 @@
         <section><h3>Runtime</h3><pre id="oluntir-diagnostics-runtime"></pre></section>
         <section><h3>Action Engine</h3><pre id="oluntir-diagnostics-actions"></pre></section>
         <section><h3>Shared Content / Fingerprints</h3><pre id="oluntir-diagnostics-shared"></pre></section>
-        <section class="oluntir-diagnostics-wide"><h3>Repeat Engine</h3><div class="oluntir-repeat-diagnostics-tools"><select id="oluntir-diagnostics-repeat-definition" aria-label="Repeat-Definition"></select><button id="oluntir-diagnostics-repeat-plan" type="button">Plan anzeigen</button><button id="oluntir-diagnostics-repeat-dry-run" type="button">Dry Run</button></div><div class="oluntir-repeat-diagnostics-grid"><pre id="oluntir-diagnostics-repeat"></pre><pre id="oluntir-diagnostics-repeat-result">Noch keine Entwickleraktion ausgeführt.</pre></div></section>
+        <section class="oluntir-diagnostics-wide"><h3>Wiederholungs-Engine</h3><div class="oluntir-repeat-diagnostics-tools"><select id="oluntir-diagnostics-repeat-definition" aria-label="Wiederholbarer Bereich"></select><button id="oluntir-diagnostics-repeat-plan" type="button">Plan anzeigen</button><button id="oluntir-diagnostics-repeat-dry-run" type="button">Dry Run</button></div><div class="oluntir-repeat-diagnostics-grid"><pre id="oluntir-diagnostics-repeat"></pre><pre id="oluntir-diagnostics-repeat-result">Noch keine Entwickleraktion ausgeführt.</pre></div></section>
         <section><h3>Dependency Graph</h3><pre id="oluntir-diagnostics-dependency"></pre></section>
         <section class="oluntir-diagnostics-wide"><h3>Letzte Logeinträge</h3><div id="oluntir-diagnostics-logs" class="oluntir-diagnostics-log"></div></section>
       </div>
@@ -445,24 +514,28 @@
   <script src="editor/js/core/oluntir-logger.js"></script>
   <script src="editor/js/core/semantic-action-engine.js"></script>
   <script src="editor/js/core/oluntir-runtime-actions.js"></script>
-  <script src="editor/js/core/oluntir-logging-consent.js"></script>
+  <script src="editor/js/core/oluntir-logging-consent.js?v=2.3.0-r2"></script>
   <script src="editor/js/core/developer-diagnostics-center.js"></script>
   <script src="editor/js/core/semantic-validator.js"></script>
-  <script src="editor/js/core/repeat-engine-v2.js"></script>
+  <script src="editor/js/core/repeat-engine-v2.js?v=2.3.0-r3"></script>
   <script src="editor/js/core/repeat-contract-resolver.js"></script>
   <script src="editor/js/core/repeat-dependency-graph.js"></script>
   <script src="editor/js/core/targeted-synchronization-service.js"></script>
   <script src="editor/js/core/repeat-action-contracts.js"></script>
-  <script src="editor/js/core/repeat-sync-access-adapter.js"></script>
+  <script src="editor/js/core/repeat-sync-access-adapter.js?v=2.3.0-r2"></script>
+  <script src="editor/js/core/repeat-library-manager.js?v=2.3.0-r11"></script>
+  <script src="editor/js/core/repeat-synchronization-runtime.js"></script>
+  <script src="editor/js/core/repeat-auto-synchronization.js"></script>
   <script src="editor/js/core/repeat-foundation-readiness.js"></script>
-  <script src="editor/js/core/startup.js"></script>
+  <script src="editor/js/core/startup.js?v=2.3.0-r2"></script>
   <script src="editor/js/core/export-snapshot.js"></script>
   <script src="editor/js/core/export-readiness.js"></script>
   <script src="editor/js/core/export.js"></script>
-  <script src="editor/js/features/gallery.js?v=1.3.1"></script>
+  <script src="editor/js/features/gallery.js?v=2.3.0-r2"></script>
   <script src="editor/js/features/text-media-editor.js"></script>
   <script src="editor/js/features/link-editor.js"></script>
   <script src="editor/js/core/oluntir-code-view.js"></script>
-  <script src="editor/js/core/editor.js?v=1.3.1"></script>
+  <script src="editor/js/core/editor.js?v=2.3.0-r1"></script>
+  <script src="editor/js/core/repeat-ui.js?v=2.3.0-r5"></script>
 </body>
 </html>

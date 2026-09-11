@@ -2,11 +2,11 @@
 
 # Documentation Guidelines
 
-**Version:** 1.2.0  
-**Language:** English  
-**Status:** Stable  
-**Applies to:** Oluntir 1.2.0  
-**Last updated:** 2026-07-30
+**Version:** 2.3.0
+**Language:** English
+**Status:** Release
+**Stable baseline:** Oluntir 1.3.1
+**Last updated:** 2026-09-07
 
 ## Purpose
 
@@ -14,7 +14,7 @@ English files are the reference. German translations use the `_de.md` suffix. Do
 
 ## Scope
 
-This document describes the behavior included in Oluntir 1.2.0.
+This document describes the behavior included in Oluntir 2.3.0.
 
 ## Verification
 
@@ -23,3 +23,10 @@ Test the function with a newly created project and a restored project. Where exp
 ## Limitations
 
 Browser capabilities and imported project content may affect behavior. Report reproducible deviations with the browser version, project type, steps, and console output.
+## Audience separation
+
+- `README`, `FEATURES`, `HANDBOOK`, and `WHY_OLUNTIR` describe stable product capabilities, workflows, scope, and user-relevant limitations. They do not list individual bug fixes, icon tweaks, cache changes, regression details, or internal event names.
+- `RELEASE_NOTES` summarizes release-level changes and major compatibility information.
+- `CHANGELOG`, DEV reports, audits, architecture documents, and test documents may contain implementation details, regression fixes, internal identifiers, and development history.
+- Historical documents are not rewritten to look current; they remain explicitly historical.
+

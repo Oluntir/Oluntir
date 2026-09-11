@@ -1,0 +1,15 @@
+{
+  "kind": "oluntir-source-component-catalog-contract",
+  "schemaVersion": 1,
+  "sourceOfTruth": "analyzer-output-and-original-source",
+  "componentIdentity": "source-component:<content-addressed-id>",
+  "requiredFields": ["componentId", "label", "html", "source", "evidence", "sourceBacked", "mutationPolicy"],
+  "policies": {
+    "sourceBacked": true,
+    "readOnlyAnalysis": true,
+    "createOluntirComponents": false,
+    "userInsertOnly": true,
+    "unitIdGeneratedByGrapesJs": true,
+    "scriptExecutionDuringAnalysis": false
+  }
+}

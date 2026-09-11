@@ -19,6 +19,8 @@ node --check editor/js/core/targeted-synchronization-service.js
 node --check editor/js/core/repeat-action-contracts.js
 node --check editor/js/core/repeat-foundation-readiness.js
 node --check editor/js/core/repeat-sync-access-adapter.js
+node --check editor/js/core/repeat-library-manager.js
+node --check editor/js/core/shared-content-manager.js
 node --check editor/js/core/editor.js
 node --check editor/js/core/export.js
 node tools/test-grapesjs-adapter.js
@@ -34,13 +36,33 @@ node tests/test-template-structure-api.js
 node tests/test-oluntir-logger.js
 node tests/test-oluntir-logger-files.js
 node tests/test-oluntir-logging-consent.js
+node tests/test-logging-consent-responsive-layout.js
+node tests/test-consent-accept-all.js
+node tests/test-toast-error-duration.js
+node tests/test-startup-version-migration.js
 node tests/test-foundation-consent-contract.js
 node tests/test-foundation-consent-version.js
 node tests/test-foundation-consent-installation.js
 node tests/test-runtime-actions.js
 node tests/test-semantic-action-engine.js
 node tests/test-repeat-engine-v2-contracts.js
+node tests/test-repeat-existing-project-auto-upgrade.js
+node tests/test-repeat-existing-project-binding-repair.js
+node tests/test-repeat-session-hydration.js
+node tests/test-repeat-project-marker-recovery.js
+node tests/test-repeat-project-marker-fallback-recovery.js
 node tests/test-repeat-persistence-bridge.js
+node tests/test-repeat-ui.js
+node tests/test-repeat-library-compact-list.js
+node tests/test-undo-block-panel-recovery.js
+node tests/test-bootstrap-component-coverage.js
+node tests/test-bootstrap-video-fallbacks.js
+node tests/test-repeat-central-library-contract.js
+node tests/test-repeat-library-manager-runtime.js
+node tests/test-repeat-central-workspace-editability.js
+node tests/test-repeat-workspace-navigation.js
+node tests/test-repeat-shared-content-transaction-isolation.js
+node tests/test-repeat-target-selection-runtime.js
 node tests/test-rte-persistence-guard.js
 node tests/test-link-rte-focus.js
 node tests/test-repeat-contract-resolver.js
@@ -48,11 +70,15 @@ node tests/test-repeat-dependency-graph.js
 node tests/test-targeted-synchronization-service.js
 node tests/test-repeat-sync-access-adapter.js
 node tests/test-repeat-sync-identity-mapping.js
+node tests/test-repeat-reverse-sync-contract.js
+node tests/test-repeat-synchronization-runtime.js
+node tests/test-repeat-auto-synchronization.js
 node tests/test-repeat-structural-rollback.js
 node tests/test-repeat-action-contracts.js
 node tests/test-1.3.1-repeat-foundation-readiness.js
 node tests/test-bs4-gallery-controls.js
 node tests/test-gallery-item-lifecycle.js
+node tests/test-gallery-delete-repeatability.js
 node tests/test-oluntir-document-api.js
 node tests/test-bootstrap-row-insertion-slots.js
 node tests/test-gallery-area-slots.js
@@ -73,12 +99,20 @@ node tests/test-shared-content-page-transaction.js
 node tests/test-shared-content-canvas-commit.js
 node tests/test-shared-content-targeted-regions.js
 node tests/test-shared-content-lazy-scaling.js
+node tests/test-shared-content-live-target-refresh.js
+node tests/test-shared-content-performance-contract.js
+node tests/test-shared-content-footer-lifecycle.js
+node tests/test-shared-toolbar-delete-target.js
+node tests/test-template-toolbar-delete-selection-loss.js
+node tests/test-presentation-noop-write.js
 python3 tools/validate-structure.py
 node tests/test-gallery-icons-idle-visible.js
 node tests/test-gallery-icon-assets.js
 
 node tests/test-gallery-svg-icons.js
 node tests/test-gallery-toolbar-css-icons.js
+node tests/test-export-archive-toolbar-badges.js
+node tests/test-toolbar-redundant-import-removed.js
 
 node tests/test-gallery-framework-icon-sources.js
 
@@ -137,3 +171,88 @@ node tests/test-1.3.1-export-presentation-translation.js
 node tests/test-1.3.1-export-presentation-readonly.js
 
 node tests/test-1.3.1-presentation-attribute-atomicity.js
+
+node tests/test-empty-project-gallery-insertion.js
+node tests/test-empty-project-gallery-insertion.js
+node tests/test-empty-project-gallery-context-regression.js
+node tests/test-bs5-gallery-image-manager-regression.js
+node tests/test-framework-gallery-editor-contract.js
+
+node tests/test-framework-gallery-wizard.js
+node tests/test-template-runtime-registry.js
+node tests/test-template-runtime-index-contract.js
+node tests/test-template-runtime-framework-selection.js
+node tests/test-template-runtime-file-start.js
+node tests/test-template-runtime-controlled-scripts.js
+node tests/test-template-runtime-editor-isolation.js
+node tests/test-template-runtime-embed-preview.js
+node tests/test-template-manager-registry.js
+node tests/test-template-manager-remove-action.js
+node tests/test-template-manager-layout.js
+node tests/test-template-manager-permissions.js
+node tests/test-template-manager-user-gesture.js
+node tests/test-template-manager-root-validation.js
+node tests/test-template-manager-persistence-contract.js
+node tests/test-template-manager-busy-overlay.js
+node tests/test-template-manager-remembered-root.js
+node tests/test-template-manager-open-after-install.js
+node --check templates/javascript-analyzer.js
+node tests/test-template-javascript-analyzer.js
+node --check templates/javascript-runtime-planner.js
+node tests/test-template-javascript-runtime-planner.js
+node --check templates/javascript-activation-planner.js
+node tests/test-template-javascript-activation-planner.js
+node tests/test-template-manager-javascript-analysis.js
+node --check templates/embed-isolator.js
+node tests/test-template-embed-isolation.js
+node --check templates/template-compiler.js
+node tests/test-template-compiler.js
+node tests/test-template-compiler-write.js
+node tests/test-source-package-bridge.js
+node tests/test-dev030-bootstrap-consolidation.js
+
+# Oluntir Framework Knowledge Compiler core
+node --check analyzer/core/capability-catalog.js
+node --check analyzer/core/evidence-store.js
+node --check analyzer/core/oir-project.js
+node --check analyzer/core/knowledge-compiler.js
+node analyzer/tests/test-framework-support-policy.js
+node analyzer/examples/compile-framework-knowledge.js >/dev/null
+
+# Oluntir Framework Knowledge Compiler DEV_002: Source Inventory and static HTML analysis
+node --check analyzer/core/source-inventory.js
+node --check analyzer/core/static-html-analyzer.js
+node analyzer/tests/test-source-inventory-html-analyzer.js
+
+# Oluntir Framework Knowledge Compiler DEV_003: Static CSS source analysis
+node --check analyzer/core/static-css-analyzer.js
+node analyzer/tests/test-source-inventory-css-analyzer.js
+
+# Oluntir API Analyzer: first visible report function
+node --check analyzer/core/static-script-analyzer.js
+node --check analyzer/core/framework-evidence-analyzer.js
+node --check analyzer/core/capability-evidence-analyzer.js
+node --check analyzer/core/project-analyzer.js
+node --check analyzer/app/server.js
+node --check analyzer/core/source-profile-builder.js
+node analyzer/tests/test-static-script-analyzer.js
+node analyzer/tests/test-project-analyzer.js
+node analyzer/tests/test-analyzer-server.js
+node analyzer/tests/test-editor-route.js
+node analyzer/tests/test-portable-runtime-contract.js
+node analyzer/tests/test-windows-runtime-builder-contract.js
+node analyzer/tests/test-source-package.js
+node analyzer/tests/test-source-package-zip.js
+node analyzer/tests/test-source-runtime-selection.js
+node analyzer/tests/test-source-package-server.js
+node analyzer/tests/test-bootstrap-framework-import.js
+node analyzer/tests/test-bootstrap-evidence-depth.js
+node analyzer/tests/test-bootstrap-component-catalog-depth.js
+node analyzer/tests/test-javascript-behavior.js
+node analyzer/tests/test-source-framework-profile.js
+node tests/test-source-package-grapesjs-adapter.js
+node tests/test-universal-framework-export.js
+node tests/test-framework-switch-guard.js
+node tests/test-portable-windows-runtime.js
+node tests/test-universal-ui-availability.js
+node tests/test-block-search-availability.js

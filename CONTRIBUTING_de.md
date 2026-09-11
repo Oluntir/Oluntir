@@ -2,7 +2,7 @@
 
 # Beiträge zu Oluntir
 
-**Gültig für:** Oluntir 1.2.x
+**Gültig für:** Oluntir 2.3.0 und die stabile Baseline 1.3.1
 
 Beiträge sollen klar abgegrenzt, reproduzierbar, offline-kompatibel und möglichst ohne Verlust vorhandener Projektdaten sein.
 

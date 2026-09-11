@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oluntir.com/schemas/analyzer/oir-project.schema.json",
+  "title": "Oluntir Intermediate Representation Project",
+  "type": "object",
+  "required": ["schemaVersion", "kind", "project", "policies", "graphs", "evidence"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "kind": { "const": "oluntir-intermediate-representation" },
+    "project": {
+      "type": "object",
+      "required": ["id", "name", "analyzerVersion"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "analyzerVersion": { "type": "string", "minLength": 1 }
+      }
+    },
+    "policies": {
+      "type": "object",
+      "required": ["readOnlyAnalysis", "generatesHtml", "modifiesSource", "dependsOnGrapesJs", "definesOluntirComponents"]
+    },
+    "graphs": { "type": "object" },
+    "evidence": { "type": "array" }
+  }
+}

@@ -2,7 +2,7 @@
 
 # Sicherheitsrichtlinie
 
-**Unterstützte Version:** 1.3.1
+**Unterstützte Linien:** 2.3.0 (aktuelle Release-Linie) · 1.3.1 (stabile Baseline)
 
 ## Meldung
 
@@ -16,7 +16,7 @@ Relevant sind insbesondere unsichere Verarbeitung importierter Projektdaten, Scr
 
 ## Reaktion
 
-Eingangsbestätigung, Schweregrad, Behebung, Release-Koordination und Offenlegungszeitpunkt werden fallbezogen behandelt. Aktiv geprüft wird die aktuelle stabile Release-Linie.
+Eingangsbestätigung, Schweregrad, Behebung, Release-Koordination und Offenlegungszeitpunkt werden fallbezogen behandelt. Die stabile Linie 1.3.1 und der Branch 2.3.0 werden entsprechend ihrem jeweiligen Release-Status geprüft. Die Release-Funktionen für Analyzer und Import erfordern besondere Aufmerksamkeit, weil lokale Dateien und Archive verarbeitet werden.
 
 ## Verantwortung der Anwender
 

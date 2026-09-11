@@ -1,0 +1,17 @@
+'use strict';
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const root = path.resolve(__dirname, '..', '..');
+const ps1Path = path.join(root, 'tools', 'runtime', 'Build-Windows-Portable-Package.ps1');
+const cmdPath = path.join(root, 'Build-Windows-Portable-Package.cmd');
+assert.ok(fs.existsSync(ps1Path), 'PowerShell-Buildwerkzeug fehlt.');
+assert.ok(fs.existsSync(cmdPath), 'CMD-Starter für das Buildwerkzeug fehlt.');
+const ps1 = fs.readFileSync(ps1Path, 'utf8');
+assert.ok(ps1.includes('Invoke-WebRequest'), 'Offizieller Runtime-Download fehlt.');
+assert.ok(ps1.includes('Get-FileHash'), 'SHA-256-Prüfung fehlt.');
+assert.ok(ps1.includes('Expand-Archive'), 'Archivextraktion fehlt.');
+assert.ok(ps1.includes('NODEJS-$runtimeVersion-LICENSE.txt'), 'Übernahme der Node-Lizenz fehlt.');
+assert.ok(ps1.includes("'win32-x64' = $runtimeHash"), 'Runtime-Integritätsmanifest fehlt.');
+assert.ok(!/where\s+node|Get-Command\s+node/i.test(ps1), 'Unerlaubter PATH-Fallback erkannt.');
+console.log('WINDOWS-RUNTIME-BUILDER-CONTRACT-TEST ERFOLGREICH');

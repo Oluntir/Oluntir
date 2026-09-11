@@ -122,10 +122,10 @@
       const adapterValidation = validateAccessAdapter(accessAdapter);
       const issues = [].concat(planValidation.issues || [], adapterValidation.issues || []);
       const transactionId = this.nextTransactionId();
-      if (issues.length) return frozen({ schemaVersion: TRANSACTION_SCHEMA_VERSION, transactionId: transactionId, status: STATUS.BLOCKED, valid: false, issues: issues, mutationPerformed: false });
+      if (issues.length) return frozen({ schemaVersion: TRANSACTION_SCHEMA_VERSION, transactionId: transactionId, status: STATUS.BLOCKED, valid: false, issues: issues, mutationPerformed: false, executionEnabled: true });
 
       const lockResult = this.acquireLocks(transactionId, plan.operations);
-      if (!lockResult.valid) return frozen({ schemaVersion: TRANSACTION_SCHEMA_VERSION, transactionId: transactionId, status: STATUS.BLOCKED, valid: false, issues: lockResult.issues, mutationPerformed: false });
+      if (!lockResult.valid) return frozen({ schemaVersion: TRANSACTION_SCHEMA_VERSION, transactionId: transactionId, status: STATUS.BLOCKED, valid: false, issues: lockResult.issues, mutationPerformed: false, executionEnabled: true });
 
       const transaction = {
         schemaVersion: TRANSACTION_SCHEMA_VERSION,
@@ -213,20 +213,65 @@
     }
 
     execute(plan, accessAdapter) {
-      return frozen({
-        schemaVersion: TRANSACTION_SCHEMA_VERSION,
-        transactionId: this.nextTransactionId(),
-        status: STATUS.BLOCKED,
-        valid: false,
-        issues: [issue('TARGETED_SYNC_EXECUTION_DISABLED_1_3_1', 'Produktive Synchronisation ist in Oluntir 1.3.1 bewusst deaktiviert.')],
-        mutationPerformed: false,
-        executionEnabled: false
-      });
+      const prepared = this.prepare(plan, accessAdapter);
+      if (!prepared.valid) return prepared;
+      const transaction = this.transactions.get(prepared.transactionId);
+      const fingerprint = accessAdapter && typeof accessAdapter.fingerprint === 'function' ? accessAdapter.fingerprint : defaultFingerprint;
+      const compare = accessAdapter && typeof accessAdapter.compare === 'function' ? accessAdapter.compare : ((source, target) => stableStringify(source) === stableStringify(target));
+      const captureRollback = accessAdapter && typeof accessAdapter.captureRollback === 'function' ? accessAdapter.captureRollback : target => clone(target);
+      const validateWrite = accessAdapter && typeof accessAdapter.validateWrite === 'function' ? accessAdapter.validateWrite : () => true;
+      const rollbackOperations = () => {
+        for (let index = transaction.operations.length - 1; index >= 0; index -= 1) {
+          const operation = transaction.operations[index];
+          if (operation.status !== OPERATION_STATUS.CHANGED || !operation.rollbackToken) continue;
+          try { accessAdapter.restoreTarget(operation, operation.rollbackToken); }
+          catch (error) { transaction.issues.push(issue('TARGETED_SYNC_ROLLBACK_FAILED', 'Eine Synchronisationsänderung konnte nicht vollständig zurückgesetzt werden.', { operationId: operation.operationId, message: error && error.message ? error.message : String(error) })); }
+        }
+      };
+      try {
+        transaction.operations = [];
+        transaction.plan.operations.forEach(operation => {
+          const source = accessAdapter.readSource(clone(operation));
+          const target = accessAdapter.readTarget(clone(operation));
+          validateWrite(clone(operation), source, target);
+          const rollbackToken = captureRollback(target);
+          const equal = compare(source, target) === true;
+          const item = Object.assign({}, clone(operation), {
+            sourceFingerprint: text(fingerprint(source)),
+            targetFingerprint: text(fingerprint(target)),
+            status: equal ? OPERATION_STATUS.UNCHANGED : OPERATION_STATUS.CHANGED,
+            rollbackToken: rollbackToken,
+            mutationPerformed: false,
+            issues: []
+          });
+          transaction.operations.push(item);
+          if (!equal) {
+            accessAdapter.writeTarget(clone(operation), source);
+            item.mutationPerformed = true;
+            item.targetFingerprint = text(fingerprint(accessAdapter.readTarget(clone(operation))));
+            transaction.mutationPerformed = true;
+          }
+        });
+        transaction.status = STATUS.EXECUTED;
+        transaction.completedAt = new Date().toISOString();
+        this.releaseLocks(transaction);
+        transaction.locks = [];
+        return this.snapshotTransaction(transaction.transactionId);
+      } catch (error) {
+        rollbackOperations();
+        transaction.status = STATUS.ROLLED_BACK;
+        transaction.completedAt = new Date().toISOString();
+        transaction.issues.push(issue('TARGETED_SYNC_EXECUTION_FAILED', 'Die Repeat-Synchronisation wurde zurückgesetzt.', { message: error && error.message ? error.message : String(error) }));
+        transaction.mutationPerformed = false;
+        this.releaseLocks(transaction);
+        transaction.locks = [];
+        return this.snapshotTransaction(transaction.transactionId);
+      }
     }
 
     getTransaction(transactionId) { return this.snapshotTransaction(transactionId); }
     listTransactions() { return frozen(Array.from(this.transactions.keys()).map(id => this.snapshotTransaction(id))); }
-    getState() { return frozen({ schemaVersion: SCHEMA_VERSION, transactionCount: this.transactions.size, activeLockCount: this.locks.size, executionEnabled: false }); }
+    getState() { return frozen({ schemaVersion: SCHEMA_VERSION, transactionCount: this.transactions.size, activeLockCount: this.locks.size, executionEnabled: true }); }
 
 
     snapshotTransaction(transactionId) {
@@ -236,7 +281,7 @@
         result[operation.status] = (result[operation.status] || 0) + 1;
         return result;
       }, {});
-      return frozen(Object.assign({}, transaction, { valid: transaction.status !== STATUS.BLOCKED, operationCounts: operationCounts, executionEnabled: false }));
+      return frozen(Object.assign({}, transaction, { valid: transaction.status !== STATUS.BLOCKED, operationCounts: operationCounts, executionEnabled: true }));
     }
 
     prune() {

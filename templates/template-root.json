@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "role": "oluntir-template-root",
+  "runtimeContract": "2.3.0",
+  "purpose": "Modular user templates and registry"
+}

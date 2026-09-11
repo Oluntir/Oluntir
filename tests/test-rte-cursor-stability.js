@@ -11,6 +11,6 @@ must(editor.includes("editor.on('rte:disable'"), 'RTE completion hook exists');
 must(editor.includes('if (richTextEditingActive) return;'), 'automatic persistence is blocked during RTE');
 must(!/type === 'text'[^\n]*persistCurrentProjectStateSoon/.test(editor), 'text component updates do not persist per keystroke');
 must(shared.includes('isRichTextEditing()'), 'shared content checks active RTE');
-must(shared.includes('if (applying || !enabled() || isRichTextEditing()) return;'), 'shared propagation is blocked during RTE');
+must(/if \(applying \|\| (?:exportPreparing \|\| )?!enabled\(\) \|\| isRichTextEditing\(\)\) return;/.test(shared), 'shared propagation is blocked during RTE');
 if (process.exitCode) process.exit(process.exitCode);
 console.log('RTE-CURSOR-STABILITY-TEST ERFOLGREICH');

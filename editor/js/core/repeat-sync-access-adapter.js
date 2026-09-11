@@ -10,7 +10,11 @@
   const SOURCE_IDENTITY_PROPERTY = 'oluntirRepeatSourceIdentity';
   const INTERNAL_ATTRIBUTES = new Set([
     'data-oluntir-page-id', 'data-oluntir-section-id', 'data-oluntir-row-id',
-    'data-oluntir-slot-id', 'data-oluntir-component-id', 'data-oluntir-repeat-id'
+    'data-oluntir-slot-id', 'data-oluntir-component-id', 'data-oluntir-repeat-id',
+    'data-oluntir-repeat-instance-id'
+  ]);
+  const EDITOR_INTERACTION_KEYS = new Set([
+    'editable', 'stylable', 'draggable', 'droppable', 'removable', 'copyable'
   ]);
 
   function clone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
@@ -51,15 +55,26 @@
     return output;
   }
   function sourceIdentity(value) {
+    // Inserted Repeat instances keep the canonical source identity as model
+    // metadata. It must win over the fresh structural identity generated for
+    // the target page, otherwise reverse synchronization cannot address the
+    // original source component.
+    const mapped = text(value && value[SOURCE_IDENTITY_PROPERTY]);
+    if (mapped) return mapped;
     const attributes = value && value.attributes ? value.attributes : {};
     for (const name of INTERNAL_ATTRIBUTES) {
       if (text(attributes[name])) return text(attributes[name]);
     }
-    return text(value && value[SOURCE_IDENTITY_PROPERTY]);
+    return '';
   }
   function setSourceMapping(component, sourceId) {
     if (!component || typeof component.set !== 'function' || !text(sourceId)) return;
     component.set(SOURCE_IDENTITY_PROPERTY, text(sourceId), { silent: true });
+  }
+  function clearSourceMapping(component) {
+    if (!component) return;
+    if (typeof component.unset === 'function') component.unset(SOURCE_IDENTITY_PROPERTY, { silent: true });
+    else if (typeof component.set === 'function') component.set(SOURCE_IDENTITY_PROPERTY, null, { silent: true });
   }
   function setAttributesPreservingIdentity(component, sourceAttributes) {
     const current = attrs(component);
@@ -81,6 +96,7 @@
       if (Object.prototype.hasOwnProperty.call(source, key) && typeof component.set === 'function') component.set(key, clone(source[key]));
     });
     if (Object.prototype.hasOwnProperty.call(source, SOURCE_IDENTITY_PROPERTY)) setSourceMapping(component, source[SOURCE_IDENTITY_PROPERTY]);
+    else if (exactAttributes) clearSourceMapping(component);
   }
   function tagCompatible(source, target) {
     if (!source || !target) return false;
@@ -133,6 +149,11 @@
     if (output.attributes) Object.keys(output.attributes).forEach(name => { if (INTERNAL_ATTRIBUTES.has(name)) delete output.attributes[name]; });
     delete output.id;
     delete output.cid;
+    // Editor-Sperren gehoeren nicht zum semantischen Repeat-Inhalt. Sie werden
+    // auf materialisierten Seiteninstanzen separat durch den Library-Manager
+    // gesetzt und duerfen weder zentrale Drafts noch spaetere Publikationen
+    // dauerhaft uneditierbar machen.
+    EDITOR_INTERACTION_KEYS.forEach(key => { delete output[key]; });
     output[SOURCE_IDENTITY_PROPERTY] = identity;
     output.components = (output.components || []).map(cleanDefinition);
     return output;
@@ -199,11 +220,20 @@
       } else unmapped.push(child);
     });
 
+    // A source page has no Repeat mapping metadata on its original tree. For
+    // reverse synchronization, match canonical source identities directly so
+    // the source children are updated instead of being duplicated.
+    const structural = new Map();
+    targetChildren.forEach(child => {
+      const identity = sourceIdentity(snapshot(child));
+      if (identity && !structural.has(identity)) structural.set(identity, child);
+    });
+
     const used = new Set();
     const ordered = [];
     sourceChildren.forEach((sourceChild, index) => {
       const identity = sourceIdentity(sourceChild);
-      let targetChild = mapped.get(identity) || null;
+      let targetChild = mapped.get(identity) || structural.get(identity) || null;
       if (targetChild && !tagCompatible(sourceChild, snapshot(targetChild))) throw error('REPEAT_SYNC_MAPPED_TAG_MISMATCH', 'Eine bestehende Identity-Zuordnung besitzt einen inkompatiblen Komponententyp.', { identity });
       if (!targetChild) {
         const candidates = unmapped.filter(item => !used.has(item));
@@ -287,6 +317,25 @@
       },
       restoreTarget(operation, rollbackToken) {
         const component = componentByIdentity(editor, operation.targetPageId, operation.targetIdentity);
+        if (!component) { const failure = new Error('Repeat rollback target not found.'); failure.code = 'REPEAT_SYNC_TARGET_MISSING'; throw failure; }
+        restoreExact(component, rollbackToken);
+        return snapshot(component);
+      },
+      readByIdentity(pageId, identity) {
+        const component = componentByIdentity(editor, pageId, identity);
+        if (!component) { const failure = new Error('Repeat component not found.'); failure.code = 'REPEAT_SYNC_TARGET_MISSING'; throw failure; }
+        return snapshot(component);
+      },
+      writeSnapshot(pageId, identity, sourceSnapshot) {
+        const component = componentByIdentity(editor, pageId, identity);
+        if (!component) { const failure = new Error('Repeat target not found.'); failure.code = 'REPEAT_SYNC_TARGET_MISSING'; throw failure; }
+        validateSourceTree(sourceSnapshot);
+        validateTargetMappings(snapshot(component));
+        reconcileRecursive(component, sourceSnapshot);
+        return snapshot(component);
+      },
+      restoreByIdentity(pageId, identity, rollbackToken) {
+        const component = componentByIdentity(editor, pageId, identity);
         if (!component) { const failure = new Error('Repeat rollback target not found.'); failure.code = 'REPEAT_SYNC_TARGET_MISSING'; throw failure; }
         restoreExact(component, rollbackToken);
         return snapshot(component);

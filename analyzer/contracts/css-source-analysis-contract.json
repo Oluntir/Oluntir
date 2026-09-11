@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contractId": "oluntir.analyzer.css-source-analysis",
+  "contractVersion": "1.0.0",
+  "status": "foundation",
+  "purpose": "Lossless, read-only inventory of CSS source structures before presentation or framework interpretation.",
+  "boundaries": {
+    "readOnly": true,
+    "presentationInterpretation": false,
+    "frameworkDetection": false,
+    "sourceMutation": false,
+    "cssGeneration": false,
+    "runtimeCssAccess": false,
+    "grapesJsAccess": false
+  },
+  "supportedStructures": [
+    "qualified-rule", "at-rule", "selector", "declaration", "custom-property",
+    "import", "media-query", "container-query", "supports", "font-face", "keyframes", "asset-url"
+  ],
+  "diagnosticPolicy": {
+    "malformedInputProducesDiagnostics": true,
+    "partialInventoryAllowed": true,
+    "silentRepairForbidden": true
+  }
+}

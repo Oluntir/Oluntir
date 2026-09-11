@@ -1,0 +1,16 @@
+{
+  "kind": "oluntir-javascript-behavior-resolver-contract",
+  "schemaVersion": 1,
+  "sourceOfTruth": ["javascript-behavior-manifest", "javascript-behavior-plan", "framework-profile"],
+  "requiredFields": ["behaviorId", "behaviorType", "status", "implementation", "trigger", "dependencies", "activation"],
+  "statuses": ["resolved", "profile-required", "trigger-unresolved", "invalid-dependency", "unsupported-by-profile", "evidence-only"],
+  "policies": {
+    "readOnly": true,
+    "sourceExecution": false,
+    "runtimeActivation": false,
+    "documentMutation": false,
+    "repeatSynchronization": false,
+    "unitIdUntouched": true,
+    "frameworkProfileRequiredForInteraction": true
+  }
+}

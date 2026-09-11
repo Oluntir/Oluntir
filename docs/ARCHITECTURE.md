@@ -1,5 +1,5 @@
-> **Language:** English · [Deutsch](ARCHITECTURE_de.md)  
-> **Version:** 1.3.1
+> **Language:** English · [Deutsch](ARCHITECTURE_de.md)
+> **Version:** 2.3.0 · **Stable baseline:** 1.3.1
 
 # Architecture overview
 
@@ -16,6 +16,19 @@ UI und Editorbefehle
 → Semantic Action Engine
 → Validator / Shared Content / Repeat Engine / Export
 → Logger und Diagnostics Center
+
+Source Packages follow a separate read-only path:
+
+```text
+local folder/archive/URL
+→ local API
+→ isolated Source Package
+→ inventory and evidence
+→ OIR and Knowledge Compiler
+→ Bootstrap support policy
+→ source profile / translation / behavior plans
+→ controlled GrapesJS bridge
+```
 ```
 
 ## Separation of responsibilities
@@ -28,6 +41,12 @@ UI und Editorbefehle
 - Shared Content führt gezielte Regionsupdates aus.
 - Export arbeitet auf dem Projektmodell und einer Exportkopie.
 - Logging ist optional, lokal und berechtigungsgebunden.
+- Concrete editor profiles are limited to Bootstrap 4.6.2 and 5.3.8.
+- Unknown Source Packages remain analysis-only.
+- Imported source JavaScript is not executed.
+- User-defined Repeat definitions are productively and atomically synchronized
+  through the resolver, dependency graph, action contracts and targeted
+  synchronization service.
 
 ## Performance
 
@@ -36,3 +55,20 @@ Shared Content vergleicht Fingerprints, speichert Komponentenreferenzen pro Seit
 ## Further reading
 
 Siehe `docs/Architecture/` sowie `docs/AI/`.
+
+## Modular template runtime in 2.3.0
+
+Additional Bootstrap templates are not created as new framework directories. `frameworks/bootstrap4` and `frameworks/bootstrap5` remain the fixed technical bases. User templates live only below `templates/` and are loaded at startup through `registry.js`.
+
+```text
+Template ZIP
+→ browser compiler
+→ HTML/CSS/asset/JS analysis
+→ static template artifacts
+→ templates/<id>/
+→ registry.js
+→ generic template runtime
+→ GrapesJS blocks
+```
+
+Imported template JavaScript does not run in the editable canvas. External `iframe`/`object`/`embed` sources are isolated before blocks are registered and replaced by SVG placeholders. Preview restoration changes only the canvas DOM. The persisted component model, Undo/Redo and Shared Content therefore remain isolated from third-party runtime mutations.

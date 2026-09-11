@@ -7,14 +7,13 @@ const privacy = fs.readFileSync('PRIVACY_de.md', 'utf8');
   'oluntir-consent-license',
   'oluntir-consent-privacy',
   'oluntir-consent-security',
-  'Zustimmen und ohne Logging starten',
-  'Zustimmen, Programmordner öffnen und Unterordner logs wählen',
+  'Ohne Logging starten',
+  'Zustimmen und logs-Ordner wählen',
   'Oluntir starten',
-  'gilt ausschließlich für diesen entpackten Oluntir-Programmordner',
-  'entpackten <strong>Oluntir-Programmordner</strong>',
-  'Passwörter', 'Tokens', 'Secrets', 'API-Schlüssel', 'Authorization-Daten',
-  'Cookies', 'Credentials', 'private Schlüssel', 'Benutzeranteile von Windows-Pfaden',
-  'Token- und Passwortparameter in URLs'
+  'Die Zustimmung gilt für diesen entpackten Oluntir-Programmordner.',
+  'Wählen Sie ausschließlich den vorhandenen Unterordner <code>logs</code>',
+  'Passwörter', 'Tokens/Secrets/API-Schlüssel', 'Auth-/Cookie-/Credential-Daten',
+  'private Schlüssel', 'Benutzerpfade', 'sensible URL-Parameter'
 ].forEach(value => assert.ok(html.includes(value), 'Fehlender Zustimmungsinhalt: ' + value));
 assert.ok(js.includes("const CONSENT_VERSION = '1.1'"));
 assert.ok(js.includes("permissionScope: 'Selected logs directory only'"));

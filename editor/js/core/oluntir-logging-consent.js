@@ -56,7 +56,7 @@
     await writeFile(directory, CONSENT_FILE, JSON.stringify({
       schemaVersion: 2,
       authorizedAt: new Date().toISOString(),
-      authorizedBy: 'Oluntir 1.3.0',
+      authorizedBy: 'Oluntir 2.3.0',
       purpose: 'Local technical diagnostics and performance logging',
       directory: displayPath,
       permissionScope: 'Selected logs directory only',
@@ -92,7 +92,7 @@
       choose.classList.toggle('btn-primary', !active);
       choose.textContent = active
         ? 'Anderen logs-Ordner wählen'
-        : 'Zustimmen, Programmordner öffnen und Unterordner logs wählen';
+        : 'Zustimmen und logs-Ordner wählen';
     }
   }
   function startOluntir() {
@@ -110,12 +110,19 @@
   function requiredAccepted() {
     return REQUIRED_IDS.every(id => { const el = document.getElementById(id); return Boolean(el && el.checked); });
   }
+  function syncAcceptAll() {
+    const acceptAll = document.getElementById('oluntir-consent-all');
+    if (!acceptAll) return;
+    acceptAll.checked = requiredAccepted();
+    acceptAll.indeterminate = REQUIRED_IDS.some(id => { const el = document.getElementById(id); return Boolean(el && el.checked); }) && !acceptAll.checked;
+  }
   function updateActions() {
     const accepted = requiredAccepted();
     const start = document.getElementById('oluntir-consent-accept');
     const choose = document.getElementById('oluntir-logging-choose');
     if (start) start.disabled = !accepted;
     if (choose) choose.disabled = !accepted;
+    syncAcceptAll();
   }
   function show(path, required) {
     const el = modal(); if (!el) return;
@@ -231,7 +238,13 @@
     const restored = await restore();
     if (!restored.foundation) show(null, true);
     const open = document.getElementById('oluntir-logging-open'); if (open) open.addEventListener('click', () => show(root.OluntirLogger.getState().displayPath, false));
+    const acceptAll = document.getElementById('oluntir-consent-all');
+    if (acceptAll) acceptAll.addEventListener('change', () => {
+      REQUIRED_IDS.forEach(id => { const el = document.getElementById(id); if (el) el.checked = acceptAll.checked; });
+      updateActions();
+    });
     REQUIRED_IDS.forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', updateActions); });
+    syncAcceptAll();
     const accept = document.getElementById('oluntir-consent-accept'); if (accept) accept.addEventListener('click', () => acceptWithoutLogging().catch(error => setStatus(error.message || String(error), 'error')));
     const choose = document.getElementById('oluntir-logging-choose'); if (choose) choose.addEventListener('click', () => selectDirectory().catch(error => { setCompletionView(false); setStatus(error.message || String(error), 'error'); }));
     const startButton = document.getElementById('oluntir-logging-start'); if (startButton) startButton.addEventListener('click', startOluntir);

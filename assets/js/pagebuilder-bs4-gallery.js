@@ -30,14 +30,25 @@
     if (!gallery || !gallery.hasAttribute(name)) return fallback;
     return gallery.getAttribute(name) !== 'false';
   }
+  function visibleImageFor(item) {
+    const wrapper = item && item.closest ? item.closest('[data-oluntir-gallery-item], [data-pb-gallery-item], .pb-gallery-item') : null;
+    return wrapper && wrapper.querySelector ? wrapper.querySelector('picture img, img') : null;
+  }
+  function visibleImageSource(item) {
+    const image = visibleImageFor(item);
+    if (!image) return '';
+    return image.currentSrc || image.getAttribute('data-stable-path') || image.getAttribute('src') || '';
+  }
   function sources(item) {
     return {
       mobile: item && item.dataset.pbGalleryMobile || '',
       tablet: item && item.dataset.pbGalleryTablet || '',
-      desktop: item && (item.dataset.pbGalleryDesktop || item.getAttribute('href')) || ''
+      desktop: visibleImageSource(item) || (item && (item.dataset.pbGalleryDesktop || item.getAttribute('href'))) || ''
     };
   }
   function bestSource(item) {
+    const visible = visibleImageSource(item);
+    if (visible) return visible;
     const source = sources(item);
     const cssWidth = Math.min(window.innerWidth || 1200, 1920);
     const needed = Math.min(Math.ceil(cssWidth * Math.max(window.devicePixelRatio || 1, 1)), RESPONSIVE_WIDTHS.desktop);
@@ -158,7 +169,20 @@
   }
   function jump(index) { if (state && index >= 0 && index < state.items.length) { state.index = index; render(); } }
 
+  function editorDesignMode() {
+    if (!window.frameElement) return false;
+    try {
+      var parentEditor = window.parent && window.parent.OluntirEditor;
+      if (parentEditor && parentEditor.Commands && parentEditor.Commands.isActive) {
+        return !parentEditor.Commands.isActive('preview');
+      }
+    } catch (_) { return true; }
+    return document.documentElement.getAttribute('data-oluntir-editor-canvas') === 'true' &&
+      !(document.documentElement.getAttribute('data-oluntir-preview-active') === 'true');
+  }
+
   document.addEventListener('click', function (event) {
+    if (editorDesignMode()) return;
     const openButton = event.target.closest && event.target.closest('[data-pb-gallery-open-index]');
     if (openButton) {
       event.preventDefault(); event.stopPropagation();
@@ -170,11 +194,14 @@
     }
     const trigger = event.target.closest && event.target.closest('.pb-gallery-trigger');
     if (!trigger) return;
+    const item = trigger.closest && trigger.closest('[data-oluntir-gallery-item], [data-pb-gallery-item], .pb-gallery-item');
+    if (item && item.querySelector && item.querySelector('img[data-oluntir-lightbox="true"]')) return;
     event.preventDefault();
     open(trigger, itemsFor(trigger).indexOf(trigger));
   }, true);
 
   document.addEventListener('keydown', function (event) {
+    if (editorDesignMode()) return;
     const trigger = event.target.closest && event.target.closest('.pb-gallery-trigger');
     if (!state && trigger && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault(); open(trigger, itemsFor(trigger).indexOf(trigger)); return;

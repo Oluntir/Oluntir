@@ -1,0 +1,10 @@
+'use strict';
+const assert = require('assert');
+const fs = require('fs');
+const editor = fs.readFileSync('editor/js/core/editor.js','utf8');
+const css = fs.readFileSync('editor/css/editor.css','utf8');
+assert(editor.includes("'data-oluntir-export-badge': 'ZIP'"), 'ZIP-Badge am Exportwerkzeug fehlt.');
+assert(editor.includes("'data-oluntir-export-badge': 'TAR'"), 'TAR-Badge am Exportwerkzeug fehlt.');
+assert(css.includes('.gjs-pn-options .gjs-pn-btn[data-oluntir-export-badge]::after'), 'CSS für Exportformat-Badges fehlt.');
+assert(css.includes('content:attr(data-oluntir-export-badge)'), 'Badge muss sein Format aus dem Werkzeugattribut lesen.');
+console.log('EXPORT-ARCHIVE-TOOLBAR-BADGES-TEST ERFOLGREICH');

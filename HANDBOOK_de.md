@@ -1,54 +1,134 @@
-# Oluntir 1.3.1 – Technisches Handbuch
+# Oluntir 2.3.0 – Handbuch
 
-## 1. Laufzeit
+Dieses Handbuch beschreibt die Arbeit mit Oluntir 2.3.0. Implementierungsdetails befinden sich in `docs/ARCHITECTURE_de.md` und den thematischen Dokumenten unter `docs/`.
 
-Oluntir wird über `index.html` gestartet. GrapesJS liegt unverändert unter `vendor/grapesjs/`. Oluntir-spezifische Integration liegt unter `editor/integrations/grapesjs/`.
+## 1. Projekt starten
 
-## 2. Projektmodell
+Oluntir wird lokal über `index.html` geöffnet. Beim Start kann ein vorhandenes Projekt geladen oder ein neues Projekt angelegt werden. Projekte lassen sich als `.oluntir`-Dateien sichern und später weiterbearbeiten.
 
-Seiten und Komponenten werden im GrapesJS-Projektmodell gespeichert. `layout-identities.js` ergänzt interne stabile IDs. Diese IDs bleiben im Projekt erhalten und werden vor dem finalen Export entfernt.
+Für Source-Package-Analysen steht zusätzlich eine portable lokale Analyzer-Runtime zur Verfügung.
 
-## 3. Semantische Pipeline
+## 2. Seiten und Arbeitsbereich
 
-- `semantic-dictionary.js`: bekannte Rollen und Cardinality.
-- `identity-resolver.js`: Zuordnung eines Komponenten-Kontexts.
-- `context-resolver.js`: Ahnen- und Strukturkontext.
-- `structure-resolver.js`: unveränderliche Struktur-Snapshots.
-- `relationship-resolver.js`: funktionale Gruppen und Mitglieder.
-- `project-dependency-graph.js`: Knoten, Kanten und Dirty-Propagation.
-- `semantic-action-engine.js`: isolierte Action-Orchestrierung.
-- `semantic-validator.js`: semantische Prüfungen.
+Ein Projekt kann mehrere Seiten enthalten. Seiten werden über die obere Seitensteuerung angelegt, ausgewählt, umbenannt oder entfernt.
 
-## 4. Shared Content
+Oluntir unterstützt einen Ein-Monitor- und einen Zwei-Monitor-Modus. Im Zwei-Monitor-Modus können Werkzeugbereiche in ein separates Fenster ausgelagert werden, während der Canvas im Hauptfenster bleibt.
 
-`shared-content-manager.js` verwaltet Header, Navigation und Footer. Änderungen werden zentral gespeichert. Beim Seitenwechsel wird nur die benötigte Zielseite aktualisiert. Fingerprints verhindern unveränderte Schreibvorgänge. Komponentenreferenzen werden pro Seite gecacht.
+## 3. Inhalte bearbeiten
 
-## 5. Repeat Foundation
+Der Canvas basiert auf GrapesJS. Inhalte können über Blöcke eingefügt und anschließend direkt oder über Eigenschaften, Ebenen und Styles bearbeitet werden.
 
-`repeat-engine-v2.js` enthält das technische Datenmodell für wiederholbare Strukturen. Die vollständige sichtbare Verwaltung ist nicht Bestandteil von 1.3.1.
+Zu den typischen Inhalten gehören:
 
-## 6. Logging
+- Text und Überschriften;
+- Bilder und responsive Bildvarianten;
+- Galerien und Lightbox-Inhalte;
+- Bootstrap-Komponenten;
+- HTML5-Videos;
+- projektgebundene Source-Komponenten.
 
-`oluntir-logger.js` schreibt nach Opt-in kategorisierte JSONL-Dateien in den ausgewählten `logs`-Ordner. Die Zustimmung wird über `oluntir-logging-consent.js` verwaltet. `oluntir-runtime-actions.js` führt reale Editorereignisse durch die Semantic Action Engine.
+## 4. Bootstrap-Profile
 
-## 7. Diagnose
+Oluntir 2.3.0 unterstützt Bootstrap 4.6.2 und Bootstrap 5.3.8 als konkrete Editorprofile.
 
-`developer-diagnostics-center.js` zeigt Runtime-, Action-, Queue-, Shared-Content- und Log-Snapshots. Der Dependency Graph wird nur auf Benutzerbefehl analysiert.
+Bootstrap 4 und Bootstrap 5 werden getrennt behandelt. Generationsspezifische Komponenten und Hilfsklassen werden nur im passenden Profil angeboten. Die eingebauten Blöcke verwenden natives Bootstrap-Markup.
 
-## 8. Export
+## 5. Shared Content
 
-`export.js` erzeugt HTML-, SSI- und PHP-Ausgaben. Der Export löst gemeinsame Bereiche entsprechend dem Ziel auf, sammelt lokale Assets und entfernt editorinterne Metadaten.
+Header, Navigation und Footer werden als Shared Content verwaltet. Änderungen können auf einer beteiligten Seite vorgenommen und in den gemeinsamen Stand übernommen werden. Die übrigen Seiten erhalten anschließend denselben Inhalt.
 
-## 9. Tests
+Shared Content ist bewusst von benutzerdefinierten Repeat-Bereichen getrennt.
 
-`tests/run-tests.sh` führt Syntax-, Architektur-, Resolver-, Logging-, Action-, Shared-Content-, Galerie- und Strukturtests aus. Einzelne Tests können mit Node direkt aufgerufen werden.
+## 6. Wiederholbare Bereiche
 
-## 10. Architekturregeln
+Wiederholbare Bereiche eignen sich für projektweite Inhalte, die auf mehreren Seiten vorkommen sollen, aber nicht zu Header, Navigation oder Footer gehören.
 
-- Bestehende Module erweitern; keine Parallelarchitektur.
-- Resolver analysieren und verändern keine Dokumente.
-- Die Action Engine orchestriert und enthält keine Fachlogik.
-- Der Dependency Graph beschreibt Abhängigkeiten und Auswirkungen.
-- Keine vollständigen Projekt- oder Seiten-Neuaufbauten für lokale Änderungen.
-- Logging bleibt lokal, optional und auf den gewählten Ordner begrenzt.
-- Dokumentation beschreibt zuerst Zweck und Grenzen, danach API und Umsetzung.
+### Repeat anlegen
+
+1. gewünschten Quellbereich auswählen;
+2. Repeat-Familie benennen und speichern;
+3. Zielseite und Einfügeposition auswählen;
+4. Position im Canvas bestätigen;
+5. Bereich einsetzen.
+
+### Repeat zentral bearbeiten
+
+Die Repeat-Bibliothek zeigt die vorhandenen Familien und ihre Seitenverwendung. Über **„Zentral bearbeiten“** wird nur der gewählte Repeat im Einzelobjekt-Canvas geöffnet.
+
+Änderungen bleiben zunächst im Entwurf. Erst **„Auf alle Vorkommen anwenden“** veröffentlicht den neuen Stand auf allen aktiven Vorkommen.
+
+### Repeat auf Seiten
+
+Vorkommen auf normalen Projektseiten sind gegen direkte Inhaltsbearbeitung geschützt. Beim Mouseover erscheint eine orange Steuerleiste:
+
+- **Bearbeiten** öffnet die zentrale Bearbeitung;
+- **Entfernen** löscht nur dieses Vorkommen.
+
+Publish und Entfernen besitzen eine eigene Repeat-Undo/Redo-Historie.
+
+## 7. Bilder, Galerien und Videos
+
+Der Bildmanager verwaltet lokale Bilder und responsive Varianten. Galerien können in geeignete Layoutbereiche eingefügt werden.
+
+Die HTML5-Videoblöcke unterstützen mehrere Wiedergabequellen, Poster und einen Download-Fallback. Bootstrap 4 und Bootstrap 5 verwenden dabei jeweils ihre native responsive Layoutstruktur.
+
+## 8. Source Packages und Analyzer
+
+Der lokale Analyzer kann Template- und Frameworkquellen importieren und statisch untersuchen. Analysiert werden insbesondere HTML-, CSS- und JavaScript-Evidenz, Bootstrap-Generation und Komponentenstrukturen.
+
+Erkannte Strukturen können – sofern das aktive Profil sie unterstützt – als quellengebundene Blöcke in den Editor übernommen werden. Importiertes Source-JavaScript wird nicht automatisch ausgeführt.
+
+## 9. Export
+
+Oluntir unterstützt:
+
+- aufgelöstes HTML;
+- Apache SSI;
+- PHP-Includes;
+- lokalen Ordnerexport;
+- ZIP;
+- TAR.
+
+Der Export sammelt benötigte lokale Assets und entfernt editorinterne Oluntir-Metadaten aus der veröffentlichten Ausgabe.
+
+## 10. Logging und Diagnose
+
+Logging ist optional und wird nur nach ausdrücklicher Zustimmung aktiviert. Logs werden in einen vom Benutzer gewählten lokalen Ordner geschrieben.
+
+Das Diagnosewerkzeug hilft bei der Analyse von Projekt-, Runtime-, Shared-Content-, Repeat- und Analyzer-Zuständen.
+
+## 11. Projektpflege
+
+Vor größeren Änderungen empfiehlt sich eine `.oluntir`-Projektsicherung. Bestehende Projekte werden über stabile Oluntir-Identitäten weitergeführt; bei nicht eindeutig rekonstruierbaren Beziehungen wird keine Zuordnung geraten.
+
+## Weiterführende Dokumentation
+
+- [Funktionen](FEATURES_de.md)
+- [Architektur](docs/ARCHITECTURE_de.md)
+- [Repeat Engine V2](docs/042_REPEAT_ENGINE_V2_de.md)
+- [Shared Content Manager](docs/SHARED-CONTENT-MANAGER_de.md)
+- [Image Manager](docs/IMAGE_MANAGER_de.md)
+- [Multi-Monitor](docs/MULTI_MONITOR_de.md)
+- [Release Notes](RELEASE_NOTES_de.md)
+
+## 11. Zusätzliche Bootstrap-Templates verwalten
+
+Zusätzliche Templates werden über `template-manager.html` importiert und unter `templates/<name>/` gespeichert. Die Standardprofile unter `frameworks/` werden dabei nicht verändert.
+
+Der empfohlene Ablauf ist:
+
+1. Template-ZIP und Namen wählen.
+2. **Template analysieren**.
+3. erkannte Bootstrap-Basis, HTML-/Section-, Asset- und JavaScript-Werte prüfen.
+4. den `templates`-Ordner dieser Oluntir-Installation auswählen.
+5. **Template aufnehmen**.
+6. auf die erfolgreiche Registry-/Dateiprüfung warten.
+7. Oluntir über den grünen Abschlussbutton öffnen.
+
+Registrierte Templates können in derselben Verwaltung entfernt werden. Wird ein Template-Ordner manuell gelöscht, erkennt die Verwaltung den fehlenden Ordner und kann den Registry-Eintrag bereinigen. Gültige Template-Ordner, die manuell unter `templates/` kopiert wurden, können in die Registry aufgenommen werden.
+
+## 12. Verhalten importierter Templates
+
+Der Compiler analysiert Template-JavaScript statisch und erzeugt Behavior-, Dependency- und Runtime-Pläne. Fremdes Template-JavaScript läuft im normalen Editiermodus nicht im GrapesJS-Canvas.
+
+`iframe`, `object` und `embed` werden im Editor durch skalierende SVG-Platzhalter neutralisiert. Das betrifft z. B. Maps, Video-/Social-Embeds und andere Fremd-Widgets. Originalquelle und Größen-/Style-Informationen bleiben erhalten; Preview kann die Originalquelle nur im Canvas-DOM reaktivieren.

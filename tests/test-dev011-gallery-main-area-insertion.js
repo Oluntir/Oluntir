@@ -66,10 +66,9 @@ assert(adapterSource.includes('const boundaryIdentity = adapter.componentIdentit
 assert(adapterSource.includes('const liveBoundary = children[index] || boundary;'));
 assert(adapterSource.includes("structureScope: 'main'"));
 
-// Contract 4: requested creation dialog is available without changing ROW mode.
-assert(gallerySource.includes('Neuen Galerie-Bereich erstellen'));
-assert(gallerySource.includes('>Container</strong>'));
-assert(gallerySource.includes('>Container Fluid</strong>'));
-assert(gallerySource.includes("Object.freeze({ mode: 'existing-layout', width: null })"));
+// Contract 4: the removed toolbar gallery dialog must not return.
+assert(!gallerySource.includes('Neuen Galerie-Bereich erstellen'));
+assert(gallerySource.includes("cfg.source !== 'framework-block'"));
+assert(gallerySource.includes("Object.freeze({ mode: 'new-area', width: 'container-fluid' })"));
 
 console.log('DEV_011-GALLERY-MAIN-AREA-INSERTION-TEST ERFOLGREICH');

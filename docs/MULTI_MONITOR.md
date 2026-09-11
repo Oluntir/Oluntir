@@ -10,7 +10,7 @@ The preference is stored in IndexedDB. The active mode is session-dependent and 
 
 ## Tool window
 
-The main window keeps the GrapesJS canvas. The tool window contains the complete right GrapesJS column and both Oluntir quick-edit areas. Toolbar controls move the column, reopen or focus the tool window, and return all tools.
+The main window keeps the GrapesJS canvas. The tool window contains the complete right GrapesJS column, Oluntir quick editing and both separate Repeat tools for source editing and library insertion. Toolbar controls move the column, reopen or focus the tool window, and return all tools.
 
 ## Safety behavior
 

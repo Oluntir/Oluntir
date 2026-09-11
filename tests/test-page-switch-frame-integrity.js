@@ -19,11 +19,11 @@ const selectBody = source.slice(selectStart, selectEnd);
 
 assert(selectBody.includes('editor.Pages.select(page);'), 'Die Zielseite wird nicht über Pages.select() gewählt.');
 assert(!selectBody.includes('applySharedRegionsToPage(page);'), 'Der Ziel-Komponentenbaum darf beim Seitenwechsel nicht ersetzt werden.');
-const selectPersistenceIndex = selectBody.indexOf('writeCurrentProjectSnapshotSynchronously();');
+const selectPersistenceIndex = selectBody.indexOf('writeCurrentProjectSnapshotSynchronously({ skipSharedContent: true });');
 const selectPageIndex = selectBody.indexOf('editor.Pages.select(page);');
-assert(selectBody.includes('commitCurrentCanvasStateToModel();'), 'Der aktuelle Canvas-Zustand wird vor dem Seitenwechsel nicht ins Modell übernommen.');
+assert(selectBody.includes('commitCurrentCanvasStateToModel({ skipSharedContent: true });'), 'Der aktuelle Canvas-Zustand wird vor dem Seitenwechsel nicht ohne zweiten Shared-Flush ins Modell übernommen.');
 assert(selectPersistenceIndex >= 0 && selectPersistenceIndex < selectPageIndex, 'Der Projektsnapshot muss vor Pages.select() geschrieben werden.');
-assert(selectBody.includes('persistCurrentProjectStateSoon(0);'), 'Nach dem Seitenwechsel fehlt die abschließende Persistierung.');
+assert(selectBody.includes('persistCurrentProjectStateSoon(0, { skipSharedContent: true });'), 'Nach dem Seitenwechsel fehlt die abschließende Persistierung ohne erneuten Shared-Content-Flush.');
 
 const newPageStart = source.indexOf("document.getElementById('btn-new-page')");
 const renameStart = source.indexOf("document.getElementById('btn-rename-page')", newPageStart);
@@ -32,5 +32,14 @@ const newPageBody = source.slice(newPageStart, renameStart);
 
 assert(newPageBody.includes("editor.Pages.add(pageConfig, { select: true })"), 'Neue Seiten müssen direkt über den PageManager ausgewählt werden.');
 assert(!newPageBody.includes('applySharedRegionsToPage(page);'), 'Eine neue Seite darf vor der ersten Canvas-Auswahl nicht neu aufgebaut werden.');
+
+
+assert(selectBody.includes('OluntirRepeatLibraryManager.prepareForPageNavigation(pageId);'), 'Normaler Seitenwechsel muss einen offenen Repeat-Workspace zuerst beenden.');
+const repeatExitIndex = selectBody.indexOf('OluntirRepeatLibraryManager.prepareForPageNavigation(pageId);');
+const previousPageIndex = selectBody.indexOf('const previousPage = editor.Pages.getSelected();');
+assert(repeatExitIndex >= 0 && previousPageIndex >= 0 && repeatExitIndex < previousPageIndex, 'Repeat-Workspace muss vor Ermittlung/Commit der bisherigen Projektseite beendet werden.');
+
+assert(selectBody.includes("repeat-workspace-page-handoff-failed"), 'Fehler beim Workspace-Handoff müssen mit eigener Diagnose protokolliert werden.');
+assert(selectBody.includes("duration: 12000"), 'Seitenwechsel-Fehler müssen länger sichtbar bleiben.');
 
 console.log('PAGE-SWITCH-FRAME-INTEGRITY-TEST ERFOLGREICH');

@@ -27,7 +27,7 @@ Copyright and license banners embedded in vendored files must be retained.
 | Popper.js | 1.14.7 | MIT | `plugins/site/js/popper/` |
 | Shuffle | vendored build; version banner absent | MIT | `plugins/site/js/shuffle/` |
 | jQuery Appear | vendored build | MIT | `plugins/site/js/jquery.appear.js` |
-| jQuery CountTo | vendored build compatible with 1.2.x | MIT | `plugins/site/js/counter/` |
+| jQuery CountTo | gebündelter Legacy-Template-Build; Versionsbanner fehlt | MIT | `plugins/site/js/counter/` |
 | downCount | vendored build; no version banner | MIT upstream | `plugins/site/js/countdown/` |
 
 ## Copyright notices

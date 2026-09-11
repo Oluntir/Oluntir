@@ -7,17 +7,17 @@
     const items = images.map((name, index) => `
       <div class="col-12 col-sm-6 col-lg-4">
         <article class="card border-0 shadow-sm pb-bs5-gallery-card h-100">
-          <div class="position-relative">
+          <div class="position-relative pb-gallery-item" data-pb-gallery-item data-oluntir-gallery-item>
             <picture>
               <source media="(max-width: 767.98px)" srcset="assets/images/logo.svg">
               <source media="(max-width: 1199.98px)" srcset="assets/images/logo.svg">
               <img class="card-img-top img-fluid" src="assets/images/logo.svg" alt="Galeriebild ${index + 1}" loading="lazy">
             </picture>
             <div class="pb-bs5-gallery-overlay">
-              <a class="btn btn-light pb-bs5-gallery-open" href="assets/images/logo.svg" data-pb-gallery-mobile="assets/images/logo.svg" data-pb-gallery-tablet="assets/images/logo.svg" data-pb-gallery-desktop="assets/images/logo.svg" data-bs-toggle="modal" data-bs-target="#${modalId}" data-download="assets/images/logo.svg" data-filename="${name}" data-alt="Galeriebild ${index + 1}" aria-label="Bild vergrößern">
+              <a class="btn btn-light pb-bs5-gallery-open pb-gallery-trigger" data-oluntir-gallery-image href="assets/images/logo.svg" data-pb-gallery-mobile="assets/images/logo.svg" data-pb-gallery-tablet="assets/images/logo.svg" data-pb-gallery-desktop="assets/images/logo.svg" data-bs-toggle="modal" data-bs-target="#${modalId}" data-download="assets/images/logo.svg" data-filename="${name}" data-alt="Galeriebild ${index + 1}" aria-label="Bild vergrößern">
                 <span aria-hidden="true">⛶</span>
               </a>
-              <a class="btn btn-light" href="assets/images/logo.svg" download="${name}" aria-label="Bild herunterladen">
+              <a class="btn btn-light portfolio-download" data-oluntir-gallery-download href="assets/images/logo.svg" download="${name}" aria-label="Bild herunterladen">
                 <span aria-hidden="true">⇩</span>
               </a>
             </div>
@@ -63,6 +63,7 @@
 
     add('bs5-typography', 'Typografie', 'BS5 · Content', '<section class="py-5"><div class="container"><h1 class="display-4">Display-Überschrift</h1><p class="lead">Ein hervorgehobener Einleitungstext.</p><p>Fließtext mit <strong>fetter</strong>, <em>kursiver</em> und <mark>markierter</mark> Darstellung.</p><blockquote class="blockquote"><p>Ein aussagekräftiges Zitat.</p><footer class="blockquote-footer">Quelle</footer></blockquote></div></section>');
     add('bs5-figure', 'Figure mit Bild', 'BS5 · Content', '<figure class="figure"><img src="assets/images/logo.svg" class="figure-img img-fluid rounded" alt="Beispielbild"><figcaption class="figure-caption">Bildunterschrift</figcaption></figure>');
+    add('bs5-video-html5', 'Video (HTML5)', 'BS5 · Content', '<section class="py-5"><div class="container"><div class="ratio ratio-16x9 bg-dark rounded overflow-hidden"><video class="w-100 h-100" data-oluntir-bootstrap-video="bs5" controls preload="metadata" playsinline poster="assets/images/logo.svg"><source data-oluntir-video-source="webm" src="assets/media/video.webm" type="video/webm"><source data-oluntir-video-source="mp4" src="assets/media/video.mp4" type="video/mp4"><source data-oluntir-video-source="ogg" src="assets/media/video.ogv" type="video/ogg">Ihr Browser unterstützt HTML5-Video nicht. <a data-oluntir-video-fallback="inline" href="assets/media/video.mp4" download>Video herunterladen</a>.</video></div><p class="small text-body-secondary mt-2 mb-0">Falls die Wiedergabe nicht startet: <a data-oluntir-video-fallback="download" href="assets/media/video.mp4" download>MP4 herunterladen</a>. Quellen und Poster können über die Video-Eigenschaften angepasst werden.</p></div></section>');
     add('bs5-table', 'Responsive Tabelle', 'BS5 · Content', '<div class="table-responsive"><table class="table table-striped table-hover align-middle"><thead><tr><th>Spalte A</th><th>Spalte B</th><th>Status</th></tr></thead><tbody><tr><td>Eintrag 1</td><td>Wert</td><td><span class="badge text-bg-success">Aktiv</span></td></tr><tr><td>Eintrag 2</td><td>Wert</td><td><span class="badge text-bg-secondary">Offen</span></td></tr></tbody></table></div>');
 
     add('bs5-form', 'Formular', 'BS5 · Forms', '<section class="py-5"><div class="container"><form class="row g-3"><div class="col-md-6"><label class="form-label">Vorname</label><input type="text" class="form-control"></div><div class="col-md-6"><label class="form-label">Nachname</label><input type="text" class="form-control"></div><div class="col-12"><label class="form-label">E-Mail</label><input type="email" class="form-control"></div><div class="col-12"><label class="form-label">Nachricht</label><textarea class="form-control" rows="5"></textarea></div><div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="privacy"><label class="form-check-label" for="privacy">Datenschutz akzeptiert</label></div></div><div class="col-12"><button class="btn btn-primary" type="submit">Absenden</button></div></form></div></section>');
@@ -94,6 +95,6 @@
     add('bs5-stacks', 'Stacks', 'BS5 · Helpers', '<div class="vstack gap-3"><div class="p-3 bg-body-tertiary border rounded">Element 1</div><div class="p-3 bg-body-tertiary border rounded">Element 2</div><div class="hstack gap-3"><button class="btn btn-primary">Speichern</button><div class="vr"></div><button class="btn btn-outline-danger">Löschen</button></div></div>');
     add('bs5-utilities-flex', 'Flex-Utilities', 'BS5 · Utilities', '<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 p-4 border rounded"><div><h3 class="h5 mb-1">Flex-Inhalt</h3><p class="mb-0 text-body-secondary">Responsive ausgerichtet.</p></div><a class="btn btn-primary flex-shrink-0" href="#">Aktion</a></div>');
     add('bs5-utilities-spacing', 'Spacing & Farben', 'BS5 · Utilities', '<div class="p-3 p-md-5 bg-primary-subtle text-primary-emphasis border border-primary-subtle rounded-4 shadow-sm"><h3>Utility-Beispiel</h3><p class="mb-0">Abstände, Farben, Rahmen, Radius und Schatten über Bootstrap 5.3.</p></div>');
-    add('bs5-gallery-classic', 'Bildergalerie BS5', 'BS5 · Galerie', window.buildBootstrap5ClassicGalleryHtml());
+    add('bs5-gallery-classic', 'Bildergalerie BS5', 'BS5 · Galerie', '<div data-oluntir-gallery-launcher="bs5" aria-label="BS5-Gallery konfigurieren"></div>');
   };
 })();

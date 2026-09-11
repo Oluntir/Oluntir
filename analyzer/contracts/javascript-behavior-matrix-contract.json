@@ -1,0 +1,16 @@
+{
+  "kind": "oluntir-javascript-behavior-matrix-contract",
+  "schemaVersion": 1,
+  "sourceOfTruth": "javascript-behavior-manifest",
+  "requiredFields": ["behaviorType", "semanticId", "category", "states", "implementation", "dependencies", "activation"],
+  "policies": {
+    "frameworkNeutralVocabulary": true,
+    "readOnlyPlan": true,
+    "sourceExecution": false,
+    "runtimeActivation": false,
+    "frameworkProfileRequired": true,
+    "documentMutation": false,
+    "repeatSynchronization": false,
+    "unitIdUntouched": true
+  }
+}

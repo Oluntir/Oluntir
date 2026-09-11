@@ -17,9 +17,12 @@ global.OluntirRepeatSyncAccessAdapter = {
   }; }
 };
 const runtime = require('../editor/js/core/repeat-synchronization-runtime.js');
+assert.strictEqual(runtime.getState().executionEnabled, true);
 const result = runtime.apply({}, 'd1');
 assert.strictEqual(result.status, syncApi.STATUS.EXECUTED);
+assert.strictEqual(result.valid, true);
 assert.strictEqual(result.mutationPerformed, true);
-assert.deepStrictEqual(target, source);
+assert.strictEqual(result.executionEnabled, true);
+assert.deepStrictEqual(target, { title: 'Neu' });
 assert.strictEqual(runtime.getState().executionEnabled, true);
-console.log('Repeat Synchronization Runtime DEV_006: OK');
+console.log('Repeat Synchronization Runtime productive execution: OK');

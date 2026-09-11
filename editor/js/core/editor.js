@@ -1,9 +1,9 @@
 // GrapesJS-Setup für die neutrale Bootstrap Community Edition.
 // Läuft komplett lokal im Browser (file://), kein Backend nötig.
 
-const ACTIVE_FRAMEWORK = window.PAGEBUILDER_FRAMEWORK || window.PAGEBUILDER_FRAMEWORKS.bs4;
-const SITE_CSS = ACTIVE_FRAMEWORK.canvasStyles;
-const SITE_JS = ACTIVE_FRAMEWORK.canvasScripts;
+let ACTIVE_FRAMEWORK = window.PAGEBUILDER_FRAMEWORK || window.PAGEBUILDER_FRAMEWORKS.bs4;
+let SITE_CSS = ACTIVE_FRAMEWORK.canvasStyles;
+let SITE_JS = ACTIVE_FRAMEWORK.canvasScripts;
 const oluntirT = (key, vars) => window.OluntirI18N ? window.OluntirI18N.t(key, vars) : key;
 const oluntirTr = (text) => window.OluntirI18N ? window.OluntirI18N.translateText(text) : text;
 
@@ -33,6 +33,27 @@ assetHydration.then(() => {
   if (window.OluntirStartup && window.OluntirStartup.ready) {
     await window.OluntirStartup.ready;
   }
+  if (window.OluntirFrameworkReady) {
+    await window.OluntirFrameworkReady;
+    ACTIVE_FRAMEWORK = window.PAGEBUILDER_FRAMEWORK || ACTIVE_FRAMEWORK;
+    SITE_CSS = ACTIVE_FRAMEWORK.canvasStyles || [];
+    SITE_JS = ACTIVE_FRAMEWORK.canvasScripts || [];
+  }
+
+  // Repeat-Definitionen/Instanzen sind Oluntir-Projektmetadaten und kein nativer
+  // GrapesJS-Modellbestandteil. GrapesJS kann unbekannte Top-Level-Felder beim
+  // Autoload bereits verwerfen, bevor der Repeat-Engine-Load-Handler gebunden ist.
+  // Deshalb wird der rohe persistierte Projektsnapshot VOR grapesjs.init() gesichert.
+  // So bleibt die Repeat-Familie auch nach Schließen/erneutem Öffnen des Projekts
+  // verfügbar und kann danach wieder mit dem aktuellen GrapesJS-Baum hydriert werden.
+  let initialPersistedProjectData = null;
+  try {
+    const raw = localStorage.getItem(ACTIVE_FRAMEWORK.storageKey);
+    if (raw) initialPersistedProjectData = JSON.parse(raw);
+  } catch (error) {
+    console.warn('Persistierte Oluntir-Projektmetadaten konnten vor dem Editorstart nicht gelesen werden:', error);
+  }
+
   editor = grapesjs.init({
     container: '#gjs',
     height: '100%',
@@ -89,6 +110,19 @@ assetHydration.then(() => {
     },
   });
 
+  // Das Preset bringt einen generischen HTML-Import-Button (fa-download) mit.
+  // Oluntir besitzt dafür bereits die eigenen Source-/Recovery-Workflows; der
+  // zusätzliche Download-Pfeil zwischen Redo und Löschen ist daher redundant
+  // und wird aus der sichtbaren GrapesJS-Toolbar entfernt. Der separate
+  // Oluntir-Ordnerexport weiter rechts bleibt davon unberührt.
+  try {
+    if (editor.Panels && typeof editor.Panels.removeButton === 'function') {
+      editor.Panels.removeButton('options', 'gjs-open-import-webpage');
+    }
+  } catch (error) {
+    console.warn('Redundanter GrapesJS-Import-Button konnte nicht entfernt werden:', error);
+  }
+
   if (window.OluntirLoggingConsent && typeof window.OluntirLoggingConsent.initialize === 'function') {
     window.OluntirLoggingConsent.initialize().catch(error => console.warn('Logging-Freigabe konnte nicht initialisiert werden:', error));
   }
@@ -115,6 +149,63 @@ assetHydration.then(() => {
 
 
   let oluntirHistoryReplayActive = false;
+  const OLUNTIR_VIEW_COMMANDS = Object.freeze(['open-sm', 'open-tm', 'open-layers', 'open-blocks']);
+
+  function activeOluntirViewCommand(editorInstance) {
+    const panels = editorInstance && editorInstance.Panels;
+    if (!panels || typeof panels.getButton !== 'function') return '';
+    for (const id of OLUNTIR_VIEW_COMMANDS) {
+      const button = panels.getButton('views', id);
+      if (button && button.get && button.get('active')) return id;
+    }
+    return '';
+  }
+
+  function restoreOluntirViewPanel(editorInstance, preferredCommand, reason) {
+    const panels = editorInstance && editorInstance.Panels;
+    const commands = editorInstance && editorInstance.Commands;
+    if (!editorInstance || !panels || !commands) return false;
+    const desired = OLUNTIR_VIEW_COMMANDS.includes(preferredCommand) ? preferredCommand : activeOluntirViewCommand(editorInstance);
+
+    // GrapesJS 0.23.2 keeps command state and panel-button state separately.
+    // After an Undo/Redo replay those states can diverge (eg. open-blocks command
+    // still active while the corresponding button/view is no longer usable).
+    // Bring all four native right-hand views back to one deterministic state.
+    OLUNTIR_VIEW_COMMANDS.forEach(id => {
+      const button = panels.getButton('views', id);
+      if (button && button.set) button.set('active', false, { silent: true });
+      try {
+        if (typeof commands.isActive === 'function' && commands.isActive(id) && typeof editorInstance.stopCommand === 'function') {
+          editorInstance.stopCommand(id, { force: true });
+        }
+      } catch (_) {}
+    });
+
+    if (desired) {
+      try {
+        if (typeof editorInstance.runCommand === 'function') editorInstance.runCommand(desired, { force: true });
+      } catch (error) {
+        console.warn(`GrapesJS-Ansicht ${desired} konnte nach ${reason || 'History'} nicht wiederhergestellt werden:`, error);
+      }
+      const button = panels.getButton('views', desired);
+      if (button && button.set) button.set('active', true, { silent: true });
+      if (desired === 'open-blocks' && editorInstance.BlockManager && typeof editorInstance.BlockManager.render === 'function') {
+        try { editorInstance.BlockManager.render(); } catch (_) {}
+      }
+    }
+
+    if (window.OluntirRuntimeActions) {
+      window.OluntirRuntimeActions.emit('panel.view-restored', {
+        reason: reason || 'history-replay',
+        viewCommand: desired || null
+      });
+    }
+    return true;
+  }
+
+  function restoreOluntirViewPanelSoon(editorInstance, preferredCommand, reason) {
+    window.setTimeout(() => restoreOluntirViewPanel(editorInstance, preferredCommand, reason), 0);
+  }
 
   function bindOluntirUndoRedo(editorInstance) {
     if (!editorInstance || editorInstance.__oluntirUndoRedoBound) return;
@@ -126,6 +217,7 @@ assetHydration.then(() => {
     commands.add('oluntir:undo', {
       run() {
         if (typeof manager.undo === 'function' && (typeof manager.hasUndo !== 'function' || manager.hasUndo())) {
+          const activeViewBeforeReplay = activeOluntirViewCommand(editorInstance);
           cancelPendingProjectPersist();
           oluntirHistoryReplayActive = true;
           try {
@@ -133,6 +225,7 @@ assetHydration.then(() => {
           } finally {
             oluntirHistoryReplayActive = false;
           }
+          restoreOluntirViewPanelSoon(editorInstance, activeViewBeforeReplay, 'undo');
           persistHistoryReplayStateSoon();
           return true;
         }
@@ -142,6 +235,7 @@ assetHydration.then(() => {
     commands.add('oluntir:redo', {
       run() {
         if (typeof manager.redo === 'function' && (typeof manager.hasRedo !== 'function' || manager.hasRedo())) {
+          const activeViewBeforeReplay = activeOluntirViewCommand(editorInstance);
           cancelPendingProjectPersist();
           oluntirHistoryReplayActive = true;
           try {
@@ -149,12 +243,22 @@ assetHydration.then(() => {
           } finally {
             oluntirHistoryReplayActive = false;
           }
+          restoreOluntirViewPanelSoon(editorInstance, activeViewBeforeReplay, 'redo');
           persistHistoryReplayStateSoon();
           return true;
         }
         return false;
       }
     });
+    if (!editorInstance.__oluntirBlockPanelRecoveryBound && typeof editorInstance.on === 'function') {
+      editorInstance.__oluntirBlockPanelRecoveryBound = true;
+      editorInstance.on('run:open-blocks', () => {
+        window.requestAnimationFrame(() => {
+          try { if (editorInstance.BlockManager && typeof editorInstance.BlockManager.render === 'function') editorInstance.BlockManager.render(); } catch (_) {}
+        });
+        if (window.OluntirRuntimeActions) window.OluntirRuntimeActions.emit('panel.blocks-opened', { source: 'grapesjs-command' });
+      });
+    }
     const undoButton = panels.getButton('options', 'undo');
     const redoButton = panels.getButton('options', 'redo');
     if (undoButton) undoButton.set('command', 'oluntir:undo');
@@ -163,30 +267,134 @@ assetHydration.then(() => {
   window.bindOluntirUndoRedo = bindOluntirUndoRedo;
   bindOluntirUndoRedo(editor);
 
+  function bindOluntirPreviewUx(editorInstance) {
+    if (!editorInstance || editorInstance.__oluntirPreviewUxBound) return;
+    editorInstance.__oluntirPreviewUxBound = true;
+
+    const PREVIEW_COMMAND = 'preview';
+    let hintTimer = null;
+    let previewWasActive = false;
+
+    function previewIsActive() {
+      try {
+        return !!(editorInstance.Commands && editorInstance.Commands.isActive && editorInstance.Commands.isActive(PREVIEW_COMMAND));
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function ensureHint() {
+      let hint = document.getElementById('oluntir-preview-hint');
+      if (hint) return hint;
+      hint = document.createElement('div');
+      hint.id = 'oluntir-preview-hint';
+      hint.className = 'oluntir-preview-hint';
+      hint.setAttribute('role', 'status');
+      hint.setAttribute('aria-live', 'polite');
+      hint.setAttribute('aria-atomic', 'true');
+      hint.innerHTML = '<span class="fa fa-eye" aria-hidden="true"></span><span><strong>Vorschau aktiv</strong><small>ESC zum Beenden</small></span>';
+      document.body.appendChild(hint);
+      return hint;
+    }
+
+    function hideHint() {
+      if (hintTimer) {
+        window.clearTimeout(hintTimer);
+        hintTimer = null;
+      }
+      const hint = document.getElementById('oluntir-preview-hint');
+      if (hint) hint.classList.remove('is-visible');
+    }
+
+    function showHint() {
+      const hint = ensureHint();
+      hideHint();
+      // Zwei Frames stellen sicher, dass die Preview-Umschaltung und ihre
+      // Sichtbarkeitsregeln bereits abgeschlossen sind.
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          hint.classList.add('is-visible');
+          hintTimer = window.setTimeout(() => {
+            hint.classList.remove('is-visible');
+            hintTimer = null;
+          }, 3200);
+        });
+      });
+    }
+
+    function syncPreviewState() {
+      const active = previewIsActive();
+      if (active && !previewWasActive) showHint();
+      if (!active && previewWasActive) hideHint();
+      previewWasActive = active;
+    }
+
+    // GrapesJS-Ereignisse dienen nur als schnelle Benachrichtigung. Der
+    // Statusabgleich bleibt bewusst Oluntir-eigen und funktioniert auch dann,
+    // wenn sich Ereignisnamen oder deren Reihenfolge ändern.
+    editorInstance.on('run:preview', () => window.setTimeout(syncPreviewState, 0));
+    editorInstance.on('stop:preview', () => window.setTimeout(syncPreviewState, 0));
+    window.setInterval(syncPreviewState, 150);
+    syncPreviewState();
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !previewIsActive()) return;
+      const lightbox = document.querySelector('.oluntir-lightbox[aria-hidden="false"], .oluntir-lightbox.is-open');
+      if (lightbox) return;
+      event.preventDefault();
+      event.stopPropagation();
+      editorInstance.stopCommand(PREVIEW_COMMAND);
+      window.setTimeout(syncPreviewState, 0);
+    }, true);
+  }
+  bindOluntirPreviewUx(editor);
+
   if (typeof window.registerTextMediaEditing === 'function') {
     window.registerTextMediaEditing(editor);
+  }
+
+  if (typeof window.registerBootstrapVideoEditing === 'function') {
+    window.registerBootstrapVideoEditing(editor);
   }
 
   if (typeof window.registerSmartLinkEditing === 'function') {
     window.registerSmartLinkEditing(editor);
   }
 
-  if (typeof window.registerBootstrapBlocks === 'function') {
+  const isBuiltInBootstrapFramework = !ACTIVE_FRAMEWORK.sourcePackage && ['bs4', 'bs5'].includes(ACTIVE_FRAMEWORK.id);
+  if (isBuiltInBootstrapFramework && typeof window.registerBootstrapBlocks === 'function') {
     window.registerBootstrapBlocks(editor, ACTIVE_FRAMEWORK.id);
-  } else if (ACTIVE_FRAMEWORK.id === 'bs5' && typeof window.registerBootstrap5Blocks === 'function') {
+  } else if (isBuiltInBootstrapFramework && ACTIVE_FRAMEWORK.id === 'bs5' && typeof window.registerBootstrap5Blocks === 'function') {
     window.registerBootstrap5Blocks(editor);
   }
 
-  if (typeof window.registerPageBuilderVariants === 'function') {
+  if (isBuiltInBootstrapFramework && typeof window.registerPageBuilderVariants === 'function') {
     window.registerPageBuilderVariants(editor, ACTIVE_FRAMEWORK.id);
   }
 
-  if (typeof window.registerQuickSetup === 'function') {
+  if (ACTIVE_FRAMEWORK.templateRuntime && window.OluntirTemplateRuntime) {
+    const result = window.OluntirTemplateRuntime.connect(editor, ACTIVE_FRAMEWORK);
+    if (result.connected) console.info('Oluntir Template Runtime verbunden:', result.added);
+    else console.warn('Oluntir Template Runtime blockiert:', result.issues);
+  } else if (ACTIVE_FRAMEWORK.sourcePackage && window.OluntirSourcePackageGrapesJsAdapter) {
+    window.OluntirSourcePackageGrapesJsAdapter.connect(editor, ACTIVE_FRAMEWORK.sourcePackage)
+      .then(result => {
+        if (result.connected) console.info('Oluntir Universal-Source-Bridge verbunden:', result.blocks.added);
+        else console.warn('Oluntir Universal-Source-Bridge blockiert:', result.issues);
+      })
+      .catch(error => console.warn('Universal-Source-Bridge konnte nicht verbunden werden:', error));
+  }
+
+  if (isBuiltInBootstrapFramework && typeof window.registerQuickSetup === 'function') {
     window.registerQuickSetup(editor, ACTIVE_FRAMEWORK.id);
   }
 
   if (typeof window.registerQuickEditing === 'function') {
     window.registerQuickEditing(editor);
+  }
+
+  if (window.OluntirImageLightboxApi && typeof window.OluntirImageLightboxApi.bindEditorPreview === 'function') {
+    window.OluntirImageLightboxApi.bindEditorPreview(editor);
   }
 
 
@@ -230,7 +438,20 @@ assetHydration.then(() => {
     window.OluntirSharedContentManager.bind(editor);
   }
   if (window.OluntirLayoutIdentities) window.OluntirLayoutIdentities.bind(editor);
-  if (window.OluntirRepeatEngineV2) window.OluntirRepeatEngineV2.bind(editor);
+  if (window.OluntirRepeatEngineV2) {
+    window.OluntirRepeatEngineV2.bind(editor, {
+      initialProjectData: initialPersistedProjectData,
+      hydrationSource: 'pre-grapesjs-local-storage'
+    });
+  }
+  // 2.3.0: Repeat-Inhalte werden nicht mehr während jeder GrapesJS-
+  // Änderung live verteilt. Die zentrale Oluntir-Bibliothek bearbeitet genau
+  // einen Draft und publiziert ihn erst über eine explizite Transaktion.
+  if (window.OluntirRepeatLibraryManager && typeof window.OluntirRepeatLibraryManager.bind === 'function') {
+    window.OluntirRepeatLibraryManager.bind(editor);
+  } else if (window.OluntirRepeatAutoSynchronization && typeof window.OluntirRepeatAutoSynchronization.bind === 'function') {
+    window.OluntirRepeatAutoSynchronization.bind(editor);
+  }
   if (window.OluntirFavicon) window.OluntirFavicon.bind(editor);
   window.dispatchEvent(new CustomEvent('oluntir:editorready'));
 
@@ -293,12 +514,18 @@ assetHydration.then(() => {
   // Eigene Toolbar: Seitenverwaltung, Speichern, Backup, Export
   // ---------------------------------------------------------------------------
 
-  window.toast = (msg) => {
+  window.toast = (msg, options) => {
     const el = document.getElementById('toast');
-    el.textContent = msg;
+    const message = String(msg == null ? '' : msg);
+    el.textContent = message;
     el.classList.add('visible');
     clearTimeout(window.toast._t);
-    window.toast._t = setTimeout(() => el.classList.remove('visible'), 2800);
+    const explicitDuration = options && Number(options.duration) > 0 ? Number(options.duration) : 0;
+    const looksLikeError = Boolean(options && options.kind === 'error') || /(?:fehler|fehlgeschlagen|abgebrochen|cannot|exception|undefined|error)/i.test(message);
+    // Allgemeine Hinweise bleiben deutlich länger lesbar als bisher; Fehler
+    // bleiben zwölf Sekunden stehen, sofern der Aufrufer keine eigene Dauer setzt.
+    const duration = explicitDuration || (looksLikeError ? 12000 : 5000);
+    window.toast._t = setTimeout(() => el.classList.remove('visible'), duration);
   };
   const toast = window.toast;
 
@@ -340,6 +567,43 @@ assetHydration.then(() => {
         action: () => document.getElementById('input-restore').click(),
       },
       {
+        id: 'pb-ui-toolbar-export-tar',
+        icon: 'fa fa-file-archive-o',
+        titleKey: 'tool.exportTar',
+        separator: true,
+        attributes: { 'data-oluntir-export-badge': 'TAR' },
+        action: () => document.getElementById('btn-export-tar').click(),
+      },
+      {
+        id: 'pb-ui-toolbar-export-zip',
+        icon: 'fa fa-file-archive-o',
+        titleKey: 'tool.exportZip',
+        attributes: { 'data-oluntir-export-badge': 'ZIP' },
+        action: () => document.getElementById('btn-export-zip').click(),
+      },
+      {
+        id: 'pb-ui-toolbar-export-folder',
+        icon: 'fa fa-download',
+        titleKey: 'tool.exportFolder',
+        action: () => document.getElementById('btn-export-folder').click(),
+      },
+      {
+        id: 'pb-ui-toolbar-repeat-content',
+        panel: 'views',
+        icon: 'fa fa-retweet',
+        titleKey: 'tool.repeatContent',
+        attributes: { 'data-oluntir-repeat-tool': 'true' },
+        action: () => window.OluntirRepeatUi && window.OluntirRepeatUi.open(),
+      },
+      {
+        id: 'pb-ui-toolbar-repeat-library',
+        panel: 'views',
+        icon: 'fa fa-retweet',
+        titleKey: 'tool.repeatLibrary',
+        attributes: { 'data-oluntir-repeat-library-tool': 'true' },
+        action: () => window.OluntirRepeatUi && window.OluntirRepeatUi.openLibrary(),
+      },
+      {
         id: 'pb-ui-toolbar-monitor-toggle',
         icon: 'fa fa-desktop',
         titleKey: 'tool.monitorToggle',
@@ -359,7 +623,7 @@ assetHydration.then(() => {
     commandMap.forEach((tool) => {
       const commandId = tool.id + '-command';
       editor.Commands.add(commandId, { run: tool.action });
-      panels.addButton('options', {
+      panels.addButton(tool.panel || 'options', {
         id: tool.id,
         className: tool.icon,
         command: commandId,
@@ -373,7 +637,7 @@ assetHydration.then(() => {
     });
     window.addEventListener('oluntir:languagechange', () => {
       commandMap.forEach((tool) => {
-        const button = panels.getButton('options', tool.id);
+        const button = panels.getButton(tool.panel || 'options', tool.id);
         if (!button) return;
         const title = window.OluntirI18N.t(tool.titleKey);
         button.set('attributes', Object.assign({}, button.get('attributes'), { title, 'aria-label': title }));
@@ -384,31 +648,123 @@ assetHydration.then(() => {
 
   const frameworkSelect = document.getElementById('framework-select');
   if (frameworkSelect) {
+    Object.keys(window.PAGEBUILDER_FRAMEWORKS || {}).forEach((id) => {
+      if (Array.from(frameworkSelect.options).some(option => option.value === id)) return;
+      const profile = window.PAGEBUILDER_FRAMEWORKS[id];
+      const option = document.createElement('option'); option.value = id; option.textContent = profile.label || id;
+      frameworkSelect.appendChild(option);
+    });
     frameworkSelect.value = ACTIVE_FRAMEWORK.id;
-    frameworkSelect.addEventListener('change', () => {
+    frameworkSelect.addEventListener('change', async () => {
       const next = frameworkSelect.value;
       if (next === ACTIVE_FRAMEWORK.id) return;
-      const label = window.PAGEBUILDER_FRAMEWORKS[next].label;
-      if (!confirm(oluntirT('framework.switchConfirm', { label }))) {
+      const target = window.PAGEBUILDER_FRAMEWORKS[next];
+      const label = target && target.label ? target.label : next;
+      const warning = `Ein Oluntir-Projekt ist immer fest an genau ein Framework und genau eine Version gebunden.\n\n` +
+        `Der aktuelle Stand von „${ACTIVE_FRAMEWORK.label || ACTIVE_FRAMEWORK.id}“ wird jetzt gespeichert.\n` +
+        `Danach wird „${label}“ als separates Framework-Projekt geöffnet. Eine Vermischung der Projektstände findet nicht statt.\n\n` +
+        `Framework wechseln und vorher speichern?`;
+      if (!target || !confirm(warning)) {
         frameworkSelect.value = ACTIVE_FRAMEWORK.id;
         return;
       }
-      window.setPageBuilderFramework(next);
-      location.reload();
+      try {
+        if (typeof window.OluntirPersistProjectNow !== 'function') throw new Error('Der aktuelle Projektstand kann momentan nicht gespeichert werden.');
+        await window.OluntirPersistProjectNow();
+        window.setPageBuilderFramework(next);
+        location.reload();
+      } catch (error) {
+        frameworkSelect.value = ACTIVE_FRAMEWORK.id;
+        toast(`Frameworkwechsel abgebrochen: ${error.message || error}`);
+      }
+    });
+
+    function activateImportedPackage(manifest) {
+      const bridge = window.OluntirSourcePackageBridge;
+      if (!bridge || !manifest) return;
+      if (typeof bridge.isEditorSupported === 'function' && !bridge.isEditorSupported(manifest)) {
+        toast(`Source Package analysiert: ${manifest.displayName || manifest.packageId}. Das erkannte Framework ist derzeit nur für Analyse freigegeben; es wurde nicht als Editorprofil aktiviert.`);
+        return;
+      }
+      const profile = bridge.toFrameworkProfile(manifest);
+      window.PAGEBUILDER_FRAMEWORKS[profile.id] = profile;
+      let option = Array.from(frameworkSelect.options).find(item => item.value === profile.id);
+      if (!option) { option = document.createElement('option'); option.value = profile.id; option.textContent = profile.label; frameworkSelect.appendChild(option); }
+      bridge.bind(manifest);
+      if (confirm(`Source Package „${manifest.displayName || manifest.packageId}“ wurde importiert. Jetzt als Frontend-Framework aktivieren?`)) {
+        window.setPageBuilderFramework(profile.id); location.reload();
+      }
+    }
+
+    async function importWithPrompt(importer, argument, defaultName) {
+      const bridge = window.OluntirSourcePackageBridge;
+      if (!bridge) return;
+      const frameworkId = prompt('Framework-ID (z. B. bootstrap5 oder bootstrap4; andere werden nur analysiert):', 'unclassified');
+      if (!frameworkId) return;
+      const displayName = prompt('Anzeigename des Source Packages:', defaultName || frameworkId);
+      if (!displayName) return;
+      try {
+        const manifest = await importer(argument, { frameworkId, displayName });
+        activateImportedPackage(manifest);
+      } catch (error) { toast(`Source-Import fehlgeschlagen: ${error.message}`, { duration: 12000 }); }
+    }
+
+    const urlButton = document.getElementById('btn-import-source-url');
+    if (urlButton) urlButton.addEventListener('click', () => {
+      const url = prompt('Download-URL des Framework- oder Template-Archivs:');
+      if (url) importWithPrompt((value, options) => window.OluntirSourcePackageBridge.importUrl(value, options), url, url.split('/').pop());
+    });
+    const folderInput = document.getElementById('input-source-folder');
+    if (folderInput) folderInput.addEventListener('change', () => {
+      const files = Array.from(folderInput.files || []); const first = files[0];
+      if (files.length) importWithPrompt((_, options) => window.OluntirSourcePackageBridge.importBrowserFiles(files, options), null, first.webkitRelativePath ? first.webkitRelativePath.split('/')[0] : first.name);
+      folderInput.value = '';
+    });
+    const archiveInput = document.getElementById('input-source-archive');
+    if (archiveInput) archiveInput.addEventListener('change', () => {
+      const file = archiveInput.files && archiveInput.files[0];
+      if (file) importWithPrompt((_, options) => window.OluntirSourcePackageBridge.importBrowserArchive(file, options), null, file.name.replace(/\.(tar\.gz|tgz|zip|tar)$/i, ''));
+      archiveInput.value = '';
+    });
+    const recoveryInput = document.getElementById('input-source-recovery');
+    if (recoveryInput) recoveryInput.addEventListener('change', async () => {
+      const file = recoveryInput.files && recoveryInput.files[0]; recoveryInput.value = '';
+      if (!file || !window.OluntirSourcePackageBridge) return;
+      try {
+        const manifest = await window.OluntirSourcePackageBridge.restoreBrowserRecovery(file);
+        activateImportedPackage(manifest);
+      } catch (error) { toast(`Source-Recovery fehlgeschlagen: ${error.message}`, { duration: 12000 }); }
     });
   }
 
   const pageSelect = document.getElementById('page-select');
 
   function refreshPageList() {
-    const pages = editor.Pages.getAll();
+    const repeatManager = window.OluntirRepeatLibraryManager;
+    const isRepeatWorkspace = page => Boolean(repeatManager && typeof repeatManager.isWorkspacePage === 'function' && repeatManager.isWorkspacePage(page));
+    const pages = editor.Pages.getAll().filter(page => !isRepeatWorkspace(page));
     const selected = editor.Pages.getSelected();
     pageSelect.innerHTML = '';
+
+    // Der interne Repeat-Workspace ist keine echte Projektseite und wird nicht
+    // als solche angeboten. Eine bewusst ausgewählte Statusoption stellt aber
+    // sicher, dass jede anschließende Wahl einer Projektseite ein echtes
+    // change-Ereignis auslöst – auch wenn man zur zuvor geöffneten Seite
+    // zurückkehren möchte.
+    if (isRepeatWorkspace(selected)) {
+      const workspaceOpt = document.createElement('option');
+      workspaceOpt.value = '__oluntir_repeat_workspace__';
+      workspaceOpt.textContent = 'Zentrale Repeat-Bearbeitung';
+      workspaceOpt.disabled = true;
+      workspaceOpt.selected = true;
+      pageSelect.appendChild(workspaceOpt);
+    }
+
     pages.forEach((page) => {
       const opt = document.createElement('option');
       opt.value = page.id;
       opt.textContent = page.getName() || page.id;
-      if (page === selected) opt.selected = true;
+      if (!isRepeatWorkspace(selected) && page === selected) opt.selected = true;
       pageSelect.appendChild(opt);
     });
   }
@@ -687,24 +1043,69 @@ assetHydration.then(() => {
   }
 
   function selectPageById(pageId) {
-    const page = editor.Pages.getAll().find((item) => item.id === pageId);
+    const page = editor.Pages.getAll().find((item) => item.id === pageId || (window.OluntirLayoutIdentities && window.OluntirLayoutIdentities.pageId && window.OluntirLayoutIdentities.pageId(item) === pageId));
     if (!page) return false;
+
+    // Der zentrale Repeat-Editor lebt auf einer temporären internen GrapesJS-
+    // Seite. GrapesJS darf diese Seite niemals entfernen, solange sie noch
+    // ausgewählt ist. prepareForPageNavigation() führt deshalb zuerst einen
+    // sicheren Handoff auf die gewünschte Projektseite durch und entfernt den
+    // Workspace erst danach. Die normale Seiten-Commit-Transaktion darf den
+    // internen Workspace nicht als Quellseite behandeln.
+    try {
+      if (window.OluntirRepeatLibraryManager && typeof window.OluntirRepeatLibraryManager.prepareForPageNavigation === 'function') {
+        window.OluntirRepeatLibraryManager.prepareForPageNavigation(pageId);
+      }
+    } catch (error) {
+      console.error('Repeat-Arbeitsbereich konnte vor dem Seitenwechsel nicht beendet werden:', error);
+      if (window.OluntirLogger && typeof window.OluntirLogger.error === 'function') {
+        window.OluntirLogger.error('error', 'repeat-workspace-page-handoff-failed', {
+          targetPageId: pageId,
+          message: error && error.message || String(error),
+          stack: error && error.stack || null
+        });
+      }
+      refreshPageList();
+      toast(`Seitenwechsel abgebrochen: ${error.message || error}`, { kind: 'error', duration: 12000 });
+      return false;
+    }
 
     const previousPage = editor.Pages.getSelected();
     if (previousPage === page) {
       refreshPageList();
+      refreshSelectedPageVisuals();
       return true;
     }
 
-    // First make the complete current page authoritative. Shared Content handles
-    // only header/navigation/footer; individual main content and Repeat metadata
-    // must be secured before the target page is selected.
+    // A page switch can be initiated while GrapesJS still owns an active RTE
+    // session. Finish that session before reading the current page; otherwise
+    // the visible content may never reach the component model.
+    if (richTextEditingActive && editor.RichTextEditor && typeof editor.RichTextEditor.disable === 'function') {
+      try { editor.RichTextEditor.disable(); } catch (error) {
+        console.warn('RTE konnte vor dem Seitenwechsel nicht beendet werden:', error);
+      }
+    }
+
+    // Page switching is a model-authoritative transaction. Finish any generic
+    // Canvas-derived asset references first, but do not flush Shared Content yet.
+    // Shared header/navigation/footer are then read only from the GrapesJS model;
+    // a stale frame must never overwrite a newer model edit from the source page.
     try {
-      commitCurrentCanvasStateToModel();
+      commitCurrentCanvasStateToModel({ skipSharedContent: true });
+      if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.commitSelectedCanvasToShared === 'function') {
+        window.OluntirSharedContentManager.commitSelectedCanvasToShared(previousPage, { targetPage: page });
+      }
+      if (window.OluntirLogger && typeof window.OluntirLogger.info === 'function') {
+        window.OluntirLogger.info('page', 'page-switch-source-committed', {
+          sourcePageId: previousPage && previousPage.id || null,
+          targetPageId: page && page.id || null,
+          richTextEditingActive: Boolean(richTextEditingActive)
+        });
+      }
     } catch (error) {
       console.error('Aktuelle Seite konnte vor dem Wechsel nicht ins Modell übernommen werden:', error);
       refreshPageList();
-      toast(`Seitenwechsel abgebrochen: ${error.message || error}`);
+      toast(`Seitenwechsel abgebrochen: ${error.message || error}`, { kind: 'error', duration: 12000 });
       return false;
     }
 
@@ -712,34 +1113,38 @@ assetHydration.then(() => {
     // still active. The manager keeps the original source page, so a debounce
     // can never run against the page selected a few milliseconds later.
     try {
-      if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.commitSelectedCanvasToShared === 'function') {
-        window.OluntirSharedContentManager.commitSelectedCanvasToShared(previousPage, { targetPage: page });
-      } else if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushPending === 'function') {
+      if (window.OluntirSharedContentManager && typeof window.OluntirSharedContentManager.flushPending === 'function') {
         window.OluntirSharedContentManager.flushPending();
       }
       // This is the last synchronous write before Pages.select(). It contains
       // both pages and the current repeatEngine metadata. If a delayed raw
       // editor.store() is already queued, the persistence barrier below writes
       // the decorated snapshot once more after that store has completed.
-      writeCurrentProjectSnapshotSynchronously();
+      writeCurrentProjectSnapshotSynchronously({ skipSharedContent: true });
     } catch (error) {
       console.error('Aktuelle Seite konnte vor dem Wechsel nicht gespeichert werden:', error);
       refreshPageList();
-      toast(`Seitenwechsel abgebrochen: ${error.message || error}`);
+      toast(`Seitenwechsel abgebrochen: ${error.message || error}`, { kind: 'error', duration: 12000 });
       return false;
     }
 
-    // A page switch must only select the existing GrapesJS page/frame. Rebuilding
-    // the target component tree here via component.components(...) detaches the
-    // visible Canvas frame from the selected page in GrapesJS 0.23.2. Shared
-    // regions are propagated when they actually change; the switch itself stays
-    // read-only for the target page.
+    // The target page model already contains the authoritative shared regions.
+    // Pages.select() only switches the existing GrapesJS page/frame; no Canvas DOM
+    // is used as a reverse synchronization source during the transition.
     editor.Pages.select(page);
     refreshPageList();
     refreshSelectedPageVisuals();
-    persistCurrentProjectStateSoon(0);
+    // The source page and shared regions were committed before Pages.select().
+    // Do not flush shared content again against the freshly selected page while
+    // its Canvas is still rendering the pre-propagation frame.
+    persistCurrentProjectStateSoon(0, { skipSharedContent: true });
     return true;
   }
+
+  // Repeat-UI und externe Werkzeugfenster verwenden denselben gehärteten
+  // Seitenwechsel wie die sichtbare Seitenauswahl. Dadurch bleibt der aktuelle
+  // Canvas-Stand auch bei der Zielbereichsauswahl persistent.
+  window.OluntirSelectPageById = selectPageById;
 
   pageSelect.addEventListener('change', () => {
     selectPageById(pageSelect.value);
@@ -904,6 +1309,7 @@ assetHydration.then(() => {
       alert(describeSaveError(err));
     }
   });
+  let skipSharedContentForNextStorageSnapshot = false;
   editor.on('storage:store', () => {
     saveErrorAlreadyShown = false;
     // Während der aktiven Rich-Text-Bearbeitung darf der Metadaten-Snapshot
@@ -915,7 +1321,9 @@ assetHydration.then(() => {
     // Autosave wird deshalb derselbe Projektdatensatz nochmals mit allen
     // Oluntir-Metadaten geschrieben. Dadurch kann ein verzögerter GrapesJS-Store
     // keinen zuvor gesicherten repeatEngine-Zustand mehr verlieren.
-    try { writeCurrentProjectSnapshotSynchronously(); }
+    const skipSharedContent = skipSharedContentForNextStorageSnapshot;
+    skipSharedContentForNextStorageSnapshot = false;
+    try { writeCurrentProjectSnapshotSynchronously(skipSharedContent ? { skipSharedContent: true } : undefined); }
     catch (error) { console.error('Oluntir-Metadaten konnten nach dem Autosave nicht ergänzt werden:', error); }
   });
 
@@ -948,7 +1356,7 @@ assetHydration.then(() => {
     persistCurrentProjectStateSoon(80);
   });
 
-  function commitCurrentCanvasStateToModel() {
+  function commitCurrentCanvasStateToModel(options) {
     if (projectCommitRunning) return;
     projectCommitRunning = true;
     try {
@@ -961,8 +1369,10 @@ assetHydration.then(() => {
     if (typeof normalizeStableAssetReferences === 'function') {
       normalizeStableAssetReferences(editor);
     }
-    if (window.OluntirSharedContentManager) {
-      window.OluntirSharedContentManager.flushSelected();
+    if (!options || options.skipSharedContent !== true) {
+      if (window.OluntirSharedContentManager) {
+        window.OluntirSharedContentManager.flushSelected();
+      }
     }
     } finally {
       projectCommitRunning = false;
@@ -975,41 +1385,45 @@ assetHydration.then(() => {
   // garantiert genug Zeit. Ohne diesen synchronen letzten Schreibvorgang konnte genau
   // die zuletzt eingefügte Bildgruppe beim nächsten Start fehlen, obwohl Export und
   // Canvas bereits korrekt waren.
-  function writeCurrentProjectSnapshotSynchronously() {
-    commitCurrentCanvasStateToModel();
+  function writeCurrentProjectSnapshotSynchronously(options) {
+    commitCurrentCanvasStateToModel(options);
     let projectData = editor.getProjectData();
     if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
     if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.3.0' });
     if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
     if (window.OluntirStartup) {
       window.OluntirStartup.setMeta({
         projectType: window.OluntirIncludes && window.OluntirIncludes.getState().enabled
           ? 'reusable-regions'
-          : 'classic'
+          : 'classic',
+        frameworkId: ACTIVE_FRAMEWORK.id,
+        frameworkVersion: ACTIVE_FRAMEWORK.version || 'unversioned'
       });
     }
     return projectData;
   }
 
-  async function persistCurrentProjectState() {
+  async function persistCurrentProjectState(options) {
     if (projectPersistRunning) {
       projectPersistAgain = true;
       return;
     }
     projectPersistRunning = true;
     try {
-      commitCurrentCanvasStateToModel();
+      commitCurrentCanvasStateToModel(options);
       await nextFrame();
+      if (options && options.skipSharedContent === true) skipSharedContentForNextStorageSnapshot = true;
       await editor.store();
       // editor.store() kann intern verzögert oder vom Browser beim Schließen abgebrochen
       // werden. Der synchrone Snapshot ist deshalb die verbindliche Abschlusskopie.
-      writeCurrentProjectSnapshotSynchronously();
+      writeCurrentProjectSnapshotSynchronously(options);
     } finally {
       projectPersistRunning = false;
       if (projectPersistAgain) {
         projectPersistAgain = false;
-        await persistCurrentProjectState();
+        await persistCurrentProjectState(options);
       }
     }
   }
@@ -1025,6 +1439,7 @@ assetHydration.then(() => {
       projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData);
     }
     if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.3.0' });
     if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     localStorage.setItem(ACTIVE_FRAMEWORK.storageKey, JSON.stringify(projectData));
     return projectData;
@@ -1045,7 +1460,7 @@ assetHydration.then(() => {
     }, 0);
   }
 
-  function persistCurrentProjectStateSoon(delay) {
+  function persistCurrentProjectStateSoon(delay, options) {
     // Während aktiver Texteingabe niemals das Komponentenmodell neu schreiben.
     // Der Abschluss wird durch rte:disable einmalig und vollständig gespeichert.
     if (richTextEditingActive) return;
@@ -1053,7 +1468,7 @@ assetHydration.then(() => {
     projectPersistTimer = window.setTimeout(() => {
       projectPersistTimer = 0;
       if (richTextEditingActive) return;
-      persistCurrentProjectState().catch((error) => {
+      persistCurrentProjectState(options).catch((error) => {
         console.error('Bildänderung konnte nicht dauerhaft gespeichert werden:', error);
       });
     }, Number.isFinite(delay) ? delay : 80);
@@ -1153,6 +1568,7 @@ assetHydration.then(() => {
       projectData = editor.getProjectData();
       if (window.OluntirLayoutIdentities) { window.OluntirLayoutIdentities.ensureAll(editor); projectData = window.OluntirLayoutIdentities.decorateProjectData(projectData); }
       if (window.OluntirRepeatEngineV2) projectData = window.OluntirRepeatEngineV2.decorateProjectData(projectData);
+    projectData.oluntir = Object.assign({}, projectData.oluntir || {}, { appVersion: window.OluntirStartup && window.OluntirStartup.appVersion || '2.3.0' });
       if (window.OluntirFavicon) projectData = window.OluntirFavicon.decorateProjectData(projectData);
     }
 
@@ -1475,16 +1891,6 @@ assetHydration.then(() => {
       window.removeEventListener('oluntir:languagechange', applyNoticeLanguage);
     }, { once: true });
   })();
-
-  document.getElementById('input-gallery-files').addEventListener('change', (ev) => {
-    insertGalleryFromFiles(editor, ev.target.files);
-    ev.target.value = '';
-  });
-
-  document.getElementById('input-gallery-folder').addEventListener('change', (ev) => {
-    insertGalleryFromFiles(editor, ev.target.files);
-    ev.target.value = '';
-  });
 
   // "+ Bild hochladen": fügt (ein oder mehrere) Bilder dem Asset-Manager hinzu, ohne
   // Base64 – Auswahl über den Asset-Manager (Doppelklick auf ein Bild-Element) möglich.

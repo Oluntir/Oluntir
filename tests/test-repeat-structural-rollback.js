@@ -6,7 +6,7 @@ function make(def, parentRef) {
   const state = Object.assign({}, def || {}, { attributes: Object.assign({}, def && def.attributes || {}), components: [] });
   let parent = parentRef || null;
   const item = {
-    get(key){ return state[key]; }, set(key,value){ state[key]=value; },
+    get(key){ return state[key]; }, set(key,value){ state[key]=value; }, unset(key){ delete state[key]; },
     getAttributes(){ return Object.assign({}, state.attributes); },
     setAttributes(value){ state.attributes=Object.assign({},value||{}); },
     addAttributes(value){ state.attributes=Object.assign({},state.attributes,value||{}); },
@@ -40,8 +40,8 @@ const plan={ schemaVersion:1,type:'repeat-targeted-sync-plan',valid:true,blocked
   {operationId:'op-2',definitionId:'d1',instanceId:'i2',sourcePageId:'source-page',sourceIdentity:'source-root',targetPageId:'target-page-two',targetIdentity:'target-two'}
 ]};
 const result=service.execute(plan,adapter);
-assert.strictEqual(result.status, syncApi.STATUS.BLOCKED);
-assert.strictEqual(result.executionEnabled, false);
+assert.strictEqual(result.status, syncApi.STATUS.ROLLED_BACK);
+assert.strictEqual(result.executionEnabled, true);
 assert.strictEqual(result.mutationPerformed, false);
 assert.deepStrictEqual(targetOne.toJSON(), beforeOne);
 assert.deepStrictEqual(targetTwo.toJSON(), beforeTwo);

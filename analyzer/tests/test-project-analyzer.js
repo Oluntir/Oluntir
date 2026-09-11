@@ -1,0 +1,17 @@
+'use strict';
+const assert = require('assert');
+const path = require('path');
+const { analyzeProject } = require('../core/project-analyzer.js');
+const result = analyzeProject(path.join(__dirname, 'fixtures/demo-template'));
+assert.strictEqual(result.kind, 'oluntir-template-analysis-report');
+assert.strictEqual(result.schemaVersion, 2);
+assert.strictEqual(result.canonicalModel, 'oluntir-intermediate-representation');
+assert(result.summary.files >= 3);
+assert(result.frameworks.some(item => item.id === 'bootstrap5' && item.detected));
+assert(result.capabilities.some(item => item.id === 'navigation'));
+assert(result.capabilities.some(item => item.id === 'interaction.carousel'));
+assert(result.capabilities.every(item => item.access.write === false));
+assert.strictEqual(result.oir.kind, 'oluntir-intermediate-representation');
+assert.strictEqual(result.knowledge.packageKind, 'oluntir-framework-knowledge');
+assert.strictEqual(result.knowledge.sourceProjectId, result.oir.project.id);
+console.log('PROJECT-ANALYZER-TEST ERFOLGREICH');

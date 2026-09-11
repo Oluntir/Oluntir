@@ -80,6 +80,10 @@ html, body {
   padding: 10px 18px;
   border-radius: 4px;
   font-size: 13px;
+  line-height: 1.4;
+  max-width: min(760px, 90vw);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -559,9 +563,16 @@ html, body {
 }
 
 #toolbar .toolbar-right {
-  margin-left: auto;
+  order: 1;
+  margin-left: 0;
+  flex: 0 0 auto;
   padding-right: 2px;
 }
+
+/* Die Exportgruppe bleibt trotz der langen Import-/Seitenleiste sichtbar. */
+#toolbar .toolbar-source-package { order: 2; }
+#toolbar .toolbar-page-actions { order: 3; }
+#toolbar .toolbar-media-actions { order: 4; }
 
 #toolbar select,
 #toolbar button,
@@ -620,13 +631,25 @@ html, body {
   }
 }
 
-/* Oluntir: Projekthauptleiste ohne horizontalen Scrollbalken.
-   Sekundäre Bedienfunktionen liegen jetzt als Symbole in der Editorleiste darunter. */
+/* Oluntir: Lange Projekthauptleisten bleiben innerhalb des Viewports bedienbar. */
 #toolbar {
-  overflow-x: hidden;
-  scrollbar-width: none;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
-#toolbar::-webkit-scrollbar { display: none; }
+#toolbar::-webkit-scrollbar { display: block; height: 7px; }
+
+/* Auch die GrapesJS-Optionsleiste darf bei vielen Werkzeugen nicht aus dem
+   sichtbaren Arbeitsbereich herauslaufen. */
+.gjs-pn-options {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+.gjs-pn-options .gjs-pn-btn { flex: 0 0 auto; }
 
 /* Zusätzliche Oluntir-Symbole in der unteren GrapesJS-Werkzeugleiste. */
 .gjs-pn-options .gjs-pn-btn[data-pb-toolbar-tool="true"] {
@@ -635,6 +658,63 @@ html, body {
   padding-left: 10px;
   padding-right: 10px;
 }
+
+/* ZIP/TAR bleiben als gemeinsame Archivsymbole erhalten, bekommen aber eine
+   kleine eindeutige Formatkennzeichnung nach demselben Badge-Prinzip wie das
+   Repeat-Listenwerkzeug. */
+.gjs-pn-options .gjs-pn-btn[data-oluntir-export-badge] {
+  position:relative;
+  overflow:visible !important;
+}
+.gjs-pn-options .gjs-pn-btn[data-oluntir-export-badge]::after {
+  content:attr(data-oluntir-export-badge);
+  position:absolute;
+  right:-1px;
+  bottom:1px;
+  min-width:18px;
+  height:12px;
+  padding:0 2px;
+  border:1px solid rgba(30,34,40,.9);
+  border-radius:3px;
+  background:#f39c12;
+  color:#fff;
+  font:700 7px/10px Arial,sans-serif;
+  letter-spacing:.2px;
+  text-align:center;
+  box-sizing:border-box;
+  box-shadow:0 0 0 1px rgba(255,255,255,.16);
+  z-index:6;
+  pointer-events:none;
+}
+
+/* Das Listen-Werkzeug sitzt in der GrapesJS-views-Leiste. Der Selektor muss
+   deshalb sowohl views als auch options abdecken. Die kleine orange Liste macht
+   das zweite Repeat-Symbol auch ohne Tooltip eindeutig unterscheidbar. */
+.gjs-pn-options .gjs-pn-btn[data-oluntir-repeat-library-tool="true"],
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-library-tool="true"] { position: relative; overflow: visible !important; }
+.gjs-pn-options .gjs-pn-btn[data-oluntir-repeat-library-tool="true"]::after,
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-library-tool="true"]::after {
+  content:"";
+  position:absolute;
+  right:0;
+  bottom:0;
+  width:16px;
+  height:16px;
+  border:1px solid rgba(30,34,40,.85);
+  border-radius:3px;
+  background:
+    linear-gradient(#ffffff,#ffffff) 5px 3px / 8px 2px no-repeat,
+    linear-gradient(#ffffff,#ffffff) 5px 7px / 8px 2px no-repeat,
+    linear-gradient(#ffffff,#ffffff) 5px 11px / 8px 2px no-repeat,
+    radial-gradient(circle at 2.5px 4px,#ffffff 0 1px,transparent 1.5px),
+    radial-gradient(circle at 2.5px 8px,#ffffff 0 1px,transparent 1.5px),
+    radial-gradient(circle at 2.5px 12px,#ffffff 0 1px,transparent 1.5px),
+    #f39c12;
+  box-shadow:0 0 0 1px rgba(255,255,255,.18);
+  z-index:5;
+  pointer-events:none;
+}
+.oluntir-repeat-current-source { padding:8px; background:#1d2025; border-left:3px solid #2878d4; color:#e6e9ed; font-size:12px; line-height:1.45; }
 .gjs-pn-options .gjs-pn-btn[data-pb-toolbar-separator="true"] {
   margin-left: 8px;
   border-left: 1px solid rgba(255,255,255,.18);
@@ -682,6 +762,20 @@ html, body, button, input, select, textarea,
   font-family: gjs-fonts !important;
 }
 body { background: var(--oluntir-bg); }
+.oluntir-repeat-panel { position: fixed; z-index: 12000; top: 104px; right: 0; bottom: 0; width: 350px; overflow:auto; padding: 12px; background:#24262a; color:#f2f2f2; border-left:1px solid #4a4d54; box-shadow:-4px 0 14px rgba(0,0,0,.35); }
+.oluntir-repeat-panel[hidden] { display:none; }
+body.oluntir-tool-window .oluntir-repeat-panel { position:absolute; inset:50px 0 0; width:auto; max-width:none; box-sizing:border-box; border:0; border-top:1px solid #4a4d54; box-shadow:none; }
+.oluntir-repeat-panel-head { display:flex; justify-content:space-between; gap:8px; align-items:flex-start; border-bottom:1px solid #4a4d54; padding-bottom:9px; margin-bottom:10px; }
+.oluntir-repeat-head-actions { display:flex; gap:4px; align-items:center; }
+.oluntir-repeat-panel h2 { margin:0; font-size:16px; }.oluntir-repeat-panel h3 { margin:0 0 8px; font-size:13px; }.oluntir-repeat-panel p { margin:4px 0; color:#b5b7bc; font-size:11px; line-height:1.35; }
+.oluntir-repeat-section-title { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.oluntir-repeat-help { width:26px; height:26px; margin:0; padding:0 !important; border-radius:50%; }
+.oluntir-repeat-help-popover { margin:0 0 10px; padding:9px 10px; background:#1d2025; border:1px solid #59616c; border-left:3px solid #6bc786; color:#e9edf2; font-size:11px; line-height:1.4; }
+.oluntir-repeat-help-popover ol { margin:6px 0 0 18px; padding:0; }
+.oluntir-repeat-target-info { margin:8px 0; padding:8px; background:#1d2025; border-left:3px solid #6bc786; color:#d8dbe0; font-size:11px; line-height:1.4; }
+.oluntir-repeat-panel section { padding:10px 0; border-bottom:1px solid #4a4d54; }.oluntir-repeat-panel label { display:block; margin:7px 0; color:#d8dbe0; font-size:12px; }.oluntir-repeat-panel input,.oluntir-repeat-panel select { display:block; width:100%; box-sizing:border-box; margin-top:4px; padding:7px; background:#31343a; color:#fff; border:1px solid #55585f; }
+.oluntir-repeat-panel button { margin:4px 4px 0 0; padding:7px 9px; color:#fff; background:#31343a; border:1px solid #55585f; cursor:pointer; }.oluntir-repeat-panel button:hover { background:#3b414a; }.oluntir-repeat-panel button:disabled { opacity:.45; cursor:not-allowed; }.oluntir-repeat-panel .btn-primary { background:#2878d4; border-color:#2878d4; }.oluntir-repeat-actions { display:flex; gap:4px; }.oluntir-repeat-list { display:grid; gap:5px; }.oluntir-repeat-item { padding:7px; background:#31343a; border-left:3px solid #2878d4; font-size:12px; }.oluntir-repeat-muted { color:#b5b7bc; }.oluntir-repeat-status { min-height:28px; padding:7px; background:#1d2025; }.oluntir-repeat-status[data-level="error"] { color:#ffaaa0; border-left:3px solid #d9534f; }.oluntir-repeat-status[data-level="info"] { border-left:3px solid #2878d4; }
+.oluntir-repeat-target-info[data-position="before"], .oluntir-repeat-target-info[data-position="after"] { border-left-color:#f39c12; }
 #toolbar {
   height: 56px;
   padding: 0 12px;
@@ -1650,11 +1744,23 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
 @media (max-width: 620px) { .oluntir-favicon-content { grid-template-columns: 1fr; } .oluntir-favicon-preview-box { margin: 0 auto; } }
 
 /* Release 1.3.0: consolidated technical rule. */
-.oluntir-logging-modal { max-width: 760px; }
-.oluntir-logging-content { display: grid; gap: 1rem; }
-.oluntir-logging-content h3 { margin: 0 0 .5rem; }
-.oluntir-logging-content ul { margin: 0; padding-left: 1.25rem; }
-.oluntir-logging-content label { display: grid; gap: .35rem; font-weight: 600; }
+.oluntir-logging-modal {
+  width: 80vw;
+  max-width: none;
+  max-height: min(88vh, calc(100vh - 32px));
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: 18px 20px;
+  font-size: .92rem;
+}
+.oluntir-logging-modal .pb-ui-modal-head h2 { margin-bottom: .45rem; font-size: 1.28rem; }
+.oluntir-logging-modal .pb-ui-modal-head p { margin: .25rem 0; line-height: 1.35; }
+.oluntir-logging-content { display: grid; gap: .72rem; min-height: 0; overflow-y: auto; padding: .35rem .45rem .35rem 0; }
+.oluntir-logging-content h3 { margin: 0 0 .35rem; font-size: 1rem; }
+.oluntir-logging-content p { margin: .35rem 0; line-height: 1.4; }
+.oluntir-logging-content ul { margin: 0; padding-left: 1.15rem; }
+.oluntir-logging-content label { display: grid; gap: .3rem; font-weight: 600; }
 .oluntir-logging-content select { max-width: 320px; }
 .oluntir-logging-path-box { display: grid; gap: .45rem; padding: .85rem; border: 1px solid rgba(127,127,127,.35); border-radius: .4rem; }
 .oluntir-logging-path-box code { display: block; overflow-wrap: anywhere; }
@@ -1662,14 +1768,13 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
 .oluntir-logging-status[data-kind="error"] { color: #b42318; }
 
 /* Release 1.3.0: consolidated technical rule. */
-.oluntir-consent-documents, .oluntir-redaction-box { padding: .9rem; border: 1px solid rgba(127,127,127,.35); border-radius: .4rem; }
-.oluntir-consent-check { display: grid !important; grid-template-columns: auto 1fr; align-items: start; gap: .65rem !important; font-weight: 500 !important; margin: .55rem 0; }
+.oluntir-consent-documents, .oluntir-redaction-box { padding: .7rem .8rem; border: 1px solid rgba(127,127,127,.35); border-radius: .4rem; }
+.oluntir-consent-check { display: grid !important; grid-template-columns: auto 1fr; align-items: start; gap: .55rem !important; font-weight: 500 !important; margin: .4rem 0; }
 .oluntir-consent-check input { margin-top: .2rem; }
-.oluntir-redaction-box ul { columns: 2; column-gap: 2rem; }
-.oluntir-consent-actions { flex-wrap: wrap; }
+.oluntir-consent-actions { flex-wrap: wrap; gap: .5rem; margin-top: .7rem; padding-top: .75rem; border-top: 1px solid rgba(127,127,127,.25); background: #fff; }
 .oluntir-consent-actions button:disabled { opacity: .45; cursor: not-allowed; }
 #oluntir-logging-modal[data-required="true"] { z-index: 100000; }
-@media (max-width: 700px) { .oluntir-redaction-box ul { columns: 1; } }
+@media (max-width: 700px) { .oluntir-logging-modal { width: 94vw; max-height: calc(100vh - 16px); padding: 14px; font-size: .9rem; } .oluntir-consent-actions { justify-content: stretch; } .oluntir-consent-actions button { flex: 1 1 220px; } }
 .oluntir-logging-success { padding: .9rem; border: 1px solid rgba(22,124,53,.45); border-radius: .4rem; }
 .oluntir-logging-success h3 { margin-top: 0; }
 
@@ -1812,3 +1917,263 @@ body.oluntir-tool-window #oluntir-tool-window-quick-edit > #pb-quick-edit[hidden
 .pb-gallery-structure-option:hover .pb-gallery-structure-radio,
 .pb-gallery-structure-option:focus .pb-gallery-structure-radio{border-color:#1687ff;background:#1687ff}
 
+
+/* Oluntir-eigener Hinweis beim Eintritt in die Vorschau.
+   GrapesJS-Steuerelemente bleiben bewusst unverändert. */
+.oluntir-preview-hint {
+  position: fixed;
+  top: 12px;
+  left: 38px;
+  z-index: 2147483646 !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(320px, calc(100vw - 28px));
+  padding: 10px 13px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-left: 3px solid var(--oluntir-accent, #3b97e3);
+  border-radius: 3px;
+  background: rgba(26,28,32,.94);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,.32);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+  isolation: isolate;
+}
+.oluntir-preview-hint.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition-delay: 0s;
+}
+.oluntir-preview-hint > .fa { font-size: 22px; flex: 0 0 auto; }
+.oluntir-preview-hint strong,
+.oluntir-preview-hint small { display: block; }
+.oluntir-preview-hint strong { font-size: 14px; line-height: 1.25; }
+.oluntir-preview-hint small { margin-top: 2px; font-size: 12px; color: rgba(255,255,255,.78); }
+@media (prefers-reduced-motion: reduce) {
+  .oluntir-preview-hint { transition: none; transform: none; }
+}
+
+/* Interne Galerie-Dateieingaben behalten ihre erwartete DOM-Struktur,
+   erscheinen jedoch nicht als Aktionen in der oberen Werkzeugleiste. */
+
+
+/* Oluntir 1.3.1 – kurze Commit-Anzeige nach der Schnellbearbeitung */
+#oluntir-quick-edit-commit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(12, 14, 18, .68);
+  backdrop-filter: blur(2px);
+}
+#oluntir-quick-edit-commit-overlay[hidden] { display: none !important; }
+.oluntir-quick-edit-commit-card {
+  width: min(430px, calc(100vw - 48px));
+  box-sizing: border-box;
+  padding: 24px 26px;
+  border: 1px solid #505661;
+  border-radius: 10px;
+  background: #292c33;
+  color: #f5f5f5;
+  text-align: center;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, .55);
+}
+.oluntir-quick-edit-commit-card strong,
+.oluntir-quick-edit-commit-card small { display: block; }
+.oluntir-quick-edit-commit-card strong { margin-top: 14px; font-size: 18px; }
+.oluntir-quick-edit-commit-card small { margin-top: 7px; color: #d4d8df; font-size: 14px; }
+.oluntir-quick-edit-commit-card p { margin: 14px 0 0; color: #aeb4bf; font-size: 12px; line-height: 1.5; }
+.oluntir-quick-edit-commit-spinner {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, .28);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: oluntir-quick-edit-commit-spin .8s linear infinite;
+}
+@keyframes oluntir-quick-edit-commit-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .oluntir-quick-edit-commit-spinner { animation-duration: 1.8s; }
+}
+
+/* Oluntir 2.2.1: kompakte zweizeilige Projekthauptleiste.
+   Import, Medien, Diagnose und Export liegen in der zweiten Zeile. Dadurch
+   bleibt die Oberfläche ohne horizontale Hauptleisten-Scrollbars bedienbar. */
+html, body {
+  min-width: 0;
+}
+body {
+  display: flex;
+  flex-direction: column;
+}
+#toolbar {
+  flex: 0 0 auto !important;
+  width: 100%;
+  max-width: 100vw;
+  min-width: 0;
+  min-height: 56px;
+  height: auto;
+  flex-wrap: wrap;
+  overflow: hidden !important;
+  scrollbar-width: none;
+}
+#toolbar::-webkit-scrollbar { display: none; }
+#toolbar-secondary {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 100vw;
+  min-width: 0;
+  min-height: 46px;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  overflow: hidden;
+  background: var(--oluntir-bg, #25282e);
+  color: var(--oluntir-text, #eef0f3);
+  border-bottom: 1px solid var(--oluntir-line, #3b4048);
+}
+#toolbar-secondary .toolbar-group {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+#toolbar-secondary .toolbar-source-package,
+#toolbar-secondary .toolbar-media-actions { order: initial; }
+#toolbar-secondary .toolbar-right {
+  order: initial;
+  margin-left: auto;
+  flex: 0 1 auto;
+}
+#toolbar-secondary .toolbar-file-label,
+#toolbar-secondary button { max-width: 100%; }
+#toolbar-secondary .toolbar-export-controls { min-width: 0; }
+.gjs-pn-options {
+  overflow: hidden !important;
+  scrollbar-width: none;
+}
+.gjs-pn-options::-webkit-scrollbar { display: none; }
+#gjs {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  height: auto !important;
+  box-sizing: border-box;
+}
+#gjs .gjs-editor,
+#gjs .gjs-editor-cont,
+#gjs .gjs-cv-canvas {
+  min-height: 0;
+}
+#gjs .gjs-cv-canvas { height: 100%; }
+#gjs .gjs-cv-canvas {
+  height: 100%;
+  box-sizing: border-box;
+  border: 3px solid #6bc786;
+  z-index: 2;
+}
+
+/* Der grüne Rahmen markiert die tatsächlich bearbeitbare Seite, nicht die
+   darüberliegenden Optionsleisten oder das separate GrapesJS-Werkzeugpanel. */
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-tool="true"],
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-library-tool="true"] {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 46px;
+  min-width: 46px;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid transparent;
+}
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-tool="true"]:hover,
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-tool="true"]:focus-visible,
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-library-tool="true"]:hover,
+.gjs-pn-views .gjs-pn-btn[data-oluntir-repeat-library-tool="true"]:focus-visible {
+  color: #ffffff !important;
+  background: rgba(101,163,255,.18) !important;
+  border-bottom-color: var(--oluntir-accent) !important;
+}
+
+/* Der Werkzeug-/Featurebereich selbst erhält keinen Arbeitsbereichsrahmen. */
+#oluntir-tool-window-layout { border: 0; }
+
+/* Oberkante: dauerhaft an der Unterkante der GrapesJS-Optionsleiste. */
+#gjs .gjs-pn-commands,
+#gjs .gjs-pn-options {
+  border-bottom: 3px solid #6bc786 !important;
+  box-sizing: border-box;
+  z-index: 5;
+}
+
+/* Linke, rechte und untere Kante des eigentlichen HTML-Arbeitsbereichs.
+   Die Kante liegt am festen Canvas-Viewport und scrollt nicht mit dem Inhalt. */
+#gjs .gjs-cv-canvas {
+  border: 0 !important;
+}
+#gjs .gjs-cv-canvas::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-left: 3px solid #6bc786;
+  border-right: 3px solid #6bc786;
+  border-bottom: 3px solid #6bc786;
+  box-sizing: border-box;
+  z-index: 2147483000;
+}
+
+/* Oluntir 2.2.1 – zentrale Repeat-Bibliothek */
+.oluntir-repeat-library-manager { width:min(430px, 38vw); }
+.oluntir-repeat-library-section { display:grid; gap:8px; }
+.oluntir-repeat-library-section-head { display:grid; gap:1px; }
+.oluntir-repeat-library-section-head h3 { margin:0; font-size:15px; line-height:1.2; color:#fff; }
+.oluntir-repeat-library-section-head p { margin:0; font-size:10px; color:#aeb4bd; }
+.oluntir-repeat-catalog-toolbar { display:grid; grid-template-columns:auto minmax(0,1fr); gap:5px 7px; align-items:center; }
+.oluntir-repeat-catalog-toolbar-label { color:#cbd0d8; font-size:10px; font-weight:700; }
+.oluntir-repeat-sort-buttons { display:grid; grid-template-columns:1fr auto; gap:4px; min-width:0; }
+.oluntir-repeat-catalog-toolbar .oluntir-repeat-sort-button { margin:0; min-height:26px; padding:4px 7px; font-size:10px; line-height:1.1; }
+.oluntir-repeat-catalog-toolbar .oluntir-repeat-sort-button.is-active { background:#f39c12; border-color:#f39c12; color:#1b1d20; font-weight:700; }
+.oluntir-repeat-catalog-toolbar .oluntir-repeat-expand-button { grid-column:1 / -1; justify-self:stretch; margin:0; padding:4px 7px; font-size:10px; }
+.oluntir-repeat-catalog { display:grid; gap:3px; max-height:176px; overflow-y:auto; overflow-x:hidden; padding-right:3px; scrollbar-gutter:stable; }
+.oluntir-repeat-catalog[data-expanded="true"] { max-height:min(56vh, 600px); }
+.oluntir-repeat-catalog-item { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:5px; min-height:36px; padding:4px 5px; background:#31343a; border-left:3px solid #f39c12; }
+.oluntir-repeat-catalog-main { display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:6px; row-gap:0; min-width:0; }
+.oluntir-repeat-catalog-main strong { color:#fff; font-size:11px; line-height:1.15; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.oluntir-repeat-catalog-pages { grid-column:1 / -1; color:#d9dde4; font-size:9px; line-height:1.15; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.oluntir-repeat-catalog-main small { grid-column:2; grid-row:1; color:#aeb4bd; font-size:8px; white-space:nowrap; }
+.oluntir-repeat-catalog-actions { display:flex; flex-wrap:nowrap; gap:3px; }
+.oluntir-repeat-catalog-actions button { margin:0; padding:3px 5px; font-size:9px; white-space:nowrap; }
+.oluntir-repeat-catalog--insert .oluntir-repeat-catalog-item { grid-template-columns:1fr; padding:0; border-left-color:#6d727b; }
+.oluntir-repeat-catalog-select { display:grid !important; grid-template-columns:minmax(0,1fr) !important; width:100%; margin:0 !important; padding:4px 6px !important; border:0 !important; background:transparent !important; text-align:left; color:inherit !important; }
+.oluntir-repeat-catalog-select:hover,.oluntir-repeat-catalog-select:focus-visible { background:#3a3e45 !important; outline:1px solid #68707b; }
+.oluntir-repeat-catalog--insert .oluntir-repeat-catalog-item[data-selected="true"] { border-left-color:#f39c12; background:#39342c; }
+.oluntir-repeat-catalog--insert .oluntir-repeat-catalog-item[data-selected="true"] .oluntir-repeat-catalog-select { box-shadow:inset 0 0 0 1px rgba(243,156,18,.35); }
+.oluntir-repeat-manager-editor { border-left:3px solid #f39c12; padding-left:9px !important; }
+.oluntir-repeat-manager-editor[hidden] { display:none !important; }
+.oluntir-repeat-manager-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:start; }
+.oluntir-repeat-manager-heading-text { min-width:0; }
+.oluntir-repeat-manager-heading-text h3 { margin:0 0 2px; font-size:13px; }
+.oluntir-repeat-manager-heading-text p { margin:0; }
+.oluntir-repeat-manager-icon-actions { display:flex; gap:3px; align-items:center; }
+.oluntir-repeat-panel .oluntir-repeat-icon-button { display:inline-flex; align-items:center; justify-content:center; width:29px; height:29px; margin:0; padding:0; }
+.oluntir-repeat-manager-primary-actions { display:grid; grid-template-columns:1fr auto; gap:5px; margin-top:8px; }
+.oluntir-repeat-manager-primary-actions button { margin:0; min-height:31px; }
+.oluntir-repeat-manager-editor .btn-primary { background:#f39c12; border-color:#f39c12; color:#1b1d20; font-weight:700; }
+.oluntir-repeat-library-insert-section #oluntir-repeat-library-source-info { margin:1px 0 4px; padding:6px 7px; font-size:10px; }
+body.oluntir-tool-window .oluntir-repeat-library-manager { width:auto; }
+@media (max-width:1100px) { .oluntir-repeat-library-manager { width:min(390px, 46vw); } }
+@media (max-width:760px) { .oluntir-repeat-library-manager { width:92vw; } .oluntir-repeat-manager-primary-actions { grid-template-columns:1fr; } }
